@@ -1,11 +1,1025 @@
+<!DOCTYPE html>
 <html lang="tr">
-   <head>
-       <meta charset="UTF-8">
-       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-       <title>Fleet Management System</title>
-   </head>
-   <body>
-       <h1>Hoş Geldiniz!</h1>
-       <p>Bu, Fleet Management System projemdir.</p>
-   </body>
-   </html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motohemen — Filo Yönetim Sistemi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a24;
+    --surface2: #22222f;
+    --border: #2e2e3e;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --migros: #ff6000;
+    --pt: #6c63ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+
+  /* ========== LOGIN ========== */
+  #loginScreen {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 1000;
+    background-image: radial-gradient(ellipse at 20% 50%, rgba(108,99,255,0.15) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, rgba(255,101,132,0.1) 0%, transparent 50%);
+  }
+  .login-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    padding: 48px 40px; width: 380px; text-align: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+  .login-logo { font-size: 32px; margin-bottom: 8px; }
+  .login-title { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 32px; }
+  .login-hint {
+    background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 10px; padding: 12px; margin-bottom: 24px; font-size: 12px; color: var(--text2);
+  }
+  .login-hint strong { color: var(--accent); }
+  .form-group { margin-bottom: 16px; text-align: left; }
+  .form-group label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; font-weight: 500; }
+  .form-group input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 14px;
+    outline: none; transition: border 0.2s;
+  }
+  .form-group input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; background: var(--accent); border: none; border-radius: 10px;
+    padding: 13px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; margin-top: 8px;
+  }
+  .login-btn:hover { background: #7c74ff; transform: translateY(-1px); }
+  .login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
+
+  /* ========== APP LAYOUT ========== */
+  #app { display: none; height: 100vh; overflow: hidden; }
+  .layout { display: flex; height: 100vh; }
+
+  /* ========== SIDEBAR ========== */
+  .sidebar {
+    width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .sidebar-logo {
+    padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-logo .logo-icon { font-size: 22px; }
+  .sidebar-logo .logo-text { font-size: 16px; font-weight: 700; color: var(--text); }
+  .sidebar-logo .logo-version { font-size: 10px; color: var(--accent); background: rgba(108,99,255,0.15); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+  .sidebar-user {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .user-avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .user-info .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .user-info .user-role { font-size: 11px; color: var(--text2); }
+  .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+  .nav-section { padding: 8px 20px 4px; font-size: 10px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+    cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent;
+    font-size: 13px; color: var(--text2); font-weight: 500;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active { background: rgba(108,99,255,0.1); color: var(--accent); border-left-color: var(--accent); }
+  .nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .logout-btn {
+    width: 100%; padding: 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px; color: var(--red); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  }
+  .logout-btn:hover { background: rgba(239,68,68,0.2); }
+
+  /* ========== MAIN CONTENT ========== */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar {
+    height: 60px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 24px; gap: 16px; flex-shrink: 0;
+  }
+  .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); flex: 1; }
+  .topbar-date { font-size: 12px; color: var(--text2); }
+  .notif-btn {
+    position: relative; background: none; border: none; cursor: pointer;
+    font-size: 18px; color: var(--text2); padding: 4px;
+  }
+  .notif-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: var(--red); border-radius: 50%; border: 2px solid var(--surface); }
+  .content { flex: 1; overflow-y: auto; padding: 24px; }
+
+  /* ========== PAGES ========== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ========== STAT CARDS ========== */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  }
+  .stat-card .stat-label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .stat-card .stat-value { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 6px; }
+  .stat-card .stat-change { font-size: 12px; }
+  .stat-card .stat-change.up { color: var(--green); }
+  .stat-card .stat-change.warn { color: var(--yellow); }
+  .stat-card .stat-change.down { color: var(--red); }
+  .stat-card .stat-icon { font-size: 28px; float: right; margin-top: -40px; opacity: 0.5; }
+
+  /* ========== GRID LAYOUTS ========== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; justify-content: between; gap: 8px; }
+  .card-link { margin-left: auto; font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
+
+  /* ========== OPERATION CARDS ========== */
+  .op-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .op-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  }
+  .op-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .op-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .op-dot.migros { background: var(--migros); }
+  .op-dot.pt { background: var(--pt); }
+  .op-name { font-size: 15px; font-weight: 700; color: var(--text); }
+  .op-count { font-size: 32px; font-weight: 800; color: var(--text); line-height: 1; }
+  .op-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* ========== ALERTS ========== */
+  .alert-item {
+    display: flex; align-items: flex-start; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .alert-item:last-child { border-bottom: none; }
+  .alert-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .alert-icon.critical { background: rgba(239,68,68,0.15); }
+  .alert-icon.warning { background: rgba(245,158,11,0.15); }
+  .alert-icon.info { background: rgba(34,197,94,0.15); }
+  .alert-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .alert-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .alert-time { margin-left: auto; font-size: 11px; color: var(--text2); flex-shrink: 0; }
+
+  /* ========== MOTOR LIST ========== */
+  .motor-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s;
+  }
+  .motor-item:last-child { border-bottom: none; }
+  .motor-item:hover { background: rgba(255,255,255,0.02); }
+  .motor-icon { font-size: 20px; width: 36px; height: 36px; background: var(--surface2); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .motor-info { flex: 1; }
+  .motor-plate { font-size: 13px; font-weight: 700; color: var(--text); }
+  .motor-driver { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .motor-progress { margin-top: 6px; }
+  .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .progress-fill.ok { background: var(--green); }
+  .progress-fill.warn { background: var(--yellow); }
+  .progress-fill.danger { background: var(--red); }
+  .progress-text { font-size: 10px; color: var(--text2); margin-top: 3px; }
+  .motor-badges { display: flex; gap: 4px; flex-direction: column; align-items: flex-end; }
+  .badge { padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 600; }
+  .badge.active { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge.warn { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .badge.danger { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge.idle { background: rgba(144,144,168,0.15); color: var(--text2); }
+  .badge.rental { background: rgba(108,99,255,0.15); color: var(--accent); }
+
+  /* ========== HEALTH PAGE ========== */
+  .health-header { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .health-selector { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .health-selector select { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 13px; outline: none; cursor: pointer; }
+  .health-score-box { display: flex; align-items: center; gap: 16px; }
+  .score-circle { width: 64px; height: 64px; border-radius: 50%; background: conic-gradient(var(--green) 0%, var(--surface2) 0%); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--text); position: relative; }
+  .score-label { font-size: 13px; color: var(--text2); }
+  .score-val { font-size: 24px; font-weight: 800; color: var(--text); }
+  .question-list { display: flex; flex-direction: column; gap: 10px; }
+  .question-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .question-text { font-size: 13px; color: var(--text); font-weight: 500; }
+  .question-btns { display: flex; gap: 8px; }
+  .q-btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s;
+  }
+  .q-btn.yes { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .q-btn.yes.active { background: var(--green); color: #000; }
+  .q-btn.no { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .q-btn.no.active { background: var(--red); color: #fff; }
+
+  /* ========== KM PAGE ========== */
+  .km-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+  .km-current { text-align: center; padding: 20px 0; }
+  .km-current .km-value { font-size: 48px; font-weight: 800; color: var(--text); }
+  .km-current .km-unit { font-size: 16px; color: var(--text2); }
+  .km-current .km-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .km-input-group { display: flex; gap: 10px; margin-top: 16px; }
+  .km-input-group input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 16px; font-weight: 600; outline: none; }
+  .km-input-group input:focus { border-color: var(--accent); }
+  .km-submit { padding: 12px 24px; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .km-submit:hover { background: #7c74ff; }
+  .km-history-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .km-history-item:last-child { border-bottom: none; }
+  .km-hist-val { font-size: 14px; font-weight: 700; color: var(--text); }
+  .km-hist-time { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .km-hist-diff { font-size: 12px; color: var(--green); font-weight: 600; }
+  .maintenance-info { background: var(--surface2); border-radius: 10px; padding: 16px; margin-top: 16px; }
+  .maint-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .maint-label { font-size: 12px; color: var(--text2); }
+  .maint-value { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* ========== ADMIN PAGE ========== */
+  .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .admin-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+  .admin-stat .as-val { font-size: 28px; font-weight: 800; color: var(--text); }
+  .admin-stat .as-label { font-size: 11px; color: var(--text2); margin-top: 4px; }
+  .op-section { margin-bottom: 20px; }
+  .op-section-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .motor-table { width: 100%; border-collapse: collapse; }
+  .motor-table th { font-size: 11px; color: var(--text2); font-weight: 600; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; }
+  .motor-table td { font-size: 13px; color: var(--text); padding: 12px; border-bottom: 1px solid var(--border); }
+  .motor-table tr:last-child td { border-bottom: none; }
+  .motor-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .users-list { display: flex; flex-direction: column; gap: 8px; }
+  .user-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface2); border-radius: 10px; }
+  .user-item-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .ua-main { background: var(--accent); }
+  .ua-migros { background: var(--migros); }
+  .ua-pt { background: var(--pt); }
+  .user-item-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .user-item-role { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .user-item-badge { margin-left: auto; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .monthly-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .monthly-stat { background: var(--surface2); border-radius: 10px; padding: 16px; text-align: center; }
+  .monthly-stat .ms-val { font-size: 22px; font-weight: 800; color: var(--text); }
+  .monthly-stat .ms-label { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+  /* ========== PROFILE PAGE ========== */
+  .profile-header { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; text-align: center; }
+  .profile-avatar { width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; margin: 0 auto 12px; }
+  .profile-name { font-size: 20px; font-weight: 800; color: var(--text); }
+  .profile-role { font-size: 13px; color: var(--accent); margin-top: 4px; font-weight: 600; }
+  .profile-stats { display: flex; gap: 32px; justify-content: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .profile-stat-val { font-size: 22px; font-weight: 800; color: var(--text); text-align: center; }
+  .profile-stat-label { font-size: 11px; color: var(--text2); text-align: center; margin-top: 2px; }
+  .settings-list { display: flex; flex-direction: column; gap: 8px; }
+  .settings-item {
+    display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .settings-item:hover { border-color: var(--accent); background: rgba(108,99,255,0.05); }
+  .settings-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--surface2); flex-shrink: 0; }
+  .settings-text { font-size: 13px; font-weight: 600; color: var(--text); }
+  .settings-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .settings-arrow { margin-left: auto; color: var(--text2); font-size: 14px; }
+  .settings-item.logout-item { border-color: rgba(239,68,68,0.2); }
+  .settings-item.logout-item:hover { border-color: var(--red); background: rgba(239,68,68,0.05); }
+  .settings-item.logout-item .settings-text { color: var(--red); }
+
+  /* ========== SCROLLBAR ========== */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ========== MOBILE NAV ========== */
+  .mobile-nav { display: none; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .grid-2, .grid-3, .op-cards { grid-template-columns: 1fr; }
+    .admin-stats, .monthly-grid { grid-template-columns: 1fr 1fr; }
+    .mobile-nav {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 8px 0 12px;
+    }
+    .mobile-nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 10px; color: var(--text2); cursor: pointer; padding: 4px 0; transition: color 0.15s;
+    }
+    .mobile-nav-item.active { color: var(--accent); }
+    .mobile-nav-item span:first-child { font-size: 20px; }
+    .main { padding-bottom: 64px; }
+    .content { padding: 16px; }
+  }
+
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .see-all { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🏍️</div>
+    <div class="login-title">motohemen</div>
+    <div class="login-sub">Filo Yönetim Sistemine Giriş</div>
+    <div class="login-hint">👤 Admin: <strong>tugsanemen</strong> / <strong>123456</strong></div>
+    <div class="form-group">
+      <label>Kullanıcı Adı</label>
+      <input type="text" id="loginUser" placeholder="Kullanıcı adınız">
+    </div>
+    <div class="form-group">
+      <label>Şifre</label>
+      <input type="password" id="loginPass" placeholder="••••••">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
+    <div class="login-error" id="loginError">❌ Kullanıcı adı veya şifre hatalı</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">🏍️</span>
+        <span class="logo-text">motohemen</span>
+        <span class="logo-version">v2.0</span>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar">T</div>
+        <div class="user-info">
+          <div class="user-name">tugsanemen</div>
+          <div class="user-role">👑 Ana Yönetici</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Ana</div>
+        <div class="nav-item active" onclick="showPage('dashboard', this)">
+          <span class="nav-icon">🏠</span> Ana Sayfa
+        </div>
+        <div class="nav-item" onclick="showPage('notifications', this)">
+          <span class="nav-icon">🔔</span> Bildirimler
+          <span class="nav-badge">3</span>
+        </div>
+        <div class="nav-section">Kurye</div>
+        <div class="nav-item" onclick="showPage('health', this)">
+          <span class="nav-icon">❤️</span> Sağlık Anketi
+        </div>
+        <div class="nav-item" onclick="showPage('km', this)">
+          <span class="nav-icon">📍</span> KM Girişi
+        </div>
+        <div class="nav-section">Yönetici</div>
+        <div class="nav-item" onclick="showPage('admin', this)">
+          <span class="nav-icon">⚙️</span> Yönetici Paneli
+        </div>
+        <div class="nav-item" onclick="showPage('profile', this)">
+          <span class="nav-icon">👤</span> Profil & Ayarlar
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="topbarTitle">Ana Sayfa</div>
+        <div class="topbar-date" id="topbarDate"></div>
+        <button class="notif-btn" onclick="showPage('notifications', document.querySelector('.nav-item:nth-child(3)'))">
+          🔔<span class="notif-dot"></span>
+        </button>
+      </div>
+      <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Toplam Motor</div>
+              <div class="stat-icon">🏍️</div>
+              <div class="stat-value">220</div>
+              <div class="stat-change up">↑ 3 bu hafta</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Aktif Motor</div>
+              <div class="stat-icon">✅</div>
+              <div class="stat-value">198</div>
+              <div class="stat-change up">↑ 5% artış</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Toplam Kurye</div>
+              <div class="stat-icon">👷</div>
+              <div class="stat-value">215</div>
+              <div class="stat-change up">+12 yeni</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Bakım Bekleyen</div>
+              <div class="stat-icon">🔧</div>
+              <div class="stat-value">8</div>
+              <div class="stat-change warn">⚠️ ↑ 2 artış</div>
+            </div>
+          </div>
+
+          <div class="op-cards">
+            <div class="op-card">
+              <div class="op-header">
+                <span class="op-dot migros"></span>
+                <span class="op-name">Migros</span>
+              </div>
+              <div class="op-count">130</div>
+              <div class="op-sub">motor aktif · 125 kurye</div>
+            </div>
+            <div class="op-card">
+              <div class="op-header">
+                <span class="op-dot pt"></span>
+                <span class="op-name">Pakettaxi</span>
+              </div>
+              <div class="op-count">90</div>
+              <div class="op-sub">motor aktif · 90 kurye</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="section-header">
+                <div class="section-title">🔔 Bildirimler</div>
+                <div class="see-all" onclick="showPage('notifications', null)">Tümü →</div>
+              </div>
+              <div class="alert-item">
+                <div class="alert-icon critical">🚨</div>
+                <div style="flex:1">
+                  <div class="alert-title">Kritik Arıza</div>
+                  <div class="alert-desc">34 ABC 123 — Motor devreye girmiyor</div>
+                </div>
+                <div class="alert-time">5dk</div>
+              </div>
+              <div class="alert-item">
+                <div class="alert-icon warning">⚠️</div>
+                <div style="flex:1">
+                  <div class="alert-title">Bakım Zamanı</div>
+                  <div class="alert-desc">06 XYZ 789 — 1950 km / 2000 km limitine yakın</div>
+                </div>
+                <div class="alert-time">1sa</div>
+              </div>
+              <div class="alert-item">
+                <div class="alert-icon info">✅</div>
+                <div style="flex:1">
+                  <div class="alert-title">Anket Tamamlandı</div>
+                  <div class="alert-desc">Ali Yılmaz günlük sağlık anketini doldurdu</div>
+                </div>
+                <div class="alert-time">2sa</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-header">
+                <div class="section-title">🏍️ Son Motorlar</div>
+                <div class="see-all" onclick="showPage('admin', null)">Tümü →</div>
+              </div>
+              <div class="motor-item">
+                <div class="motor-icon">🏍️</div>
+                <div class="motor-info">
+                  <div class="motor-plate">34 ABC 123</div>
+                  <div class="motor-driver">Ali Yılmaz · Migros</div>
+                  <div class="motor-progress">
+                    <div class="progress-bar"><div class="progress-fill warn" style="width:82%"></div></div>
+                    <div class="progress-text">1650 km / 2000 km</div>
+                  </div>
+                </div>
+                <div class="motor-badges">
+                  <span class="badge warn">Bakım Yakın</span>
+                  <span class="badge rental">Kiralık</span>
+                </div>
+              </div>
+              <div class="motor-item">
+                <div class="motor-icon">🏍️</div>
+                <div class="motor-info">
+                  <div class="motor-plate">06 XYZ 789</div>
+                  <div class="motor-driver">Mehmet Kaya · Pakettaxi</div>
+                  <div class="motor-progress">
+                    <div class="progress-bar"><div class="progress-fill ok" style="width:40%"></div></div>
+                    <div class="progress-text">800 km / 2000 km</div>
+                  </div>
+                </div>
+                <div class="motor-badges">
+                  <span class="badge active">Aktif</span>
+                </div>
+              </div>
+              <div class="motor-item">
+                <div class="motor-icon">🏍️</div>
+                <div class="motor-info">
+                  <div class="motor-plate">16 DEF 456</div>
+                  <div class="motor-driver">Ayşe Demir · Migros</div>
+                  <div class="motor-progress">
+                    <div class="progress-bar"><div class="progress-fill danger" style="width:99%"></div></div>
+                    <div class="progress-text">1980 km / 2000 km</div>
+                  </div>
+                </div>
+                <div class="motor-badges">
+                  <span class="badge danger">Bakım!</span>
+                  <span class="badge rental">Kiralık</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="page" id="page-notifications">
+          <div class="card" style="margin-bottom:16px">
+            <div class="section-title" style="margin-bottom:16px">🚨 Kritik</div>
+            <div class="alert-item">
+              <div class="alert-icon critical">🚨</div>
+              <div style="flex:1">
+                <div class="alert-title">Kritik Arıza</div>
+                <div class="alert-desc">34 ABC 123 — Motor devreye girmiyor, kurye Ali Yılmaz sahadaki işini bıraktı</div>
+              </div>
+              <div class="alert-time">5dk</div>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="section-title" style="margin-bottom:16px">⚠️ Uyarılar</div>
+            <div class="alert-item">
+              <div class="alert-icon warning">⚠️</div>
+              <div style="flex:1">
+                <div class="alert-title">Bakım Zamanı</div>
+                <div class="alert-desc">06 XYZ 789 — 1950 km / 2000 km limitine yakın</div>
+              </div>
+              <div class="alert-time">1sa</div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon warning">⚠️</div>
+              <div style="flex:1">
+                <div class="alert-title">Bakım Gerekli</div>
+                <div class="alert-desc">16 DEF 456 — 1980 km / 2000 km. Acil bakım gerekiyor!</div>
+              </div>
+              <div class="alert-time">2sa</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-title" style="margin-bottom:16px">✅ Bilgi</div>
+            <div class="alert-item">
+              <div class="alert-icon info">✅</div>
+              <div style="flex:1">
+                <div class="alert-title">Anket Tamamlandı</div>
+                <div class="alert-desc">Ali Yılmaz günlük sağlık anketini doldurdu</div>
+              </div>
+              <div class="alert-time">2sa</div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon info">✅</div>
+              <div style="flex:1">
+                <div class="alert-title">KM Girişi</div>
+                <div class="alert-desc">Mehmet Kaya — 06 XYZ 789 için 120 km girdi</div>
+              </div>
+              <div class="alert-time">3sa</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HEALTH -->
+        <div class="page" id="page-health">
+          <div class="health-header">
+            <div class="health-selector">
+              <span style="font-size:13px;color:var(--text2);font-weight:500;">Motor Plakası:</span>
+              <select id="healthMotor">
+                <option>34 ABC 123</option>
+                <option>06 XYZ 789</option>
+                <option>16 DEF 456</option>
+                <option>34 GHI 321</option>
+              </select>
+            </div>
+            <div class="health-score-box">
+              <div>
+                <div class="score-val"><span id="healthScore">0</span>/7</div>
+                <div class="score-label">Sağlık Skoru</div>
+              </div>
+              <div style="flex:1;background:var(--surface2);border-radius:6px;height:8px;overflow:hidden">
+                <div id="healthBar" style="height:100%;background:var(--green);width:0%;transition:width 0.3s;border-radius:6px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="question-list">
+            <div class="question-item">
+              <div class="question-text">1. Motor lastikleri yeterli basınçta mı?</div>
+              <div class="question-btns">
+                <button class="q-btn yes" onclick="answerQ(this,'yes',0)">Evet</button>
+                <button class="q-btn no" onclick="answerQ(this,'no',0)">Hayır</button>
+              </div>
+            </div>
+            <div class="question-item">
+              <div class="question-text">2. Frenler düzgün çalışıyor mu?</div>
+              <div class="question-btns">
+                <button class="q-btn yes" onclick="answerQ(this,'yes',1)">Evet</button>
+                <button class="q-btn no" onclick="answerQ(this,'no',1)">Hayır</button>
+              </div>
+            </div>
+            <div class="question-item">
+              <div class="question-text">3. Farlar ve sinyal ışıkları çalışıyor mu?</div>
+              <div class="question-btns">
+                <button class="q-btn yes" onclick="answerQ(this,'yes',2)">Evet</button>
+                <button class="q-btn no" onclick="answerQ(this,'no',2)">Hayır</button>
+              </div>
+            </div>
+            <div class="question-item">
+              <div class="question-text">4. Motor yağı seviyesi yeterli mi?</div>
+              <div class="question-btns">
+                <button class="q-btn yes" onclick="answerQ(this,'yes',3)">Evet</button>
+                <button class="q-btn no" onclick="answerQ(this,'no',3)">Hayır</button>
+              </div>
+            </div>
+            <div class="question-item">
+              <div class="question-text">5. Şanzıman ve debriyaj düzgün çalışıyor mu?</div>
+              <div class="question-btns">
+                <button class="q-btn yes" onclick="answerQ(this,'yes',4)">Evet</button>
+                <button class="q-btn no" onclick="answerQ(this,'no',4)">Hayır</button>
+              </div>
+            </div>
+            <div class="question-item">
+              <div class="question-text">6. Gövdede hasar veya çizik var mı?</div>
+              <div class="question-btns">
+                <button class="q-btn yes" onclick="answerQ(this,'yes',5)">Evet</button>
+                <button class="q-btn no" onclick="answerQ(this,'no',5)">Hayır</button>
+              </div>
+            </div>
+            <div class="question-item">
+              <div class="question-text">7. Anormal ses veya titreşim var mı?</div>
+              <div class="question-btns">
+                <button class="q-btn yes" onclick="answerQ(this,'yes',6)">Evet</button>
+                <button class="q-btn no" onclick="answerQ(this,'no',6)">Hayır</button>
+              </div>
+            </div>
+            <button onclick="submitHealth()" style="margin-top:8px;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;width:100%;">Anketi Gönder ✅</button>
+          </div>
+        </div>
+
+        <!-- KM -->
+        <div class="page" id="page-km">
+          <div class="km-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+              <span style="font-size:13px;color:var(--text2);font-weight:500;">Motor:</span>
+              <select id="kmMotor" onchange="updateKmDisplay()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;">
+                <option value="12450">34 ABC 123</option>
+                <option value="9800">06 XYZ 789</option>
+                <option value="15200">16 DEF 456</option>
+                <option value="7300">34 GHI 321</option>
+              </select>
+            </div>
+            <div class="km-current">
+              <div class="km-value" id="kmCurrentVal">12,450</div>
+              <div class="km-unit">km</div>
+              <div class="km-label">Şu anki sayaç değeri</div>
+            </div>
+            <div class="km-input-group">
+              <input type="number" id="kmNewVal" placeholder="Yeni KM değeri girin">
+              <button class="km-submit" onclick="submitKm()">Kaydet</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px">
+            <div class="section-title" style="margin-bottom:16px">🔧 Bakım Durumu</div>
+            <div class="maintenance-info">
+              <div class="maint-row">
+                <span class="maint-label">Sonraki Bakım</span>
+                <span class="maint-value">14,000 km</span>
+              </div>
+              <div class="maint-row">
+                <span class="maint-label">Son Bakım</span>
+                <span class="maint-value">12,000 km</span>
+              </div>
+              <div class="maint-row" style="margin-bottom:0">
+                <span class="maint-label">Kalan KM</span>
+                <span class="maint-value" style="color:var(--yellow)">1,550 km</span>
+              </div>
+            </div>
+            <div style="margin-top:12px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span style="font-size:12px;color:var(--text2)">🛢️ Yağ Bakımı</span>
+                <span class="badge active">Yapıldı</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="font-size:12px;color:var(--text2)">⚙️ Genel Bakım</span>
+                <span class="badge warn">Yakın</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="margin-bottom:16px">📊 KM Geçmişi</div>
+            <div class="km-history-item">
+              <div><div class="km-hist-val">12,450 km</div><div class="km-hist-time">Bugün, 09:30</div></div>
+              <div class="km-hist-diff">+120 km</div>
+            </div>
+            <div class="km-history-item">
+              <div><div class="km-hist-val">12,330 km</div><div class="km-hist-time">Dün, 18:45</div></div>
+              <div class="km-hist-diff">+95 km</div>
+            </div>
+            <div class="km-history-item">
+              <div><div class="km-hist-val">12,235 km</div><div class="km-hist-time">Dün, 08:15</div></div>
+              <div class="km-hist-diff">+110 km</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN -->
+        <div class="page" id="page-admin">
+          <div class="admin-stats">
+            <div class="admin-stat">
+              <div class="as-val" style="color:var(--migros)">130</div>
+              <div class="as-label">Migros Motor</div>
+            </div>
+            <div class="admin-stat">
+              <div class="as-val" style="color:var(--pt)">90</div>
+              <div class="as-label">PT Motor</div>
+            </div>
+            <div class="admin-stat">
+              <div class="as-val">220</div>
+              <div class="as-label">Toplam</div>
+            </div>
+            <div class="admin-stat">
+              <div class="as-val" style="color:var(--accent)">145</div>
+              <div class="as-label">Kiralık</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="op-section-title">
+                <span class="op-dot migros" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--migros);"></span>
+                Migros — Motor Listesi
+              </div>
+              <table class="motor-table">
+                <thead>
+                  <tr><th>Plaka</th><th>Kurye</th><th>Durum</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>34 ABC 123</td><td>Ali Yılmaz</td><td><span class="badge warn">Bakım Yakın</span></td></tr>
+                  <tr><td>16 DEF 456</td><td>Ayşe Demir</td><td><span class="badge danger">Bakım!</span></td></tr>
+                  <tr><td>34 GHI 321</td><td>Hasan Çelik</td><td><span class="badge active">Aktif</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="op-section-title">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pt);"></span>
+                Pakettaxi — Motor Listesi
+              </div>
+              <table class="motor-table">
+                <thead>
+                  <tr><th>Plaka</th><th>Kurye</th><th>Durum</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>06 XYZ 789</td><td>Mehmet Kaya</td><td><span class="badge active">Aktif</span></td></tr>
+                  <tr><td>34 JKL 555</td><td>Fatma Arslan</td><td><span class="badge rental">Kiralık</span></td></tr>
+                  <tr><td>06 MNO 111</td><td>Kemal Doğan</td><td><span class="badge idle">Boşta</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="section-title" style="margin-bottom:16px">👥 Kullanıcılar</div>
+              <div class="users-list">
+                <div class="user-item">
+                  <div class="user-item-avatar ua-main">T</div>
+                  <div>
+                    <div class="user-item-name">tugsanemen</div>
+                    <div class="user-item-role">Ana Yönetici · Tüm Yetkiler</div>
+                  </div>
+                  <span class="user-item-badge" style="background:rgba(108,99,255,0.15);color:var(--accent)">ANA</span>
+                </div>
+                <div class="user-item">
+                  <div class="user-item-avatar ua-migros">M</div>
+                  <div>
+                    <div class="user-item-name">migros_yonetici</div>
+                    <div class="user-item-role">Migros Operasyon · Okuma/Yazma</div>
+                  </div>
+                  <span class="user-item-badge" style="background:rgba(255,96,0,0.15);color:var(--migros)">MIG</span>
+                </div>
+                <div class="user-item">
+                  <div class="user-item-avatar ua-pt">P</div>
+                  <div>
+                    <div class="user-item-name">pt_yonetici</div>
+                    <div class="user-item-role">Pakettaxi Operasyon · Okuma/Yazma</div>
+                  </div>
+                  <span class="user-item-badge" style="background:rgba(108,99,255,0.15);color:var(--pt)">PT</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title" style="margin-bottom:16px">📅 Aylık Özet — Mart 2026</div>
+              <div class="monthly-grid">
+                <div class="monthly-stat">
+                  <div class="ms-val">147K</div>
+                  <div class="ms-label">Toplam KM</div>
+                </div>
+                <div class="monthly-stat">
+                  <div class="ms-val">34</div>
+                  <div class="ms-label">Bakım</div>
+                </div>
+                <div class="monthly-stat">
+                  <div class="ms-val" style="color:var(--red)">7</div>
+                  <div class="ms-label">Arıza</div>
+                </div>
+                <div class="monthly-stat">
+                  <div class="ms-val" style="color:var(--green)">97%</div>
+                  <div class="ms-label">Aktiflik</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="page" id="page-profile">
+          <div class="profile-header">
+            <div class="profile-avatar">T</div>
+            <div class="profile-name">tugsanemen</div>
+            <div class="profile-role">👑 Ana Yönetici</div>
+            <div class="profile-stats">
+              <div><div class="profile-stat-val">220</div><div class="profile-stat-label">Motor</div></div>
+              <div><div class="profile-stat-val">215</div><div class="profile-stat-label">Kurye</div></div>
+              <div><div class="profile-stat-val">2</div><div class="profile-stat-label">Operasyon</div></div>
+            </div>
+          </div>
+          <div class="settings-list">
+            <div class="settings-item">
+              <div class="settings-icon">✏️</div>
+              <div>
+                <div class="settings-text">Profil Düzenle</div>
+                <div class="settings-sub">Ad, şifre ve bilgileri güncelle</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-icon">🔔</div>
+              <div>
+                <div class="settings-text">Bildirimler</div>
+                <div class="settings-sub">Uyarı ve bildirim tercihleri</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-icon">🔒</div>
+              <div>
+                <div class="settings-text">Güvenlik</div>
+                <div class="settings-sub">Şifre ve 2FA ayarları</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-icon">🎨</div>
+              <div>
+                <div class="settings-text">Uygulama Ayarları</div>
+                <div class="settings-sub">Tema, dil ve görünüm</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item logout-item" onclick="doLogout()">
+              <div class="settings-icon">🚪</div>
+              <div>
+                <div class="settings-text">Çıkış Yap</div>
+                <div class="settings-sub">Hesabından çıkış yap</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text2)">
+            Motohemen Filo v2.0 · © 2026
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <div class="mobile-nav">
+    <div class="mobile-nav-item active" onclick="showPageMobile('dashboard', this)"><span>🏠</span><span>Ana</span></div>
+    <div class="mobile-nav-item" onclick="showPageMobile('health', this)"><span>❤️</span><span>Sağlık</span></div>
+    <div class="mobile-nav-item" onclick="showPageMobile('km', this)"><span>📍</span><span>KM Gir</span></div>
+    <div class="mobile-nav-item" onclick="showPageMobile('admin', this)"><span>⚙️</span><span>Yönetici</span></div>
+    <div class="mobile-nav-item" onclick="showPageMobile('profile', this)"><span>👤</span><span>Profil</span></div>
+  </div>
+</div>
+
+<script>
+  // Date
+  const d = new Date();
+  document.getElementById('topbarDate').textContent = d.toLocaleDateString('tr-TR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+  // Login
+  const USERS = {
+    'tugsanemen': '123456',
+    'migros_yonetici': '123456',
+    'pt_yonetici': '123456'
+  };
+
+  function doLogin() {
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value.trim();
+    if (USERS[u] && USERS[u] === p) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  }
+
+  document.getElementById('loginPass').addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+  document.getElementById('loginUser').addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+
+  function doLogout() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display = 'none';
+  }
+
+  // Page routing
+  const titles = {
+    dashboard: 'Ana Sayfa',
+    notifications: 'Bildirimler',
+    health: 'Sağlık Anketi',
+    km: 'KM Girişi',
+    admin: 'Yönetici Paneli',
+    profile: 'Profil & Ayarlar'
+  };
+
+  function showPage(id, navEl) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.getElementById('topbarTitle').textContent = titles[id] || id;
+    if (navEl) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      navEl.classList.add('active');
+    }
+    // Mobile
+    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+    const mobileMap = {dashboard:0, health:1, km:2, admin:3, profile:4};
+    if (mobileMap[id] !== undefined) {
+      document.querySelectorAll('.mobile-nav-item')[mobileMap[id]].classList.add('active');
+    }
+  }
+
+  function showPageMobile(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.getElementById('topbarTitle').textContent = titles[id] || id;
+    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Health quiz
+  const healthAnswers = new Array(7).fill(null);
+  function answerQ(btn, ans, idx) {
+    const btns = btn.parentElement.querySelectorAll('.q-btn');
+    btns.forEach(b => { b.classList.remove('active'); });
+    btn.classList.add('active');
+    healthAnswers[idx] = ans;
+    const score = healthAnswers.filter(a => a === 'yes').length;
+    document.getElementById('healthScore').textContent = score;
+    document.getElementById('healthBar').style.width = (score / 7 * 100) + '%';
+  }
+
+  function submitHealth() {
+    const answered = healthAnswers.filter(a => a !== null).length;
+    if (answered < 7) { alert('Lütfen tüm soruları cevaplayın! (' + answered + '/7 cevaplandı)'); return; }
+    alert('✅ Sağlık anketi başarıyla gönderildi!');
+  }
+
+  // KM
+  const kmData = { '34 ABC 123': 12450, '06 XYZ 789': 9800, '16 DEF 456': 15200, '34 GHI 321': 7300 };
+  function updateKmDisplay() {
+    const sel = document.getElementById('kmMotor');
+    const val = parseInt(sel.value);
+    document.getElementById('kmCurrentVal').textContent = val.toLocaleString('tr-TR');
+  }
+
+  function submitKm() {
+    const newVal = parseInt(document.getElementById('kmNewVal').value);
+    const sel = document.getElementById('kmMotor');
+    const curVal = parseInt(sel.value);
+    if (!newVal || isNaN(newVal)) { alert('Lütfen geçerli bir KM değeri girin'); return; }
+    if (newVal <= curVal) { alert('Yeni KM değeri mevcut değerden büyük olmalıdır!'); return; }
+    sel.value = newVal;
+    document.getElementById('kmCurrentVal').textContent = newVal.toLocaleString('tr-TR');
+    document.getElementById('kmNewVal').value = '';
+    alert('✅ KM değeri başarıyla güncellendi: ' + newVal.toLocaleString('tr-TR') + ' km');
+  }
+</script>
+</body>
+</html>
