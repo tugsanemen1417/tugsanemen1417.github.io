@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🛵 MotoTakip Pro - Kurye & Filo Yönetimi</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com "></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css ">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400 ;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -21,7 +21,10 @@
                             darkOrange: '#EA580C',
                             lightYellow: '#FEF3C7',
                             cream: '#FFFBEB',
-                            dark: '#1F2937'
+                            dark: '#1F2937',
+                            green: '#10B981',
+                            red: '#EF4444',
+                            blue: '#3B82F6'
                         }
                     }
                 }
@@ -37,14 +40,18 @@
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(249, 115, 22, 0.3); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 1.5rem; padding: 2rem; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; border: 3px solid #FBBF24; }
+        .modal-content { background: white; border-radius: 1.5rem; padding: 2rem; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; border: 3px solid #FBBF24; }
         .btn-primary { background: linear-gradient(135deg, #FBBF24, #F97316); color: white; font-weight: 800; transition: all 0.3s; }
         .btn-primary:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4); }
-        .service-badge { display: inline-block; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 700; margin: 0.25rem; cursor: pointer; transition: all 0.2s; }
-        .service-badge:hover { transform: scale(1.1); }
-        .service-badge.selected { ring: 3px; ring-offset: 2px; ring-color: #F97316; }
-        .oil-change { background: #FEF3C7; color: #D97706; border: 2px solid #FBBF24; }
-        .general-maint { background: #FED7AA; color: #C2410C; border: 2px solid #F97316; }
+        .feedback-box { border: 3px solid #FEF3C7; border-radius: 1rem; padding: 1rem; background: white; transition: all 0.3s; }
+        .feedback-box:hover { border-color: #F97316; transform: scale(1.02); }
+        .status-btn { padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 700; transition: all 0.2s; border: 2px solid transparent; }
+        .status-btn:hover { transform: scale(1.05); }
+        .status-btn.selected { ring: 3px; ring-offset: 2px; }
+        .status-iyi { background: #D1FAE5; color: #059669; border-color: #10B981; }
+        .status-orta { background: #FEF3C7; color: #D97706; border-color: #FBBF24; }
+        .status-kotu { background: #FEE2E2; color: #DC2626; border-color: #EF4444; }
+        .status-degistirildi { background: #DBEAFE; color: #2563EB; border-color: #3B82F6; }
         .print-area { background: white; padding: 2rem; border-radius: 1rem; }
         @media print { body * { visibility: hidden; } .print-area, .print-area * { visibility: visible; } .print-area { position: absolute; left: 0; top: 0; width: 100%; } .no-print { display: none !important; } }
     </style>
@@ -54,7 +61,6 @@
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="fixed inset-0 z-50 gradient-bg flex items-center justify-center p-4">
         <div class="max-w-4xl w-full grid md:grid-cols-2 gap-8">
-            <!-- Kurye Girişi - Artık herhangi bir plaka ile giriş yapabilir -->
             <div class="bg-white/20 backdrop-blur-md rounded-3xl p-8 text-white border-4 border-white/30 cursor-pointer hover:scale-105 transition-transform" onclick="showKuryeLogin()">
                 <div class="text-center">
                     <div class="text-6xl mb-4 animate-bounce">🛵</div>
@@ -75,7 +81,6 @@
                 </div>
             </div>
 
-            <!-- Yönetici Girişi -->
             <div class="bg-white/20 backdrop-blur-md rounded-3xl p-8 text-white border-4 border-white/30 cursor-pointer hover:scale-105 transition-transform" onclick="showAdminLogin()">
                 <div class="text-center">
                     <div class="text-6xl mb-4 animate-bounce" style="animation-delay: 0.5s">👨‍💼</div>
@@ -126,6 +131,179 @@
                 </div>
             </div>
 
+            <!-- Kurye Geri Bildirimi -->
+            <div class="bg-white rounded-2xl p-6 shadow-xl border-2 border-brand-orange/30">
+                <h2 class="text-xl font-bold text-brand-dark mb-4 flex items-center">
+                    <i class="fas fa-clipboard-check mr-2 text-brand-orange"></i>
+                    Kurye Geri Bildirimi
+                </h2>
+                <p class="text-sm text-gray-600 mb-4">Motor durumunu kontrol edin ve bildirin:</p>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="geri-bildirim-grid">
+                    <!-- Lastikler -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-circle text-2xl mr-2 text-gray-700"></i>
+                                Lastikler
+                            </span>
+                            <i class="fas fa-road text-brand-orange"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('lastik', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="lastik">✓ İyi</button>
+                            <button onclick="selectFeedback('lastik', 'orta')" class="feedback-btn status-btn status-orta" data-type="lastik">~ Orta</button>
+                            <button onclick="selectFeedback('lastik', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="lastik">✗ Kötü</button>
+                            <button onclick="selectFeedback('lastik', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="lastik">🔄 Yeni</button>
+                        </div>
+                    </div>
+
+                    <!-- Ön Ampul -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-lightbulb text-2xl mr-2 text-yellow-400"></i>
+                                Ön Ampul
+                            </span>
+                            <i class="fas fa-sun text-brand-yellow"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('on_ampul', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="on_ampul">✓ Çalışıyor</button>
+                            <button onclick="selectFeedback('on_ampul', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="on_ampul">✗ Arızalı</button>
+                            <button onclick="selectFeedback('on_ampul', 'orta')" class="feedback-btn status-btn status-orta" data-type="on_ampul">~ Sönük</button>
+                            <button onclick="selectFeedback('on_ampul', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="on_ampul">🔄 Yeni</button>
+                        </div>
+                    </div>
+
+                    <!-- Arka Ampul -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-lightbulb text-2xl mr-2 text-red-500"></i>
+                                Arka Ampul
+                            </span>
+                            <i class="fas fa-sun text-brand-orange"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('arka_ampul', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="arka_ampul">✓ Çalışıyor</button>
+                            <button onclick="selectFeedback('arka_ampul', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="arka_ampul">✗ Arızalı</button>
+                            <button onclick="selectFeedback('arka_ampul', 'orta')" class="feedback-btn status-btn status-orta" data-type="arka_ampul">~ Sönük</button>
+                            <button onclick="selectFeedback('arka_ampul', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="arka_ampul">🔄 Yeni</button>
+                        </div>
+                    </div>
+
+                    <!-- Balata -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-compact-disc text-2xl mr-2 text-gray-600"></i>
+                                Balata
+                            </span>
+                            <i class="fas fa-hand-paper text-brand-orange"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('balata', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="balata">✓ İyi</button>
+                            <button onclick="selectFeedback('balata', 'orta')" class="feedback-btn status-btn status-orta" data-type="balata">~ Aşınmış</button>
+                            <button onclick="selectFeedback('balata', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="balata">✗ Bitmiş</button>
+                            <button onclick="selectFeedback('balata', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="balata">🔄 Yeni</button>
+                        </div>
+                    </div>
+
+                    <!-- Zincir -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-link text-2xl mr-2 text-gray-700"></i>
+                                Zincir
+                            </span>
+                            <i class="fas fa-cog text-brand-orange"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('zincir', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="zincir">✓ Gergin</button>
+                            <button onclick="selectFeedback('zincir', 'orta')" class="feedback-btn status-btn status-orta" data-type="zincir">~ Gevşek</button>
+                            <button onclick="selectFeedback('zincir', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="zincir">✗ Paslı</button>
+                            <button onclick="selectFeedback('zincir', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="zincir">🔄 Yeni</button>
+                        </div>
+                    </div>
+
+                    <!-- Akü -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-battery-full text-2xl mr-2 text-green-500"></i>
+                                Akü
+                            </span>
+                            <i class="fas fa-bolt text-brand-yellow"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('aku', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="aku">✓ Dolu</button>
+                            <button onclick="selectFeedback('aku', 'orta')" class="feedback-btn status-btn status-orta" data-type="aku">~ Zayıf</button>
+                            <button onclick="selectFeedback('aku', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="aku">✗ Bitik</button>
+                            <button onclick="selectFeedback('aku', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="aku">🔄 Yeni</button>
+                        </div>
+                    </div>
+
+                    <!-- Yağ Seviyesi -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-oil-can text-2xl mr-2 text-amber-600"></i>
+                                Yağ Seviyesi
+                            </span>
+                            <i class="fas fa-tint text-brand-orange"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('yag', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="yag">✓ Yeterli</button>
+                            <button onclick="selectFeedback('yag', 'orta')" class="feedback-btn status-btn status-orta" data-type="yag">~ Azalmış</button>
+                            <button onclick="selectFeedback('yag', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="yag">✗ Kritik</button>
+                            <button onclick="selectFeedback('yag', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="yag">🔄 Değişti</button>
+                        </div>
+                    </div>
+
+                    <!-- Lastik Hava Basıncı -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-wind text-2xl mr-2 text-blue-400"></i>
+                                Hava Basıncı
+                            </span>
+                            <i class="fas fa-compress-arrows-alt text-brand-blue"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('hava', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="hava">✓ Normal</button>
+                            <button onclick="selectFeedback('hava', 'orta')" class="feedback-btn status-btn status-orta" data-type="hava">~ Düşük</button>
+                            <button onclick="selectFeedback('hava', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="hava">✗ Patlak</button>
+                            <button onclick="selectFeedback('hava', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="hava">🔄 Tamir</button>
+                        </div>
+                    </div>
+
+                    <!-- Genel Görünüm -->
+                    <div class="feedback-box">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-brand-dark flex items-center">
+                                <i class="fas fa-eye text-2xl mr-2 text-purple-500"></i>
+                                Genel Görünüm
+                            </span>
+                            <i class="fas fa-motorcycle text-brand-purple"></i>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="selectFeedback('gorunum', 'iyi')" class="feedback-btn status-btn status-iyi" data-type="gorunum">✓ İyi</button>
+                            <button onclick="selectFeedback('gorunum', 'orta')" class="feedback-btn status-btn status-orta" data-type="gorunum">~ Çizik</button>
+                            <button onclick="selectFeedback('gorunum', 'kotu')" class="feedback-btn status-btn status-kotu" data-type="gorunum">✗ Hasarlı</button>
+                            <button onclick="selectFeedback('gorunum', 'degistirildi')" class="feedback-btn status-btn status-degistirildi" data-type="gorunum">🔄 Boyandı</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">📝 Ekstra Not (İsteğe Bağlı)</label>
+                    <textarea id="geri-bildirim-not" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-brand-yellow focus:border-brand-orange outline-none" placeholder="Varsa ekstra sorunları buraya yazın..."></textarea>
+                </div>
+
+                <button onclick="saveGeriBildirim()" class="w-full mt-4 py-3 btn-primary rounded-xl text-lg shadow-lg">
+                    <i class="fas fa-paper-plane mr-2"></i>Geri Bildirimi Gönder
+                </button>
+            </div>
+
             <!-- Bakım İşlemi -->
             <div class="bg-white rounded-2xl p-6 shadow-xl border-2 border-brand-orange/30">
                 <h2 class="text-xl font-bold text-brand-dark mb-4">🔧 Bakım Kaydı</h2>
@@ -134,21 +312,11 @@
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">📍 Bakım Yapılan Yer</label>
                         <div class="grid grid-cols-2 gap-2" id="bakim-yerleri">
-                            <button type="button" onclick="selectBakimYeri('Demir Motor')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">
-                                🔧 Demir Motor
-                            </button>
-                            <button type="button" onclick="selectBakimYeri('Altay Lastik')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">
-                                🛞 Altay Lastik
-                            </button>
-                            <button type="button" onclick="selectBakimYeri('Mustafa Yuca Manavgat')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">
-                                ⚙️ Mustafa Yuca
-                            </button>
-                            <button type="button" onclick="selectBakimYeri('Ataberk')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">
-                                🔩 Ataberk
-                            </button>
-                            <button type="button" onclick="selectBakimYeri('Moto Bambam')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700 col-span-2">
-                                🏍️ Moto Bambam
-                            </button>
+                            <button type="button" onclick="selectBakimYeri('Demir Motor')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">🔧 Demir Motor</button>
+                            <button type="button" onclick="selectBakimYeri('Altay Lastik')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">🛞 Altay Lastik</button>
+                            <button type="button" onclick="selectBakimYeri('Mustafa Yuca Manavgat')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">⚙️ Mustafa Yuca</button>
+                            <button type="button" onclick="selectBakimYeri('Ataberk')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700">🔩 Ataberk</button>
+                            <button type="button" onclick="selectBakimYeri('Moto Bambam')" class="bakim-yeri-btn p-3 rounded-xl border-2 border-gray-200 hover:border-brand-orange hover:bg-brand-lightYellow transition-all text-sm font-bold text-gray-700 col-span-2">🏍️ Moto Bambam</button>
                         </div>
                         <input type="hidden" id="secili-bakim-yeri">
                     </div>
@@ -156,17 +324,11 @@
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">⚙️ Bakım Tipi</label>
                         <div class="flex space-x-3">
-                            <button type="button" onclick="selectBakimTipi('yag')" id="btn-yag" class="flex-1 p-4 rounded-xl border-2 border-brand-yellow bg-brand-lightYellow text-brand-darkOrange font-bold hover:scale-105 transition-all">
-                                🛢️ Yağ Değişimi
-                            </button>
-                            <button type="button" onclick="selectBakimTipi('genel')" id="btn-genel" class="flex-1 p-4 rounded-xl border-2 border-gray-200 text-gray-600 font-bold hover:border-brand-orange hover:bg-orange-50 transition-all">
-                                🔧 Genel Bakım
-                            </button>
+                            <button type="button" onclick="selectBakimTipi('yag')" id="btn-yag" class="flex-1 p-4 rounded-xl border-2 border-brand-yellow bg-brand-lightYellow text-brand-darkOrange font-bold transform scale-105 shadow-lg transition-all">🛢️ Yağ Değişimi</button>
+                            <button type="button" onclick="selectBakimTipi('genel')" id="btn-genel" class="flex-1 p-4 rounded-xl border-2 border-gray-200 text-gray-600 font-bold hover:border-brand-orange hover:bg-orange-50 transition-all">🔧 Genel Bakım</button>
                         </div>
                         <input type="hidden" id="secili-bakim-tipi" value="yag">
-                        <p id="bakim-uyari" class="text-xs text-brand-orange mt-2 font-bold hidden">
-                            ⚠️ 2 yağ değişiminden sonra genel bakım önerilir!
-                        </p>
+                        <p id="bakim-uyari" class="text-xs text-brand-orange mt-2 font-bold hidden">⚠️ 2 yağ değişiminden sonra genel bakım önerilir!</p>
                     </div>
 
                     <div>
@@ -202,7 +364,10 @@
                 <button onclick="showSection('bakim')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
                     <i class="fas fa-tools mr-3"></i> Bakım Kayıtları
                 </button>
-                <button onclick="showSection('rapor')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all bg-brand-orange/20 text-brand-orange">
+                <button onclick="showSection('geribildirim')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all bg-brand-orange/20 text-brand-orange">
+                    <i class="fas fa-clipboard-check mr-3"></i> Geri Bildirimler
+                </button>
+                <button onclick="showSection('rapor')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all bg-brand-blue/20 text-brand-blue">
                     <i class="fas fa-file-pdf mr-3"></i> Rapor Oluştur
                 </button>
             </nav>
@@ -238,9 +403,9 @@
                         <p class="text-gray-500 text-sm font-bold">Yağ Değişimi</p>
                         <p class="text-3xl font-bold text-yellow-600" id="stat-yag">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-orange-600 card-hover">
-                        <p class="text-gray-500 text-sm font-bold">Genel Bakım</p>
-                        <p class="text-3xl font-bold text-orange-700" id="stat-genel">0</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-brand-green card-hover">
+                        <p class="text-gray-500 text-sm font-bold">Geri Bildirim</p>
+                        <p class="text-3xl font-bold text-brand-green" id="stat-geribildirim">0</p>
                     </div>
                 </div>
             </div>
@@ -283,6 +448,33 @@
                             </tr>
                         </thead>
                         <tbody id="bakim-kayitlari-table" class="divide-y divide-orange-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Geri Bildirimler -->
+            <div id="section-geribildirim" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-brand-dark">📋 Kurye Geri Bildirimleri</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="filterGeriBildirim('tumu')" class="px-4 py-2 bg-brand-yellow text-brand-dark rounded-lg font-bold">Tümü</button>
+                        <button onclick="filterGeriBildirim('sorun')" class="px-4 py-2 bg-red-500 text-white rounded-lg font-bold">Sorunlu</button>
+                        <button onclick="filterGeriBildirim('yeni')" class="px-4 py-2 bg-brand-blue text-white rounded-lg font-bold">Yeni Parça</button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-brand-orange/30">
+                    <table class="w-full">
+                        <thead class="bg-gradient-to-r from-brand-orange to-brand-darkOrange text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold">Tarih</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold">Plaka</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold">Kurye</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold">Durum Özeti</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold">Not</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="geri-bildirim-table" class="divide-y divide-orange-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -335,6 +527,11 @@
                         </div>
 
                         <div>
+                            <h4 class="text-xl font-bold text-brand-dark mb-4 border-l-4 border-brand-green pl-3">📋 Son Geri Bildirimler</h4>
+                            <div id="rapor-geri-bildirimler" class="space-y-2"></div>
+                        </div>
+
+                        <div>
                             <h4 class="text-xl font-bold text-brand-dark mb-4 border-l-4 border-yellow-500 pl-3">🔧 Son Bakım Kayıtları</h4>
                             <div id="rapor-son-bakimlar" class="space-y-2"></div>
                         </div>
@@ -349,7 +546,20 @@
         </main>
     </div>
 
-    <!-- MODALLER -->
+    <!-- Geri Bildirim Detay Modal -->
+    <div id="modal-geri-bildirim-detay" class="modal">
+        <div class="modal-content max-w-3xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-brand-dark">📋 Geri Bildirim Detayı</h3>
+                <button onclick="closeModal('geri-bildirim-detay')" class="text-gray-500 hover:text-brand-orange text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="geri-bildirim-detay-icerik" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Diğer Modallar -->
     <div id="modal-kurye" class="modal">
         <div class="modal-content">
             <h3 class="text-xl font-bold mb-4 text-brand-dark" id="kurye-modal-title">Yeni Kurye Ekle</h3>
@@ -366,7 +576,6 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Plaka *</label>
                     <input type="text" id="kurye-modal-plaka" class="w-full px-4 py-3 rounded-xl border-2 border-brand-yellow focus:border-brand-orange outline-none uppercase" placeholder="34 ABC 123">
-                    <p class="text-xs text-gray-500 mt-1">* Bu plaka ile sistemde kayıtlı motor aranacaktır</p>
                 </div>
             </div>
             <div class="flex space-x-3 mt-6">
@@ -417,19 +626,34 @@
         let kuryeler = [];
         let motorlar = [];
         let bakimKayitlari = [];
+        let geriBildirimler = [];
         let currentUser = null;
         let currentRole = null;
+        let currentGeriBildirim = {};
 
         const BAKIM_YERLERI = ['Demir Motor', 'Altay Lastik', 'Mustafa Yuca Manavgat', 'Ataberk', 'Moto Bambam'];
 
+        const GERI_BILDIRIM_KATEGORILERI = {
+            'lastik': 'Lastikler',
+            'on_ampul': 'Ön Ampul',
+            'arka_ampul': 'Arka Ampul',
+            'balata': 'Balata',
+            'zincir': 'Zincir',
+            'aku': 'Akü',
+            'yag': 'Yağ Seviyesi',
+            'hava': 'Hava Basıncı',
+            'gorunum': 'Genel Görünüm'
+        };
+
         function loadData() {
-            const saved = ['mototakip_kuryeler', 'mototakip_motorlar', 'mototakip_bakimlar'];
-            saved.forEach((key, idx) => {
+            const keys = ['mototakip_kuryeler', 'mototakip_motorlar', 'mototakip_bakimlar', 'mototakip_geribildirimler'];
+            keys.forEach((key, idx) => {
                 const data = localStorage.getItem(key);
                 if (data) {
                     if (idx === 0) kuryeler = JSON.parse(data);
                     if (idx === 1) motorlar = JSON.parse(data);
                     if (idx === 2) bakimKayitlari = JSON.parse(data);
+                    if (idx === 3) geriBildirimler = JSON.parse(data);
                 }
             });
             updateStats();
@@ -439,6 +663,7 @@
             localStorage.setItem('mototakip_kuryeler', JSON.stringify(kuryeler));
             localStorage.setItem('mototakip_motorlar', JSON.stringify(motorlar));
             localStorage.setItem('mototakip_bakimlar', JSON.stringify(bakimKayitlari));
+            localStorage.setItem('mototakip_geribildirimler', JSON.stringify(geriBildirimler));
             updateStats();
         }
 
@@ -466,7 +691,6 @@
                 return;
             }
 
-            // Motor kayıtlı mı kontrol et, yoksa otomatik oluştur
             let motor = motorlar.find(m => m.plaka === plaka);
             if (!motor) {
                 motor = {
@@ -481,7 +705,6 @@
                 saveData();
             }
 
-            // Kurye kayıtlı mı kontrol et
             let kurye = kuryeler.find(k => k.isim === isim && k.plaka === plaka);
             if (!kurye) {
                 kurye = {
@@ -503,6 +726,7 @@
             document.getElementById('kurye-panel').classList.remove('hidden');
             document.getElementById('kurye-plaka-display').textContent = plaka;
             
+            currentGeriBildirim = {};
             updateKuryeDisplay();
         }
 
@@ -519,6 +743,7 @@
                 renderKuryeList();
                 renderMotorList();
                 renderBakimKayitlari();
+                renderGeriBildirimler();
                 generateReport();
             } else {
                 alert('Hatalı giriş!');
@@ -533,7 +758,6 @@
             const kurye = kuryeler.find(k => k.id === currentUser.id);
             const motor = motorlar.find(m => m.plaka === kurye.plaka);
             
-            // Bu motorun yağ değişimi sayısını bul
             const yagSayisi = bakimKayitlari.filter(b => b.plaka === motor.plaka && b.tip === 'yag').length;
             const sonBakim = bakimKayitlari.filter(b => b.plaka === motor.plaka).sort((a,b) => new Date(b.tarih) - new Date(a.tarih))[0];
 
@@ -575,6 +799,216 @@
             `;
         }
 
+        function selectFeedback(kategori, durum) {
+            currentGeriBildirim[kategori] = durum;
+            
+            document.querySelectorAll(`.feedback-btn[data-type="${kategori}"]`).forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-offset-2', 'scale-110', 'shadow-lg');
+                btn.style.opacity = '0.6';
+            });
+            
+            const selectedBtn = event.target;
+            selectedBtn.classList.add('ring-4', 'ring-offset-2', 'scale-110', 'shadow-lg');
+            selectedBtn.style.opacity = '1';
+        }
+
+        function saveGeriBildirim() {
+            if (Object.keys(currentGeriBildirim).length === 0) {
+                alert('En az bir kontrol noktası seçmelisiniz!');
+                return;
+            }
+
+            const kurye = kuryeler.find(k => k.id === currentUser.id);
+            const motor = motorlar.find(m => m.plaka === kurye.plaka);
+            const not = document.getElementById('geri-bildirim-not').value.trim();
+
+            let sorunSayisi = 0;
+            let yeniParcaSayisi = 0;
+            let durumOzeti = [];
+
+            Object.entries(currentGeriBildirim).forEach(([kategori, durum]) => {
+                const kategoriAdi = GERI_BILDIRIM_KATEGORILERI[kategori];
+                if (durum === 'kotu') {
+                    sorunSayisi++;
+                    durumOzeti.push(`${kategoriAdi}: Sorunlu`);
+                } else if (durum === 'degistirildi') {
+                    yeniParcaSayisi++;
+                    durumOzeti.push(`${kategoriAdi}: Yeni parça`);
+                } else if (durum === 'orta') {
+                    durumOzeti.push(`${kategoriAdi}: Dikkat`);
+                }
+            });
+
+            const geriBildirim = {
+                id: Date.now(),
+                plaka: motor.plaka,
+                model: motor.model,
+                kuryeId: kurye.id,
+                kuryeIsim: kurye.isim,
+                kuryeTelefon: kurye.telefon,
+                tarih: new Date().toISOString(),
+                durumlar: {...currentGeriBildirim},
+                durumOzeti: durumOzeti,
+                sorunSayisi: sorunSayisi,
+                yeniParcaSayisi: yeniParcaSayisi,
+                not: not,
+                okundu: false
+            };
+
+            geriBildirimler.push(geriBildirim);
+            saveData();
+
+            currentGeriBildirim = {};
+            document.getElementById('geri-bildirim-not').value = '';
+            document.querySelectorAll('.feedback-btn').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-offset-2', 'scale-110', 'shadow-lg');
+                btn.style.opacity = '1';
+            });
+
+            let mesaj = `✅ Geri bildirim gönderildi!\n\n📋 Özet:\n`;
+            if (sorunSayisi > 0) mesaj += `⚠️ ${sorunSayisi} sorunlu parça\n`;
+            if (yeniParcaSayisi > 0) mesaj += `🔄 ${yeniParcaSayisi} yeni parça\n`;
+            if (durumOzeti.length === 0) mesaj += `✓ Her şey yolunda\n`;
+            
+            alert(mesaj);
+        }
+
+        function renderGeriBildirimler(filter = 'tumu') {
+            const tbody = document.getElementById('geri-bildirim-table');
+            
+            let filtreli = geriBildirimler;
+            if (filter === 'sorun') {
+                filtreli = geriBildirimler.filter(g => g.sorunSayisi > 0);
+            } else if (filter === 'yeni') {
+                filtreli = geriBildirimler.filter(g => g.yeniParcaSayisi > 0);
+            }
+            
+            const sirali = [...filtreli].sort((a, b) => new Date(b.tarih) - new Date(a.tarih));
+
+            if (sirali.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Henüz geri bildirim yok.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = sirali.map(g => {
+                let durumClass = 'bg-green-100 text-green-700';
+                let durumText = '✓ Normal';
+                
+                if (g.sorunSayisi > 0) {
+                    durumClass = 'bg-red-100 text-red-700';
+                    durumText = `⚠️ ${g.sorunSayisi} Sorun`;
+                } else if (g.yeniParcaSayisi > 0) {
+                    durumClass = 'bg-blue-100 text-blue-700';
+                    durumText = `🔄 ${g.yeniParcaSayisi} Yeni`;
+                }
+
+                return `
+                <tr class="hover:bg-brand-lightYellow/30 transition-all ${g.okundu ? '' : 'bg-yellow-50'}">
+                    <td class="px-4 py-3 text-sm font-bold text-gray-700">
+                        ${new Date(g.tarih).toLocaleDateString('tr-TR')}
+                        ${!g.okundu ? '<span class="ml-2 px-2 py-0.5 bg-brand-yellow text-brand-dark text-xs rounded-full">YENİ</span>' : ''}
+                    </td>
+                    <td class="px-4 py-3 font-bold text-brand-orange">${g.plaka}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <div class="font-bold text-gray-700">${g.kuryeIsim}</div>
+                        ${g.kuryeTelefon ? `<div class="text-xs text-brand-blue">📞 ${g.kuryeTelefon}</div>` : ''}
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${durumClass}">
+                            ${durumText}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">
+                        ${g.not || '-'}
+                    </td>
+                    <td class="px-4 py-3">
+                        <button onclick="showGeriBildirimDetay(${g.id})" class="px-3 py-1 bg-brand-orange text-white rounded-lg text-sm font-bold hover:bg-brand-darkOrange transition-all">
+                            <i class="fas fa-eye mr-1"></i> Detay
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function filterGeriBildirim(filter) {
+            renderGeriBildirimler(filter);
+        }
+
+        function showGeriBildirimDetay(id) {
+            const g = geriBildirimler.find(x => x.id === id);
+            if (!g) return;
+
+            if (!g.okundu) {
+                g.okundu = true;
+                saveData();
+                renderGeriBildirimler();
+            }
+
+            let durumHtml = '<div class="grid grid-cols-2 gap-3">';
+            Object.entries(g.durumlar).forEach(([kategori, durum]) => {
+                const kategoriAdi = GERI_BILDIRIM_KATEGORILERI[kategori];
+                const durumlar = {
+                    'iyi': { text: '✓ İyi', class: 'bg-green-100 text-green-700 border-green-300' },
+                    'orta': { text: '~ Orta', class: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
+                    'kotu': { text: '✗ Kötü', class: 'bg-red-100 text-red-700 border-red-300' },
+                    'degistirildi': { text: '🔄 Yeni', class: 'bg-blue-100 text-blue-700 border-blue-300' }
+                };
+                const d = durumlar[durum];
+                
+                durumHtml += `
+                    <div class="p-3 rounded-xl border-2 ${d.class}">
+                        <div class="font-bold text-sm">${kategoriAdi}</div>
+                        <div class="text-lg font-black">${d.text}</div>
+                    </div>
+                `;
+            });
+            durumHtml += '</div>';
+
+            document.getElementById('geri-bildirim-detay-icerik').innerHTML = `
+                <div class="bg-gradient-to-r from-brand-yellow to-brand-orange text-white p-4 rounded-xl mb-4">
+                    <h4 class="font-bold text-xl">${g.plaka} - ${g.model}</h4>
+                    <p class="text-sm opacity-90">${g.kuryeIsim} | ${new Date(g.tarih).toLocaleString('tr-TR')}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5 class="font-bold text-brand-dark mb-3 flex items-center">
+                        <i class="fas fa-clipboard-list mr-2 text-brand-orange"></i>
+                        Kontrol Sonuçları
+                    </h5>
+                    ${durumHtml}
+                </div>
+
+                ${g.not ? `
+                <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                    <h5 class="font-bold text-gray-700 mb-2 flex items-center">
+                        <i class="fas fa-comment-alt mr-2 text-brand-blue"></i>
+                        Kurye Notu
+                    </h5>
+                    <p class="text-gray-600 italic">"${g.not}"</p>
+                </div>
+                ` : ''}
+
+                <div class="mt-4 flex space-x-3">
+                    <button onclick="closeModal('geri-bildirim-detay')" class="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition-all">
+                        Kapat
+                    </button>
+                    <button onclick="iletisimKurye('${g.kuryeIsim}', '${g.kuryeTelefon}')" class="flex-1 py-3 bg-brand-green text-white font-bold rounded-xl hover:bg-green-600 transition-all" ${!g.kuryeTelefon ? 'disabled' : ''}>
+                        <i class="fas fa-phone mr-2"></i>Kuryeyi Ara
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('modal-geri-bildirim-detay').classList.add('active');
+        }
+
+        function iletisimKurye(isim, telefon) {
+            if (!telefon) {
+                alert('Kuryenin telefon numarası kayıtlı değil!');
+                return;
+            }
+            alert(`📞 ${isim} aranıyor...\nTel: ${telefon}`);
+        }
+
         function selectBakimYeri(yer) {
             document.querySelectorAll('.bakim-yeri-btn').forEach(btn => {
                 btn.classList.remove('ring-4', 'ring-brand-orange', 'bg-brand-lightYellow');
@@ -585,7 +1019,6 @@
 
         function selectBakimTipi(tip) {
             document.getElementById('secili-bakim-tipi').value = tip;
-            
             const btnYag = document.getElementById('btn-yag');
             const btnGenel = document.getElementById('btn-genel');
             
@@ -593,15 +1026,10 @@
                 btnYag.className = 'flex-1 p-4 rounded-xl border-2 border-brand-yellow bg-brand-lightYellow text-brand-darkOrange font-bold transform scale-105 shadow-lg transition-all';
                 btnGenel.className = 'flex-1 p-4 rounded-xl border-2 border-gray-200 text-gray-600 font-bold hover:border-brand-orange hover:bg-orange-50 transition-all';
                 
-                // Yağ değişimi sayısını kontrol et
                 const motor = motorlar.find(m => m.plaka === currentUser.plaka);
                 const yagSayisi = bakimKayitlari.filter(b => b.plaka === motor.plaka && b.tip === 'yag').length;
                 
-                if (yagSayisi >= 2 && yagSayisi % 2 === 0) {
-                    document.getElementById('bakim-uyari').classList.remove('hidden');
-                } else {
-                    document.getElementById('bakim-uyari').classList.add('hidden');
-                }
+                document.getElementById('bakim-uyari').classList.toggle('hidden', !(yagSayisi >= 2 && yagSayisi % 2 === 0));
             } else {
                 btnGenel.className = 'flex-1 p-4 rounded-xl border-2 border-brand-orange bg-orange-100 text-brand-darkOrange font-bold transform scale-105 shadow-lg transition-all';
                 btnYag.className = 'flex-1 p-4 rounded-xl border-2 border-gray-200 text-gray-600 font-bold hover:border-brand-yellow hover:bg-brand-lightYellow transition-all';
@@ -614,23 +1042,19 @@
             const tip = document.getElementById('secili-bakim-tipi').value;
             const km = parseInt(document.getElementById('bakim-km-input').value);
 
-            if (!yer) {
-                alert('Lütfen bakım yapılan yeri seçin!');
-                return;
-            }
-            if (!km || km <= 0) {
-                alert('Geçerli bir KM girin!');
+            if (!yer || !km) {
+                alert('Tüm alanları doldurun!');
                 return;
             }
 
             const kurye = kuryeler.find(k => k.id === currentUser.id);
             const motor = motorlar.find(m => m.plaka === kurye.plaka);
 
-            // Motor KM'sini güncelle
             motor.km = km;
+            motor.sonBakimKm = km;
+            motor.sonBakimTarihi = new Date().toISOString();
 
-            // Bakım kaydı oluştur
-            const kayit = {
+            bakimKayitlari.push({
                 id: Date.now(),
                 plaka: motor.plaka,
                 model: motor.model,
@@ -641,21 +1065,15 @@
                 kuryeId: kurye.id,
                 telefon: kurye.telefon,
                 tarih: new Date().toISOString()
-            };
-
-            bakimKayitlari.push(kayit);
-            saveData();
-
-            // Formu temizle
-            document.getElementById('bakim-km-input').value = '';
-            document.querySelectorAll('.bakim-yeri-btn').forEach(btn => {
-                btn.classList.remove('ring-4', 'ring-brand-orange', 'bg-brand-lightYellow');
             });
-            document.getElementById('secili-bakim-yeri').value = '';
 
-            const tipText = tip === 'yag' ? '🛢️ Yağ Değişimi' : '🔧 Genel Bakım';
-            alert(`✅ ${tipText} kaydedildi!\n\n📍 ${yer}\n📊 ${km.toLocaleString()} km\n📅 ${new Date().toLocaleDateString('tr-TR')}`);
+            saveData();
+            document.getElementById('bakim-km-input').value = '';
+            document.querySelectorAll('.bakim-yeri-btn').forEach(btn => btn.classList.remove('ring-4', 'ring-brand-orange', 'bg-brand-lightYellow'));
+            document.getElementById('secili-bakim-yeri').value = '';
             
+            const tipText = tip === 'yag' ? '🛢️ Yağ Değişimi' : '🔧 Genel Bakım';
+            alert(`✅ ${tipText} kaydedildi!\n\n📍 ${yer}\n📊 ${km.toLocaleString()} km`);
             updateKuryeDisplay();
         }
 
@@ -678,8 +1096,7 @@
             if (bakimlar.length === 0) {
                 html += '<p class="text-center text-gray-500 py-8">Henüz bakım kaydı yok.</p>';
             } else {
-                const yagSayisi = bakimlar.filter(b => b.tip === 'yag').length;
-                const genelSayisi = bakimlar.filter(b => b.tip === 'genel').length;
+                const yagSayisi = bakimlar.filter(b => b.tip === 'yag').length;                const genelSayisi = bakimlar.filter(b => b.tip === 'genel').length;
                 
                 html += `
                     <div class="grid grid-cols-2 gap-3 mb-4">
@@ -697,15 +1114,11 @@
 
                 bakimlar.forEach((b, idx) => {
                     const isYag = b.tip === 'yag';
-                    const sayi = isYag ? 
-                        bakimlar.filter((x, i) => i >= idx && x.tip === 'yag').length : 
-                        bakimlar.filter((x, i) => i >= idx && x.tip === 'genel').length;
-                    
                     html += `
                         <div class="p-4 rounded-xl border-2 ${isYag ? 'bg-yellow-50 border-brand-yellow' : 'bg-orange-50 border-brand-orange'}">
                             <div class="flex justify-between items-start mb-2">
                                 <span class="px-3 py-1 rounded-full text-xs font-bold ${isYag ? 'bg-brand-yellow text-brand-dark' : 'bg-brand-orange text-white'}">
-                                    ${isYag ? '🛢️ Yağ Değişimi' : '🔧 Genel Bakım'} #${sayi}
+                                    ${isYag ? '🛢️ Yağ Değişimi' : '🔧 Genel Bakım'}
                                 </span>
                                 <span class="text-xs text-gray-500">${new Date(b.tarih).toLocaleDateString('tr-TR')}</span>
                             </div>
@@ -735,7 +1148,6 @@
             document.getElementById('modal-motor-gecmisi').classList.add('active');
         }
 
-        // YÖNETİCİ FONKSİYONLARI
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
         }
@@ -749,6 +1161,7 @@
                 'kuryeler': '👥 Kurye Yönetimi',
                 'motors': '🏍️ Motor Yönetimi',
                 'bakim': '🔧 Bakım Kayıtları',
+                'geribildirim': '📋 Geri Bildirimler',
                 'rapor': '📄 Rapor Oluştur'
             };
             document.getElementById('page-title').textContent = titles[section];
@@ -756,6 +1169,7 @@
             if (section === 'kuryeler') renderKuryeList();
             if (section === 'motors') renderMotorList();
             if (section === 'bakim') renderBakimKayitlari();
+            if (section === 'geribildirim') renderGeriBildirimler();
             if (section === 'rapor') generateReport();
         }
 
@@ -763,7 +1177,7 @@
             document.getElementById('stat-kurye').textContent = kuryeler.length;
             document.getElementById('stat-motor').textContent = motorlar.length;
             document.getElementById('stat-yag').textContent = bakimKayitlari.filter(b => b.tip === 'yag').length;
-            document.getElementById('stat-genel').textContent = bakimKayitlari.filter(b => b.tip === 'genel').length;
+            document.getElementById('stat-geribildirim').textContent = geriBildirimler.filter(g => !g.okundu).length;
         }
 
         function renderKuryeList() {
@@ -833,7 +1247,7 @@
                         </div>
                         ${sonBakim ? `
                         <div class="text-xs text-gray-400 mt-2 pt-2 border-t">
-                            Son: ${new Date(sonBakim.tarih).toLocaleDateString('tr-TR')} - ${sonBakim.km.toLocaleString()} km
+                            Son: ${new Date(sonBakim.tarih).toLocaleDateString('tr-TR')}
                         </div>
                         ` : ''}
                     </div>
@@ -880,14 +1294,12 @@
             `).join('');
         }
 
-        // RAPOR OLUŞTURMA
         function generateReport() {
             document.getElementById('rapor-tarihi').textContent = new Date().toLocaleString('tr-TR');
             document.getElementById('rapor-kurye-sayisi').textContent = kuryeler.length;
             document.getElementById('rapor-motor-sayisi').textContent = motorlar.length;
             document.getElementById('rapor-bakim-sayisi').textContent = bakimKayitlari.length;
 
-            // Motor bazlı özet
             let motorHtml = '';
             motorlar.forEach(m => {
                 const bakimlar = bakimKayitlari.filter(b => b.plaka === m.plaka);
@@ -904,30 +1316,48 @@
                         <div class="text-right">
                             <span class="text-xs bg-brand-yellow px-2 py-1 rounded mr-1">Yağ: ${yag}</span>
                             <span class="text-xs bg-brand-orange text-white px-2 py-1 rounded">Genel: ${genel}</span>
-                            ${son ? `<div class="text-xs text-gray-500 mt-1">Son: ${new Date(son.tarih).toLocaleDateString('tr-TR')}</div>` : ''}
                         </div>
                     </div>
                 `;
             });
             document.getElementById('rapor-motor-listesi').innerHTML = motorHtml || '<p class="text-gray-500">Motor yok</p>';
 
-            // Kurye performansı
             let kuryeHtml = '';
             kuryeler.forEach(k => {
                 const bakimSayisi = bakimKayitlari.filter(b => b.kuryeId === k.id).length;
+                const geriBildirimSayisi = geriBildirimler.filter(g => g.kuryeId === k.id).length;
                 kuryeHtml += `
                     <div class="flex justify-between items-center p-3 bg-brand-lightYellow/30 rounded-lg">
                         <div>
                             <span class="font-bold text-brand-dark">${k.isim}</span>
                             ${k.telefon ? `<span class="text-sm text-gray-500 ml-2">📞 ${k.telefon}</span>` : ''}
                         </div>
-                        <span class="px-3 py-1 bg-brand-orange text-white rounded-full text-sm font-bold">${bakimSayisi} bakım</span>
+                        <div>
+                            <span class="px-3 py-1 bg-brand-orange text-white rounded-full text-sm font-bold mr-2">${bakimSayisi} bakım</span>
+                            <span class="px-3 py-1 bg-brand-green text-white rounded-full text-sm font-bold">${geriBildirimSayisi} bildirim</span>
+                        </div>
                     </div>
                 `;
             });
             document.getElementById('rapor-kurye-listesi').innerHTML = kuryeHtml || '<p class="text-gray-500">Kurye yok</p>';
 
-            // Son 5 bakım
+            const sonGeriBildirimler = [...geriBildirimler].sort((a,b) => new Date(b.tarih) - new Date(a.tarih)).slice(0, 5);
+            document.getElementById('rapor-geri-bildirimler').innerHTML = sonGeriBildirimler.map(g => {
+                let durumText = '✓ Normal';
+                if (g.sorunSayisi > 0) durumText = `⚠️ ${g.sorunSayisi} sorun`;
+                else if (g.yeniParcaSayisi > 0) durumText = `🔄 ${g.yeniParcaSayisi} yeni`;
+                
+                return `
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                        <span class="font-bold ${g.sorunSayisi > 0 ? 'text-red-500' : (g.yeniParcaSayisi > 0 ? 'text-brand-blue' : 'text-green-500')}">
+                            ${g.plaka} - ${durumText}
+                        </span>
+                        <span class="text-gray-600">${g.kuryeIsim}</span>
+                        <span class="text-gray-500">${new Date(g.tarih).toLocaleDateString('tr-TR')}</span>
+                    </div>
+                `;
+            }).join('') || '<p class="text-gray-500">Geri bildirim yok</p>';
+
             const sonBakimlar = [...bakimKayitlari].sort((a,b) => new Date(b.tarih) - new Date(a.tarih)).slice(0, 5);
             document.getElementById('rapor-son-bakimlar').innerHTML = sonBakimlar.map(b => `
                 <div class="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
@@ -944,7 +1374,6 @@
             window.print();
         }
 
-        // MODAL ve CRUD fonksiyonları
         function openModal(type) {
             if (type === 'kurye-ekle') {
                 document.getElementById('kurye-modal-title').textContent = 'Yeni Kurye Ekle';
@@ -978,7 +1407,6 @@
                 return;
             }
 
-            // Motor yoksa otomatik oluştur
             let motor = motorlar.find(m => m.plaka === plaka);
             if (!motor) {
                 motor = {
@@ -1080,11 +1508,12 @@
         }
 
         function deleteMotor(id) {
-            if (!confirm('Bu motoru silmek istediğinize emin misiniz? Bağlı tüm bakım kayıtları da silinecek!')) return;
+            if (!confirm('Bu motoru silmek istediğinize emin misiniz? Bağlı tüm kayıtlar da silinecek!')) return;
             
             const m = motorlar.find(x => x.id === id);
             if (m) {
                 bakimKayitlari = bakimKayitlari.filter(b => b.plaka !== m.plaka);
+                geriBildirimler = geriBildirimler.filter(g => g.plaka !== m.plaka);
                 kuryeler.forEach(k => { if (k.plaka === m.plaka) k.plaka = ''; });
                 saveData();
             }
@@ -1092,6 +1521,8 @@
             saveData();
             renderMotorList();
             renderKuryeList();
+            renderBakimKayitlari();
+            renderGeriBildirimler();
             generateReport();
         }
 
