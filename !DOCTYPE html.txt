@@ -1,1025 +1,960 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="scroll-smooth">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Motohemen — Filo Yönetim Sistemi</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tuğsan Emen - Yazılım Geliştirici ve Teknoloji Tutkunu">
+    <meta name="keywords" content="Tuğsan Emen, yazılım, web geliştirme, GitHub, portfolio">
+    <title>Tuğsan Emen | Developer & Creator</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js for 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
-  :root {
-    --bg: #0f0f13;
-    --surface: #1a1a24;
-    --surface2: #22222f;
-    --border: #2e2e3e;
-    --accent: #6c63ff;
-    --accent2: #ff6584;
-    --green: #22c55e;
-    --yellow: #f59e0b;
-    --red: #ef4444;
-    --text: #e8e8f0;
-    --text2: #9090a8;
-    --migros: #ff6000;
-    --pt: #6c63ff;
-  }
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#06b6d4',
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4f46e5;
+        }
 
-  /* ========== LOGIN ========== */
-  #loginScreen {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; align-items: center; justify-content: center; z-index: 1000;
-    background-image: radial-gradient(ellipse at 20% 50%, rgba(108,99,255,0.15) 0%, transparent 60%),
-                      radial-gradient(ellipse at 80% 20%, rgba(255,101,132,0.1) 0%, transparent 50%);
-  }
-  .login-box {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-    padding: 48px 40px; width: 380px; text-align: center;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-  }
-  .login-logo { font-size: 32px; margin-bottom: 8px; }
-  .login-title { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 32px; }
-  .login-hint {
-    background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3);
-    border-radius: 10px; padding: 12px; margin-bottom: 24px; font-size: 12px; color: var(--text2);
-  }
-  .login-hint strong { color: var(--accent); }
-  .form-group { margin-bottom: 16px; text-align: left; }
-  .form-group label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; font-weight: 500; }
-  .form-group input {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 14px;
-    outline: none; transition: border 0.2s;
-  }
-  .form-group input:focus { border-color: var(--accent); }
-  .login-btn {
-    width: 100%; background: var(--accent); border: none; border-radius: 10px;
-    padding: 13px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: all 0.2s; margin-top: 8px;
-  }
-  .login-btn:hover { background: #7c74ff; transform: translateY(-1px); }
-  .login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-  /* ========== APP LAYOUT ========== */
-  #app { display: none; height: 100vh; overflow: hidden; }
-  .layout { display: flex; height: 100vh; }
+        /* Terminal Cursor */
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
 
-  /* ========== SIDEBAR ========== */
-  .sidebar {
-    width: 240px; background: var(--surface); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; flex-shrink: 0;
-  }
-  .sidebar-logo {
-    padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .sidebar-logo .logo-icon { font-size: 22px; }
-  .sidebar-logo .logo-text { font-size: 16px; font-weight: 700; color: var(--text); }
-  .sidebar-logo .logo-version { font-size: 10px; color: var(--accent); background: rgba(108,99,255,0.15); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-  .sidebar-user {
-    padding: 16px 20px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .user-avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
-  .user-info .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
-  .user-info .user-role { font-size: 11px; color: var(--text2); }
-  .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
-  .nav-section { padding: 8px 20px 4px; font-size: 10px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px; padding: 10px 20px;
-    cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent;
-    font-size: 13px; color: var(--text2); font-weight: 500;
-  }
-  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-  .nav-item.active { background: rgba(108,99,255,0.1); color: var(--accent); border-left-color: var(--accent); }
-  .nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; }
-  .nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; }
-  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
-  .logout-btn {
-    width: 100%; padding: 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-    border-radius: 8px; color: var(--red); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-  }
-  .logout-btn:hover { background: rgba(239,68,68,0.2); }
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-  /* ========== MAIN CONTENT ========== */
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .topbar {
-    height: 60px; background: var(--surface); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 24px; gap: 16px; flex-shrink: 0;
-  }
-  .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); flex: 1; }
-  .topbar-date { font-size: 12px; color: var(--text2); }
-  .notif-btn {
-    position: relative; background: none; border: none; cursor: pointer;
-    font-size: 18px; color: var(--text2); padding: 4px;
-  }
-  .notif-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: var(--red); border-radius: 50%; border: 2px solid var(--surface); }
-  .content { flex: 1; overflow-y: auto; padding: 24px; }
+        /* 3D Canvas Container */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
 
-  /* ========== PAGES ========== */
-  .page { display: none; }
-  .page.active { display: block; }
+        /* Project Card Hover */
+        .project-card {
+            transition: all 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        }
 
-  /* ========== STAT CARDS ========== */
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
-  }
-  .stat-card .stat-label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .stat-card .stat-value { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 6px; }
-  .stat-card .stat-change { font-size: 12px; }
-  .stat-card .stat-change.up { color: var(--green); }
-  .stat-card .stat-change.warn { color: var(--yellow); }
-  .stat-card .stat-change.down { color: var(--red); }
-  .stat-card .stat-icon { font-size: 28px; float: right; margin-top: -40px; opacity: 0.5; }
+        /* Skill Bar Animation */
+        .skill-fill {
+            width: 0;
+            transition: width 1.5s ease-out;
+        }
 
-  /* ========== GRID LAYOUTS ========== */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
-  }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; justify-content: between; gap: 8px; }
-  .card-link { margin-left: auto; font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
-
-  /* ========== OPERATION CARDS ========== */
-  .op-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .op-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
-  }
-  .op-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-  .op-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .op-dot.migros { background: var(--migros); }
-  .op-dot.pt { background: var(--pt); }
-  .op-name { font-size: 15px; font-weight: 700; color: var(--text); }
-  .op-count { font-size: 32px; font-weight: 800; color: var(--text); line-height: 1; }
-  .op-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-
-  /* ========== ALERTS ========== */
-  .alert-item {
-    display: flex; align-items: flex-start; gap: 12px; padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .alert-item:last-child { border-bottom: none; }
-  .alert-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-  .alert-icon.critical { background: rgba(239,68,68,0.15); }
-  .alert-icon.warning { background: rgba(245,158,11,0.15); }
-  .alert-icon.info { background: rgba(34,197,94,0.15); }
-  .alert-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .alert-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .alert-time { margin-left: auto; font-size: 11px; color: var(--text2); flex-shrink: 0; }
-
-  /* ========== MOTOR LIST ========== */
-  .motor-item {
-    display: flex; align-items: center; gap: 12px; padding: 12px 0;
-    border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s;
-  }
-  .motor-item:last-child { border-bottom: none; }
-  .motor-item:hover { background: rgba(255,255,255,0.02); }
-  .motor-icon { font-size: 20px; width: 36px; height: 36px; background: var(--surface2); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .motor-info { flex: 1; }
-  .motor-plate { font-size: 13px; font-weight: 700; color: var(--text); }
-  .motor-driver { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .motor-progress { margin-top: 6px; }
-  .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
-  .progress-fill.ok { background: var(--green); }
-  .progress-fill.warn { background: var(--yellow); }
-  .progress-fill.danger { background: var(--red); }
-  .progress-text { font-size: 10px; color: var(--text2); margin-top: 3px; }
-  .motor-badges { display: flex; gap: 4px; flex-direction: column; align-items: flex-end; }
-  .badge { padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 600; }
-  .badge.active { background: rgba(34,197,94,0.15); color: var(--green); }
-  .badge.warn { background: rgba(245,158,11,0.15); color: var(--yellow); }
-  .badge.danger { background: rgba(239,68,68,0.15); color: var(--red); }
-  .badge.idle { background: rgba(144,144,168,0.15); color: var(--text2); }
-  .badge.rental { background: rgba(108,99,255,0.15); color: var(--accent); }
-
-  /* ========== HEALTH PAGE ========== */
-  .health-header { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
-  .health-selector { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .health-selector select { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 13px; outline: none; cursor: pointer; }
-  .health-score-box { display: flex; align-items: center; gap: 16px; }
-  .score-circle { width: 64px; height: 64px; border-radius: 50%; background: conic-gradient(var(--green) 0%, var(--surface2) 0%); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--text); position: relative; }
-  .score-label { font-size: 13px; color: var(--text2); }
-  .score-val { font-size: 24px; font-weight: 800; color: var(--text); }
-  .question-list { display: flex; flex-direction: column; gap: 10px; }
-  .question-item {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .question-text { font-size: 13px; color: var(--text); font-weight: 500; }
-  .question-btns { display: flex; gap: 8px; }
-  .q-btn {
-    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s;
-  }
-  .q-btn.yes { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
-  .q-btn.yes.active { background: var(--green); color: #000; }
-  .q-btn.no { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
-  .q-btn.no.active { background: var(--red); color: #fff; }
-
-  /* ========== KM PAGE ========== */
-  .km-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
-  .km-current { text-align: center; padding: 20px 0; }
-  .km-current .km-value { font-size: 48px; font-weight: 800; color: var(--text); }
-  .km-current .km-unit { font-size: 16px; color: var(--text2); }
-  .km-current .km-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
-  .km-input-group { display: flex; gap: 10px; margin-top: 16px; }
-  .km-input-group input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: 16px; font-weight: 600; outline: none; }
-  .km-input-group input:focus { border-color: var(--accent); }
-  .km-submit { padding: 12px 24px; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .km-submit:hover { background: #7c74ff; }
-  .km-history-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
-  .km-history-item:last-child { border-bottom: none; }
-  .km-hist-val { font-size: 14px; font-weight: 700; color: var(--text); }
-  .km-hist-time { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .km-hist-diff { font-size: 12px; color: var(--green); font-weight: 600; }
-  .maintenance-info { background: var(--surface2); border-radius: 10px; padding: 16px; margin-top: 16px; }
-  .maint-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .maint-label { font-size: 12px; color: var(--text2); }
-  .maint-value { font-size: 13px; font-weight: 600; color: var(--text); }
-
-  /* ========== ADMIN PAGE ========== */
-  .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .admin-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
-  .admin-stat .as-val { font-size: 28px; font-weight: 800; color: var(--text); }
-  .admin-stat .as-label { font-size: 11px; color: var(--text2); margin-top: 4px; }
-  .op-section { margin-bottom: 20px; }
-  .op-section-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .motor-table { width: 100%; border-collapse: collapse; }
-  .motor-table th { font-size: 11px; color: var(--text2); font-weight: 600; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px; }
-  .motor-table td { font-size: 13px; color: var(--text); padding: 12px; border-bottom: 1px solid var(--border); }
-  .motor-table tr:last-child td { border-bottom: none; }
-  .motor-table tr:hover td { background: rgba(255,255,255,0.02); }
-  .users-list { display: flex; flex-direction: column; gap: 8px; }
-  .user-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface2); border-radius: 10px; }
-  .user-item-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
-  .ua-main { background: var(--accent); }
-  .ua-migros { background: var(--migros); }
-  .ua-pt { background: var(--pt); }
-  .user-item-name { font-size: 13px; font-weight: 700; color: var(--text); }
-  .user-item-role { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .user-item-badge { margin-left: auto; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-  .monthly-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .monthly-stat { background: var(--surface2); border-radius: 10px; padding: 16px; text-align: center; }
-  .monthly-stat .ms-val { font-size: 22px; font-weight: 800; color: var(--text); }
-  .monthly-stat .ms-label { font-size: 11px; color: var(--text2); margin-top: 4px; }
-
-  /* ========== PROFILE PAGE ========== */
-  .profile-header { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; text-align: center; }
-  .profile-avatar { width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; margin: 0 auto 12px; }
-  .profile-name { font-size: 20px; font-weight: 800; color: var(--text); }
-  .profile-role { font-size: 13px; color: var(--accent); margin-top: 4px; font-weight: 600; }
-  .profile-stats { display: flex; gap: 32px; justify-content: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-  .profile-stat-val { font-size: 22px; font-weight: 800; color: var(--text); text-align: center; }
-  .profile-stat-label { font-size: 11px; color: var(--text2); text-align: center; margin-top: 2px; }
-  .settings-list { display: flex; flex-direction: column; gap: 8px; }
-  .settings-item {
-    display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.15s;
-  }
-  .settings-item:hover { border-color: var(--accent); background: rgba(108,99,255,0.05); }
-  .settings-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--surface2); flex-shrink: 0; }
-  .settings-text { font-size: 13px; font-weight: 600; color: var(--text); }
-  .settings-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .settings-arrow { margin-left: auto; color: var(--text2); font-size: 14px; }
-  .settings-item.logout-item { border-color: rgba(239,68,68,0.2); }
-  .settings-item.logout-item:hover { border-color: var(--red); background: rgba(239,68,68,0.05); }
-  .settings-item.logout-item .settings-text { color: var(--red); }
-
-  /* ========== SCROLLBAR ========== */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* ========== MOBILE NAV ========== */
-  .mobile-nav { display: none; }
-
-  @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .grid-2, .grid-3, .op-cards { grid-template-columns: 1fr; }
-    .admin-stats, .monthly-grid { grid-template-columns: 1fr 1fr; }
-    .mobile-nav {
-      display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      background: var(--surface); border-top: 1px solid var(--border);
-      padding: 8px 0 12px;
-    }
-    .mobile-nav-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-      font-size: 10px; color: var(--text2); cursor: pointer; padding: 4px 0; transition: color 0.15s;
-    }
-    .mobile-nav-item.active { color: var(--accent); }
-    .mobile-nav-item span:first-child { font-size: 20px; }
-    .main { padding-bottom: 64px; }
-    .content { padding: 16px; }
-  }
-
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .section-title { font-size: 15px; font-weight: 700; color: var(--text); }
-  .see-all { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
-</style>
+        /* Typing Effect */
+        .typing-text::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300 overflow-x-hidden">
 
-<!-- LOGIN -->
-<div id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">🏍️</div>
-    <div class="login-title">motohemen</div>
-    <div class="login-sub">Filo Yönetim Sistemine Giriş</div>
-    <div class="login-hint">👤 Admin: <strong>tugsanemen</strong> / <strong>123456</strong></div>
-    <div class="form-group">
-      <label>Kullanıcı Adı</label>
-      <input type="text" id="loginUser" placeholder="Kullanıcı adınız">
-    </div>
-    <div class="form-group">
-      <label>Şifre</label>
-      <input type="password" id="loginPass" placeholder="••••••">
-    </div>
-    <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
-    <div class="login-error" id="loginError">❌ Kullanıcı adı veya şifre hatalı</div>
-  </div>
-</div>
+    <!-- 3D Background Canvas -->
+    <div id="canvas-container"></div>
 
-<!-- APP -->
-<div id="app">
-  <div class="layout">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-mono text-2xl font-bold gradient-text">&lt;TE/&gt;</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#home" class="hover:text-primary transition-colors">Ana Sayfa</a>
+                    <a href="#about" class="hover:text-primary transition-colors">Hakkımda</a>
+                    <a href="#projects" class="hover:text-primary transition-colors">Projeler</a>
+                    <a href="#skills" class="hover:text-primary transition-colors">Yetenekler</a>
+                    <a href="#blog" class="hover:text-primary transition-colors">Blog</a>
+                    <a href="#contact" class="hover:text-primary transition-colors">İletişim</a>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 transition-colors">
+                        <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+                        <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
+                    </button>
+                </div>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sidebar-logo">
-        <span class="logo-icon">🏍️</span>
-        <span class="logo-text">motohemen</span>
-        <span class="logo-version">v2.0</span>
-      </div>
-      <div class="sidebar-user">
-        <div class="user-avatar">T</div>
-        <div class="user-info">
-          <div class="user-name">tugsanemen</div>
-          <div class="user-role">👑 Ana Yönetici</div>
-        </div>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-section">Ana</div>
-        <div class="nav-item active" onclick="showPage('dashboard', this)">
-          <span class="nav-icon">🏠</span> Ana Sayfa
-        </div>
-        <div class="nav-item" onclick="showPage('notifications', this)">
-          <span class="nav-icon">🔔</span> Bildirimler
-          <span class="nav-badge">3</span>
-        </div>
-        <div class="nav-section">Kurye</div>
-        <div class="nav-item" onclick="showPage('health', this)">
-          <span class="nav-icon">❤️</span> Sağlık Anketi
-        </div>
-        <div class="nav-item" onclick="showPage('km', this)">
-          <span class="nav-icon">📍</span> KM Girişi
-        </div>
-        <div class="nav-section">Yönetici</div>
-        <div class="nav-item" onclick="showPage('admin', this)">
-          <span class="nav-icon">⚙️</span> Yönetici Paneli
-        </div>
-        <div class="nav-item" onclick="showPage('profile', this)">
-          <span class="nav-icon">👤</span> Profil & Ayarlar
-        </div>
-      </nav>
-      <div class="sidebar-footer">
-        <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
-      </div>
-    </div>
-
-    <!-- MAIN -->
-    <div class="main">
-      <div class="topbar">
-        <div class="topbar-title" id="topbarTitle">Ana Sayfa</div>
-        <div class="topbar-date" id="topbarDate"></div>
-        <button class="notif-btn" onclick="showPage('notifications', document.querySelector('.nav-item:nth-child(3)'))">
-          🔔<span class="notif-dot"></span>
-        </button>
-      </div>
-      <div class="content">
-
-        <!-- DASHBOARD -->
-        <div class="page active" id="page-dashboard">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-label">Toplam Motor</div>
-              <div class="stat-icon">🏍️</div>
-              <div class="stat-value">220</div>
-              <div class="stat-change up">↑ 3 bu hafta</div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-700 dark:text-white focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">Aktif Motor</div>
-              <div class="stat-icon">✅</div>
-              <div class="stat-value">198</div>
-              <div class="stat-change up">↑ 5% artış</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Toplam Kurye</div>
-              <div class="stat-icon">👷</div>
-              <div class="stat-value">215</div>
-              <div class="stat-change up">+12 yeni</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Bakım Bekleyen</div>
-              <div class="stat-icon">🔧</div>
-              <div class="stat-value">8</div>
-              <div class="stat-change warn">⚠️ ↑ 2 artış</div>
-            </div>
-          </div>
-
-          <div class="op-cards">
-            <div class="op-card">
-              <div class="op-header">
-                <span class="op-dot migros"></span>
-                <span class="op-name">Migros</span>
-              </div>
-              <div class="op-count">130</div>
-              <div class="op-sub">motor aktif · 125 kurye</div>
-            </div>
-            <div class="op-card">
-              <div class="op-header">
-                <span class="op-dot pt"></span>
-                <span class="op-name">Pakettaxi</span>
-              </div>
-              <div class="op-count">90</div>
-              <div class="op-sub">motor aktif · 90 kurye</div>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="card">
-              <div class="section-header">
-                <div class="section-title">🔔 Bildirimler</div>
-                <div class="see-all" onclick="showPage('notifications', null)">Tümü →</div>
-              </div>
-              <div class="alert-item">
-                <div class="alert-icon critical">🚨</div>
-                <div style="flex:1">
-                  <div class="alert-title">Kritik Arıza</div>
-                  <div class="alert-desc">34 ABC 123 — Motor devreye girmiyor</div>
-                </div>
-                <div class="alert-time">5dk</div>
-              </div>
-              <div class="alert-item">
-                <div class="alert-icon warning">⚠️</div>
-                <div style="flex:1">
-                  <div class="alert-title">Bakım Zamanı</div>
-                  <div class="alert-desc">06 XYZ 789 — 1950 km / 2000 km limitine yakın</div>
-                </div>
-                <div class="alert-time">1sa</div>
-              </div>
-              <div class="alert-item">
-                <div class="alert-icon info">✅</div>
-                <div style="flex:1">
-                  <div class="alert-title">Anket Tamamlandı</div>
-                  <div class="alert-desc">Ali Yılmaz günlük sağlık anketini doldurdu</div>
-                </div>
-                <div class="alert-time">2sa</div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="section-header">
-                <div class="section-title">🏍️ Son Motorlar</div>
-                <div class="see-all" onclick="showPage('admin', null)">Tümü →</div>
-              </div>
-              <div class="motor-item">
-                <div class="motor-icon">🏍️</div>
-                <div class="motor-info">
-                  <div class="motor-plate">34 ABC 123</div>
-                  <div class="motor-driver">Ali Yılmaz · Migros</div>
-                  <div class="motor-progress">
-                    <div class="progress-bar"><div class="progress-fill warn" style="width:82%"></div></div>
-                    <div class="progress-text">1650 km / 2000 km</div>
-                  </div>
-                </div>
-                <div class="motor-badges">
-                  <span class="badge warn">Bakım Yakın</span>
-                  <span class="badge rental">Kiralık</span>
-                </div>
-              </div>
-              <div class="motor-item">
-                <div class="motor-icon">🏍️</div>
-                <div class="motor-info">
-                  <div class="motor-plate">06 XYZ 789</div>
-                  <div class="motor-driver">Mehmet Kaya · Pakettaxi</div>
-                  <div class="motor-progress">
-                    <div class="progress-bar"><div class="progress-fill ok" style="width:40%"></div></div>
-                    <div class="progress-text">800 km / 2000 km</div>
-                  </div>
-                </div>
-                <div class="motor-badges">
-                  <span class="badge active">Aktif</span>
-                </div>
-              </div>
-              <div class="motor-item">
-                <div class="motor-icon">🏍️</div>
-                <div class="motor-info">
-                  <div class="motor-plate">16 DEF 456</div>
-                  <div class="motor-driver">Ayşe Demir · Migros</div>
-                  <div class="motor-progress">
-                    <div class="progress-bar"><div class="progress-fill danger" style="width:99%"></div></div>
-                    <div class="progress-text">1980 km / 2000 km</div>
-                  </div>
-                </div>
-                <div class="motor-badges">
-                  <span class="badge danger">Bakım!</span>
-                  <span class="badge rental">Kiralık</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- NOTIFICATIONS -->
-        <div class="page" id="page-notifications">
-          <div class="card" style="margin-bottom:16px">
-            <div class="section-title" style="margin-bottom:16px">🚨 Kritik</div>
-            <div class="alert-item">
-              <div class="alert-icon critical">🚨</div>
-              <div style="flex:1">
-                <div class="alert-title">Kritik Arıza</div>
-                <div class="alert-desc">34 ABC 123 — Motor devreye girmiyor, kurye Ali Yılmaz sahadaki işini bıraktı</div>
-              </div>
-              <div class="alert-time">5dk</div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Ana Sayfa</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Hakkımda</a>
+                <a href="#projects" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Projeler</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">İletişim</a>
             </div>
-          </div>
-          <div class="card" style="margin-bottom:16px">
-            <div class="section-title" style="margin-bottom:16px">⚠️ Uyarılar</div>
-            <div class="alert-item">
-              <div class="alert-icon warning">⚠️</div>
-              <div style="flex:1">
-                <div class="alert-title">Bakım Zamanı</div>
-                <div class="alert-desc">06 XYZ 789 — 1950 km / 2000 km limitine yakın</div>
-              </div>
-              <div class="alert-time">1sa</div>
-            </div>
-            <div class="alert-item">
-              <div class="alert-icon warning">⚠️</div>
-              <div style="flex:1">
-                <div class="alert-title">Bakım Gerekli</div>
-                <div class="alert-desc">16 DEF 456 — 1980 km / 2000 km. Acil bakım gerekiyor!</div>
-              </div>
-              <div class="alert-time">2sa</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="section-title" style="margin-bottom:16px">✅ Bilgi</div>
-            <div class="alert-item">
-              <div class="alert-icon info">✅</div>
-              <div style="flex:1">
-                <div class="alert-title">Anket Tamamlandı</div>
-                <div class="alert-desc">Ali Yılmaz günlük sağlık anketini doldurdu</div>
-              </div>
-              <div class="alert-time">2sa</div>
-            </div>
-            <div class="alert-item">
-              <div class="alert-icon info">✅</div>
-              <div style="flex:1">
-                <div class="alert-title">KM Girişi</div>
-                <div class="alert-desc">Mehmet Kaya — 06 XYZ 789 için 120 km girdi</div>
-              </div>
-              <div class="alert-time">3sa</div>
-            </div>
-          </div>
         </div>
+    </nav>
 
-        <!-- HEALTH -->
-        <div class="page" id="page-health">
-          <div class="health-header">
-            <div class="health-selector">
-              <span style="font-size:13px;color:var(--text2);font-weight:500;">Motor Plakası:</span>
-              <select id="healthMotor">
-                <option>34 ABC 123</option>
-                <option>06 XYZ 789</option>
-                <option>16 DEF 456</option>
-                <option>34 GHI 321</option>
-              </select>
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <!-- Animated Background Blobs -->
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:bg-purple-900 dark:mix-blend-normal"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000 dark:bg-blue-900 dark:mix-blend-normal"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000 dark:bg-indigo-900 dark:mix-blend-normal"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <div class="mb-8 inline-block">
+                <img src="https://github.com/tugsanemen1417.png" alt="Tuğsan Emen" class="w-32 h-32 rounded-full border-4 border-primary shadow-2xl animate-float mx-auto">
             </div>
-            <div class="health-score-box">
-              <div>
-                <div class="score-val"><span id="healthScore">0</span>/7</div>
-                <div class="score-label">Sağlık Skoru</div>
-              </div>
-              <div style="flex:1;background:var(--surface2);border-radius:6px;height:8px;overflow:hidden">
-                <div id="healthBar" style="height:100%;background:var(--green);width:0%;transition:width 0.3s;border-radius:6px;"></div>
-              </div>
+            
+            <h1 class="text-5xl md:text-7xl font-bold mb-4">
+                <span class="block mb-2">Merhaba, ben</span>
+                <span class="gradient-text typing-text" id="typing-name">Tuğsan Emen</span>
+            </h1>
+            
+            <div class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 font-mono h-8">
+                <span id="typing-role"></span><span class="cursor-blink">|</span>
             </div>
-          </div>
-          <div class="question-list">
-            <div class="question-item">
-              <div class="question-text">1. Motor lastikleri yeterli basınçta mı?</div>
-              <div class="question-btns">
-                <button class="q-btn yes" onclick="answerQ(this,'yes',0)">Evet</button>
-                <button class="q-btn no" onclick="answerQ(this,'no',0)">Hayır</button>
-              </div>
+
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
+                Modern web teknolojileri ile kullanıcı deneyimini ön planda tutan, 
+                sürekli öğrenmeye ve gelişmeye açık bir yazılım geliştiricisi.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="#projects" class="px-8 py-4 bg-primary hover:bg-blue-600 text-white rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-primary/50">
+                    Projelerimi Gör <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+                <a href="#contact" class="px-8 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-full font-semibold transition-all">
+                    İletişime Geç
+                </a>
             </div>
-            <div class="question-item">
-              <div class="question-text">2. Frenler düzgün çalışıyor mu?</div>
-              <div class="question-btns">
-                <button class="q-btn yes" onclick="answerQ(this,'yes',1)">Evet</button>
-                <button class="q-btn no" onclick="answerQ(this,'no',1)">Hayır</button>
-              </div>
+
+            <!-- Social Links -->
+            <div class="mt-12 flex justify-center space-x-6">
+                <a href="https://github.com/tugsanemen1417" target="_blank" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-primary transition-colors transform hover:scale-110">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-blue-400 transition-colors transform hover:scale-110">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors transform hover:scale-110">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="#" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-pink-500 transition-colors transform hover:scale-110">
+                    <i class="fab fa-instagram"></i>
+                </a>
             </div>
-            <div class="question-item">
-              <div class="question-text">3. Farlar ve sinyal ışıkları çalışıyor mu?</div>
-              <div class="question-btns">
-                <button class="q-btn yes" onclick="answerQ(this,'yes',2)">Evet</button>
-                <button class="q-btn no" onclick="answerQ(this,'no',2)">Hayır</button>
-              </div>
+
+            <!-- Scroll Indicator -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+                <i class="fas fa-chevron-down text-2xl text-primary"></i>
             </div>
-            <div class="question-item">
-              <div class="question-text">4. Motor yağı seviyesi yeterli mi?</div>
-              <div class="question-btns">
-                <button class="q-btn yes" onclick="answerQ(this,'yes',3)">Evet</button>
-                <button class="q-btn no" onclick="answerQ(this,'no',3)">Hayır</button>
-              </div>
-            </div>
-            <div class="question-item">
-              <div class="question-text">5. Şanzıman ve debriyaj düzgün çalışıyor mu?</div>
-              <div class="question-btns">
-                <button class="q-btn yes" onclick="answerQ(this,'yes',4)">Evet</button>
-                <button class="q-btn no" onclick="answerQ(this,'no',4)">Hayır</button>
-              </div>
-            </div>
-            <div class="question-item">
-              <div class="question-text">6. Gövdede hasar veya çizik var mı?</div>
-              <div class="question-btns">
-                <button class="q-btn yes" onclick="answerQ(this,'yes',5)">Evet</button>
-                <button class="q-btn no" onclick="answerQ(this,'no',5)">Hayır</button>
-              </div>
-            </div>
-            <div class="question-item">
-              <div class="question-text">7. Anormal ses veya titreşim var mı?</div>
-              <div class="question-btns">
-                <button class="q-btn yes" onclick="answerQ(this,'yes',6)">Evet</button>
-                <button class="q-btn no" onclick="answerQ(this,'no',6)">Hayır</button>
-              </div>
-            </div>
-            <button onclick="submitHealth()" style="margin-top:8px;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;width:100%;">Anketi Gönder ✅</button>
-          </div>
         </div>
+    </section>
 
-        <!-- KM -->
-        <div class="page" id="page-km">
-          <div class="km-card">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-              <span style="font-size:13px;color:var(--text2);font-weight:500;">Motor:</span>
-              <select id="kmMotor" onchange="updateKmDisplay()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;">
-                <option value="12450">34 ABC 123</option>
-                <option value="9800">06 XYZ 789</option>
-                <option value="15200">16 DEF 456</option>
-                <option value="7300">34 GHI 321</option>
-              </select>
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white dark:bg-gray-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 gradient-text">Hakkımda</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
             </div>
-            <div class="km-current">
-              <div class="km-value" id="kmCurrentVal">12,450</div>
-              <div class="km-unit">km</div>
-              <div class="km-label">Şu anki sayaç değeri</div>
-            </div>
-            <div class="km-input-group">
-              <input type="number" id="kmNewVal" placeholder="Yeni KM değeri girin">
-              <button class="km-submit" onclick="submitKm()">Kaydet</button>
-            </div>
-          </div>
 
-          <div class="card" style="margin-bottom:16px">
-            <div class="section-title" style="margin-bottom:16px">🔧 Bakım Durumu</div>
-            <div class="maintenance-info">
-              <div class="maint-row">
-                <span class="maint-label">Sonraki Bakım</span>
-                <span class="maint-value">14,000 km</span>
-              </div>
-              <div class="maint-row">
-                <span class="maint-label">Son Bakım</span>
-                <span class="maint-value">12,000 km</span>
-              </div>
-              <div class="maint-row" style="margin-bottom:0">
-                <span class="maint-label">Kalan KM</span>
-                <span class="maint-value" style="color:var(--yellow)">1,550 km</span>
-              </div>
-            </div>
-            <div style="margin-top:12px">
-              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;color:var(--text2)">🛢️ Yağ Bakımı</span>
-                <span class="badge active">Yapıldı</span>
-              </div>
-              <div style="display:flex;justify-content:space-between">
-                <span style="font-size:12px;color:var(--text2)">⚙️ Genel Bakım</span>
-                <span class="badge warn">Yakın</span>
-              </div>
-            </div>
-          </div>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 reveal-on-scroll">
+                    <div class="glass p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-code text-primary mr-3"></i>
+                            Yazılım Geliştirici
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            Modern web teknolojileri ve açık kaynak projelerle ilgileniyorum. 
+                            Kullanıcı dostu arayüzler ve performanslı uygulamalar geliştirmeyi seviyorum.
+                        </p>
+                    </div>
 
-          <div class="card">
-            <div class="section-title" style="margin-bottom:16px">📊 KM Geçmişi</div>
-            <div class="km-history-item">
-              <div><div class="km-hist-val">12,450 km</div><div class="km-hist-time">Bugün, 09:30</div></div>
-              <div class="km-hist-diff">+120 km</div>
+                    <div class="glass p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-graduation-cap text-secondary mr-3"></i>
+                            Öğrenci & Öğrenen
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            Sürekli kendimi geliştirmeye ve yeni teknolojiler öğrenmeye odaklanıyorum. 
+                            Her gün biraz daha ileriye gitmek en büyük motivasyonum.
+                        </p>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-lightbulb text-accent mr-3"></i>
+                            Problem Çözücü
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            Karmaşık problemleri basit ve etkili çözümlere dönüştürmeyi seviyorum. 
+                            Analitik düşünce ve yaratıcı yaklaşımlar benim iş tarzım.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="relative reveal-on-scroll">
+                    <!-- Terminal Window -->
+                    <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl border border-gray-700 font-mono text-sm">
+                        <div class="bg-gray-800 px-4 py-2 flex items-center space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="ml-4 text-gray-400 text-xs">tugsan@portfolio:~</span>
+                        </div>
+                        <div class="p-6 text-green-400 space-y-2" id="terminal-content">
+                            <div class="typing-line"><span class="text-blue-400">$</span> whoami</div>
+                            <div class="typing-line delay-500">tugsan_emen</div>
+                            <div class="typing-line delay-1000"><span class="text-blue-400">$</span> cat interests.txt</div>
+                            <div class="typing-line delay-1500">- Web Development<br>- Open Source<br>- Machine Learning<br>- UI/UX Design</div>
+                            <div class="typing-line delay-2000"><span class="text-blue-400">$</span> current_status</div>
+                            <div class="typing-line delay-2500">Learning new things every day... <span class="cursor-blink">_</span></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="km-history-item">
-              <div><div class="km-hist-val">12,330 km</div><div class="km-hist-time">Dün, 18:45</div></div>
-              <div class="km-hist-diff">+95 km</div>
-            </div>
-            <div class="km-history-item">
-              <div><div class="km-hist-val">12,235 km</div><div class="km-hist-time">Dün, 08:15</div></div>
-              <div class="km-hist-diff">+110 km</div>
-            </div>
-          </div>
         </div>
+    </section>
 
-        <!-- ADMIN -->
-        <div class="page" id="page-admin">
-          <div class="admin-stats">
-            <div class="admin-stat">
-              <div class="as-val" style="color:var(--migros)">130</div>
-              <div class="as-label">Migros Motor</div>
-            </div>
-            <div class="admin-stat">
-              <div class="as-val" style="color:var(--pt)">90</div>
-              <div class="as-label">PT Motor</div>
-            </div>
-            <div class="admin-stat">
-              <div class="as-val">220</div>
-              <div class="as-label">Toplam</div>
-            </div>
-            <div class="admin-stat">
-              <div class="as-val" style="color:var(--accent)">145</div>
-              <div class="as-label">Kiralık</div>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="card">
-              <div class="op-section-title">
-                <span class="op-dot migros" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--migros);"></span>
-                Migros — Motor Listesi
-              </div>
-              <table class="motor-table">
-                <thead>
-                  <tr><th>Plaka</th><th>Kurye</th><th>Durum</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>34 ABC 123</td><td>Ali Yılmaz</td><td><span class="badge warn">Bakım Yakın</span></td></tr>
-                  <tr><td>16 DEF 456</td><td>Ayşe Demir</td><td><span class="badge danger">Bakım!</span></td></tr>
-                  <tr><td>34 GHI 321</td><td>Hasan Çelik</td><td><span class="badge active">Aktif</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="card">
-              <div class="op-section-title">
-                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pt);"></span>
-                Pakettaxi — Motor Listesi
-              </div>
-              <table class="motor-table">
-                <thead>
-                  <tr><th>Plaka</th><th>Kurye</th><th>Durum</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>06 XYZ 789</td><td>Mehmet Kaya</td><td><span class="badge active">Aktif</span></td></tr>
-                  <tr><td>34 JKL 555</td><td>Fatma Arslan</td><td><span class="badge rental">Kiralık</span></td></tr>
-                  <tr><td>06 MNO 111</td><td>Kemal Doğan</td><td><span class="badge idle">Boşta</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="card">
-              <div class="section-title" style="margin-bottom:16px">👥 Kullanıcılar</div>
-              <div class="users-list">
-                <div class="user-item">
-                  <div class="user-item-avatar ua-main">T</div>
-                  <div>
-                    <div class="user-item-name">tugsanemen</div>
-                    <div class="user-item-role">Ana Yönetici · Tüm Yetkiler</div>
-                  </div>
-                  <span class="user-item-badge" style="background:rgba(108,99,255,0.15);color:var(--accent)">ANA</span>
-                </div>
-                <div class="user-item">
-                  <div class="user-item-avatar ua-migros">M</div>
-                  <div>
-                    <div class="user-item-name">migros_yonetici</div>
-                    <div class="user-item-role">Migros Operasyon · Okuma/Yazma</div>
-                  </div>
-                  <span class="user-item-badge" style="background:rgba(255,96,0,0.15);color:var(--migros)">MIG</span>
-                </div>
-                <div class="user-item">
-                  <div class="user-item-avatar ua-pt">P</div>
-                  <div>
-                    <div class="user-item-name">pt_yonetici</div>
-                    <div class="user-item-role">Pakettaxi Operasyon · Okuma/Yazma</div>
-                  </div>
-                  <span class="user-item-badge" style="background:rgba(108,99,255,0.15);color:var(--pt)">PT</span>
-                </div>
-              </div>
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 gradient-text">Projelerim</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-4"></div>
+                <p class="text-gray-600 dark:text-gray-400">Geliştirdiğim bazı projeler</p>
             </div>
 
-            <div class="card">
-              <div class="section-title" style="margin-bottom:16px">📅 Aylık Özet — Mart 2026</div>
-              <div class="monthly-grid">
-                <div class="monthly-stat">
-                  <div class="ms-val">147K</div>
-                  <div class="ms-label">Toplam KM</div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project Card 1 -->
+                <div class="project-card glass rounded-2xl overflow-hidden reveal-on-scroll">
+                    <div class="h-48 bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <i class="fas fa-globe text-6xl text-white opacity-50"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Kişisel Web Sitesi</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                            Modern tasarım ve animasyonlarla hazırlanmış kişisel portfolio sitesi.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">HTML</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs">CSS</span>
+                            <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">JavaScript</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:underline text-sm">Canlı Demo <i class="fas fa-external-link-alt ml-1"></i></a>
+                            <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="monthly-stat">
-                  <div class="ms-val">34</div>
-                  <div class="ms-label">Bakım</div>
+
+                <!-- Project Card 2 -->
+                <div class="project-card glass rounded-2xl overflow-hidden reveal-on-scroll">
+                    <div class="h-48 bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
+                        <i class="fas fa-mobile-alt text-6xl text-white opacity-50"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Mobil Uygulama</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                            React Native ile geliştirilmiş cross-platform mobil uygulama projesi.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 rounded-full text-xs">React Native</span>
+                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">Firebase</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:underline text-sm">Detaylar <i class="fas fa-arrow-right ml-1"></i></a>
+                            <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="monthly-stat">
-                  <div class="ms-val" style="color:var(--red)">7</div>
-                  <div class="ms-label">Arıza</div>
+
+                <!-- Project Card 3 -->
+                <div class="project-card glass rounded-2xl overflow-hidden reveal-on-scroll">
+                    <div class="h-48 bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center">
+                        <i class="fas fa-robot text-6xl text-white opacity-50"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Yapay Zeka Projesi</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                            Makine öğrenmesi algoritmaları kullanarak geliştirilen sınıflandırma modeli.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">Python</span>
+                            <span class="px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded-full text-xs">TensorFlow</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:underline text-sm">Blog Yazısı <i class="fas fa-book-open ml-1"></i></a>
+                            <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="monthly-stat">
-                  <div class="ms-val" style="color:var(--green)">97%</div>
-                  <div class="ms-label">Aktiflik</div>
-                </div>
-              </div>
             </div>
-          </div>
+
+            <div class="text-center mt-12">
+                <a href="https://github.com/tugsanemen1417" target="_blank" class="inline-flex items-center px-6 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-full transition-all">
+                    <i class="fab fa-github mr-2"></i>
+                    GitHub'da Daha Fazla Proje
+                </a>
+            </div>
         </div>
+    </section>
 
-        <!-- PROFILE -->
-        <div class="page" id="page-profile">
-          <div class="profile-header">
-            <div class="profile-avatar">T</div>
-            <div class="profile-name">tugsanemen</div>
-            <div class="profile-role">👑 Ana Yönetici</div>
-            <div class="profile-stats">
-              <div><div class="profile-stat-val">220</div><div class="profile-stat-label">Motor</div></div>
-              <div><div class="profile-stat-val">215</div><div class="profile-stat-label">Kurye</div></div>
-              <div><div class="profile-stat-val">2</div><div class="profile-stat-label">Operasyon</div></div>
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-white dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 gradient-text">Yeteneklerim</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
             </div>
-          </div>
-          <div class="settings-list">
-            <div class="settings-item">
-              <div class="settings-icon">✏️</div>
-              <div>
-                <div class="settings-text">Profil Düzenle</div>
-                <div class="settings-sub">Ad, şifre ve bilgileri güncelle</div>
-              </div>
-              <div class="settings-arrow">›</div>
+
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Technical Skills -->
+                <div class="space-y-6 reveal-on-scroll">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center">
+                        <i class="fas fa-laptop-code text-primary mr-3"></i>
+                        Teknik Beceriler
+                    </h3>
+                    
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-medium">HTML/CSS/Tailwind</span>
+                            <span class="text-primary">90%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="90%"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-medium">JavaScript/TypeScript</span>
+                            <span class="text-primary">85%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="85%"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-medium">React/Vue.js</span>
+                            <span class="text-primary">80%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="80%"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-medium">Python</span>
+                            <span class="text-primary">75%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="75%"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-item">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-medium">Git/GitHub</span>
+                            <span class="text-primary">85%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="85%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soft Skills & Tools -->
+                <div class="space-y-6 reveal-on-scroll">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center">
+                        <i class="fas fa-tools text-secondary mr-3"></i>
+                        Araçlar & Yöntemler
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
+                            <i class="fab fa-figma text-3xl mb-2 text-pink-500 group-hover:text-white"></i>
+                            <p class="font-medium">Figma</p>
+                        </div>
+                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
+                            <i class="fab fa-docker text-3xl mb-2 text-blue-500 group-hover:text-white"></i>
+                            <p class="font-medium">Docker</p>
+                        </div>
+                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
+                            <i class="fas fa-database text-3xl mb-2 text-green-500 group-hover:text-white"></i>
+                            <p class="font-medium">MongoDB</p>
+                        </div>
+                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
+                            <i class="fab fa-node text-3xl mb-2 text-green-600 group-hover:text-white"></i>
+                            <p class="font-medium">Node.js</p>
+                        </div>
+                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
+                            <i class="fas fa-code-branch text-3xl mb-2 text-orange-500 group-hover:text-white"></i>
+                            <p class="font-medium">CI/CD</p>
+                        </div>
+                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
+                            <i class="fas fa-cloud text-3xl mb-2 text-blue-400 group-hover:text-white"></i>
+                            <p class="font-medium">AWS</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 glass p-6 rounded-xl">
+                        <h4 class="font-bold mb-3 flex items-center">
+                            <i class="fas fa-star text-yellow-400 mr-2"></i>
+                            Öne Çıkan Özellikler
+                        </h4>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Responsive Tasarım</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> SEO Optimizasyonu</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Performans Odaklı Kodlama</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Clean Code Prensipleri</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="settings-item">
-              <div class="settings-icon">🔔</div>
-              <div>
-                <div class="settings-text">Bildirimler</div>
-                <div class="settings-sub">Uyarı ve bildirim tercihleri</div>
-              </div>
-              <div class="settings-arrow">›</div>
-            </div>
-            <div class="settings-item">
-              <div class="settings-icon">🔒</div>
-              <div>
-                <div class="settings-text">Güvenlik</div>
-                <div class="settings-sub">Şifre ve 2FA ayarları</div>
-              </div>
-              <div class="settings-arrow">›</div>
-            </div>
-            <div class="settings-item">
-              <div class="settings-icon">🎨</div>
-              <div>
-                <div class="settings-text">Uygulama Ayarları</div>
-                <div class="settings-sub">Tema, dil ve görünüm</div>
-              </div>
-              <div class="settings-arrow">›</div>
-            </div>
-            <div class="settings-item logout-item" onclick="doLogout()">
-              <div class="settings-icon">🚪</div>
-              <div>
-                <div class="settings-text">Çıkış Yap</div>
-                <div class="settings-sub">Hesabından çıkış yap</div>
-              </div>
-              <div class="settings-arrow">›</div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text2)">
-            Motohemen Filo v2.0 · © 2026
-          </div>
         </div>
+    </section>
 
-      </div>
-    </div>
-  </div>
+    <!-- Blog Section -->
+    <section id="blog" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 gradient-text">Blog</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-4"></div>
+                <p class="text-gray-600 dark:text-gray-400">Son yazılarım ve düşüncelerim</p>
+            </div>
 
-  <!-- MOBILE NAV -->
-  <div class="mobile-nav">
-    <div class="mobile-nav-item active" onclick="showPageMobile('dashboard', this)"><span>🏠</span><span>Ana</span></div>
-    <div class="mobile-nav-item" onclick="showPageMobile('health', this)"><span>❤️</span><span>Sağlık</span></div>
-    <div class="mobile-nav-item" onclick="showPageMobile('km', this)"><span>📍</span><span>KM Gir</span></div>
-    <div class="mobile-nav-item" onclick="showPageMobile('admin', this)"><span>⚙️</span><span>Yönetici</span></div>
-    <div class="mobile-nav-item" onclick="showPageMobile('profile', this)"><span>👤</span><span>Profil</span></div>
-  </div>
-</div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Blog Post 1 -->
+                <article class="glass rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300 reveal-on-scroll">
+                    <div class="h-48 bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
+                        <i class="fas fa-code text-5xl text-white opacity-50"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+                            <i class="far fa-calendar mr-2"></i>
+                            <span>10 Mart 2026</span>
+                            <span class="mx-2">•</span>
+                            <span>5 dk okuma</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 hover:text-primary transition-colors cursor-pointer">
+                            Modern Web Geliştirme Trendleri 2026
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            2026 yılında öne çıkan web teknolojileri ve framework'ler hakkında detaylı bir analiz...
+                        </p>
+                        <a href="#" class="text-primary hover:underline text-sm font-medium">
+                            Devamını Oku <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </article>
 
-<script>
-  // Date
-  const d = new Date();
-  document.getElementById('topbarDate').textContent = d.toLocaleDateString('tr-TR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+                <!-- Blog Post 2 -->
+                <article class="glass rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300 reveal-on-scroll">
+                    <div class="h-48 bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center">
+                        <i class="fas fa-robot text-5xl text-white opacity-50"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+                            <i class="far fa-calendar mr-2"></i>
+                            <span>5 Mart 2026</span>
+                            <span class="mx-2">•</span>
+                            <span>8 dk okuma</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 hover:text-primary transition-colors cursor-pointer">
+                            Yapay Zeka ve Web Geliştirme
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            AI araçlarının yazılım geliştirme süreçlerini nasıl dönüştürdüğü ve gelecek beklentileri...
+                        </p>
+                        <a href="#" class="text-primary hover:underline text-sm font-medium">
+                            Devamını Oku <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </article>
 
-  // Login
-  const USERS = {
-    'tugsanemen': '123456',
-    'migros_yonetici': '123456',
-    'pt_yonetici': '123456'
-  };
+                <!-- Blog Post 3 -->
+                <article class="glass rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300 reveal-on-scroll">
+                    <div class="h-48 bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
+                        <i class="fas fa-book text-5xl text-white opacity-50"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+                            <i class="far fa-calendar mr-2"></i>
+                            <span>1 Mart 2026</span>
+                            <span class="mx-2">•</span>
+                            <span>6 dk okuma</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 hover:text-primary transition-colors cursor-pointer">
+                            Öğrenme Yolculuğum: İpuçları
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            Yazılım öğrenme sürecimde edindiğim deneyimler ve yeni başlayanlara tavsiyeler...
+                        </p>
+                        <a href="#" class="text-primary hover:underline text-sm font-medium">
+                            Devamını Oku <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
 
-  function doLogin() {
-    const u = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value.trim();
-    if (USERS[u] && USERS[u] === p) {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
-  }
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-white dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4 gradient-text">İletişim</h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-4"></div>
+                <p class="text-gray-600 dark:text-gray-400">Bir proje mi var? Hadi konuşalım!</p>
+            </div>
 
-  document.getElementById('loginPass').addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
-  document.getElementById('loginUser').addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <!-- Contact Info -->
+                <div class="space-y-8 reveal-on-scroll">
+                    <div class="glass p-6 rounded-2xl flex items-start space-x-4 hover:bg-primary hover:text-white transition-all group cursor-pointer">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
+                            <i class="fas fa-envelope text-xl text-primary group-hover:text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-1">Email</h3>
+                            <p class="text-gray-600 dark:text-gray-300 group-hover:text-white/90">tugsan@example.com</p>
+                        </div>
+                    </div>
 
-  function doLogout() {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('loginUser').value = '';
-    document.getElementById('loginPass').value = '';
-    document.getElementById('loginError').style.display = 'none';
-  }
+                    <div class="glass p-6 rounded-2xl flex items-start space-x-4 hover:bg-primary hover:text-white transition-all group cursor-pointer">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
+                            <i class="fas fa-map-marker-alt text-xl text-primary group-hover:text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-1">Konum</h3>
+                            <p class="text-gray-600 dark:text-gray-300 group-hover:text-white/90">Türkiye</p>
+                        </div>
+                    </div>
 
-  // Page routing
-  const titles = {
-    dashboard: 'Ana Sayfa',
-    notifications: 'Bildirimler',
-    health: 'Sağlık Anketi',
-    km: 'KM Girişi',
-    admin: 'Yönetici Paneli',
-    profile: 'Profil & Ayarlar'
-  };
+                    <div class="glass p-6 rounded-2xl flex items-start space-x-4 hover:bg-primary hover:text-white transition-all group cursor-pointer">
+                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
+                            <i class="fas fa-clock text-xl text-primary group-hover:text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-1">Çalışma Saatleri</h3>
+                            <p class="text-gray-600 dark:text-gray-300 group-hover:text-white/90">Pzt - Cmt: 09:00 - 18:00</p>
+                        </div>
+                    </div>
 
-  function showPage(id, navEl) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    document.getElementById('topbarTitle').textContent = titles[id] || id;
-    if (navEl) {
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      navEl.classList.add('active');
-    }
-    // Mobile
-    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
-    const mobileMap = {dashboard:0, health:1, km:2, admin:3, profile:4};
-    if (mobileMap[id] !== undefined) {
-      document.querySelectorAll('.mobile-nav-item')[mobileMap[id]].classList.add('active');
-    }
-  }
+                    <!-- Social Links Large -->
+                    <div class="flex space-x-4 pt-4">
+                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-primary hover:text-white transition-all transform hover:scale-110">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all transform hover:scale-110">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all transform hover:scale-110">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
 
-  function showPageMobile(id, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    document.getElementById('topbarTitle').textContent = titles[id] || id;
-    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-  }
+                <!-- Contact Form -->
+                <div class="glass p-8 rounded-2xl reveal-on-scroll">
+                    <form id="contact-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">İsim</label>
+                            <input type="text" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Adınız Soyadınız">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Email</label>
+                            <input type="email" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="ornek@email.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Konu</label>
+                            <select class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                                <option>Proje Teklifi</option>
+                                <option>İş Birliği</option>
+                                <option>Danışmanlık</option>
+                                <option>Diğer</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Mesaj</label>
+                            <textarea rows="4" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none" placeholder="Mesajınızı buraya yazın..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-primary/50 flex items-center justify-center space-x-2">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Mesaj Gönder</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  // Health quiz
-  const healthAnswers = new Array(7).fill(null);
-  function answerQ(btn, ans, idx) {
-    const btns = btn.parentElement.querySelectorAll('.q-btn');
-    btns.forEach(b => { b.classList.remove('active'); });
-    btn.classList.add('active');
-    healthAnswers[idx] = ans;
-    const score = healthAnswers.filter(a => a === 'yes').length;
-    document.getElementById('healthScore').textContent = score;
-    document.getElementById('healthBar').style.width = (score / 7 * 100) + '%';
-  }
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <span class="font-mono text-2xl font-bold gradient-text">&lt;TE/&gt;</span>
+                    <p class="text-gray-400 text-sm mt-2">© 2026 Tuğsan Emen. Tüm hakları saklıdır.</p>
+                </div>
+                
+                <div class="flex space-x-6 text-sm text-gray-400">
+                    <a href="#" class="hover:text-white transition-colors">Gizlilik Politikası</a>
+                    <a href="#" class="hover:text-white transition-colors">Kullanım Koşulları</a>
+                    <a href="#" class="hover:text-white transition-colors">Site Haritası</a>
+                </div>
 
-  function submitHealth() {
-    const answered = healthAnswers.filter(a => a !== null).length;
-    if (answered < 7) { alert('Lütfen tüm soruları cevaplayın! (' + answered + '/7 cevaplandı)'); return; }
-    alert('✅ Sağlık anketi başarıyla gönderildi!');
-  }
+                <div class="mt-4 md:mt-0 flex items-center text-gray-400 text-sm">
+                    <span>Made with</span>
+                    <i class="fas fa-heart text-red-500 mx-2 animate-pulse"></i>
+                    <span>and</span>
+                    <i class="fas fa-coffee text-yellow-600 mx-2"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-  // KM
-  const kmData = { '34 ABC 123': 12450, '06 XYZ 789': 9800, '16 DEF 456': 15200, '34 GHI 321': 7300 };
-  function updateKmDisplay() {
-    const sel = document.getElementById('kmMotor');
-    const val = parseInt(sel.value);
-    document.getElementById('kmCurrentVal').textContent = val.toLocaleString('tr-TR');
-  }
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-blue-600 hover:scale-110 z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-  function submitKm() {
-    const newVal = parseInt(document.getElementById('kmNewVal').value);
-    const sel = document.getElementById('kmMotor');
-    const curVal = parseInt(sel.value);
-    if (!newVal || isNaN(newVal)) { alert('Lütfen geçerli bir KM değeri girin'); return; }
-    if (newVal <= curVal) { alert('Yeni KM değeri mevcut değerden büyük olmalıdır!'); return; }
-    sel.value = newVal;
-    document.getElementById('kmCurrentVal').textContent = newVal.toLocaleString('tr-TR');
-    document.getElementById('kmNewVal').value = '';
-    alert('✅ KM değeri başarıyla güncellendi: ' + newVal.toLocaleString('tr-TR') + ' km');
-  }
-</script>
+    <script>
+        // Dark Mode Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // Check local storage or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Typing Effect for Role
+        const roles = ['Yazılım Geliştirici', 'Öğrenci', 'Açık Kaynak Tutkunu', 'Problem Çözücü'];
+        let roleIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingRole = document.getElementById('typing-role');
+
+        function typeRole() {
+            const currentRole = roles[roleIndex];
+            
+            if (isDeleting) {
+                typingRole.textContent = currentRole.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingRole.textContent = currentRole.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 100;
+
+            if (!isDeleting && charIndex === currentRole.length) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                roleIndex = (roleIndex + 1) % roles.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(typeRole, typeSpeed);
+        }
+
+        typeRole();
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Reveal on scroll
+        gsap.utils.toArray('.reveal-on-scroll').forEach(element => {
+            gsap.fromTo(element, 
+                { opacity: 0, y: 50 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: element,
+                        start: "top 85%",
+                        toggleActions: "play none none reverse"
+                    }
+                }
+            );
+        });
+
+        // Skill bars animation
+        gsap.utils.toArray('.skill-fill').forEach(bar => {
+            const width = bar.getAttribute('data-width');
+            gsap.to(bar, {
+                width: width,
+                duration: 1.5,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: bar,
+                    start: "top 90%"
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-lg');
+            } else {
+                navbar.classList.remove('shadow-lg');
+            }
+
+            // Back to top button
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 500) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.add('opacity-0', 'invisible');
+                backToTop.classList.remove('opacity-100', 'visible');
+            }
+        });
+
+        document.getElementById('back-to-top').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Contact Form
+        document.getElementById('contact-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Show success message
+            const btn = e.target.querySelector('button');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i><span>Mesaj Gönderildi!</span>';
+            btn.classList.remove('bg-primary');
+            btn.classList.add('bg-green-500');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.classList.add('bg-primary');
+                btn.classList.remove('bg-green-500');
+                e.target.reset();
+            }, 3000);
+        });
+
+        // 3D Background with Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Create particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1500;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 50;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0x6366f1,
+            transparent: true,
+            opacity: 0.8,
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 5;
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX / window.innerWidth - 0.5;
+            mouseY = event.clientY / window.innerHeight - 0.5;
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            particlesMesh.rotation.y += 0.001;
+            particlesMesh.rotation.x += 0.001;
+
+            // Mouse interaction
+            particlesMesh.rotation.x += mouseY * 0.05;
+            particlesMesh.rotation.y += mouseX * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Close mobile menu if open
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Terminal typing effect
+        const terminalLines = document.querySelectorAll('.typing-line');
+        terminalLines.forEach((line, index) => {
+            line.style.opacity = '0';
+            setTimeout(() => {
+                line.style.opacity = '1';
+                line.classList.add('animate-pulse');
+            }, index * 500);
+        });
+    </script>
 </body>
 </html>
