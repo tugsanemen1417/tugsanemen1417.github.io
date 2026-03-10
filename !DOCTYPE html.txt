@@ -1,59 +1,58 @@
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tuğsan Emen - Yazılım Geliştirici ve Teknoloji Tutkunu">
-    <meta name="keywords" content="Tuğsan Emen, yazılım, web geliştirme, GitHub, portfolio">
-    <title>Tuğsan Emen | Developer & Creator</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>🛵 MotoTakip Pro - Kurye & Filo Yönetimi</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Three.js for 3D -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- GSAP for Animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
+                        sans: ['Nunito', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#6366f1',
-                        secondary: '#8b5cf6',
-                        accent: '#06b6d4',
+                        brand: {
+                            yellow: '#FFD93D',
+                            orange: '#FF6B35',
+                            pink: '#FF006E',
+                            purple: '#8338EC',
+                            blue: '#3A86FF',
+                            green: '#06FFA5',
+                            dark: '#1a1a2e'
+                        }
                     },
                     animation: {
-                        'blob': 'blob 7s infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'float': 'float 3s ease-in-out infinite',
                     },
                     keyframes: {
-                        blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
                         },
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         }
                     }
                 }
@@ -62,898 +61,867 @@
     </script>
 
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1f2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #6366f1;
-            border-radius: 5px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4f46e5;
-        }
-
-        /* Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        body {
+            font-family: 'Nunito', sans-serif;
         }
         
-        .dark .glass {
-            background: rgba(17, 24, 39, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
-
-        /* Terminal Cursor */
-        .cursor-blink {
-            animation: blink 1s step-end infinite;
-        }
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-
-        /* Gradient Text */
-        .gradient-text {
+        
+        .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
-
-        /* 3D Canvas Container */
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.4;
-        }
-
-        /* Project Card Hover */
-        .project-card {
+        
+        .card-hover {
             transition: all 0.3s ease;
         }
-        .project-card:hover {
-            transform: translateY(-10px) rotateX(5deg);
-            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        .card-hover:hover {
+            transform: translateY(-5px) rotate(1deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
-
-        /* Skill Bar Animation */
-        .skill-fill {
-            width: 0;
-            transition: width 1.5s ease-out;
+        
+        .motor-icon {
+            animation: drive 2s ease-in-out infinite;
         }
-
-        /* Typing Effect */
-        .typing-text::after {
-            content: '|';
-            animation: blink 1s infinite;
+        
+        @keyframes drive {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
+        
+        .status-dot {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(6, 255, 165, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(6, 255, 165, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(6, 255, 165, 0); }
+        }
+        
+        #map { height: 400px; border-radius: 1rem; }
+        
+        .login-bg {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .emoji-float {
+            animation: emoji-float 3s ease-in-out infinite;
+        }
+        
+        @keyframes emoji-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300 overflow-x-hidden">
+<body class="bg-gray-100 overflow-x-hidden">
 
-    <!-- 3D Background Canvas -->
-    <div id="canvas-container"></div>
-
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 glass transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex-shrink-0 flex items-center">
-                    <span class="font-mono text-2xl font-bold gradient-text">&lt;TE/&gt;</span>
-                </div>
-                
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8 items-center">
-                    <a href="#home" class="hover:text-primary transition-colors">Ana Sayfa</a>
-                    <a href="#about" class="hover:text-primary transition-colors">Hakkımda</a>
-                    <a href="#projects" class="hover:text-primary transition-colors">Projeler</a>
-                    <a href="#skills" class="hover:text-primary transition-colors">Yetenekler</a>
-                    <a href="#blog" class="hover:text-primary transition-colors">Blog</a>
-                    <a href="#contact" class="hover:text-primary transition-colors">İletişim</a>
-                    
-                    <!-- Dark Mode Toggle -->
-                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 transition-colors">
-                        <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
-                        <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
-                    </button>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-gray-700 dark:text-white focus:outline-none">
-                        <i class="fas fa-bars text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden glass">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Ana Sayfa</a>
-                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Hakkımda</a>
-                <a href="#projects" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">Projeler</a>
-                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700">İletişim</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
-        <!-- Animated Background Blobs -->
-        <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob dark:bg-purple-900 dark:mix-blend-normal"></div>
-        <div class="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000 dark:bg-blue-900 dark:mix-blend-normal"></div>
-        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000 dark:bg-indigo-900 dark:mix-blend-normal"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div class="mb-8 inline-block">
-                <img src="https://github.com/tugsanemen1417.png" alt="Tuğsan Emen" class="w-32 h-32 rounded-full border-4 border-primary shadow-2xl animate-float mx-auto">
-            </div>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-50 login-bg flex items-center justify-center p-4">
+        <div class="max-w-4xl w-full grid md:grid-cols-2 gap-8">
             
-            <h1 class="text-5xl md:text-7xl font-bold mb-4">
-                <span class="block mb-2">Merhaba, ben</span>
-                <span class="gradient-text typing-text" id="typing-name">Tuğsan Emen</span>
-            </h1>
-            
-            <div class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 font-mono h-8">
-                <span id="typing-role"></span><span class="cursor-blink">|</span>
-            </div>
-
-            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
-                Modern web teknolojileri ile kullanıcı deneyimini ön planda tutan, 
-                sürekli öğrenmeye ve gelişmeye açık bir yazılım geliştiricisi.
-            </p>
-
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <a href="#projects" class="px-8 py-4 bg-primary hover:bg-blue-600 text-white rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hover:shadow-primary/50">
-                    Projelerimi Gör <i class="fas fa-arrow-right ml-2"></i>
-                </a>
-                <a href="#contact" class="px-8 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-full font-semibold transition-all">
-                    İletişime Geç
-                </a>
-            </div>
-
-            <!-- Social Links -->
-            <div class="mt-12 flex justify-center space-x-6">
-                <a href="https://github.com/tugsanemen1417" target="_blank" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-primary transition-colors transform hover:scale-110">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="#" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-blue-400 transition-colors transform hover:scale-110">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors transform hover:scale-110">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-                <a href="#" class="text-2xl text-gray-600 dark:text-gray-400 hover:text-pink-500 transition-colors transform hover:scale-110">
-                    <i class="fab fa-instagram"></i>
-                </a>
-            </div>
-
-            <!-- Scroll Indicator -->
-            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-                <i class="fas fa-chevron-down text-2xl text-primary"></i>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="py-20 bg-white dark:bg-gray-800 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4 gradient-text">Hakkımda</h2>
-                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="space-y-6 reveal-on-scroll">
-                    <div class="glass p-6 rounded-2xl">
-                        <h3 class="text-2xl font-bold mb-4 flex items-center">
-                            <i class="fas fa-code text-primary mr-3"></i>
-                            Yazılım Geliştirici
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                            Modern web teknolojileri ve açık kaynak projelerle ilgileniyorum. 
-                            Kullanıcı dostu arayüzler ve performanslı uygulamalar geliştirmeyi seviyorum.
-                        </p>
-                    </div>
-
-                    <div class="glass p-6 rounded-2xl">
-                        <h3 class="text-2xl font-bold mb-4 flex items-center">
-                            <i class="fas fa-graduation-cap text-secondary mr-3"></i>
-                            Öğrenci & Öğrenen
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                            Sürekli kendimi geliştirmeye ve yeni teknolojiler öğrenmeye odaklanıyorum. 
-                            Her gün biraz daha ileriye gitmek en büyük motivasyonum.
-                        </p>
-                    </div>
-
-                    <div class="glass p-6 rounded-2xl">
-                        <h3 class="text-2xl font-bold mb-4 flex items-center">
-                            <i class="fas fa-lightbulb text-accent mr-3"></i>
-                            Problem Çözücü
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                            Karmaşık problemleri basit ve etkili çözümlere dönüştürmeyi seviyorum. 
-                            Analitik düşünce ve yaratıcı yaklaşımlar benim iş tarzım.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="relative reveal-on-scroll">
-                    <!-- Terminal Window -->
-                    <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl border border-gray-700 font-mono text-sm">
-                        <div class="bg-gray-800 px-4 py-2 flex items-center space-x-2">
-                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span class="ml-4 text-gray-400 text-xs">tugsan@portfolio:~</span>
-                        </div>
-                        <div class="p-6 text-green-400 space-y-2" id="terminal-content">
-                            <div class="typing-line"><span class="text-blue-400">$</span> whoami</div>
-                            <div class="typing-line delay-500">tugsan_emen</div>
-                            <div class="typing-line delay-1000"><span class="text-blue-400">$</span> cat interests.txt</div>
-                            <div class="typing-line delay-1500">- Web Development<br>- Open Source<br>- Machine Learning<br>- UI/UX Design</div>
-                            <div class="typing-line delay-2000"><span class="text-blue-400">$</span> current_status</div>
-                            <div class="typing-line delay-2500">Learning new things every day... <span class="cursor-blink">_</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="py-20 bg-gray-50 dark:bg-gray-900">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4 gradient-text">Projelerim</h2>
-                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Geliştirdiğim bazı projeler</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Project Card 1 -->
-                <div class="project-card glass rounded-2xl overflow-hidden reveal-on-scroll">
-                    <div class="h-48 bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                        <i class="fas fa-globe text-6xl text-white opacity-50"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Kişisel Web Sitesi</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
-                            Modern tasarım ve animasyonlarla hazırlanmış kişisel portfolio sitesi.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">HTML</span>
-                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs">CSS</span>
-                            <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">JavaScript</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <a href="#" class="text-primary hover:underline text-sm">Canlı Demo <i class="fas fa-external-link-alt ml-1"></i></a>
-                            <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-white transition-colors">
-                                <i class="fab fa-github text-xl"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project Card 2 -->
-                <div class="project-card glass rounded-2xl overflow-hidden reveal-on-scroll">
-                    <div class="h-48 bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
-                        <i class="fas fa-mobile-alt text-6xl text-white opacity-50"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Mobil Uygulama</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
-                            React Native ile geliştirilmiş cross-platform mobil uygulama projesi.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="px-3 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 rounded-full text-xs">React Native</span>
-                            <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">Firebase</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <a href="#" class="text-primary hover:underline text-sm">Detaylar <i class="fas fa-arrow-right ml-1"></i></a>
-                            <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-white transition-colors">
-                                <i class="fab fa-github text-xl"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project Card 3 -->
-                <div class="project-card glass rounded-2xl overflow-hidden reveal-on-scroll">
-                    <div class="h-48 bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center">
-                        <i class="fas fa-robot text-6xl text-white opacity-50"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Yapay Zeka Projesi</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
-                            Makine öğrenmesi algoritmaları kullanarak geliştirilen sınıflandırma modeli.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">Python</span>
-                            <span class="px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded-full text-xs">TensorFlow</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <a href="#" class="text-primary hover:underline text-sm">Blog Yazısı <i class="fas fa-book-open ml-1"></i></a>
-                            <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-white transition-colors">
-                                <i class="fab fa-github text-xl"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-12">
-                <a href="https://github.com/tugsanemen1417" target="_blank" class="inline-flex items-center px-6 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-full transition-all">
-                    <i class="fab fa-github mr-2"></i>
-                    GitHub'da Daha Fazla Proje
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Skills Section -->
-    <section id="skills" class="py-20 bg-white dark:bg-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4 gradient-text">Yeteneklerim</h2>
-                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-12">
-                <!-- Technical Skills -->
-                <div class="space-y-6 reveal-on-scroll">
-                    <h3 class="text-2xl font-bold mb-6 flex items-center">
-                        <i class="fas fa-laptop-code text-primary mr-3"></i>
-                        Teknik Beceriler
-                    </h3>
+            <!-- Kurye Girişi -->
+            <div class="glass rounded-3xl p-8 text-white transform hover:scale-105 transition-all cursor-pointer" onclick="showKuryeLogin()">
+                <div class="text-center">
+                    <div class="text-6xl mb-4 emoji-float">🛵</div>
+                    <h2 class="text-3xl font-bold mb-2">Kurye Girişi</h2>
+                    <p class="text-white/80 mb-6">Motor kullanıcıları için hızlı giriş</p>
                     
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-medium">HTML/CSS/Tailwind</span>
-                            <span class="text-primary">90%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="90%"></div>
-                        </div>
-                    </div>
-
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-medium">JavaScript/TypeScript</span>
-                            <span class="text-primary">85%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="85%"></div>
-                        </div>
-                    </div>
-
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-medium">React/Vue.js</span>
-                            <span class="text-primary">80%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="80%"></div>
-                        </div>
-                    </div>
-
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-medium">Python</span>
-                            <span class="text-primary">75%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="75%"></div>
-                        </div>
-                    </div>
-
-                    <div class="skill-item">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-medium">Git/GitHub</span>
-                            <span class="text-primary">85%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div class="skill-fill bg-primary h-2.5 rounded-full" data-width="85%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Soft Skills & Tools -->
-                <div class="space-y-6 reveal-on-scroll">
-                    <h3 class="text-2xl font-bold mb-6 flex items-center">
-                        <i class="fas fa-tools text-secondary mr-3"></i>
-                        Araçlar & Yöntemler
-                    </h3>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
-                            <i class="fab fa-figma text-3xl mb-2 text-pink-500 group-hover:text-white"></i>
-                            <p class="font-medium">Figma</p>
-                        </div>
-                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
-                            <i class="fab fa-docker text-3xl mb-2 text-blue-500 group-hover:text-white"></i>
-                            <p class="font-medium">Docker</p>
-                        </div>
-                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
-                            <i class="fas fa-database text-3xl mb-2 text-green-500 group-hover:text-white"></i>
-                            <p class="font-medium">MongoDB</p>
-                        </div>
-                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
-                            <i class="fab fa-node text-3xl mb-2 text-green-600 group-hover:text-white"></i>
-                            <p class="font-medium">Node.js</p>
-                        </div>
-                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
-                            <i class="fas fa-code-branch text-3xl mb-2 text-orange-500 group-hover:text-white"></i>
-                            <p class="font-medium">CI/CD</p>
-                        </div>
-                        <div class="glass p-4 rounded-xl text-center hover:bg-primary hover:text-white transition-all cursor-pointer group">
-                            <i class="fas fa-cloud text-3xl mb-2 text-blue-400 group-hover:text-white"></i>
-                            <p class="font-medium">AWS</p>
-                        </div>
-                    </div>
-
-                    <div class="mt-8 glass p-6 rounded-xl">
-                        <h4 class="font-bold mb-3 flex items-center">
-                            <i class="fas fa-star text-yellow-400 mr-2"></i>
-                            Öne Çıkan Özellikler
-                        </h4>
-                        <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Responsive Tasarım</li>
-                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> SEO Optimizasyonu</li>
-                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Performans Odaklı Kodlama</li>
-                            <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Clean Code Prensipleri</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Blog Section -->
-    <section id="blog" class="py-20 bg-gray-50 dark:bg-gray-900">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4 gradient-text">Blog</h2>
-                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Son yazılarım ve düşüncelerim</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Blog Post 1 -->
-                <article class="glass rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300 reveal-on-scroll">
-                    <div class="h-48 bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
-                        <i class="fas fa-code text-5xl text-white opacity-50"></i>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                            <i class="far fa-calendar mr-2"></i>
-                            <span>10 Mart 2026</span>
-                            <span class="mx-2">•</span>
-                            <span>5 dk okuma</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2 hover:text-primary transition-colors cursor-pointer">
-                            Modern Web Geliştirme Trendleri 2026
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                            2026 yılında öne çıkan web teknolojileri ve framework'ler hakkında detaylı bir analiz...
-                        </p>
-                        <a href="#" class="text-primary hover:underline text-sm font-medium">
-                            Devamını Oku <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    </div>
-                </article>
-
-                <!-- Blog Post 2 -->
-                <article class="glass rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300 reveal-on-scroll">
-                    <div class="h-48 bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center">
-                        <i class="fas fa-robot text-5xl text-white opacity-50"></i>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                            <i class="far fa-calendar mr-2"></i>
-                            <span>5 Mart 2026</span>
-                            <span class="mx-2">•</span>
-                            <span>8 dk okuma</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2 hover:text-primary transition-colors cursor-pointer">
-                            Yapay Zeka ve Web Geliştirme
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                            AI araçlarının yazılım geliştirme süreçlerini nasıl dönüştürdüğü ve gelecek beklentileri...
-                        </p>
-                        <a href="#" class="text-primary hover:underline text-sm font-medium">
-                            Devamını Oku <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    </div>
-                </article>
-
-                <!-- Blog Post 3 -->
-                <article class="glass rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300 reveal-on-scroll">
-                    <div class="h-48 bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
-                        <i class="fas fa-book text-5xl text-white opacity-50"></i>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                            <i class="far fa-calendar mr-2"></i>
-                            <span>1 Mart 2026</span>
-                            <span class="mx-2">•</span>
-                            <span>6 dk okuma</span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2 hover:text-primary transition-colors cursor-pointer">
-                            Öğrenme Yolculuğum: İpuçları
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                            Yazılım öğrenme sürecimde edindiğim deneyimler ve yeni başlayanlara tavsiyeler...
-                        </p>
-                        <a href="#" class="text-primary hover:underline text-sm font-medium">
-                            Devamını Oku <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 bg-white dark:bg-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4 gradient-text">İletişim</h2>
-                <div class="w-24 h-1 bg-primary mx-auto rounded-full mb-4"></div>
-                <p class="text-gray-600 dark:text-gray-400">Bir proje mi var? Hadi konuşalım!</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-                <!-- Contact Info -->
-                <div class="space-y-8 reveal-on-scroll">
-                    <div class="glass p-6 rounded-2xl flex items-start space-x-4 hover:bg-primary hover:text-white transition-all group cursor-pointer">
-                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
-                            <i class="fas fa-envelope text-xl text-primary group-hover:text-white"></i>
+                    <div id="kurye-form" class="hidden space-y-4 text-left">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">👤 İsim Soyisim</label>
+                            <input type="text" id="kurye-isim" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white" placeholder="örn: Ahmet Yılmaz">
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg mb-1">Email</h3>
-                            <p class="text-gray-600 dark:text-gray-300 group-hover:text-white/90">tugsan@example.com</p>
+                            <label class="block text-sm font-bold mb-2">🏍️ Plaka</label>
+                            <input type="text" id="kurye-plaka" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white uppercase" placeholder="34 ABC 123">
                         </div>
-                    </div>
-
-                    <div class="glass p-6 rounded-2xl flex items-start space-x-4 hover:bg-primary hover:text-white transition-all group cursor-pointer">
-                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
-                            <i class="fas fa-map-marker-alt text-xl text-primary group-hover:text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg mb-1">Konum</h3>
-                            <p class="text-gray-600 dark:text-gray-300 group-hover:text-white/90">Türkiye</p>
-                        </div>
-                    </div>
-
-                    <div class="glass p-6 rounded-2xl flex items-start space-x-4 hover:bg-primary hover:text-white transition-all group cursor-pointer">
-                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-white/20">
-                            <i class="fas fa-clock text-xl text-primary group-hover:text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg mb-1">Çalışma Saatleri</h3>
-                            <p class="text-gray-600 dark:text-gray-300 group-hover:text-white/90">Pzt - Cmt: 09:00 - 18:00</p>
-                        </div>
-                    </div>
-
-                    <!-- Social Links Large -->
-                    <div class="flex space-x-4 pt-4">
-                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-primary hover:text-white transition-all transform hover:scale-110">
-                            <i class="fab fa-github text-xl"></i>
-                        </a>
-                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all transform hover:scale-110">
-                            <i class="fab fa-twitter text-xl"></i>
-                        </a>
-                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110">
-                            <i class="fab fa-linkedin text-xl"></i>
-                        </a>
-                        <a href="#" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all transform hover:scale-110">
-                            <i class="fab fa-instagram text-xl"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Contact Form -->
-                <div class="glass p-8 rounded-2xl reveal-on-scroll">
-                    <form id="contact-form" class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">İsim</label>
-                            <input type="text" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Adınız Soyadınız">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Email</label>
-                            <input type="email" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="ornek@email.com">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Konu</label>
-                            <select class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
-                                <option>Proje Teklifi</option>
-                                <option>İş Birliği</option>
-                                <option>Danışmanlık</option>
-                                <option>Diğer</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Mesaj</label>
-                            <textarea rows="4" required class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none" placeholder="Mesajınızı buraya yazın..."></textarea>
-                        </div>
-                        <button type="submit" class="w-full py-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-primary/50 flex items-center justify-center space-x-2">
-                            <i class="fas fa-paper-plane"></i>
-                            <span>Mesaj Gönder</span>
+                        <button onclick="loginKurye()" class="w-full py-3 bg-brand-yellow text-brand-dark font-bold rounded-xl hover:bg-white transition-all transform hover:scale-105">
+                            🚀 Göreve Başla!
                         </button>
-                    </form>
+                    </div>
+                    
+                    <div id="kurye-btn">
+                        <button class="px-8 py-3 bg-white/20 rounded-full font-bold hover:bg-white/30 transition-all">
+                            Giriş Yap <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yönetici Girişi -->
+            <div class="glass rounded-3xl p-8 text-white transform hover:scale-105 transition-all cursor-pointer" onclick="showAdminLogin()">
+                <div class="text-center">
+                    <div class="text-6xl mb-4 emoji-float" style="animation-delay: 0.5s">👨‍💼</div>
+                    <h2 class="text-3xl font-bold mb-2">Yönetici Girişi</h2>
+                    <p class="text-white/80 mb-6">Filo ve kurye yönetimi</p>
+                    
+                    <div id="admin-form" class="hidden space-y-4 text-left">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">👤 Kullanıcı Adı</label>
+                            <input type="text" id="admin-user" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white" placeholder="admin">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">🔒 Şifre</label>
+                            <input type="password" id="admin-pass" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white" placeholder="••••••">
+                        </div>
+                        <button onclick="loginAdmin()" class="w-full py-3 bg-brand-pink text-white font-bold rounded-xl hover:bg-white hover:text-brand-pink transition-all transform hover:scale-105">
+                            🔑 Panele Git
+                        </button>
+                    </div>
+                    
+                    <div id="admin-btn">
+                        <button class="px-8 py-3 bg-white/20 rounded-full font-bold hover:bg-white/30 transition-all">
+                            Giriş Yap <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 border-t border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <span class="font-mono text-2xl font-bold gradient-text">&lt;TE/&gt;</span>
-                    <p class="text-gray-400 text-sm mt-2">© 2026 Tuğsan Emen. Tüm hakları saklıdır.</p>
+    <!-- KURYE PANEL -->
+    <div id="kurye-panel" class="hidden min-h-screen bg-gradient-to-br from-brand-blue to-brand-purple">
+        <!-- Header -->
+        <header class="bg-white/10 backdrop-blur-md text-white p-4 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl">🛵</span>
+                    <div>
+                        <h1 class="font-bold text-lg">MotoTakip</h1>
+                        <p class="text-xs opacity-80">Kurye Modu</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-bold" id="kurye-name-display">Ahmet Y.</p>
+                        <p class="text-xs opacity-80" id="kurye-plaka-display">34 ABC 123</p>
+                    </div>
+                    <button onclick="logout()" class="p-2 bg-red-500 rounded-lg hover:bg-red-600 transition-all">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto p-4 space-y-4">
+            <!-- Durum Kartı -->
+            <div class="bg-white rounded-2xl p-6 shadow-xl card-hover">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">🚀 Görev Durumu</h2>
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold animate-pulse">
+                        ● Aktif
+                    </span>
                 </div>
                 
-                <div class="flex space-x-6 text-sm text-gray-400">
-                    <a href="#" class="hover:text-white transition-colors">Gizlilik Politikası</a>
-                    <a href="#" class="hover:text-white transition-colors">Kullanım Koşulları</a>
-                    <a href="#" class="hover:text-white transition-colors">Site Haritası</a>
-                </div>
-
-                <div class="mt-4 md:mt-0 flex items-center text-gray-400 text-sm">
-                    <span>Made with</span>
-                    <i class="fas fa-heart text-red-500 mx-2 animate-pulse"></i>
-                    <span>and</span>
-                    <i class="fas fa-coffee text-yellow-600 mx-2"></i>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="toggleStatus('müsait')" class="p-4 bg-green-100 rounded-xl text-green-700 font-bold hover:bg-green-200 transition-all transform active:scale-95 flex flex-col items-center">
+                        <span class="text-2xl mb-1">✅</span>
+                        Müsait
+                    </button>
+                    <button onclick="toggleStatus('dagitim')" class="p-4 bg-blue-100 rounded-xl text-blue-700 font-bold hover:bg-blue-200 transition-all transform active:scale-95 flex flex-col items-center">
+                        <span class="text-2xl mb-1">📦</span>
+                        Dağıtımda
+                    </button>
+                    <button onclick="toggleStatus('mola')" class="p-4 bg-yellow-100 rounded-xl text-yellow-700 font-bold hover:bg-yellow-200 transition-all transform active:scale-95 flex flex-col items-center">
+                        <span class="text-2xl mb-1">☕</span>
+                        Mola
+                    </button>
+                    <button onclick="toggleStatus('servis')" class="p-4 bg-red-100 rounded-xl text-red-700 font-bold hover:bg-red-200 transition-all transform active:scale-95 flex flex-col items-center">
+                        <span class="text-2xl mb-1">🔧</span>
+                        Servis
+                    </button>
                 </div>
             </div>
-        </div>
-    </footer>
 
-    <!-- Back to Top Button -->
-    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-blue-600 hover:scale-110 z-50">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+            <!-- Motor Bilgisi -->
+            <div class="bg-white rounded-2xl p-6 shadow-xl card-hover">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">🏍️ Motor Durumu</h2>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-600">⛽ Benzin</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-brand-orange w-3/4 rounded-full"></div>
+                            </div>
+                            <span class="font-bold text-sm">75%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-600">🔧 Bakım (km)</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-32 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-brand-pink w-1/4 rounded-full"></div>
+                            </div>
+                            <span class="font-bold text-sm">250/1000</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <div class="bg-brand-blue/10 p-3 rounded-xl text-center">
+                            <p class="text-xs text-gray-500">Toplam KM</p>
+                            <p class="text-xl font-bold text-brand-blue">12.450</p>
+                        </div>
+                        <div class="bg-brand-green/10 p-3 rounded-xl text-center">
+                            <p class="text-xs text-gray-500">Bugün</p>
+                            <p class="text-xl font-bold text-brand-green">87 km</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Harita -->
+            <div class="bg-white rounded-2xl p-4 shadow-xl">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">📍 Konumum</h2>
+                <div id="map-kurye" class="h-64 rounded-xl"></div>
+            </div>
+
+            <!-- Hızlı İşlemler -->
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="reportIssue()" class="p-4 bg-red-100 rounded-xl text-red-600 hover:bg-red-200 transition-all">
+                    <i class="fas fa-exclamation-triangle text-2xl mb-1 block"></i>
+                    <span class="text-xs font-bold">Sorun Bildir</span>
+                </button>
+                <button onclick="requestMaintenance()" class="p-4 bg-yellow-100 rounded-xl text-yellow-600 hover:bg-yellow-200 transition-all">
+                    <i class="fas fa-wrench text-2xl mb-1 block"></i>
+                    <span class="text-xs font-bold">Bakım İste</span>
+                </button>
+                <button onclick="emergencyCall()" class="p-4 bg-green-100 rounded-xl text-green-600 hover:bg-green-200 transition-all animate-pulse">
+                    <i class="fas fa-phone-alt text-2xl mb-1 block"></i>
+                    <span class="text-xs font-bold">Acil</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- YÖNETİCİ PANEL -->
+    <div id="admin-panel" class="hidden min-h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="fixed left-0 top-0 h-full w-64 bg-brand-dark text-white p-6 z-40 transform -translate-x-full md:translate-x-0 transition-transform" id="sidebar">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold flex items-center">
+                    <span class="text-3xl mr-2">🛵</span>
+                    MotoTakip Pro
+                </h1>
+                <p class="text-xs text-gray-400 mt-1">Yönetim Paneli</p>
+            </div>
+
+            <nav class="space-y-2">
+                <button onclick="showSection('dashboard')" class="w-full text-left px-4 py-3 rounded-xl bg-brand-purple/20 text-brand-purple border-l-4 border-brand-purple">
+                    <i class="fas fa-chart-line mr-3"></i> Dashboard
+                </button>
+                <button onclick="showSection('kuryeler')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-users mr-3"></i> Kuryeler
+                </button>
+                <button onclick="showSection('motors')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-motorcycle mr-3"></i> Motor Filosu
+                </button>
+                <button onclick="showSection('bakim')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-tools mr-3"></i> Bakım Takibi
+                </button>
+                <button onclick="showSection('harita')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-map mr-3"></i> Canlı Harita
+                </button>
+                <button onclick="showSection('raporlar')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-file-alt mr-3"></i> Raporlar
+                </button>
+            </nav>
+
+            <div class="absolute bottom-6 left-6 right-6">
+                <button onclick="logout()" class="w-full py-3 bg-red-500 rounded-xl hover:bg-red-600 transition-all font-bold">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="md:ml-64 p-4 md:p-8">
+            <!-- Top Bar -->
+            <div class="flex justify-between items-center mb-8">
+                <button onclick="toggleSidebar()" class="md:hidden p-2 bg-white rounded-lg shadow">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="text-2xl font-bold text-gray-800" id="page-title">📊 Dashboard</h2>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 bg-white rounded-lg shadow relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                    </button>
+                    <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg shadow">
+                        <div class="w-8 h-8 bg-brand-purple rounded-full flex items-center justify-center text-white font-bold">A</div>
+                        <span class="font-bold text-sm hidden sm:block">Admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="section-dashboard" class="space-y-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-green">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-sm">Aktif Kurye</p>
+                                <p class="text-3xl font-bold text-gray-800">12</p>
+                            </div>
+                            <span class="text-2xl">🛵</span>
+                        </div>
+                        <p class="text-xs text-green-500 mt-2">↑ 2 bugün</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-blue">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-sm">Toplam KM</p>
+                                <p class="text-3xl font-bold text-gray-800">1,247</p>
+                            </div>
+                            <span class="text-2xl">📍</span>
+                        </div>
+                        <p class="text-xs text-blue-500 mt-2">Bugün</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-orange">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-sm">Bakım Bekleyen</p>
+                                <p class="text-3xl font-bold text-gray-800">3</p>
+                            </div>
+                            <span class="text-2xl">🔧</span>
+                        </div>
+                        <p class="text-xs text-orange-500 mt-2">Acil: 1</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-pink">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-sm">Ort. Teslimat</p>
+                                <p class="text-3xl font-bold text-gray-800">18dk</p>
+                            </div>
+                            <span class="text-2xl">⚡</span>
+                        </div>
+                        <p class="text-xs text-green-500 mt-2">↓ 2dk</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="font-bold text-lg mb-4">📈 Haftalık Performans</h3>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="font-bold text-lg mb-4">🥇 Kurye Sıralaması</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border-2 border-yellow-200">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">🥇</span>
+                                    <div>
+                                        <p class="font-bold">Mehmet K.</p>
+                                        <p class="text-xs text-gray-500">34 XY 999</p>
+                                    </div>
+                                </div>
+                                <span class="font-bold text-yellow-600">45 teslimat</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">🥈</span>
+                                    <div>
+                                        <p class="font-bold">Ali R.</p>
+                                        <p class="text-xs text-gray-500">34 AB 456</p>
+                                    </div>
+                                </div>
+                                <span class="font-bold text-gray-600">38 teslimat</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">🥉</span>
+                                    <div>
+                                        <p class="font-bold">Can Y.</p>
+                                        <p class="text-xs text-gray-500">34 CD 789</p>
+                                    </div>
+                                </div>
+                                <span class="font-bold text-orange-600">32 teslimat</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Map -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h3 class="font-bold text-lg mb-4">🗺️ Canlı Kurye Takibi</h3>
+                    <div id="map-admin" class="h-96 rounded-xl"></div>
+                </div>
+            </div>
+
+            <!-- Kuryeler Section -->
+            <div id="section-kuryeler" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">👥 Aktif Kuryeler</h3>
+                    <button onclick="addKurye()" class="px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-purple-600 transition-all">
+                        <i class="fas fa-plus mr-2"></i>Yeni Kurye
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="kurye-list">
+                    <!-- Kurye cards will be generated here -->
+                </div>
+            </div>
+
+            <!-- Motors Section -->
+            <div id="section-motors" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">🏍️ Motor Filosu</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="filterMotors('all')" class="px-4 py-2 bg-brand-blue text-white rounded-lg">Tümü</button>
+                        <button onclick="filterMotors('active')" class="px-4 py-2 bg-green-500 text-white rounded-lg">Aktif</button>
+                        <button onclick="filterMotors('maintenance')" class="px-4 py-2 bg-red-500 text-white rounded-lg">Bakımda</button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="motor-list">
+                    <!-- Motor cards will be generated here -->
+                </div>
+            </div>
+
+            <!-- Bakım Section -->
+            <div id="section-bakim" class="hidden space-y-6">
+                <h3 class="text-xl font-bold">🔧 Bakım Takvimi</h3>
+                
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Plaka</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Son Bakım</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Sonraki Bakım</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Durum</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="bakim-table">
+                            <!-- Bakım rows will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
-        // Dark Mode Toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-        
-        // Check local storage or system preference
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-        } else {
-            html.classList.remove('dark');
+        // Data
+        const kuryeler = [
+            { id: 1, isim: 'Ahmet Yılmaz', plaka: '34 ABC 123', durum: 'müsait', teslimat: 12, km: 12450, telefon: '555-0101' },
+            { id: 2, isim: 'Mehmet Kaya', plaka: '34 XY 999', durum: 'dagitim', teslimat: 45, km: 23400, telefon: '555-0102' },
+            { id: 3, isim: 'Ali Rıza', plaka: '34 AB 456', durum: 'mola', teslimat: 38, km: 18900, telefon: '555-0103' },
+            { id: 4, isim: 'Can Yıldız', plaka: '34 CD 789', durum: 'müsait', teslimat: 32, km: 15600, telefon: '555-0104' },
+        ];
+
+        const motors = [
+            { id: 1, plaka: '34 ABC 123', model: 'Honda PCX', yil: 2022, km: 12450, sonBakim: '2026-02-01', sonrakiBakim: 13000, durum: 'aktif', benzin: 75 },
+            { id: 2, plaka: '34 XY 999', model: 'Yamaha NMAX', yil: 2023, km: 23400, sonBakim: '2026-01-15', sonrakiBakim: 24000, durum: 'aktif', benzin: 45 },
+            { id: 3, plaka: '34 AB 456', model: 'Honda PCX', yil: 2022, km: 18900, sonBakim: '2026-02-20', sonrakiBakim: 19500, durum: 'bakim', benzin: 90 },
+            { id: 4, plaka: '34 CD 789', model: 'Vespa GTS', yil: 2023, km: 15600, sonBakim: '2026-03-01', sonrakiBakim: 16000, durum: 'aktif', benzin: 60 },
+        ];
+
+        let currentUser = null;
+        let currentRole = null;
+        let kuryeMap = null;
+        let adminMap = null;
+
+        // Login Functions
+        function showKuryeLogin() {
+            document.getElementById('kurye-form').classList.remove('hidden');
+            document.getElementById('kurye-btn').classList.add('hidden');
+            document.getElementById('admin-form').classList.add('hidden');
+            document.getElementById('admin-btn').classList.remove('hidden');
         }
 
-        themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            if (html.classList.contains('dark')) {
-                localStorage.theme = 'dark';
-            } else {
-                localStorage.theme = 'light';
-            }
-        });
+        function showAdminLogin() {
+            document.getElementById('admin-form').classList.remove('hidden');
+            document.getElementById('admin-btn').classList.add('hidden');
+            document.getElementById('kurye-form').classList.add('hidden');
+            document.getElementById('kurye-btn').classList.remove('hidden');
+        }
 
-        // Mobile Menu Toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Typing Effect for Role
-        const roles = ['Yazılım Geliştirici', 'Öğrenci', 'Açık Kaynak Tutkunu', 'Problem Çözücü'];
-        let roleIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        const typingRole = document.getElementById('typing-role');
-
-        function typeRole() {
-            const currentRole = roles[roleIndex];
+        function loginKurye() {
+            const isim = document.getElementById('kurye-isim').value;
+            const plaka = document.getElementById('kurye-plaka').value.toUpperCase();
             
-            if (isDeleting) {
-                typingRole.textContent = currentRole.substring(0, charIndex - 1);
-                charIndex--;
-            } else {
-                typingRole.textContent = currentRole.substring(0, charIndex + 1);
-                charIndex++;
+            if (!isim || !plaka) {
+                alert('❌ Lütfen tüm alanları doldurun!');
+                return;
             }
 
-            let typeSpeed = isDeleting ? 50 : 100;
-
-            if (!isDeleting && charIndex === currentRole.length) {
-                typeSpeed = 2000;
-                isDeleting = true;
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                roleIndex = (roleIndex + 1) % roles.length;
-                typeSpeed = 500;
+            const kurye = kuryeler.find(k => k.plaka === plaka);
+            if (!kurye) {
+                alert('❌ Bu plakaya kayıtlı kurye bulunamadı!');
+                return;
             }
 
-            setTimeout(typeRole, typeSpeed);
+            currentUser = kurye;
+            currentRole = 'kurye';
+            
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('kurye-panel').classList.remove('hidden');
+            
+            document.getElementById('kurye-name-display').textContent = isim;
+            document.getElementById('kurye-plaka-display').textContent = plaka;
+            
+            setTimeout(() => {
+                initKuryeMap();
+            }, 100);
         }
 
-        typeRole();
+        function loginAdmin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            
+            if (user === 'admin' && pass === 'admin123') {
+                currentRole = 'admin';
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    initAdminMap();
+                    initCharts();
+                    renderKuryeList();
+                    renderMotorList();
+                    renderBakimTable();
+                }, 100);
+            } else {
+                alert('❌ Hatalı kullanıcı adı veya şifre!');
+            }
+        }
 
-        // GSAP Animations
-        gsap.registerPlugin(ScrollTrigger);
+        function logout() {
+            location.reload();
+        }
 
-        // Reveal on scroll
-        gsap.utils.toArray('.reveal-on-scroll').forEach(element => {
-            gsap.fromTo(element, 
-                { opacity: 0, y: 50 },
-                {
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                    ease: "power3.out",
-                    scrollTrigger: {
-                        trigger: element,
-                        start: "top 85%",
-                        toggleActions: "play none none reverse"
+        // Kurye Functions
+        function toggleStatus(durum) {
+            const durumText = {
+                'müsait': '✅ Müsait',
+                'dagitim': '📦 Dağıtımda',
+                'mola': '☕ Mola',
+                'servis': '🔧 Servis'
+            };
+            alert(`Durum güncellendi: ${durumText[durum]}`);
+        }
+
+        function reportIssue() {
+            const sorun = prompt('🚨 Karşılaştığınız sorunu kısaca açıklayın:');
+            if (sorun) {
+                alert('✅ Sorun bildirildi! Yönetici en kısa sürede size ulaşacak.');
+            }
+        }
+
+        function requestMaintenance() {
+            if (confirm('🔧 Bakım isteği gönderilsin mi?')) {
+                alert('✅ Bakım isteği alındı! En yakın servis yönlendirilecek.');
+            }
+        }
+
+        function emergencyCall() {
+            if (confirm('🚨 Acil durum hattını aramak istiyor musunuz?')) {
+                alert('📞 Yönetici aranıyor: 0555-000-0000');
+            }
+        }
+
+        // Admin Functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`section-${section}`).classList.remove('hidden');
+            
+            // Update title
+            const titles = {
+                'dashboard': '📊 Dashboard',
+                'kuryeler': '👥 Kuryeler',
+                'motors': '🏍️ Motor Filosu',
+                'bakim': '🔧 Bakım Takibi',
+                'harita': '🗺️ Canlı Harita',
+                'raporlar': '📄 Raporlar'
+            };
+            document.getElementById('page-title').textContent = titles[section];
+            
+            // Update active nav
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('bg-brand-purple/20', 'text-brand-purple', 'border-l-4', 'border-brand-purple');
+            });
+            event.target.classList.add('bg-brand-purple/20', 'text-brand-purple', 'border-l-4', 'border-brand-purple');
+            
+            // Close sidebar on mobile
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+        }
+
+        function renderKuryeList() {
+            const container = document.getElementById('kurye-list');
+            container.innerHTML = kuryeler.map(k => `
+                <div class="bg-white p-6 rounded-2xl shadow-lg card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-brand-purple rounded-full flex items-center justify-center text-white text-xl font-bold">
+                            ${k.isim.charAt(0)}
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${getDurumColor(k.durum)}">
+                            ${getDurumEmoji(k.durum)} ${k.durum.toUpperCase()}
+                        </span>
+                    </div>
+                    <h4 class="font-bold text-lg">${k.isim}</h4>
+                    <p class="text-gray-500 text-sm mb-3">🏍️ ${k.plaka}</p>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="bg-gray-50 p-2 rounded-lg text-center">
+                            <p class="text-gray-500 text-xs">Teslimat</p>
+                            <p class="font-bold text-brand-blue">${k.teslimat}</p>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded-lg text-center">
+                            <p class="text-gray-500 text-xs">Toplam KM</p>
+                            <p class="font-bold text-brand-purple">${k.km.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="flex-1 py-2 bg-brand-blue text-white rounded-lg text-sm hover:bg-blue-600">
+                            <i class="fas fa-phone mr-1"></i> Ara
+                        </button>
+                        <button class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Konum
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMotorList(filter = 'all') {
+            const container = document.getElementById('motor-list');
+            const filtered = filter === 'all' ? motors : motors.filter(m => m.durum === filter);
+            
+            container.innerHTML = filtered.map(m => {
+                const bakimYuzde = ((m.km - (m.sonrakiBakim - 1000)) / 1000) * 100;
+                return `
+                <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-t-4 ${m.durum === 'aktif' ? 'border-green-500' : 'border-red-500'}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-bold text-lg">${m.model}</h4>
+                            <p class="text-gray-500 text-sm">🏍️ ${m.plaka}</p>
+                        </div>
+                        <span class="text-3xl">${m.durum === 'aktif' ? '✅' : '🔧'}</span>
+                    </div>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-500">Bakım Durumu</span>
+                                <span class="font-bold ${bakimYuzde > 80 ? 'text-red-500' : 'text-green-500'}">${m.km} / ${m.sonrakiBakim} km</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full ${bakimYuzde > 80 ? 'bg-red-500' : 'bg-green-500'} transition-all" style="width: ${bakimYuzde}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-500">⛽ Benzin</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-brand-orange" style="width: ${m.benzin}%"></div>
+                                </div>
+                                <span class="text-sm font-bold">${m.benzin}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="editMotor('${m.plaka}')" class="flex-1 py-2 bg-brand-purple text-white rounded-lg text-sm hover:bg-purple-600">
+                            <i class="fas fa-edit mr-1"></i> Düzenle
+                        </button>
+                        <button onclick="viewMotorHistory('${m.plaka}')" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
+                            <i class="fas fa-history mr-1"></i> Geçmiş
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function renderBakimTable() {
+            const tbody = document.getElementById('bakim-table');
+            tbody.innerHTML = motors.map(m => {
+                const kalan = m.sonrakiBakim - m.km;
+                const acil = kalan < 500;
+                return `
+                <tr class="hover:bg-gray-50 transition-all">
+                    <td class="px-6 py-4 font-bold">${m.plaka}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${m.sonBakim}</td>
+                    <td class="px-6 py-4">
+                        <span class="font-bold ${acil ? 'text-red-500' : 'text-green-500'}">${m.sonrakiBakim} km</span>
+                        <p class="text-xs text-gray-400">(${kalan} km kaldı)</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${acil ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                            ${acil ? '🔴 Acil Bakım' : '🟢 Normal'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="planBakim('${m.plaka}')" class="text-brand-blue hover:text-blue-700 font-bold text-sm">
+                            Planla <i class="fas fa-calendar-plus ml-1"></i>
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function filterMotors(type) {
+            renderMotorList(type);
+        }
+
+        function getDurumColor(durum) {
+            const colors = {
+                'müsait': 'bg-green-100 text-green-700',
+                'dagitim': 'bg-blue-100 text-blue-700',
+                'mola': 'bg-yellow-100 text-yellow-700',
+                'servis': 'bg-red-100 text-red-700'
+            };
+            return colors[durum] || 'bg-gray-100 text-gray-700';
+        }
+
+        function getDurumEmoji(durum) {
+            const emojis = {
+                'müsait': '✅',
+                'dagitim': '📦',
+                'mola': '☕',
+                'servis': '🔧'
+            };
+            return emojis[durum] || '⚪';
+        }
+
+        function addKurye() {
+            alert('👤 Yeni kurye ekleme modalı açılacak');
+        }
+
+        function editMotor(plaka) {
+            alert(`🔧 ${plaka} plakalı motor düzenleniyor...`);
+        }
+
+        function viewMotorHistory(plaka) {
+            alert(`📋 ${plaka} geçmişi görüntüleniyor...`);
+        }
+
+        function planBakim(plaka) {
+            const tarih = prompt('📅 Bakım tarihi girin (YYYY-MM-DD):');
+            if (tarih) {
+                alert(`✅ ${plaka} için bakım planlandı: ${tarih}`);
+            }
+        }
+
+        // Map Functions
+        function initKuryeMap() {
+            if (kuryeMap) return;
+            
+            kuryeMap = L.map('map-kurye').setView([41.0082, 28.9784], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(kuryeMap);
+            
+            // Add current location marker
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    L.marker([latitude, longitude])
+                        .addTo(kuryeMap)
+                        .bindPopup('📍 Buradasınız')
+                        .openPopup();
+                    kuryeMap.setView([latitude, longitude], 15);
+                });
+            }
+        }
+
+        function initAdminMap() {
+            if (adminMap) return;
+            
+            adminMap = L.map('map-admin').setView([41.0082, 28.9784], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(adminMap);
+            
+            // Add random kurye markers
+            const locations = [
+                [41.0082, 28.9784], [41.0182, 28.9884], [41.0282, 28.9684],
+                [41.0122, 28.9584], [41.0222, 28.9984]
+            ];
+            
+            const icons = ['🛵', '📦', '☕'];
+            locations.forEach((loc, idx) => {
+                L.marker(loc)
+                    .addTo(adminMap)
+                    .bindPopup(`${icons[idx % 3]} Kurye ${idx + 1}<br>📍 Canlı takip`);
+            });
+        }
+
+        // Charts
+        function initCharts() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [{
+                        label: 'Teslimat',
+                        data: [65, 78, 90, 81, 96, 105, 98],
+                        borderColor: '#8338EC',
+                        backgroundColor: 'rgba(131, 56, 236, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'KM',
+                        data: [120, 145, 160, 140, 180, 200, 175],
+                        borderColor: '#3A86FF',
+                        backgroundColor: 'rgba(58, 134, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 }
-            );
-        });
-
-        // Skill bars animation
-        gsap.utils.toArray('.skill-fill').forEach(bar => {
-            const width = bar.getAttribute('data-width');
-            gsap.to(bar, {
-                width: width,
-                duration: 1.5,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: bar,
-                    start: "top 90%"
-                }
             });
-        });
-
-        // Navbar scroll effect
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('shadow-lg');
-            } else {
-                navbar.classList.remove('shadow-lg');
-            }
-
-            // Back to top button
-            const backToTop = document.getElementById('back-to-top');
-            if (window.scrollY > 500) {
-                backToTop.classList.remove('opacity-0', 'invisible');
-                backToTop.classList.add('opacity-100', 'visible');
-            } else {
-                backToTop.classList.add('opacity-0', 'invisible');
-                backToTop.classList.remove('opacity-100', 'visible');
-            }
-        });
-
-        document.getElementById('back-to-top').addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Contact Form
-        document.getElementById('contact-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Show success message
-            const btn = e.target.querySelector('button');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i><span>Mesaj Gönderildi!</span>';
-            btn.classList.remove('bg-primary');
-            btn.classList.add('bg-green-500');
-            
-            setTimeout(() => {
-                btn.innerHTML = originalContent;
-                btn.classList.add('bg-primary');
-                btn.classList.remove('bg-green-500');
-                e.target.reset();
-            }, 3000);
-        });
-
-        // 3D Background with Three.js
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // Create particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 1500;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 50;
         }
 
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.02,
-            color: 0x6366f1,
-            transparent: true,
-            opacity: 0.8,
-        });
-
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-
-        camera.position.z = 5;
-
-        // Mouse interaction
-        let mouseX = 0;
-        let mouseY = 0;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = event.clientX / window.innerWidth - 0.5;
-            mouseY = event.clientY / window.innerHeight - 0.5;
-        });
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-
-            particlesMesh.rotation.y += 0.001;
-            particlesMesh.rotation.x += 0.001;
-
-            // Mouse interaction
-            particlesMesh.rotation.x += mouseY * 0.05;
-            particlesMesh.rotation.y += mouseX * 0.05;
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // Resize handler
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    // Close mobile menu if open
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-        });
-
-        // Terminal typing effect
-        const terminalLines = document.querySelectorAll('.typing-line');
-        terminalLines.forEach((line, index) => {
-            line.style.opacity = '0';
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add some entrance animation
+            document.querySelector('.login-bg').style.opacity = '0';
             setTimeout(() => {
-                line.style.opacity = '1';
-                line.classList.add('animate-pulse');
-            }, index * 500);
+                document.querySelector('.login-bg').style.transition = 'opacity 0.5s';
+                document.querySelector('.login-bg').style.opacity = '1';
+            }, 100);
         });
     </script>
 </body>
