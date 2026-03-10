@@ -5,54 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🛵 MotoTakip Pro - Kurye & Filo Yönetimi</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-    
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Nunito', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
                     colors: {
                         brand: {
-                            yellow: '#FFD93D',
-                            orange: '#FF6B35',
-                            pink: '#FF006E',
-                            purple: '#8338EC',
-                            blue: '#3A86FF',
-                            green: '#06FFA5',
-                            dark: '#1a1a2e'
-                        }
-                    },
-                    animation: {
-                        'bounce-slow': 'bounce 3s infinite',
-                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'wiggle': 'wiggle 1s ease-in-out infinite',
-                        'float': 'float 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        wiggle: {
-                            '0%, 100%': { transform: 'rotate(-3deg)' },
-                            '50%': { transform: 'rotate(3deg)' },
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
+                            yellow: '#FFD93D', orange: '#FF6B35', pink: '#FF006E',
+                            purple: '#8338EC', blue: '#3A86FF', green: '#06FFA5', dark: '#1a1a2e'
                         }
                     }
                 }
@@ -61,132 +29,46 @@
     </script>
 
     <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-        }
-        
-        .glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-5px) rotate(1deg);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        
-        .motor-icon {
-            animation: drive 2s ease-in-out infinite;
-        }
-        
-        @keyframes drive {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(5px); }
-        }
-        
-        .status-dot {
-            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
-        
-        @keyframes pulse-ring {
-            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(6, 255, 165, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(6, 255, 165, 0); }
-            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(6, 255, 165, 0); }
-        }
-        
-        #map { height: 400px; border-radius: 1rem; }
-        
-        .login-bg {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-        }
-        
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .emoji-float {
-            animation: emoji-float 3s ease-in-out infinite;
-        }
-        
-        @keyframes emoji-float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(5deg); }
-        }
+        body { font-family: 'Nunito', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 0.2); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .login-bg { background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        #map-kurye, #map-admin { height: 400px; border-radius: 1rem; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 1rem; padding: 2rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
-<body class="bg-gray-100 overflow-x-hidden">
+<body class="bg-gray-100">
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="fixed inset-0 z-50 login-bg flex items-center justify-center p-4">
         <div class="max-w-4xl w-full grid md:grid-cols-2 gap-8">
-            
-            <!-- Kurye Girişi -->
-            <div class="glass rounded-3xl p-8 text-white transform hover:scale-105 transition-all cursor-pointer" onclick="showKuryeLogin()">
+            <div class="glass rounded-3xl p-8 text-white cursor-pointer hover:scale-105 transition-transform" onclick="showKuryeLogin()">
                 <div class="text-center">
-                    <div class="text-6xl mb-4 emoji-float">🛵</div>
+                    <div class="text-6xl mb-4 animate-bounce">🛵</div>
                     <h2 class="text-3xl font-bold mb-2">Kurye Girişi</h2>
-                    <p class="text-white/80 mb-6">Motor kullanıcıları için hızlı giriş</p>
-                    
-                    <div id="kurye-form" class="hidden space-y-4 text-left">
-                        <div>
-                            <label class="block text-sm font-bold mb-2">👤 İsim Soyisim</label>
-                            <input type="text" id="kurye-isim" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white" placeholder="örn: Ahmet Yılmaz">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold mb-2">🏍️ Plaka</label>
-                            <input type="text" id="kurye-plaka" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white uppercase" placeholder="34 ABC 123">
-                        </div>
-                        <button onclick="loginKurye()" class="w-full py-3 bg-brand-yellow text-brand-dark font-bold rounded-xl hover:bg-white transition-all transform hover:scale-105">
-                            🚀 Göreve Başla!
-                        </button>
+                    <div id="kurye-form" class="hidden space-y-4 text-left mt-6">
+                        <input type="text" id="kurye-isim" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60" placeholder="İsim Soyisim">
+                        <input type="text" id="kurye-plaka" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 uppercase" placeholder="Plaka (örn: 34 ABC 123)">
+                        <button onclick="loginKurye()" class="w-full py-3 bg-brand-yellow text-brand-dark font-bold rounded-xl hover:bg-white transition-all">Giriş Yap</button>
                     </div>
-                    
-                    <div id="kurye-btn">
-                        <button class="px-8 py-3 bg-white/20 rounded-full font-bold hover:bg-white/30 transition-all">
-                            Giriş Yap <i class="fas fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
+                    <button id="kurye-btn" class="mt-4 px-8 py-3 bg-white/20 rounded-full font-bold">Giriş Yap <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </div>
 
-            <!-- Yönetici Girişi -->
-            <div class="glass rounded-3xl p-8 text-white transform hover:scale-105 transition-all cursor-pointer" onclick="showAdminLogin()">
+            <div class="glass rounded-3xl p-8 text-white cursor-pointer hover:scale-105 transition-transform" onclick="showAdminLogin()">
                 <div class="text-center">
-                    <div class="text-6xl mb-4 emoji-float" style="animation-delay: 0.5s">👨‍💼</div>
+                    <div class="text-6xl mb-4 animate-bounce" style="animation-delay: 0.5s">👨‍💼</div>
                     <h2 class="text-3xl font-bold mb-2">Yönetici Girişi</h2>
-                    <p class="text-white/80 mb-6">Filo ve kurye yönetimi</p>
-                    
-                    <div id="admin-form" class="hidden space-y-4 text-left">
-                        <div>
-                            <label class="block text-sm font-bold mb-2">👤 Kullanıcı Adı</label>
-                            <input type="text" id="admin-user" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white" placeholder="admin">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold mb-2">🔒 Şifre</label>
-                            <input type="password" id="admin-pass" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60 focus:outline-none focus:border-white" placeholder="••••••">
-                        </div>
-                        <button onclick="loginAdmin()" class="w-full py-3 bg-brand-pink text-white font-bold rounded-xl hover:bg-white hover:text-brand-pink transition-all transform hover:scale-105">
-                            🔑 Panele Git
-                        </button>
+                    <div id="admin-form" class="hidden space-y-4 text-left mt-6">
+                        <input type="text" id="admin-user" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60" placeholder="Kullanıcı adı">
+                        <input type="password" id="admin-pass" class="w-full px-4 py-3 rounded-xl bg-white/20 border-2 border-white/30 text-white placeholder-white/60" placeholder="Şifre">
+                        <button onclick="loginAdmin()" class="w-full py-3 bg-brand-pink text-white font-bold rounded-xl hover:bg-white hover:text-brand-pink transition-all">Giriş Yap</button>
                     </div>
-                    
-                    <div id="admin-btn">
-                        <button class="px-8 py-3 bg-white/20 rounded-full font-bold hover:bg-white/30 transition-all">
-                            Giriş Yap <i class="fas fa-arrow-right ml-2"></i>
-                        </button>
-                    </div>
+                    <button id="admin-btn" class="mt-4 px-8 py-3 bg-white/20 rounded-full font-bold">Giriş Yap <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </div>
         </div>
@@ -194,355 +76,245 @@
 
     <!-- KURYE PANEL -->
     <div id="kurye-panel" class="hidden min-h-screen bg-gradient-to-br from-brand-blue to-brand-purple">
-        <!-- Header -->
         <header class="bg-white/10 backdrop-blur-md text-white p-4 sticky top-0 z-40">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <span class="text-3xl">🛵</span>
                     <div>
                         <h1 class="font-bold text-lg">MotoTakip</h1>
-                        <p class="text-xs opacity-80">Kurye Modu</p>
+                        <p class="text-xs opacity-80" id="kurye-plaka-display">-</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right hidden sm:block">
-                        <p class="font-bold" id="kurye-name-display">Ahmet Y.</p>
-                        <p class="text-xs opacity-80" id="kurye-plaka-display">34 ABC 123</p>
-                    </div>
-                    <button onclick="logout()" class="p-2 bg-red-500 rounded-lg hover:bg-red-600 transition-all">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
+                <button onclick="logout()" class="p-2 bg-red-500 rounded-lg hover:bg-red-600"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </header>
 
         <div class="max-w-7xl mx-auto p-4 space-y-4">
-            <!-- Durum Kartı -->
-            <div class="bg-white rounded-2xl p-6 shadow-xl card-hover">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-gray-800">🚀 Görev Durumu</h2>
-                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold animate-pulse">
-                        ● Aktif
-                    </span>
-                </div>
-                
+            <div class="bg-white rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">🚀 Durum Güncelle</h2>
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="toggleStatus('müsait')" class="p-4 bg-green-100 rounded-xl text-green-700 font-bold hover:bg-green-200 transition-all transform active:scale-95 flex flex-col items-center">
-                        <span class="text-2xl mb-1">✅</span>
-                        Müsait
-                    </button>
-                    <button onclick="toggleStatus('dagitim')" class="p-4 bg-blue-100 rounded-xl text-blue-700 font-bold hover:bg-blue-200 transition-all transform active:scale-95 flex flex-col items-center">
-                        <span class="text-2xl mb-1">📦</span>
-                        Dağıtımda
-                    </button>
-                    <button onclick="toggleStatus('mola')" class="p-4 bg-yellow-100 rounded-xl text-yellow-700 font-bold hover:bg-yellow-200 transition-all transform active:scale-95 flex flex-col items-center">
-                        <span class="text-2xl mb-1">☕</span>
-                        Mola
-                    </button>
-                    <button onclick="toggleStatus('servis')" class="p-4 bg-red-100 rounded-xl text-red-700 font-bold hover:bg-red-200 transition-all transform active:scale-95 flex flex-col items-center">
-                        <span class="text-2xl mb-1">🔧</span>
-                        Servis
-                    </button>
+                    <button onclick="updateKuryeDurum('müsait')" class="p-4 bg-green-100 rounded-xl text-green-700 font-bold hover:bg-green-200">✅ Müsait</button>
+                    <button onclick="updateKuryeDurum('dagitim')" class="p-4 bg-blue-100 rounded-xl text-blue-700 font-bold hover:bg-blue-200">📦 Dağıtımda</button>
+                    <button onclick="updateKuryeDurum('mola')" class="p-4 bg-yellow-100 rounded-xl text-yellow-700 font-bold hover:bg-yellow-200">☕ Mola</button>
+                    <button onclick="updateKuryeDurum('servis')" class="p-4 bg-red-100 rounded-xl text-red-700 font-bold hover:bg-red-200">🔧 Servis</button>
+                </div>
+                <div id="current-durum" class="mt-4 text-center font-bold text-lg"></div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">🏍️ Motor Bilgisi</h2>
+                <div id="kurye-motor-info" class="space-y-3">
+                    <p class="text-gray-500 text-center">Motor bilgisi yükleniyor...</p>
                 </div>
             </div>
 
-            <!-- Motor Bilgisi -->
-            <div class="bg-white rounded-2xl p-6 shadow-xl card-hover">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">🏍️ Motor Durumu</h2>
-                
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <span class="text-gray-600">⛽ Benzin</span>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-32 h-3 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-brand-orange w-3/4 rounded-full"></div>
-                            </div>
-                            <span class="font-bold text-sm">75%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <span class="text-gray-600">🔧 Bakım (km)</span>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-32 h-3 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-brand-pink w-1/4 rounded-full"></div>
-                            </div>
-                            <span class="font-bold text-sm">250/1000</span>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <div class="bg-brand-blue/10 p-3 rounded-xl text-center">
-                            <p class="text-xs text-gray-500">Toplam KM</p>
-                            <p class="text-xl font-bold text-brand-blue">12.450</p>
-                        </div>
-                        <div class="bg-brand-green/10 p-3 rounded-xl text-center">
-                            <p class="text-xs text-gray-500">Bugün</p>
-                            <p class="text-xl font-bold text-brand-green">87 km</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Harita -->
             <div class="bg-white rounded-2xl p-4 shadow-xl">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">📍 Konumum</h2>
-                <div id="map-kurye" class="h-64 rounded-xl"></div>
-            </div>
-
-            <!-- Hızlı İşlemler -->
-            <div class="grid grid-cols-3 gap-3">
-                <button onclick="reportIssue()" class="p-4 bg-red-100 rounded-xl text-red-600 hover:bg-red-200 transition-all">
-                    <i class="fas fa-exclamation-triangle text-2xl mb-1 block"></i>
-                    <span class="text-xs font-bold">Sorun Bildir</span>
-                </button>
-                <button onclick="requestMaintenance()" class="p-4 bg-yellow-100 rounded-xl text-yellow-600 hover:bg-yellow-200 transition-all">
-                    <i class="fas fa-wrench text-2xl mb-1 block"></i>
-                    <span class="text-xs font-bold">Bakım İste</span>
-                </button>
-                <button onclick="emergencyCall()" class="p-4 bg-green-100 rounded-xl text-green-600 hover:bg-green-200 transition-all animate-pulse">
-                    <i class="fas fa-phone-alt text-2xl mb-1 block"></i>
-                    <span class="text-xs font-bold">Acil</span>
-                </button>
+                <div id="map-kurye"></div>
             </div>
         </div>
     </div>
 
     <!-- YÖNETİCİ PANEL -->
     <div id="admin-panel" class="hidden min-h-screen bg-gray-100">
-        <!-- Sidebar -->
         <aside class="fixed left-0 top-0 h-full w-64 bg-brand-dark text-white p-6 z-40 transform -translate-x-full md:translate-x-0 transition-transform" id="sidebar">
             <div class="mb-8">
-                <h1 class="text-2xl font-bold flex items-center">
-                    <span class="text-3xl mr-2">🛵</span>
-                    MotoTakip Pro
-                </h1>
+                <h1 class="text-2xl font-bold">🛵 MotoTakip Pro</h1>
                 <p class="text-xs text-gray-400 mt-1">Yönetim Paneli</p>
             </div>
-
             <nav class="space-y-2">
                 <button onclick="showSection('dashboard')" class="w-full text-left px-4 py-3 rounded-xl bg-brand-purple/20 text-brand-purple border-l-4 border-brand-purple">
                     <i class="fas fa-chart-line mr-3"></i> Dashboard
                 </button>
-                <button onclick="showSection('kuryeler')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                <button onclick="showSection('kuryeler')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10">
                     <i class="fas fa-users mr-3"></i> Kuryeler
                 </button>
-                <button onclick="showSection('motors')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-motorcycle mr-3"></i> Motor Filosu
+                <button onclick="showSection('motors')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10">
+                    <i class="fas fa-motorcycle mr-3"></i> Motorlar
                 </button>
-                <button onclick="showSection('bakim')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-tools mr-3"></i> Bakım Takibi
-                </button>
-                <button onclick="showSection('harita')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-map mr-3"></i> Canlı Harita
-                </button>
-                <button onclick="showSection('raporlar')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-file-alt mr-3"></i> Raporlar
+                <button onclick="showSection('bakim')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10">
+                    <i class="fas fa-tools mr-3"></i> Bakım
                 </button>
             </nav>
-
-            <div class="absolute bottom-6 left-6 right-6">
-                <button onclick="logout()" class="w-full py-3 bg-red-500 rounded-xl hover:bg-red-600 transition-all font-bold">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Çıkış Yap
-                </button>
-            </div>
+            <button onclick="logout()" class="absolute bottom-6 left-6 right-6 py-3 bg-red-500 rounded-xl font-bold">
+                <i class="fas fa-sign-out-alt mr-2"></i> Çıkış
+            </button>
         </aside>
 
-        <!-- Main Content -->
         <main class="md:ml-64 p-4 md:p-8">
-            <!-- Top Bar -->
             <div class="flex justify-between items-center mb-8">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 bg-white rounded-lg shadow">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button onclick="toggleSidebar()" class="md:hidden p-2 bg-white rounded-lg"><i class="fas fa-bars"></i></button>
                 <h2 class="text-2xl font-bold text-gray-800" id="page-title">📊 Dashboard</h2>
                 <div class="flex items-center space-x-4">
-                    <button class="p-2 bg-white rounded-lg shadow relative">
-                        <i class="fas fa-bell text-gray-600"></i>
-                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
-                    </button>
-                    <div class="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg shadow">
+                    <div class="bg-white px-4 py-2 rounded-lg shadow flex items-center space-x-2">
                         <div class="w-8 h-8 bg-brand-purple rounded-full flex items-center justify-center text-white font-bold">A</div>
                         <span class="font-bold text-sm hidden sm:block">Admin</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Dashboard Section -->
+            <!-- Dashboard -->
             <div id="section-dashboard" class="space-y-6">
-                <!-- Stats Cards -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-green">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">Aktif Kurye</p>
-                                <p class="text-3xl font-bold text-gray-800">12</p>
-                            </div>
-                            <span class="text-2xl">🛵</span>
-                        </div>
-                        <p class="text-xs text-green-500 mt-2">↑ 2 bugün</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-brand-green">
+                        <p class="text-gray-500 text-sm">Aktif Kurye</p>
+                        <p class="text-3xl font-bold" id="stat-kurye">0</p>
                     </div>
-                    
-                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-blue">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">Toplam KM</p>
-                                <p class="text-3xl font-bold text-gray-800">1,247</p>
-                            </div>
-                            <span class="text-2xl">📍</span>
-                        </div>
-                        <p class="text-xs text-blue-500 mt-2">Bugün</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-brand-blue">
+                        <p class="text-gray-500 text-sm">Toplam Motor</p>
+                        <p class="text-3xl font-bold" id="stat-motor">0</p>
                     </div>
-                    
-                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-orange">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">Bakım Bekleyen</p>
-                                <p class="text-3xl font-bold text-gray-800">3</p>
-                            </div>
-                            <span class="text-2xl">🔧</span>
-                        </div>
-                        <p class="text-xs text-orange-500 mt-2">Acil: 1</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-brand-orange">
+                        <p class="text-gray-500 text-sm">Bakım Bekleyen</p>
+                        <p class="text-3xl font-bold" id="stat-bakim">0</p>
                     </div>
-                    
-                    <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-l-4 border-brand-pink">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">Ort. Teslimat</p>
-                                <p class="text-3xl font-bold text-gray-800">18dk</p>
-                            </div>
-                            <span class="text-2xl">⚡</span>
-                        </div>
-                        <p class="text-xs text-green-500 mt-2">↓ 2dk</p>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-brand-pink">
+                        <p class="text-gray-500 text-sm">Dağıtımda</p>
+                        <p class="text-3xl font-bold" id="stat-dagitim">0</p>
                     </div>
                 </div>
-
-                <!-- Charts -->
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-lg">
-                        <h3 class="font-bold text-lg mb-4">📈 Haftalık Performans</h3>
-                        <canvas id="performanceChart"></canvas>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-lg">
-                        <h3 class="font-bold text-lg mb-4">🥇 Kurye Sıralaması</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border-2 border-yellow-200">
-                                <div class="flex items-center space-x-3">
-                                    <span class="text-2xl">🥇</span>
-                                    <div>
-                                        <p class="font-bold">Mehmet K.</p>
-                                        <p class="text-xs text-gray-500">34 XY 999</p>
-                                    </div>
-                                </div>
-                                <span class="font-bold text-yellow-600">45 teslimat</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <span class="text-2xl">🥈</span>
-                                    <div>
-                                        <p class="font-bold">Ali R.</p>
-                                        <p class="text-xs text-gray-500">34 AB 456</p>
-                                    </div>
-                                </div>
-                                <span class="font-bold text-gray-600">38 teslimat</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <span class="text-2xl">🥉</span>
-                                    <div>
-                                        <p class="font-bold">Can Y.</p>
-                                        <p class="text-xs text-gray-500">34 CD 789</p>
-                                    </div>
-                                </div>
-                                <span class="font-bold text-orange-600">32 teslimat</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live Map -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h3 class="font-bold text-lg mb-4">🗺️ Canlı Kurye Takibi</h3>
-                    <div id="map-admin" class="h-96 rounded-xl"></div>
+                    <h3 class="font-bold text-lg mb-4">🗺️ Canlı Harita</h3>
+                    <div id="map-admin"></div>
                 </div>
             </div>
 
-            <!-- Kuryeler Section -->
+            <!-- Kuryeler -->
             <div id="section-kuryeler" class="hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">👥 Aktif Kuryeler</h3>
-                    <button onclick="addKurye()" class="px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-purple-600 transition-all">
+                    <h3 class="text-xl font-bold">👥 Kurye Yönetimi</h3>
+                    <button onclick="openModal('kurye-ekle')" class="px-4 py-2 bg-brand-purple text-white rounded-lg hover:bg-purple-600">
                         <i class="fas fa-plus mr-2"></i>Yeni Kurye
                     </button>
                 </div>
-                
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="kurye-list">
-                    <!-- Kurye cards will be generated here -->
-                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="kurye-list"></div>
             </div>
 
-            <!-- Motors Section -->
+            <!-- Motorlar -->
             <div id="section-motors" class="hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">🏍️ Motor Filosu</h3>
-                    <div class="flex space-x-2">
-                        <button onclick="filterMotors('all')" class="px-4 py-2 bg-brand-blue text-white rounded-lg">Tümü</button>
-                        <button onclick="filterMotors('active')" class="px-4 py-2 bg-green-500 text-white rounded-lg">Aktif</button>
-                        <button onclick="filterMotors('maintenance')" class="px-4 py-2 bg-red-500 text-white rounded-lg">Bakımda</button>
-                    </div>
+                    <h3 class="text-xl font-bold">🏍️ Motor Yönetimi</h3>
+                    <button onclick="openModal('motor-ekle')" class="px-4 py-2 bg-brand-blue text-white rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-plus mr-2"></i>Yeni Motor
+                    </button>
                 </div>
-
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="motor-list">
-                    <!-- Motor cards will be generated here -->
-                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="motor-list"></div>
             </div>
 
-            <!-- Bakım Section -->
+            <!-- Bakım -->
             <div id="section-bakim" class="hidden space-y-6">
-                <h3 class="text-xl font-bold">🔧 Bakım Takvimi</h3>
-                
+                <h3 class="text-xl font-bold">🔧 Bakım Takibi</h3>
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Plaka</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Son Bakım</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Sonraki Bakım</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Durum</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">İşlem</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500">Plaka</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500">Model</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500">Mevcut KM</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500">Sonraki Bakım</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500">Durum</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100" id="bakim-table">
-                            <!-- Bakım rows will be generated here -->
-                        </tbody>
+                        <tbody id="bakim-table" class="divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- MODALLER -->
+    
+    <!-- Kurye Ekle/Düzenle -->
+    <div id="modal-kurye" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4" id="kurye-modal-title">Yeni Kurye Ekle</h3>
+            <input type="hidden" id="kurye-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1">İsim Soyisim</label>
+                    <input type="text" id="kurye-modal-isim" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Telefon</label>
+                    <input type="text" id="kurye-modal-telefon" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Atanacak Motor (Plaka)</label>
+                    <select id="kurye-modal-motor" class="w-full px-4 py-2 border rounded-lg">
+                        <option value="">Motor Seç...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button onclick="saveKurye()" class="flex-1 py-2 bg-brand-green text-white font-bold rounded-lg">Kaydet</button>
+                <button onclick="closeModal('kurye')" class="flex-1 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motor Ekle/Düzenle -->
+    <div id="modal-motor" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4" id="motor-modal-title">Yeni Motor Ekle</h3>
+            <input type="hidden" id="motor-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1">Plaka</label>
+                    <input type="text" id="motor-modal-plaka" class="w-full px-4 py-2 border rounded-lg uppercase">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Model</label>
+                    <input type="text" id="motor-modal-model" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Yıl</label>
+                    <input type="number" id="motor-modal-yil" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Mevcut KM</label>
+                    <input type="number" id="motor-modal-km" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Bakım Aralığı (KM)</label>
+                    <input type="number" id="motor-modal-bakim-araligi" value="1000" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button onclick="saveMotor()" class="flex-1 py-2 bg-brand-blue text-white font-bold rounded-lg">Kaydet</button>
+                <button onclick="closeModal('motor')" class="flex-1 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg">İptal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Data
-        const kuryeler = [
-            { id: 1, isim: 'Ahmet Yılmaz', plaka: '34 ABC 123', durum: 'müsait', teslimat: 12, km: 12450, telefon: '555-0101' },
-            { id: 2, isim: 'Mehmet Kaya', plaka: '34 XY 999', durum: 'dagitim', teslimat: 45, km: 23400, telefon: '555-0102' },
-            { id: 3, isim: 'Ali Rıza', plaka: '34 AB 456', durum: 'mola', teslimat: 38, km: 18900, telefon: '555-0103' },
-            { id: 4, isim: 'Can Yıldız', plaka: '34 CD 789', durum: 'müsait', teslimat: 32, km: 15600, telefon: '555-0104' },
-        ];
-
-        const motors = [
-            { id: 1, plaka: '34 ABC 123', model: 'Honda PCX', yil: 2022, km: 12450, sonBakim: '2026-02-01', sonrakiBakim: 13000, durum: 'aktif', benzin: 75 },
-            { id: 2, plaka: '34 XY 999', model: 'Yamaha NMAX', yil: 2023, km: 23400, sonBakim: '2026-01-15', sonrakiBakim: 24000, durum: 'aktif', benzin: 45 },
-            { id: 3, plaka: '34 AB 456', model: 'Honda PCX', yil: 2022, km: 18900, sonBakim: '2026-02-20', sonrakiBakim: 19500, durum: 'bakim', benzin: 90 },
-            { id: 4, plaka: '34 CD 789', model: 'Vespa GTS', yil: 2023, km: 15600, sonBakim: '2026-03-01', sonrakiBakim: 16000, durum: 'aktif', benzin: 60 },
-        ];
-
+        // ========== VERİ YÖNETİMİ ==========
+        
+        // Başlangıçta boş veri
+        let kuryeler = [];
+        let motorlar = [];
         let currentUser = null;
         let currentRole = null;
-        let kuryeMap = null;
-        let adminMap = null;
 
-        // Login Functions
+        // LocalStorage'dan veri yükle
+        function loadData() {
+            const savedKuryeler = localStorage.getItem('mototakip_kuryeler');
+            const savedMotorlar = localStorage.getItem('mototakip_motorlar');
+            
+            if (savedKuryeler) kuryeler = JSON.parse(savedKuryeler);
+            if (savedMotorlar) motorlar = JSON.parse(savedMotorlar);
+            
+            updateStats();
+        }
+
+        // LocalStorage'a kaydet
+        function saveData() {
+            localStorage.setItem('mototakip_kuryeler', JSON.stringify(kuryeler));
+            localStorage.setItem('mototakip_motorlar', JSON.stringify(motorlar));
+            updateStats();
+        }
+
+        // ========== GİRİŞ SİSTEMİ ==========
+
         function showKuryeLogin() {
             document.getElementById('kurye-form').classList.remove('hidden');
             document.getElementById('kurye-btn').classList.add('hidden');
@@ -558,18 +330,34 @@
         }
 
         function loginKurye() {
-            const isim = document.getElementById('kurye-isim').value;
-            const plaka = document.getElementById('kurye-plaka').value.toUpperCase();
-            
+            const isim = document.getElementById('kurye-isim').value.trim();
+            const plaka = document.getElementById('kurye-plaka').value.trim().toUpperCase();
+
             if (!isim || !plaka) {
-                alert('❌ Lütfen tüm alanları doldurun!');
+                alert('Lütfen tüm alanları doldurun!');
                 return;
             }
 
-            const kurye = kuryeler.find(k => k.plaka === plaka);
-            if (!kurye) {
-                alert('❌ Bu plakaya kayıtlı kurye bulunamadı!');
+            // Motor var mı kontrol et
+            const motor = motorlar.find(m => m.plaka === plaka);
+            if (!motor) {
+                alert('Bu plakaya kayıtlı motor bulunamadı! Yöneticinize başvurun.');
                 return;
+            }
+
+            // Kurye var mı kontrol et, yoksa oluştur
+            let kurye = kuryeler.find(k => k.isim === isim && k.plaka === plaka);
+            if (!kurye) {
+                kurye = {
+                    id: Date.now(),
+                    isim: isim,
+                    plaka: plaka,
+                    telefon: '',
+                    durum: 'müsait',
+                    tarih: new Date().toISOString()
+                };
+                kuryeler.push(kurye);
+                saveData();
             }
 
             currentUser = kurye;
@@ -577,33 +365,28 @@
             
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('kurye-panel').classList.remove('hidden');
-            
-            document.getElementById('kurye-name-display').textContent = isim;
             document.getElementById('kurye-plaka-display').textContent = plaka;
             
-            setTimeout(() => {
-                initKuryeMap();
-            }, 100);
+            updateKuryeDisplay();
+            setTimeout(initKuryeMap, 100);
         }
 
         function loginAdmin() {
             const user = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
-            
+
             if (user === 'admin' && pass === 'admin123') {
                 currentRole = 'admin';
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
                 
-                setTimeout(() => {
-                    initAdminMap();
-                    initCharts();
-                    renderKuryeList();
-                    renderMotorList();
-                    renderBakimTable();
-                }, 100);
+                loadData();
+                renderKuryeList();
+                renderMotorList();
+                renderBakimTable();
+                setTimeout(initAdminMap, 100);
             } else {
-                alert('❌ Hatalı kullanıcı adı veya şifre!');
+                alert('Hatalı kullanıcı adı veya şifre!');
             }
         }
 
@@ -611,185 +394,374 @@
             location.reload();
         }
 
-        // Kurye Functions
-        function toggleStatus(durum) {
-            const durumText = {
-                'müsait': '✅ Müsait',
-                'dagitim': '📦 Dağıtımda',
-                'mola': '☕ Mola',
-                'servis': '🔧 Servis'
-            };
-            alert(`Durum güncellendi: ${durumText[durum]}`);
-        }
+        // ========== KURYE İŞLEMLERİ ==========
 
-        function reportIssue() {
-            const sorun = prompt('🚨 Karşılaştığınız sorunu kısaca açıklayın:');
-            if (sorun) {
-                alert('✅ Sorun bildirildi! Yönetici en kısa sürede size ulaşacak.');
+        function updateKuryeDurum(durum) {
+            if (!currentUser) return;
+            
+            const kurye = kuryeler.find(k => k.id === currentUser.id);
+            if (kurye) {
+                kurye.durum = durum;
+                kurye.sonGuncelleme = new Date().toISOString();
+                saveData();
+                updateKuryeDisplay();
+                
+                const durumlar = { 'müsait': '✅ Müsait', 'dagitim': '📦 Dağıtımda', 'mola': '☕ Mola', 'servis': '🔧 Servis' };
+                alert(`Durumunuz güncellendi: ${durumlar[durum]}`);
             }
         }
 
-        function requestMaintenance() {
-            if (confirm('🔧 Bakım isteği gönderilsin mi?')) {
-                alert('✅ Bakım isteği alındı! En yakın servis yönlendirilecek.');
+        function updateKuryeDisplay() {
+            const kurye = kuryeler.find(k => k.id === currentUser.id);
+            if (!kurye) return;
+
+            const durumlar = { 'müsait': '✅ Müsaitsiniz', 'dagitim': '📦 Dağıtımdasınız', 'mola': '☕ Moladasınız', 'servis': '🔧 Serviste' };
+            document.getElementById('current-durum').textContent = durumlar[kurye.durum] || 'Bilinmiyor';
+
+            const motor = motorlar.find(m => m.plaka === kurye.plaka);
+            if (motor) {
+                const sonrakiBakim = motor.km + (motor.bakimAraligi || 1000);
+                const kalan = sonrakiBakim - motor.km;
+                
+                document.getElementById('kurye-motor-info').innerHTML = `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span>🏍️ Model</span>
+                        <span class="font-bold">${motor.model}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span>📅 Yıl</span>
+                        <span class="font-bold">${motor.yil}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span>📊 KM</span>
+                        <span class="font-bold">${motor.km.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 ${kalan < 200 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'} rounded-lg">
+                        <span>🔧 Bakıma Kalan</span>
+                        <span class="font-bold">${kalan} km</span>
+                    </div>
+                `;
             }
         }
 
-        function emergencyCall() {
-            if (confirm('🚨 Acil durum hattını aramak istiyor musunuz?')) {
-                alert('📞 Yönetici aranıyor: 0555-000-0000');
-            }
-        }
+        // ========== YÖNETİCİ İŞLEMLERİ ==========
 
-        // Admin Functions
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
         }
 
         function showSection(section) {
-            // Hide all sections
             document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(`section-${section}`).classList.remove('hidden');
             
-            // Update title
             const titles = {
                 'dashboard': '📊 Dashboard',
-                'kuryeler': '👥 Kuryeler',
-                'motors': '🏍️ Motor Filosu',
-                'bakim': '🔧 Bakım Takibi',
-                'harita': '🗺️ Canlı Harita',
-                'raporlar': '📄 Raporlar'
+                'kuryeler': '👥 Kurye Yönetimi',
+                'motors': '🏍️ Motor Yönetimi',
+                'bakim': '🔧 Bakım Takibi'
             };
             document.getElementById('page-title').textContent = titles[section];
             
-            // Update active nav
-            document.querySelectorAll('nav button').forEach(btn => {
-                btn.classList.remove('bg-brand-purple/20', 'text-brand-purple', 'border-l-4', 'border-brand-purple');
-            });
-            event.target.classList.add('bg-brand-purple/20', 'text-brand-purple', 'border-l-4', 'border-brand-purple');
-            
-            // Close sidebar on mobile
-            if (window.innerWidth < 768) {
-                document.getElementById('sidebar').classList.add('-translate-x-full');
-            }
+            if (section === 'kuryeler') renderKuryeList();
+            if (section === 'motors') renderMotorList();
+            if (section === 'bakim') renderBakimTable();
         }
+
+        function updateStats() {
+            document.getElementById('stat-kurye').textContent = kuryeler.length;
+            document.getElementById('stat-motor').textContent = motorlar.length;
+            document.getElementById('stat-dagitim').textContent = kuryeler.filter(k => k.durum === 'dagitim').length;
+            
+            const bakimBekleyen = motorlar.filter(m => {
+                const kalan = (m.km + (m.bakimAraligi || 1000)) - m.km;
+                return kalan < 500;
+            }).length;
+            document.getElementById('stat-bakim').textContent = bakimBekleyen;
+        }
+
+        // ========== KURYE YÖNETİMİ (CRUD) ==========
 
         function renderKuryeList() {
             const container = document.getElementById('kurye-list');
-            container.innerHTML = kuryeler.map(k => `
+            
+            if (kuryeler.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center py-12 text-gray-500">Henüz kurye eklenmemiş. Yukarıdaki butondan ekleyebilirsiniz.</div>';
+                return;
+            }
+
+            container.innerHTML = kuryeler.map(k => {
+                const motor = motorlar.find(m => m.plaka === k.plaka);
+                return `
                 <div class="bg-white p-6 rounded-2xl shadow-lg card-hover">
                     <div class="flex justify-between items-start mb-4">
                         <div class="w-12 h-12 bg-brand-purple rounded-full flex items-center justify-center text-white text-xl font-bold">
                             ${k.isim.charAt(0)}
                         </div>
                         <span class="px-3 py-1 rounded-full text-xs font-bold ${getDurumColor(k.durum)}">
-                            ${getDurumEmoji(k.durum)} ${k.durum.toUpperCase()}
+                            ${k.durum}
                         </span>
                     </div>
                     <h4 class="font-bold text-lg">${k.isim}</h4>
-                    <p class="text-gray-500 text-sm mb-3">🏍️ ${k.plaka}</p>
-                    <div class="grid grid-cols-2 gap-2 text-sm">
-                        <div class="bg-gray-50 p-2 rounded-lg text-center">
-                            <p class="text-gray-500 text-xs">Teslimat</p>
-                            <p class="font-bold text-brand-blue">${k.teslimat}</p>
-                        </div>
-                        <div class="bg-gray-50 p-2 rounded-lg text-center">
-                            <p class="text-gray-500 text-xs">Toplam KM</p>
-                            <p class="font-bold text-brand-purple">${k.km.toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex space-x-2">
-                        <button class="flex-1 py-2 bg-brand-blue text-white rounded-lg text-sm hover:bg-blue-600">
-                            <i class="fas fa-phone mr-1"></i> Ara
+                    <p class="text-gray-500 text-sm mb-2">📞 ${k.telefon || '-'}</p>
+                    <p class="text-gray-500 text-sm mb-4">🏍️ ${k.plaka} ${motor ? `(${motor.model})` : ''}</p>
+                    <div class="flex space-x-2">
+                        <button onclick="editKurye(${k.id})" class="flex-1 py-2 bg-brand-blue text-white rounded-lg text-sm hover:bg-blue-600">
+                            <i class="fas fa-edit"></i> Düzenle
                         </button>
-                        <button class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-                            <i class="fas fa-map-marker-alt mr-1"></i> Konum
+                        <button onclick="deleteKurye(${k.id})" class="flex-1 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600">
+                            <i class="fas fa-trash"></i> Sil
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
-        function renderMotorList(filter = 'all') {
-            const container = document.getElementById('motor-list');
-            const filtered = filter === 'all' ? motors : motors.filter(m => m.durum === filter);
+        function openModal(type) {
+            if (type === 'kurye-ekle') {
+                document.getElementById('kurye-modal-title').textContent = 'Yeni Kurye Ekle';
+                document.getElementById('kurye-id').value = '';
+                document.getElementById('kurye-modal-isim').value = '';
+                document.getElementById('kurye-modal-telefon').value = '';
+                
+                // Motor seçeneklerini güncelle
+                const select = document.getElementById('kurye-modal-motor');
+                select.innerHTML = '<option value="">Motor Seç...</option>' + 
+                    motorlar.map(m => `<option value="${m.plaka}">${m.plaka} - ${m.model}</option>`).join('');
+                
+                document.getElementById('modal-kurye').classList.add('active');
+            } else if (type === 'motor-ekle') {
+                document.getElementById('motor-modal-title').textContent = 'Yeni Motor Ekle';
+                document.getElementById('motor-id').value = '';
+                document.getElementById('motor-modal-plaka').value = '';
+                document.getElementById('motor-modal-model').value = '';
+                document.getElementById('motor-modal-yil').value = new Date().getFullYear();
+                document.getElementById('motor-modal-km').value = '0';
+                document.getElementById('motor-modal-bakim-araligi').value = '1000';
+                document.getElementById('modal-motor').classList.add('active');
+            }
+        }
+
+        function closeModal(type) {
+            document.getElementById(`modal-${type}`).classList.remove('active');
+        }
+
+        function saveKurye() {
+            const id = document.getElementById('kurye-id').value;
+            const isim = document.getElementById('kurye-modal-isim').value.trim();
+            const telefon = document.getElementById('kurye-modal-telefon').value.trim();
+            const plaka = document.getElementById('kurye-modal-motor').value;
+
+            if (!isim) {
+                alert('İsim girin!');
+                return;
+            }
+
+            if (id) {
+                // Güncelle
+                const kurye = kuryeler.find(k => k.id == id);
+                if (kurye) {
+                    kurye.isim = isim;
+                    kurye.telefon = telefon;
+                    kurye.plaka = plaka;
+                }
+            } else {
+                // Yeni ekle
+                kuryeler.push({
+                    id: Date.now(),
+                    isim: isim,
+                    telefon: telefon,
+                    plaka: plaka,
+                    durum: 'müsait',
+                    tarih: new Date().toISOString()
+                });
+            }
+
+            saveData();
+            closeModal('kurye');
+            renderKuryeList();
+        }
+
+        function editKurye(id) {
+            const kurye = kuryeler.find(k => k.id === id);
+            if (!kurye) return;
+
+            document.getElementById('kurye-modal-title').textContent = 'Kurye Düzenle';
+            document.getElementById('kurye-id').value = kurye.id;
+            document.getElementById('kurye-modal-isim').value = kurye.isim;
+            document.getElementById('kurye-modal-telefon').value = kurye.telefon || '';
             
-            container.innerHTML = filtered.map(m => {
-                const bakimYuzde = ((m.km - (m.sonrakiBakim - 1000)) / 1000) * 100;
+            const select = document.getElementById('kurye-modal-motor');
+            select.innerHTML = '<option value="">Motor Seç...</option>' + 
+                motorlar.map(m => `<option value="${m.plaka}" ${m.plaka === kurye.plaka ? 'selected' : ''}>${m.plaka} - ${m.model}</option>`).join('');
+            
+            document.getElementById('modal-kurye').classList.add('active');
+        }
+
+        function deleteKurye(id) {
+            if (!confirm('Bu kuryeyi silmek istediğinize emin misiniz?')) return;
+            kuryeler = kuryeler.filter(k => k.id !== id);
+            saveData();
+            renderKuryeList();
+        }
+
+        // ========== MOTOR YÖNETİMİ (CRUD) ==========
+
+        function renderMotorList() {
+            const container = document.getElementById('motor-list');
+            
+            if (motorlar.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center py-12 text-gray-500">Henüz motor eklenmemiş. Yukarıdaki butondan ekleyebilirsiniz.</div>';
+                return;
+            }
+
+            container.innerHTML = motorlar.map(m => {
+                const sonrakiBakim = m.km + (m.bakimAraligi || 1000);
+                const kalan = sonrakiBakim - m.km;
+                const acil = kalan < 500;
+                
                 return `
-                <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-t-4 ${m.durum === 'aktif' ? 'border-green-500' : 'border-red-500'}">
+                <div class="bg-white p-6 rounded-2xl shadow-lg card-hover border-t-4 ${acil ? 'border-red-500' : 'border-green-500'}">
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h4 class="font-bold text-lg">${m.model}</h4>
                             <p class="text-gray-500 text-sm">🏍️ ${m.plaka}</p>
                         </div>
-                        <span class="text-3xl">${m.durum === 'aktif' ? '✅' : '🔧'}</span>
+                        <span class="text-2xl">${acil ? '🔴' : '🟢'}</span>
                     </div>
                     
-                    <div class="space-y-3 mb-4">
-                        <div>
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="text-gray-500">Bakım Durumu</span>
-                                <span class="font-bold ${bakimYuzde > 80 ? 'text-red-500' : 'text-green-500'}">${m.km} / ${m.sonrakiBakim} km</span>
-                            </div>
-                            <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full ${bakimYuzde > 80 ? 'bg-red-500' : 'bg-green-500'} transition-all" style="width: ${bakimYuzde}%"></div>
-                            </div>
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">KM:</span>
+                            <span class="font-bold">${m.km.toLocaleString()}</span>
                         </div>
-                        
-                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                            <span class="text-sm text-gray-500">⛽ Benzin</span>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-brand-orange" style="width: ${m.benzin}%"></div>
-                                </div>
-                                <span class="text-sm font-bold">${m.benzin}%</span>
-                            </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Bakıma Kalan:</span>
+                            <span class="font-bold ${acil ? 'text-red-500' : 'text-green-500'}">${kalan} km</span>
                         </div>
                     </div>
                     
                     <div class="flex space-x-2">
-                        <button onclick="editMotor('${m.plaka}')" class="flex-1 py-2 bg-brand-purple text-white rounded-lg text-sm hover:bg-purple-600">
-                            <i class="fas fa-edit mr-1"></i> Düzenle
+                        <button onclick="editMotor(${m.id})" class="flex-1 py-2 bg-brand-blue text-white rounded-lg text-sm hover:bg-blue-600">
+                            <i class="fas fa-edit"></i> Düzenle
                         </button>
-                        <button onclick="viewMotorHistory('${m.plaka}')" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-                            <i class="fas fa-history mr-1"></i> Geçmiş
+                        <button onclick="deleteMotor(${m.id})" class="flex-1 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600">
+                            <i class="fas fa-trash"></i> Sil
                         </button>
                     </div>
                 </div>
             `}).join('');
         }
 
+        function saveMotor() {
+            const id = document.getElementById('motor-id').value;
+            const plaka = document.getElementById('motor-modal-plaka').value.trim().toUpperCase();
+            const model = document.getElementById('motor-modal-model').value.trim();
+            const yil = parseInt(document.getElementById('motor-modal-yil').value) || new Date().getFullYear();
+            const km = parseInt(document.getElementById('motor-modal-km').value) || 0;
+            const bakimAraligi = parseInt(document.getElementById('motor-modal-bakim-araligi').value) || 1000;
+
+            if (!plaka || !model) {
+                alert('Plaka ve model zorunludur!');
+                return;
+            }
+
+            // Plaka kontrolü
+            const mevcut = motorlar.find(m => m.plaka === plaka && m.id != id);
+            if (mevcut) {
+                alert('Bu plaka zaten kayıtlı!');
+                return;
+            }
+
+            if (id) {
+                const motor = motorlar.find(m => m.id == id);
+                if (motor) {
+                    motor.plaka = plaka;
+                    motor.model = model;
+                    motor.yil = yil;
+                    motor.km = km;
+                    motor.bakimAraligi = bakimAraligi;
+                }
+            } else {
+                motorlar.push({
+                    id: Date.now(),
+                    plaka: plaka,
+                    model: model,
+                    yil: yil,
+                    km: km,
+                    bakimAraligi: bakimAraligi,
+                    tarih: new Date().toISOString()
+                });
+            }
+
+            saveData();
+            closeModal('motor');
+            renderMotorList();
+            renderBakimTable();
+        }
+
+        function editMotor(id) {
+            const motor = motorlar.find(m => m.id === id);
+            if (!motor) return;
+
+            document.getElementById('motor-modal-title').textContent = 'Motor Düzenle';
+            document.getElementById('motor-id').value = motor.id;
+            document.getElementById('motor-modal-plaka').value = motor.plaka;
+            document.getElementById('motor-modal-model').value = motor.model;
+            document.getElementById('motor-modal-yil').value = motor.yil;
+            document.getElementById('motor-modal-km').value = motor.km;
+            document.getElementById('motor-modal-bakim-araligi').value = motor.bakimAraligi || 1000;
+            
+            document.getElementById('modal-motor').classList.add('active');
+        }
+
+        function deleteMotor(id) {
+            if (!confirm('Bu motoru silmek istediğinize emin misiniz? Bu motora atanmış kuryeler de etkilenecek.')) return;
+            
+            const motor = motorlar.find(m => m.id === id);
+            if (motor) {
+                // Bu motora atanmış kuryelerin plakasını temizle
+                kuryeler.forEach(k => {
+                    if (k.plaka === motor.plaka) k.plaka = '';
+                });
+                saveData();
+            }
+            
+            motorlar = motorlar.filter(m => m.id !== id);
+            saveData();
+            renderMotorList();
+            renderKuryeList();
+            renderBakimTable();
+        }
+
         function renderBakimTable() {
             const tbody = document.getElementById('bakim-table');
-            tbody.innerHTML = motors.map(m => {
-                const kalan = m.sonrakiBakim - m.km;
+            
+            if (motorlar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Henüz motor eklenmemiş.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = motorlar.map(m => {
+                const sonrakiBakim = m.km + (m.bakimAraligi || 1000);
+                const kalan = sonrakiBakim - m.km;
                 const acil = kalan < 500;
+                
                 return `
-                <tr class="hover:bg-gray-50 transition-all">
+                <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 font-bold">${m.plaka}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">${m.sonBakim}</td>
+                    <td class="px-6 py-4">${m.model}</td>
+                    <td class="px-6 py-4">${m.km.toLocaleString()}</td>
                     <td class="px-6 py-4">
-                        <span class="font-bold ${acil ? 'text-red-500' : 'text-green-500'}">${m.sonrakiBakim} km</span>
+                        <span class="font-bold ${acil ? 'text-red-500' : 'text-green-500'}">${sonrakiBakim.toLocaleString()}</span>
                         <p class="text-xs text-gray-400">(${kalan} km kaldı)</p>
                     </td>
                     <td class="px-6 py-4">
                         <span class="px-3 py-1 rounded-full text-xs font-bold ${acil ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
-                            ${acil ? '🔴 Acil Bakım' : '🟢 Normal'}
+                            ${acil ? '🔴 Acil' : '🟢 Normal'}
                         </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <button onclick="planBakim('${m.plaka}')" class="text-brand-blue hover:text-blue-700 font-bold text-sm">
-                            Planla <i class="fas fa-calendar-plus ml-1"></i>
-                        </button>
                     </td>
                 </tr>
             `}).join('');
-        }
-
-        function filterMotors(type) {
-            renderMotorList(type);
         }
 
         function getDurumColor(durum) {
@@ -802,126 +774,54 @@
             return colors[durum] || 'bg-gray-100 text-gray-700';
         }
 
-        function getDurumEmoji(durum) {
-            const emojis = {
-                'müsait': '✅',
-                'dagitim': '📦',
-                'mola': '☕',
-                'servis': '🔧'
-            };
-            return emojis[durum] || '⚪';
-        }
+        // ========== HARİTALAR ==========
 
-        function addKurye() {
-            alert('👤 Yeni kurye ekleme modalı açılacak');
-        }
-
-        function editMotor(plaka) {
-            alert(`🔧 ${plaka} plakalı motor düzenleniyor...`);
-        }
-
-        function viewMotorHistory(plaka) {
-            alert(`📋 ${plaka} geçmişi görüntüleniyor...`);
-        }
-
-        function planBakim(plaka) {
-            const tarih = prompt('📅 Bakım tarihi girin (YYYY-MM-DD):');
-            if (tarih) {
-                alert(`✅ ${plaka} için bakım planlandı: ${tarih}`);
-            }
-        }
-
-        // Map Functions
         function initKuryeMap() {
-            if (kuryeMap) return;
+            if (document.getElementById('map-kurye')._leaflet_id) return;
             
-            kuryeMap = L.map('map-kurye').setView([41.0082, 28.9784], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(kuryeMap);
+            const map = L.map('map-kurye').setView([41.0082, 28.9784], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             
-            // Add current location marker
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const { latitude, longitude } = position.coords;
-                    L.marker([latitude, longitude])
-                        .addTo(kuryeMap)
-                        .bindPopup('📍 Buradasınız')
+                navigator.geolocation.getCurrentPosition(pos => {
+                    L.marker([pos.coords.latitude, pos.coords.longitude])
+                        .addTo(map)
+                        .bindPopup('📍 Siz buradasınız')
                         .openPopup();
-                    kuryeMap.setView([latitude, longitude], 15);
+                    map.setView([pos.coords.latitude, pos.coords.longitude], 15);
                 });
             }
         }
 
         function initAdminMap() {
-            if (adminMap) return;
+            if (document.getElementById('map-admin')._leaflet_id) return;
             
-            adminMap = L.map('map-admin').setView([41.0082, 28.9784], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(adminMap);
+            const map = L.map('map-admin').setView([41.0082, 28.9784], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             
-            // Add random kurye markers
-            const locations = [
-                [41.0082, 28.9784], [41.0182, 28.9884], [41.0282, 28.9684],
-                [41.0122, 28.9584], [41.0222, 28.9984]
-            ];
-            
-            const icons = ['🛵', '📦', '☕'];
-            locations.forEach((loc, idx) => {
-                L.marker(loc)
-                    .addTo(adminMap)
-                    .bindPopup(`${icons[idx % 3]} Kurye ${idx + 1}<br>📍 Canlı takip`);
+            // Kurye konumlarını göster (simülasyon)
+            kuryeler.forEach((k, i) => {
+                const lat = 41.0082 + (Math.random() - 0.5) * 0.1;
+                const lng = 28.9784 + (Math.random() - 0.5) * 0.1;
+                L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup(`🛵 ${k.isim}<br>📍 ${k.durum}`);
             });
         }
 
-        // Charts
-        function initCharts() {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
-                    datasets: [{
-                        label: 'Teslimat',
-                        data: [65, 78, 90, 81, 96, 105, 98],
-                        borderColor: '#8338EC',
-                        backgroundColor: 'rgba(131, 56, 236, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'KM',
-                        data: [120, 145, 160, 140, 180, 200, 175],
-                        borderColor: '#3A86FF',
-                        backgroundColor: 'rgba(58, 134, 255, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+        // ========== BAŞLANGIÇ ==========
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+
+        // Modal dışına tıklama ile kapatma
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
                 }
             });
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add some entrance animation
-            document.querySelector('.login-bg').style.opacity = '0';
-            setTimeout(() => {
-                document.querySelector('.login-bg').style.transition = 'opacity 0.5s';
-                document.querySelector('.login-bg').style.opacity = '1';
-            }, 100);
         });
     </script>
 </body>
