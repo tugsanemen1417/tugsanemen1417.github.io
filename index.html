@@ -1,54 +1,68 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<title>Plaka APP mi Sahte mi?</title>
-<style>
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;text-align:center;padding:3rem;background:#111;color:#eee}
-  h1{font-size:2rem;margin-bottom:1rem}
-  #fileIn{margin:1.5rem 0}
-  #preview{max-width:90%;max-height:40vh;margin:1rem 0;border:2px solid #444;border-radius:6px}
-  #sonuc{font-weight:700;font-size:1.4rem;margin-top:1rem}
-  .app{color:#f1c40f}.normal{color:#2ecc71}
-  button{background:#3498db;color:#fff;border:none;padding:.6rem 1.2rem;border-radius:4px;cursor:pointer;font-size:1rem}
-  button:disabled{background:#555;cursor:not-allowed}
-</style>
+  <meta charset="UTF-8">
+  <title>Plaka APP / Standart / Sahte Kontrolü</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;text-align:center;margin-top:40px}
+    #result{font-size:1.5em;margin-top:20px;font-weight:bold}
+    button:disabled{opacity:.6;cursor:not-allowed}
+  </style>
 </head>
 <body>
-  <h1>📷 Plaka APP mi, Standart mı?</h1>
-  <p>Türkçe: Fotoğraf yükleyin; model plakanın “Amatör plaka” mı yoksa “Standart plaka” mı olduğunu tahmin eder.</p>
-  <input type="file" id="fileIn" accept="image/*">
-  <div id="sonuc"></div>
-  <img id="preview" style="display:none">
 
-  <!-- TensorFlow.js + Teachable-Machine kütüphaneleri -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"></script>
+  <h2>Türkçe Plaka APP / Standart / Sahte Tespiti</h2>
+  <input type="file" id="imageUpload" accept="image/*">
+  <br><br>
+  <button id="checkBtn" disabled>Sorgula</button>
+  <div id="result">Sonuç burada görünecek</div>
 
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+  <!-- Model yüklenecek -->
   <script>
-  const URL = "model_web/";  // model klasörü
-  let model;
+    const MODEL_URL = 'model_web/model.json';   // <-- TODO: kendi model klasörünüz
+    const LABELS  = ['Amator','Standart','Sahte'];
+    let model;
 
-  async function init() {
-    model = await tmImage.load(URL+"model.json", URL+"metadata.json");
-    document.getElementById('fileIn').addEventListener('change', handlePic);
-  }
-  init();
+    async function loadModel(){
+      model = await tf.loadLayersModel(MODEL_URL);
+      document.getElementById('checkBtn').disabled = false;
+      document.getElementById('result').innerText = 'Model yüklendi, sorgulamaya hazır.';
+    }
+    loadModel();
 
-  async function handlePic(e) {
-    const file = e.target.files[0];
-    if(!file) return;
-    const img = document.getElementById('preview');
-    img.src = URL.createObjectURL(file);
-    img.style.display='inline-block';
-    img.onload = async ()=>{
-      const pred = await model.predict(img);
-      // pred = [{className:'Amator', probability:x}, {className:'Standart',probability:y}]
-      let top = pred.sort((a,b)=>b.probability-a.probability)[0];
-      const sonuc = document.getElementById('sonuc');
-      sonuc.innerHTML = `Tahmin: <span class="${top.className==='Amator'?'app':'normal'}">${top.className} Plaka</span> (%${(top.probability*100).toFixed(1)})`;
+    // Görüntüyü 224x224 boyutlandırır ve normalize eder
+    function preprocess(imgElement){
+      return tf.tidy(()=>{
+        let tensor = tf.browser.fromPixels(imgElement)
+                      .resizeNearestNeighbor([224,224])
+                      .toFloat()
+                      .div(255.0)
+                      .expandDims(0);
+        return tensor;
+      });
+    }
+
+    document.getElementById('checkBtn').onclick = async ()=>{
+      const fileInput = document.getElementById('imageUpload');
+      if(!fileInput.files.length){ alert('Lütfen bir fotoğraf seçin'); return; }
+
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(fileInput.files[0]);
+      img.onload = async ()=>{
+        const tensor = preprocess(img);
+        const pred   = model.predict(tensor).dataSync();  // [prob1,prob2,prob3]
+        const idx    = pred.indexOf(Math.max(...pred));
+        const prob   = (pred[idx]*100).toFixed(1);
+
+        document.getElementById('result').innerText =
+          `Sonuç: ${LABELS[idx]} (${prob}%)`;
+
+        tf.dispose(tensor);
+        URL.revokeObjectURL(img.src);
+      };
     };
-  }
   </script>
 </body>
 </html>
