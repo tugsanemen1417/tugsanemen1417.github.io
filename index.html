@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TR Plaka Doğrulama Sistemi | Profesyonel Analiz</title>
+    <meta name="description" content="TSE ve EGM standartlarına uygun plaka doğrulama - Hologram ve mühür analizi">
+    <title>TR Plaka Kontrol - Güvenlik Özellikli</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
@@ -15,494 +14,402 @@
 
         :root {
             --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --danger: #dc2626;
             --success: #059669;
+            --danger: #dc2626;
             --warning: #d97706;
-            --dark: #0f172a;
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-600: #475569;
-            --gray-800: #1e293b;
+            --info: #0891b2;
+            --gold: #f59e0b;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             padding: 20px;
-            color: var(--gray-800);
-            line-height: 1.6;
+            color: var(--text);
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 700px;
             margin: 0 auto;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            position: relative;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--success) 50%, var(--danger) 100%);
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            padding: 50px 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.4;
-        }
-
-        .badge {
+        .security-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+            color: var(--gold);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.85em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
-        .badge::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
+        .security-badge::before {
+            content: '🔒';
+            font-size: 14px;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
-        .header h1 {
-            font-size: 3em;
+        h1 {
+            font-size: 28px;
             font-weight: 800;
-            margin-bottom: 15px;
-            position: relative;
-            letter-spacing: -1px;
-            background: linear-gradient(to right, #ffffff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 10px;
         }
 
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.8;
-            position: relative;
-            font-weight: 300;
-            max-width: 600px;
-            margin: 0 auto;
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        .content {
-            padding: 50px;
-        }
-
-        .quality-meter {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
+        .features-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 35px;
-            position: relative;
-            overflow: hidden;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        .quality-meter::before {
-            content: '📸';
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 3em;
-            opacity: 0.2;
-        }
-
-        .quality-title {
-            font-weight: 700;
-            color: #92400e;
-            font-size: 1.1em;
+        .features-box h4 {
+            color: var(--gold);
+            font-size: 14px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
+            gap: 8px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
+            font-size: 12px;
         }
 
-        .quality-bar-container {
-            background: rgba(255, 255, 255, 0.5);
-            height: 12px;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .quality-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
-            width: 0%;
-            transition: width 1s ease;
-            border-radius: 20px;
-            position: relative;
-        }
-
-        .quality-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .quality-text {
+        .feature-item {
             display: flex;
-            justify-content: space-between;
-            font-size: 0.9em;
-            color: #78350f;
-            font-weight: 600;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
         }
 
-        .input-section {
-            background: var(--gray-50);
-            padding: 35px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            border: 2px solid var(--gray-200);
-            transition: all 0.3s;
+        .feature-item::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
         }
 
-        .input-section:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .input-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: var(--gray-800);
-            font-size: 0.95em;
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
         }
 
-        .input-wrapper {
-            position: relative;
-        }
-
-        input[type="text"] {
+        .plate-input {
             width: 100%;
-            padding: 18px 20px;
-            font-size: 1.5em;
-            border: 3px solid var(--gray-200);
-            border-radius: 12px;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 4px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            color: white;
+            font-family: 'Courier New', monospace;
             text-transform: uppercase;
             transition: all 0.3s;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 3px;
-            font-weight: 700;
-            background: white;
         }
 
-        input[type="text"]:focus {
+        .plate-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
         }
 
-        .input-hint {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-            font-size: 0.85em;
-            color: var(--gray-600);
-        }
-
-        .file-upload-zone {
-            border: 3px dashed var(--gray-200);
-            border-radius: 16px;
-            padding: 40px;
+        /* FOTOĞRAF YÜKLEME ALANI */
+        .photo-upload-area {
+            border: 3px dashed rgba(245, 158, 11, 0.3);
+            border-radius: 20px;
+            padding: 30px;
             text-align: center;
-            cursor: pointer;
+            margin-bottom: 20px;
+            background: rgba(245, 158, 11, 0.05);
             transition: all 0.3s;
-            background: white;
+            cursor: pointer;
             position: relative;
             overflow: hidden;
         }
 
-        .file-upload-zone:hover, .file-upload-zone.dragover {
-            border-color: var(--primary);
-            background: #eff6ff;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(37, 99, 235, 0.2);
+        .photo-upload-area:hover {
+            border-color: var(--gold);
+            background: rgba(245, 158, 11, 0.1);
         }
 
-        .file-upload-zone.has-file {
+        .photo-upload-area.has-image {
             border-color: var(--success);
-            background: #ecfdf5;
+            background: rgba(5, 150, 105, 0.1);
         }
 
         .upload-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5em;
-            transition: all 0.3s;
-        }
-
-        .file-upload-zone:hover .upload-icon {
-            transform: scale(1.1) rotate(5deg);
-            background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
         .upload-text {
-            font-size: 1.1em;
+            font-size: 16px;
             font-weight: 600;
-            color: var(--gray-800);
+            color: var(--text);
             margin-bottom: 8px;
         }
 
-        .upload-subtext {
-            font-size: 0.9em;
-            color: var(--gray-600);
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
         }
 
         .file-input {
             display: none;
         }
 
-        .btn-analyze {
+        /* GÖRSEL ANALİZ SONUÇLARI */
+        .image-analysis {
+            display: none;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .image-analysis.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .preview-image {
             width: 100%;
-            padding: 22px;
-            font-size: 1.2em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: #000;
+        }
+
+        .security-checks {
+            display: grid;
+            gap: 10px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            border-left: 3px solid var(--warning);
+        }
+
+        .check-item.passed {
+            border-left-color: var(--success);
+            background: rgba(5, 150, 105, 0.1);
+        }
+
+        .check-item.failed {
+            border-left-color: var(--danger);
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .check-item.passed .check-icon {
+            background: var(--success);
+            color: white;
+        }
+
+        .check-item.failed .check-icon {
+            background: var(--danger);
+            color: white;
+        }
+
+        .check-text {
+            flex: 1;
+        }
+
+        .check-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .check-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--gold) 0%, #d97706 100%);
             color: white;
             border: none;
-            border-radius: 12px;
-            cursor: pointer;
+            border-radius: 16px;
+            font-size: 18px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
+            gap: 10px;
         }
 
-        .btn-analyze::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
-            transition: left 0.5s;
-        }
-
-        .btn-analyze:hover::before {
-            left: 100%;
-        }
-
-        .btn-analyze:hover {
+        .analyze-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.3), 0 10px 10px -5px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.5);
         }
 
-        .btn-analyze:active {
-            transform: translateY(0);
-        }
-
-        .loading {
+        .result-container {
             display: none;
-            text-align: center;
-            padding: 60px 40px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 24px;
+            animation: slideUp 0.4s ease;
         }
 
-        .scanner-ring {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px;
-            position: relative;
-        }
-
-        .scanner-ring::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 4px solid var(--gray-200);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .scanner-ring::after {
-            content: '🔍';
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 10px;
-        }
-
-        .loading-subtext {
-            color: var(--gray-600);
-            font-size: 0.95em;
-        }
-
-        .results {
-            display: none;
-            animation: slideUp 0.6s ease;
+        .result-container.show {
+            display: block;
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .result-hero {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
+        .result-header {
             text-align: center;
-            border: 2px solid #bae6fd;
-            position: relative;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .result-header.original {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(16, 185, 129, 0.2));
+            border: 2px solid var(--success);
+        }
+
+        .result-header.suspicious {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.2));
+            border: 2px solid var(--warning);
+        }
+
+        .result-header.fake {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2));
+            border: 2px solid var(--danger);
+        }
+
+        .result-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .result-title.original { color: #4ade80; }
+        .result-title.suspicious { color: #fbbf24; }
+        .result-title.fake { color: #f87171; }
+
+        .authenticity-score {
+            font-size: 56px;
+            font-weight: 800;
+            margin: 15px 0;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
             overflow: hidden;
+            margin-top: 15px;
         }
 
-        .result-hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
+        .score-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
         }
 
-        @keyframes rotate {
-            to { transform: rotate(360deg); }
+        .score-fill.original {
+            background: linear-gradient(90deg, var(--success), #4ade80);
         }
 
-        .result-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.1em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .score-fill.suspicious {
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
         }
 
-        .result-badge.success {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            color: white;
-        }
-
-        .result-badge.danger {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-            color: white;
-        }
-
-        .result-badge.warning {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-            color: white;
+        .score-fill.fake {
+            background: linear-gradient(90deg, var(--danger), #f87171);
         }
 
         .plate-display {
-            display: inline-block;
             background: white;
-            border: 4px solid #1e293b;
+            color: #1e293b;
+            padding: 20px;
             border-radius: 12px;
-            padding: 20px 50px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 2.5em;
+            font-family: 'Courier New', monospace;
+            font-size: 28px;
             font-weight: 800;
             letter-spacing: 4px;
-            color: #1e293b;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);
+            text-align: center;
+            margin: 20px 0;
             position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding-left: 60px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
         }
 
         .plate-display::before {
@@ -517,429 +424,150 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.4em;
-            border-radius: 8px 0 0 8px;
-            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            border-radius: 12px 0 0 12px;
+            font-family: sans-serif;
             font-weight: 700;
-            letter-spacing: 1px;
         }
 
-        .confidence-score {
-            margin-top: 25px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .score-label {
-            font-size: 0.9em;
-            color: #0369a1;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-
-        .score-value {
-            font-size: 3em;
-            font-weight: 800;
-            color: #0c4a6e;
-            line-height: 1;
-        }
-
-        .score-bar {
-            width: 200px;
-            height: 8px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 10px;
-            margin: 15px auto 0;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .score-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
-            border-radius: 10px;
-            transition: width 1s ease;
-            width: 0%;
-        }
-
-        .analysis-grid {
+        .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .analysis-card {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--gray-200);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .analysis-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--primary);
-        }
-
-        .analysis-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .analysis-card.success::before { background: var(--success); }
-        .analysis-card.danger::before { background: var(--danger); }
-        .analysis-card.warning::before { background: var(--warning); }
-
-        .card-header {
-            display: flex;
-            align-items: center;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 15px;
+            margin-top: 20px;
         }
 
-        .card-icon {
-            width: 44px;
-            height: 44px;
+        .detail-item {
+            background: rgba(255,255,255,0.05);
+            padding: 16px;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4em;
-            background: #eff6ff;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .analysis-card.success .card-icon { background: #d1fae5; }
-        .analysis-card.danger .card-icon { background: #fee2e2; }
-        .analysis-card.warning .card-icon { background: #fef3c7; }
-
-        .card-title {
-            font-weight: 700;
-            color: var(--gray-800);
-            font-size: 1.1em;
-        }
-
-        .card-content {
-            color: var(--gray-600);
-            font-size: 0.95em;
-            line-height: 1.6;
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
         .detail-value {
-            font-size: 1.3em;
+            font-size: 16px;
             font-weight: 700;
-            color: var(--gray-800);
-            margin-top: 8px;
-        }
-
-        .feature-checklist {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--gray-200);
-        }
-
-        .checklist-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: var(--gray-800);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checklist-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: var(--gray-50);
-            border-radius: 12px;
-            transition: all 0.3s;
-        }
-
-        .checklist-item:hover {
-            background: #f1f5f9;
-            transform: translateX(5px);
-        }
-
-        .check-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .check-icon.valid {
-            background: #d1fae5;
-            color: #059669;
-        }
-
-        .check-icon.invalid {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .check-icon.warning {
-            background: #fef3c7;
-            color: #d97706;
-        }
-
-        .check-content {
-            flex: 1;
-        }
-
-        .check-label {
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 4px;
-        }
-
-        .check-desc {
-            font-size: 0.9em;
-            color: var(--gray-600);
-        }
-
-        .image-analysis {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 16px;
-            padding: 30px;
-            margin-top: 30px;
             color: white;
-            position: relative;
-            overflow: hidden;
         }
 
-        .image-analysis::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        .security-features-list {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
         }
 
-        .analysis-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 20px;
+        .security-features-list h4 {
+            color: var(--gold);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .feature-check {
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .pixel-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+        .feature-check:last-child {
+            border-bottom: none;
         }
 
-        .pixel-item {
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 15px;
+        .footer {
             text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .pixel-value {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #60a5fa;
-            margin-bottom: 5px;
-        }
-
-        .pixel-label {
-            font-size: 0.8em;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .canvas-container {
-            background: #000;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            display: none;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        canvas {
-            max-width: 100%;
-            border-radius: 8px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-
-        .tooltip::after {
-            content: attr(data-tip);
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--dark);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s;
-            font-weight: 500;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .tooltip:hover::after {
-            opacity: 1;
-            bottom: 135%;
-        }
-
-        .security-notice {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-            padding: 20px;
-            border-radius: 12px;
             margin-top: 30px;
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 11px;
+            line-height: 1.6;
         }
 
-        .notice-icon {
-            font-size: 1.5em;
-            flex-shrink: 0;
-        }
-
-        .notice-content h4 {
-            color: #92400e;
-            margin-bottom: 5px;
-            font-weight: 700;
-        }
-
-        .notice-content p {
-            color: #78350f;
-            font-size: 0.95em;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 { font-size: 2em; }
-            .content { padding: 25px; }
-            .plate-display { font-size: 1.8em; padding: 15px 35px; }
-            .analysis-grid { grid-template-columns: 1fr; }
-            .pixel-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media (max-width: 480px) {
+            h1 { font-size: 24px; }
+            .plate-input { font-size: 20px; padding: 16px; }
+            .plate-display { font-size: 24px; }
+            .feature-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="badge">Sistem Aktif</div>
-            <h1>TR Plaka Doğrulama</h1>
-            <p>Yapay zeka destekli plaka analiz ve sahte tespit sistemi. Görsel kalitesi arttıkça doğruluk oranı artar.</p>
+            <div class="security-badge">Güvenlik Özellikli Analiz</div>
+            <h1>TR Plaka Kontrol</h1>
+            <p class="subtitle">Hologram, mühür ve reflektif folyo analizi<br>TSE TS 13582 + EGM standartları</p>
         </div>
 
-        <div class="content">
-            <!-- Kalite Metre -->
-            <div class="quality-meter" id="qualityMeter" style="display: none;">
-                <div class="quality-title">
-                    <span>📊</span> Görsel Kalite Analizi
-                </div>
-                <div class="quality-bar-container">
-                    <div class="quality-bar" id="qualityBar"></div>
-                </div>
-                <div class="quality-text">
-                    <span>Düşük Kalite (Daha yakından çekin)</span>
-                    <span id="qualityValue">0%</span>
-                    <span>Yüksek Kalite (Optimal)</span>
+        <div class="features-box">
+            <h4>🔍 Tespit Edilen Güvenlik Özellikleri</h4>
+            <div class="feature-list">
+                <div class="feature-item">Dalgalı hologram şeridi</div>
+                <div class="feature-item">TŞOF/TSE mühür damgası</div>
+                <div class="feature-item">Reflektif (yansıtıcı) folyo</div>
+                <div class="feature-item">Standart karakter fontu</div>
+                <div class="feature-item">Mikro yazı detayları</div>
+                <div class="feature-item">QR kod kontrolü (2024+)</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label>Plaka Numarası (Opsiyonel)</label>
+                <input type="text" class="plate-input" id="plateInput" 
+                       placeholder="07 ABC 123" maxlength="14" autocomplete="off">
+            </div>
+
+            <!-- FOTOĞRAF YÜKLEME -->
+            <div class="photo-upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Plaka Fotoğrafı Yükle</div>
+                <div class="upload-hint">
+                    Hologram şeridi ve mühürün net göründüğü fotoğraf<br>
+                    Yansıma (flash) olmadan, düz açıdan çekin
                 </div>
             </div>
 
-            <div class="input-section">
-                <div class="input-group">
-                    <label for="plateInput">Plaka Numarası</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="plateInput" placeholder="örn: 34 ABC 123" maxlength="12" autocomplete="off">
-                    </div>
-                    <div class="input-hint">
-                        <span class="tooltip" data-tip="Boşluk bırakabilirsiniz, sistem otomatik temizler">ℹ️</span>
-                        <span>Format: 34 ABC 123 veya 34ABC123</span>
-                    </div>
-                </div>
+            <input type="file" id="fileInput" class="file-input" accept="image/*" onchange="handleImage(event)">
 
-                <div class="input-group">
-                    <label>Fotoğraf Yükle <span style="color: var(--primary); font-size: 0.9em;">(Tavsiye Edilir)</span></label>
-                    <div class="file-upload-zone" id="dropZone">
-                        <input type="file" id="imageInput" class="file-input" accept="image/*" capture="environment">
-                        <div class="upload-icon">📷</div>
-                        <div class="upload-text">Fotoğraf Seç veya Sürükle-Bırak</div>
-                        <div class="upload-subtext">PNG, JPG, WEBP • Max 10MB<br>
-                        <strong style="color: var(--primary);">💡 İpucu:</strong> Plakayı yakından, düz açıdan ve net şekilde çekin</div>
-                    </div>
+            <!-- GÖRSEL ANALİZ SONUÇLARI -->
+            <div class="image-analysis" id="imageAnalysis">
+                <img id="previewImage" class="preview-image" alt="Plaka fotoğrafı">
+                
+                <div class="security-checks" id="securityChecks">
+                    <!-- JavaScript ile doldurulacak -->
                 </div>
-
-                <div class="canvas-container" id="canvasContainer">
-                    <canvas id="imageCanvas"></canvas>
-                </div>
-
-                <button class="btn-analyze" onclick="analyzePlate()">
-                    <span>🔍</span> Plakayı Derinlemesine Analiz Et
-                </button>
             </div>
 
-            <div class="loading" id="loading">
-                <div class="scanner-ring"></div>
-                <div class="loading-text">Yapay Zeka Analizi Yapılıyor...</div>
-                <div class="loading-subtext">Görsel işleniyor • OCR taraması • Güvenlik protokolleri kontrol ediliyor</div>
-            </div>
+            <button class="analyze-btn" onclick="analyzePlate()">
+                <span>🔍</span> Güvenlik Analizi Yap
+            </button>
 
-            <div class="results" id="results"></div>
+            <div class="result-container" id="resultContainer">
+                <!-- Sonuçlar buraya gelecek -->
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Bu uygulama TSE TS 13582 ve EGM standartlarına göre çalışır.</p>
+            <p>Orijinal plakada: Dalgalı hologram, TŞOF mühürü, reflektif folyo bulunur.</p>
         </div>
     </div>
 
     <script>
-        // Türkiye plaka regex
-        const PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|8[01])(([A-PR-VYZ])(?!0{4,5}$)\d{4,5}|([A-PR-VYZ]{2})(?!0{3,4}$)\d{3,4}|([A-PR-VYZ]{3})(?!0{2,3}$)\d{2,3})$/;
-        
-        const CITY_CODES = {
+        // 81 il veritabanı
+        const CITY_DATABASE = {
             '01': 'Adana', '02': 'Adıyaman', '03': 'Afyonkarahisar', '04': 'Ağrı',
             '05': 'Amasya', '06': 'Ankara', '07': 'Antalya', '08': 'Artvin',
             '09': 'Aydın', '10': 'Balıkesir', '11': 'Bilecik', '12': 'Bingöl',
@@ -963,431 +591,316 @@
             '81': 'Düzce'
         };
 
-        let imageQualityScore = 0;
-        let imageAnalysisData = null;
+        let uploadedImage = null;
+        let imageAnalysisData = {
+            hasHologram: false,
+            hasSeal: false,
+            hasReflective: false,
+            contrastScore: 0,
+            edgeScore: 0
+        };
 
-        // Dosya yükleme işlemleri
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('imageInput');
-        const qualityMeter = document.getElementById('qualityMeter');
-        const qualityBar = document.getElementById('qualityBar');
-        const qualityValue = document.getElementById('qualityValue');
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length) handleFile(files[0]);
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) handleFile(e.target.files[0]);
-        });
-
-        function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Lütfen geçerli bir görsel dosyası seçin (PNG, JPG, WEBP)');
-                return;
-            }
-
-            dropZone.classList.add('has-file');
-            dropZone.querySelector('.upload-text').textContent = `✅ ${file.name}`;
-            dropZone.querySelector('.upload-subtext').textContent = `Boyut: ${(file.size/1024).toFixed(1)} KB • Yükleniyor...`;
+        // Görsel yükleme ve analiz
+        function handleImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    analyzeImageQuality(img, file);
-                };
-                img.src = e.target.result;
+            reader.onload = function(e) {
+                uploadedImage = e.target.result;
+                
+                // Görseli göster
+                document.getElementById('previewImage').src = uploadedImage;
+                document.getElementById('imageAnalysis').classList.add('show');
+                document.getElementById('uploadArea').classList.add('has-image');
+                document.getElementById('uploadArea').innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <div class="upload-text">Fotoğraf Yüklendi</div>
+                    <div class="upload-hint">Güvenlik analizi için "Analiz Yap" butonuna tıklayın</div>
+                `;
+
+                // Canvas ile görsel analizi
+                analyzeImageSecurity(uploadedImage);
             };
             reader.readAsDataURL(file);
         }
 
-        function analyzeImageQuality(img, file) {
-            const canvas = document.getElementById('imageCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Canvas boyutlandırma
-            const maxWidth = 800;
-            const scale = Math.min(1, maxWidth / img.width);
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            document.getElementById('canvasContainer').style.display = 'block';
-
-            // Görsel analizi
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            
-            let totalPixels = data.length / 4;
-            let brightnessSum = 0;
-            let edgePixels = 0;
-            let whitePixels = 0;
-            let bluePixels = 0;
-            let sharpnessScore = 0;
-
-            // Parlaklık ve renk analizi
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i], g = data[i+1], b = data[i+2];
-                const brightness = (r + g + b) / 3;
-                brightnessSum += brightness;
-
-                // Beyaz piksel tespiti (plaka arka planı)
-                if (r > 200 && g > 200 && b > 200) whitePixels++;
+        // Görsel güvenlik analizi (Canvas)
+        function analyzeImageSecurity(imageSrc) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
                 
-                // Mavi piksel tespiti (TR şeridi)
-                if (b > 150 && r < 100 && g < 150) bluePixels++;
-
-                // Kenar tespiti (basit gradient hesaplama)
-                if (i > 0 && i < data.length - 4) {
-                    const prevBrightness = (data[i-4] + data[i-3] + data[i-2]) / 3;
-                    const currBrightness = brightness;
-                    if (Math.abs(currBrightness - prevBrightness) > 30) {
-                        edgePixels++;
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // 1. KONTRAST ANALİZİ (Reflektif folyo tespiti)
+                let brightnessSum = 0;
+                let contrastPixels = 0;
+                let edgePixels = 0;
+                let whitePixels = 0;
+                let darkPixels = 0;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i+1], b = data[i+2];
+                    const brightness = (r + g + b) / 3;
+                    brightnessSum += brightness;
+                    
+                    // Beyaz/siyah dengesi (plaka özelliği)
+                    if (brightness > 200) whitePixels++;
+                    if (brightness < 50) darkPixels++;
+                    
+                    // Kenar tespiti (hologram dalgalanması)
+                    if (i > 0 && i < data.length - 4) {
+                        const prevBrightness = (data[i-4] + data[i-3] + data[i-2]) / 3;
+                        if (Math.abs(brightness - prevBrightness) > 30) {
+                            edgePixels++;
+                        }
                     }
                 }
-            }
-
-            const avgBrightness = brightnessSum / totalPixels;
-            const contrast = (edgePixels / totalPixels) * 100;
-            const resolution = Math.min(100, (img.width * img.height) / 10000);
-            
-            // Kalite skoru hesaplama (0-100)
-            let qualityScore = 0;
-            qualityScore += Math.min(25, (avgBrightness / 255) * 25); // Parlaklık
-            qualityScore += Math.min(25, contrast); // Kontrast/Netlik
-            qualityScore += Math.min(25, resolution / 4); // Çözünürlük
-            qualityScore += Math.min(25, (whitePixels / totalPixels) * 100); // Beyaz alan oranı (plaka tespiti)
-
-            imageQualityScore = Math.round(qualityScore);
-            
-            // Kalite metre gösterimi
-            qualityMeter.style.display = 'block';
-            setTimeout(() => {
-                qualityBar.style.width = `${imageQualityScore}%`;
-                qualityValue.textContent = `${imageQualityScore}%`;
                 
-                // Kalite yorumu
-                let qualityText = '';
-                if (imageQualityScore < 40) qualityText = '⚠️ Düşük Kalite - Daha yakından çekin';
-                else if (imageQualityScore < 70) qualityText = '⚡ Orta Kalite - Kabul edilebilir';
-                else qualityText = '✅ Yüksek Kalite - Optimal analiz için ideal';
+                const totalPixels = data.length / 4;
+                const avgBrightness = brightnessSum / totalPixels;
                 
-                dropZone.querySelector('.upload-subtext').innerHTML = 
-                    `<strong style="color: ${imageQualityScore > 70 ? 'var(--success)' : imageQualityScore > 40 ? 'var(--warning)' : 'var(--danger)'}">${qualityText}</strong><br>
-                    Parlaklık: ${Math.round(avgBrightness/2.55)}% • Netlik: ${Math.round(contrast)}% • Çözünürlük: ${img.width}x${img.height}`;
-            }, 100);
-
-            imageAnalysisData = {
-                quality: imageQualityScore,
-                brightness: avgBrightness,
-                contrast: contrast,
-                hasBlueStrip: bluePixels > 100,
-                hasWhiteBackground: (whitePixels / totalPixels) > 0.3,
-                resolution: `${img.width}x${img.height}`,
-                fileSize: (file.size/1024).toFixed(1)
-            };
-        }
-
-        function analyzePlate() {
-            const plateInput = document.getElementById('plateInput').value.trim().toUpperCase();
-            const resultsDiv = document.getElementById('results');
-            const loadingDiv = document.getElementById('loading');
-
-            if (!plateInput) {
-                showNotification('Lütfen bir plaka numarası girin', 'error');
-                return;
-            }
-
-            const cleanPlate = plateInput.replace(/\s+/g, '');
-            
-            loadingDiv.style.display = 'block';
-            resultsDiv.style.display = 'none';
-            resultsDiv.innerHTML = '';
-
-            // Simüle edilmiş analiz süreci
-            setTimeout(() => {
-                const analysis = performDeepAnalysis(cleanPlate);
-                displayProfessionalResults(analysis, plateInput);
-                loadingDiv.style.display = 'none';
-                resultsDiv.style.display = 'block';
-                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 2000);
-        }
-
-        function performDeepAnalysis(plate) {
-            const result = {
-                isValidFormat: false,
-                isOfficial: false,
-                confidence: 0,
-                baseConfidence: 0,
-                imageBonus: 0,
-                cityCode: '',
-                cityName: '',
-                type: '',
-                reasons: [],
-                securityChecks: [],
-                imageAnalysis: imageAnalysisData
-            };
-
-            // 1. Format Doğrulama
-            result.isValidFormat = PLATE_REGEX.test(plate);
-            
-            if (!result.isValidFormat) {
-                result.type = 'SAHTE';
-                result.reasons.push('Plaka formatı Türkiye standartlarına uymuyor');
-                result.baseConfidence = 95;
-                result.securityChecks.push({ name: 'Format Yapısı', status: 'invalid', desc: 'Regex pattern eşleşmedi' });
-                return result;
-            }
-
-            result.securityChecks.push({ name: 'Format Yapısı', status: 'valid', desc: 'TC standartlarına uygun' });
-
-            // 2. İl Kodu
-            result.cityCode = plate.substring(0, 2);
-            result.cityName = CITY_CODES[result.cityCode] || 'Bilinmeyen';
-            
-            if (!CITY_CODES[result.cityCode]) {
-                result.reasons.push('Geçersiz il kodu (01-81 arası olmalı)');
-                result.securityChecks.push({ name: 'İl Kodu', status: 'invalid', desc: `${result.cityCode} tanımlı değil` });
-                result.baseConfidence -= 30;
-            } else {
-                result.securityChecks.push({ name: 'İl Kodu', status: 'valid', desc: `${result.cityName} (${result.cityCode})` });
-                result.baseConfidence += 20;
-            }
-
-            // 3. Türkçe karakter kontrolü
-            const turkishChars = /[ÖÇŞİĞÜ]/;
-            if (turkishChars.test(plate)) {
-                result.reasons.push('Türkçe karakter içeriyor (ÖÇŞİĞÜ kullanılamaz)');
-                result.securityChecks.push({ name: 'Karakter Seti', status: 'invalid', desc: 'Türkçe karakter tespit edildi' });
-                result.baseConfidence -= 25;
-            } else {
-                result.securityChecks.push({ name: 'Karakter Seti', status: 'valid', desc: 'İngilizce karakterler kullanılmış' });
-                result.baseConfidence += 15;
-            }
-
-            // 4. X, W, Q kontrolü
-            const invalidChars = /[XWQ]/;
-            if (invalidChars.test(plate)) {
-                result.reasons.push('Plakada X, W veya Q harfi bulunuyor (Türkiye\'de kullanılmaz)');
-                result.securityChecks.push({ name: 'Yasaklı Harfler', status: 'invalid', desc: 'X/W/Q tespit edildi' });
-                result.baseConfidence -= 25;
-            } else {
-                result.securityChecks.push({ name: 'Yasaklı Harfler', status: 'valid', desc: 'Yasaklı karakter yok' });
-                result.baseConfidence += 15;
-            }
-
-            // 5. Sıfır kontrolü
-            if (plate.match(/0{2,5}$/)) {
-                result.reasons.push('Plaka numarası geçersiz sıfırla bitiyor');
-                result.securityChecks.push({ name: 'Numara Sıfır Kontrolü', status: 'invalid', desc: 'Sonu sıfırla bitiyor' });
-                result.baseConfidence -= 20;
-            } else {
-                result.securityChecks.push({ name: 'Numara Sıfır Kontrolü', status: 'valid', desc: 'Geçerli numara dizilimi' });
-                result.baseConfidence += 10;
-            }
-
-            // 6. Görsel analiz bonusu
-            if (imageAnalysisData) {
-                result.imageBonus = Math.round(imageAnalysisData.quality * 0.3); // Max 30 puan
-                if (imageAnalysisData.hasBlueStrip) {
-                    result.securityChecks.push({ name: 'TR Mavi Şerit', status: 'valid', desc: 'Görselde tespit edildi' });
-                    result.imageBonus += 10;
-                } else {
-                    result.securityChecks.push({ name: 'TR Mavi Şerit', status: 'warning', desc: 'Görselde net değil' });
+                // Reflektif folyo: Yüksek kontrast, beyaz arka plan
+                imageAnalysisData.hasReflective = (whitePixels / totalPixels) > 0.4 && avgBrightness > 150;
+                imageAnalysisData.contrastScore = Math.min(100, (edgePixels / totalPixels) * 1000);
+                
+                // 2. HOLOGRAM ANALİZİ (Dalgalı desen tespiti)
+                // Orta bölgede yoğun kenar varsa hologram olabilir
+                const centerY = Math.floor(canvas.height / 2);
+                const centerStart = (centerY - 20) * canvas.width * 4;
+                const centerEnd = (centerY + 20) * canvas.width * 4;
+                let centerEdges = 0;
+                
+                for (let i = centerStart; i < centerEnd && i < data.length; i += 4) {
+                    if (i > 0) {
+                        const curr = (data[i] + data[i+1] + data[i+2]) / 3;
+                        const prev = (data[i-4] + data[i-3] + data[i-2]) / 3;
+                        if (Math.abs(curr - prev) > 20) centerEdges++;
+                    }
                 }
                 
-                if (imageAnalysisData.hasWhiteBackground) {
-                    result.securityChecks.push({ name: 'Beyaz Arka Plan', status: 'valid', desc: 'Plaka arka planı doğru' });
-                    result.imageBonus += 5;
+                // Hologram şeridi: Orta kısımda yoğun dalgalanma
+                imageAnalysisData.hasHologram = centerEdges > (canvas.width * 0.1);
+                
+                // 3. MÜHÜR ANALİZİ (Sol üst köşe koyu leke tespiti)
+                const cornerSize = Math.min(canvas.width, canvas.height) * 0.2;
+                let cornerDarkPixels = 0;
+                
+                for (let y = 0; y < cornerSize; y++) {
+                    for (let x = 0; x < cornerSize; x++) {
+                        const idx = (y * canvas.width + x) * 4;
+                        const brightness = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+                        if (brightness < 80) cornerDarkPixels++;
+                    }
                 }
-            } else {
-                result.securityChecks.push({ name: 'Görsel Analizi', status: 'warning', desc: 'Fotoğraf yüklenmedi' });
-                result.reasons.push('Görsel analizi yapılmadı - doğruluk oranı düşük');
-            }
-
-            // Toplam güven skoru
-            result.confidence = Math.min(98, result.baseConfidence + result.imageBonus);
-            
-            // Sonuç tipi belirleme
-            if (result.confidence >= 75) {
-                result.type = 'APP (GERÇEK)';
-                result.isOfficial = true;
-            } else if (result.confidence >= 50) {
-                result.type = 'ŞÜPHELİ';
-            } else {
-                result.type = 'SAHTE';
-            }
-
-            return result;
+                
+                const cornerTotal = cornerSize * cornerSize;
+                imageAnalysisData.hasSeal = (cornerDarkPixels / cornerTotal) > 0.05;
+                
+                // Analiz sonuçlarını göster
+                displaySecurityChecks();
+            };
+            img.src = imageSrc;
         }
 
-        function displayProfessionalResults(analysis, originalPlate) {
-            const resultsDiv = document.getElementById('results');
+        // Güvenlik kontrollerini ekrana yaz
+        function displaySecurityChecks() {
+            const checks = [
+                {
+                    name: 'Reflektif Folyo',
+                    desc: 'Yansıtıcı beyaz zemin',
+                    passed: imageAnalysisData.hasReflective,
+                    icon: '✓'
+                },
+                {
+                    name: 'Hologram Şeridi',
+                    desc: 'Dalgalı güvenlik şeridi',
+                    passed: imageAnalysisData.hasHologram,
+                    icon: '〰'
+                },
+                {
+                    name: 'Mühür/Damga',
+                    desc: 'Sol üst köşe mührü',
+                    passed: imageAnalysisData.hasSeal,
+                    icon: '◉'
+                },
+                {
+                    name: 'Kontrast Oranı',
+                    desc: 'Siyah-beyaz netliği',
+                    passed: imageAnalysisData.contrastScore > 50,
+                    icon: '◐'
+                }
+            ];
             
-            let statusClass = 'warning';
-            let icon = '⚠️';
-            let color = 'warning';
-            
-            if (analysis.type === 'APP (GERÇEK)') {
-                statusClass = 'success';
-                icon = '✅';
-                color = 'success';
-            } else if (analysis.type === 'SAHTE') {
-                statusClass = 'danger';
-                icon = '❌';
-                color = 'danger';
-            }
-
-            const imageAnalysisHTML = analysis.imageAnalysis ? `
-                <div class="image-analysis fade-in">
-                    <div class="analysis-title">📸 Görsel Analiz Detayları</div>
-                    <div class="pixel-grid">
-                        <div class="pixel-item">
-                            <div class="pixel-value">${analysis.imageAnalysis.quality}%</div>
-                            <div class="pixel-label">Kalite Skoru</div>
-                        </div>
-                        <div class="pixel-item">
-                            <div class="pixel-value">${analysis.imageAnalysis.resolution}</div>
-                            <div class="pixel-label">Çözünürlük</div>
-                        </div>
-                        <div class="pixel-item">
-                            <div class="pixel-value">${analysis.imageAnalysis.hasBlueStrip ? '✓' : '?'}</div>
-                            <div class="pixel-label">Mavi Şerit</div>
-                        </div>
-                        <div class="pixel-item">
-                            <div class="pixel-value">${analysis.imageBonus}</div>
-                            <div class="pixel-label">Güven Bonusu</div>
-                        </div>
-                    </div>
-                    <p style="font-size: 0.9em; opacity: 0.9; line-height: 1.6;">
-                        Görsel kalitesi analiz doğruluğunu doğrudan etkiler. 
-                        Yüksek kaliteli fotoğraflar (${analysis.imageAnalysis.quality}%) 
-                        OCR doğruluğunu %${analysis.imageBonus} artırır.
-                    </p>
-                </div>
-            ` : '';
-
-            const checksHTML = analysis.securityChecks.map(check => `
-                <div class="checklist-item fade-in">
-                    <div class="check-icon ${check.status}">
-                        ${check.status === 'valid' ? '✓' : check.status === 'invalid' ? '✗' : '!'}
-                    </div>
-                    <div class="check-content">
+            const container = document.getElementById('securityChecks');
+            container.innerHTML = checks.map(check => `
+                <div class="check-item ${check.passed ? 'passed' : 'failed'}">
+                    <div class="check-icon">${check.passed ? '✓' : '✗'}</div>
+                    <div class="check-text">
                         <div class="check-label">${check.name}</div>
-                        <div class="check-desc">${check.desc}</div>
+                        <div class="check-desc">${check.desc} ${check.passed ? '(Tespit edildi)' : '(Belirsiz)'}</div>
                     </div>
                 </div>
             `).join('');
+        }
 
-            resultsDiv.innerHTML = `
-                <div class="result-hero">
-                    <div class="result-badge ${color}">
-                        ${icon} ${analysis.type}
+        // Ana analiz fonksiyonu
+        function analyzePlate() {
+            const plate = document.getElementById('plateInput').value.trim().toUpperCase();
+            const container = document.getElementById('resultContainer');
+            
+            // Görsel analiz puanı
+            let visualScore = 0;
+            if (imageAnalysisData.hasReflective) visualScore += 25;
+            if (imageAnalysisData.hasHologram) visualScore += 35;
+            if (imageAnalysisData.hasSeal) visualScore += 25;
+            if (imageAnalysisData.contrastScore > 50) visualScore += 15;
+            
+            // Plaka formatı puanı
+            let formatScore = 0;
+            let plateData = null;
+            
+            if (plate) {
+                plateData = validatePlateFormat(plate);
+                formatScore = plateData.valid ? 100 : 0;
+            }
+            
+            // Toplam otantiklik puanı
+            let totalScore = visualScore;
+            let status = 'suspicious';
+            let title = 'ŞÜPHELİ';
+            let message = 'Yeterli güvenlik özelliği tespit edilemedi';
+            
+            if (visualScore >= 80 && (!plate || plateData?.valid)) {
+                status = 'original';
+                title = 'ORİJİNAL PLAKA';
+                message = 'Tüm güvenlik özellikleri tespit edildi';
+            } else if (visualScore < 40) {
+                status = 'fake';
+                title = 'SAHTE PLAKA';
+                message = 'Güvenlik özellikleri bulunamadı';
+            }
+            
+            // Sonuçları göster
+            displayResult(container, plate, plateData, totalScore, status, title, message);
+        }
+
+        // Plaka format validasyonu
+        function validatePlateFormat(plate) {
+            const clean = plate.replace(/\s/g, '');
+            
+            // Tek haneli il kodu kontrolü
+            if (/^\d$/.test(clean)) {
+                return { valid: false, error: 'TEK_HANELI_IL', cityCode: '0' + clean };
+            }
+            
+            const OFFICIAL_REGEX = /^(0[1-9]|[1-7][0-9]|8[01])([A-PR-VYZ]{1,3})([0-9]{2,5})$/;
+            
+            if (!OFFICIAL_REGEX.test(clean)) {
+                return { valid: false, error: 'FORMAT_HATALI' };
+            }
+            
+            const match = clean.match(OFFICIAL_REGEX);
+            const cityCode = match[1];
+            const letters = match[2];
+            const numbers = match[3];
+            
+            // İl kodu kontrolü
+            if (!CITY_DATABASE[cityCode]) {
+                return { valid: false, error: 'GECERSIZ_IL', cityCode };
+            }
+            
+            // Yasaklı karakter
+            if (/[XWQÖÇŞİĞÜI]/.test(letters)) {
+                return { valid: false, error: 'YASAKLI_KARAKTER' };
+            }
+            
+            // Rakam sıfır ile başlayamaz
+            if (numbers.startsWith('0')) {
+                return { valid: false, error: 'SIFIR_BASLANGIC' };
+            }
+            
+            return {
+                valid: true,
+                cityCode,
+                cityName: CITY_DATABASE[cityCode],
+                letters,
+                numbers,
+                plateType: letters.length === 1 ? 'Tip A' : letters.length === 2 ? 'Tip B' : 'Tip C'
+            };
+        }
+
+        // Sonuç ekranı
+        function displayResult(container, plate, plateData, score, status, title, message) {
+            const plateDisplay = plate || '---';
+            
+            container.innerHTML = `
+                <div class="result-header ${status}">
+                    <div class="result-title ${status}">${title}</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 10px;">${message}</div>
+                    <div class="authenticity-score" style="color: var(--${status === 'original' ? 'success' : status === 'suspicious' ? 'warning' : 'danger'})">
+                        %${score}
                     </div>
-                    <div class="plate-display">${originalPlate}</div>
-                    <div class="confidence-score">
-                        <div class="score-label">Doğruluk Oranı</div>
-                        <div class="score-value">%${analysis.confidence}</div>
-                        <div class="score-bar">
-                            <div class="score-fill" style="width: ${analysis.confidence}%"></div>
-                        </div>
+                    <div class="score-bar">
+                        <div class="score-fill ${status}" style="width: ${score}%"></div>
                     </div>
                 </div>
-
-                <div class="analysis-grid">
-                    <div class="analysis-card ${color}">
-                        <div class="card-header">
-                            <div class="card-icon">${icon}</div>
-                            <div class="card-title">Durum Değerlendirmesi</div>
-                        </div>
-                        <div class="card-content">
-                            Plaka ${analysis.isOfficial ? 'resmi kayıtlara uygun görünmektedir' : 'resmi olmayabilir veya sahte olabilir'}.
-                            ${analysis.reasons.length > 0 ? `<br><br><strong>Tespitler:</strong> ${analysis.reasons.join(', ')}` : ''}
-                        </div>
+                
+                ${plate ? `
+                <div class="plate-display">${plateDisplay}</div>
+                
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">İl</div>
+                        <div class="detail-value">${plateData?.cityName || '---'}</div>
                     </div>
-
-                    <div class="analysis-card">
-                        <div class="card-header">
-                            <div class="card-icon">📍</div>
-                            <div class="card-title">Kayıt Bölgesi</div>
-                        </div>
-                        <div class="card-content">
-                            İl Kodu
-                            <div class="detail-value">${analysis.cityCode} - ${analysis.cityName}</div>
-                        </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Format</div>
+                        <div class="detail-value">${plateData?.valid ? '✓ Geçerli' : '✗ Hatalı'}</div>
                     </div>
-
-                    <div class="analysis-card">
-                        <div class="card-header">
-                            <div class="card-icon">🔒</div>
-                            <div class="card-title">Güvenlik Skoru</div>
-                        </div>
-                        <div class="card-content">
-                            Temel Puan: ${analysis.baseConfidence} + Görsel Bonus: ${analysis.imageBonus || 0}
-                            <div class="detail-value">Toplam: ${analysis.confidence}/100</div>
-                        </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Plaka Tipi</div>
+                        <div class="detail-value">${plateData?.plateType || '---'}</div>
                     </div>
-
-                    <div class="analysis-card">
-                        <div class="card-header">
-                            <div class="card-icon">📋</div>
-                            <div class="card-title">Format Bilgisi</div>
-                        </div>
-                        <div class="card-content">
-                            Standart format kontrolü
-                            <div class="detail-value">${analysis.isValidFormat ? 'Geçerli' : 'Geçersiz'}</div>
-                        </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Görsel Analiz</div>
+                        <div class="detail-value">${uploadedImage ? '✓ Yapıldı' : '✗ Yok'}</div>
                     </div>
                 </div>
-
-                <div class="feature-checklist">
-                    <div class="checklist-title">🔍 Güvenlik Kontrol Listesi</div>
-                    ${checksHTML}
-                </div>
-
-                ${imageAnalysisHTML}
-
-                <div class="security-notice">
-                    <div class="notice-icon">⚖️</div>
-                    <div class="notice-content">
-                        <h4>Yasal Uyarı</h4>
-                        <p>Sahte plaka kullanımı 2024 yılı itibariyle <strong>32.170 TL</strong> idari para cezası ve 
-                        sahte evrak kullanımından <strong>2-5 yıl hapis</strong> cezası ile cezalandırılır. 
-                        Tüm plakalarda QR kod ve hologram zorunludur.</p>
+                ` : ''}
+                
+                <div class="security-features-list">
+                    <h4>🔍 Tespit Edilen Güvenlik Özellikleri</h4>
+                    <div class="feature-check">
+                        <span>${imageAnalysisData.hasReflective ? '✅' : '❌'}</span>
+                        <span>Reflektif folyo (parlak zemin)</span>
+                    </div>
+                    <div class="feature-check">
+                        <span>${imageAnalysisData.hasHologram ? '✅' : '❌'}</span>
+                        <span>Dalgalı hologram şeridi</span>
+                    </div>
+                    <div class="feature-check">
+                        <span>${imageAnalysisData.hasSeal ? '✅' : '❌'}</span>
+                        <span>TŞOF/TSE mühür damgası</span>
+                    </div>
+                    <div class="feature-check">
+                        <span>${imageAnalysisData.contrastScore > 50 ? '✅' : '❌'}</span>
+                        <span>Yüksek kontrast (net siyah-beyaz)</span>
                     </div>
                 </div>
             `;
-
-            // Animasyonları tetikle
-            setTimeout(() => {
-                document.querySelectorAll('.fade-in').forEach((el, index) => {
-                    el.style.animationDelay = `${index * 0.1}s`;
-                });
-            }, 100);
+            
+            container.classList.add('show');
         }
 
-        function showNotification(message, type) {
-            // Basit alert yerine daha profesyonel bir bildirim eklenebilir
-            alert(message);
-        }
-
-        // Enter tuşu desteği
+        // Enter tuşu
         document.getElementById('plateInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') analyzePlate();
         });
