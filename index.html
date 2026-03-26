@@ -1,68 +1,458 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Plaka APP / Standart / Sahte Kontrolü</title>
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;text-align:center;margin-top:40px}
-    #result{font-size:1.5em;margin-top:20px;font-weight:bold}
-    button:disabled{opacity:.6;cursor:not-allowed}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaka Doğrulama Sistemi - Sahte/Akıl Kontrolü</title>
+    <script src='https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js'></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            border: 3px dashed #ccc;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-section.dragover {
+            border-color: #764ba2;
+            background: #e8eeff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .preview-section {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .preview-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        #previewImage {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .plate-overlay {
+            position: absolute;
+            border: 3px solid #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 0 10px rgba(0,255,0,0.5);
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateX(5px);
+        }
+
+        .result-card.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .result-card.danger {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .result-card.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-content {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+
+        .plate-text {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 5px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            color: white;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .check-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .check-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check-list li:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            font-size: 1.5em;
+            width: 30px;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .status-badge.authentic {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-badge.suspicious {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .status-badge.fake {
+            background: #dc3545;
+            color: white;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .manual-input {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .manual-input input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .manual-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.95em;
+            color: #0c5460;
+        }
+
+        .security-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-icon {
+            font-size: 1.5em;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f4ff;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .content {
+                padding: 20px;
+            }
+            .plate-text {
+                font-size: 1.8em;
+                letter-spacing: 2px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Plaka Doğrulama Sistemi</h1>
+            <p>Fotoğraf ile Plaka Analizi - Sahte/Akıl Kontrolü</p>
+        </div>
 
-  <h2>Türkçe Plaka APP / Standart / Sahte Tespiti</h2>
-  <input type="file" id="imageUpload" accept="image/*">
-  <br><br>
-  <button id="checkBtn" disabled>Sorgula</button>
-  <div id="result">Sonuç burada görünecek</div>
+        <div class="content">
+            <div class="info-box">
+                <strong>ℹ️ Bilgi:</strong> Bu sistem yapay zeka ile plaka metnini okur ve Türkiye plaka formatına uygunluğunu, olası sahte plaka belirtilerini analiz eder. Yeni karekodlu plakalar için QR kod doğrulaması da yapılır.
+            </div>
 
-  <!-- TensorFlow.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
-  <!-- Model yüklenecek -->
-  <script>
-    const MODEL_URL = 'model_web/model.json';   // <-- TODO: kendi model klasörünüz
-    const LABELS  = ['Amator','Standart','Sahte'];
-    let model;
+            <div class="upload-section" id="dropZone">
+                <div class="upload-icon">📷</div>
+                <h3>Plaka Fotoğrafını Yükleyin</h3>
+                <p>veya sürükleyip bırakın</p>
+                <p style="font-size: 0.9em; color: #666; margin-top: 10px;">Desteklenen formatlar: JPG, PNG, WEBP</p>
+                <input type="file" id="fileInput" accept="image/*">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Fotoğraf Seç</button>
+            </div>
 
-    async function loadModel(){
-      model = await tf.loadLayersModel(MODEL_URL);
-      document.getElementById('checkBtn').disabled = false;
-      document.getElementById('result').innerText = 'Model yüklendi, sorgulamaya hazır.';
-    }
-    loadModel();
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <div class="loading-text">Plaka analiz ediliyor...</div>
+                <p style="color: #666; margin-top: 10px;">Yapay zeka görüntüyü işliyor</p>
+            </div>
 
-    // Görüntüyü 224x224 boyutlandırır ve normalize eder
-    function preprocess(imgElement){
-      return tf.tidy(()=>{
-        let tensor = tf.browser.fromPixels(imgElement)
-                      .resizeNearestNeighbor([224,224])
-                      .toFloat()
-                      .div(255.0)
-                      .expandDims(0);
-        return tensor;
-      });
-    }
+            <div class="preview-section" id="previewSection">
+                <h3 style="margin-bottom: 15px;">📸 Yüklenen Görüntü</h3>
+                <div style="text-align: center;">
+                    <div class="preview-container">
+                        <img id="previewImage" alt="Plaka önizleme">
+                        <div class="plate-overlay" id="plateOverlay"></div>
+                    </div>
+                </div>
+                
+                <div class="manual-input" id="manualInput">
+                    <p style="margin-bottom: 10px; font-weight: bold;">Otomatik okuma başarısız oldu. Lütfen plakayı manuel girin:</p>
+                    <input type="text" id="manualPlate" placeholder="34ABC123" maxlength="10">
+                    <button class="btn" onclick="analyzeManualPlate()">Analiz Et</button>
+                </div>
+            </div>
 
-    document.getElementById('checkBtn').onclick = async ()=>{
-      const fileInput = document.getElementById('imageUpload');
-      if(!fileInput.files.length){ alert('Lütfen bir fotoğraf seçin'); return; }
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-title">
+                        🔍 Tespit Edilen Plaka
+                        <span id="authenticityBadge" class="status-badge"></span>
+                    </div>
+                    <div class="plate-text" id="detectedPlate">--</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceBar" style="width: 0%">0%</div>
+                    </div>
+                    <p style="text-align: center; color: #666; font-size: 0.9em;">OCR Güven Skoru</p>
+                </div>
 
-      const img = document.createElement('img');
-      img.src = URL.createObjectURL(fileInput.files[0]);
-      img.onload = async ()=>{
-        const tensor = preprocess(img);
-        const pred   = model.predict(tensor).dataSync();  // [prob1,prob2,prob3]
-        const idx    = pred.indexOf(Math.max(...pred));
-        const prob   = (pred[idx]*100).toFixed(1);
+                <div class="result-card" id="formatCheck">
+                    <div class="result-title">📋 Format Doğrulama</div>
+                    <div class="result-content">
+                        <ul class="check-list" id="formatChecks"></ul>
+                    </div>
+                </div>
 
-        document.getElementById('result').innerText =
-          `Sonuç: ${LABELS[idx]} (${prob}%)`;
+                <div class="result-card" id="securityCheck">
+                    <div class="result-title">🛡️ Güvenlik Analizi</div>
+                    <div class="result-content">
+                        <p>Plakanın sahte olup olmadığını belirleyen güvenlik kontrolleri:</p>
+                        <div class="security-features" id="securityFeatures"></div>
+                    </div>
+                </div>
 
-        tf.dispose(tensor);
-        URL.revokeObjectURL(img.src);
-      };
-    };
-  </script>
-</body>
-</html>
+                <div class="result-card" id="recommendation">
+                    <div class="result-title">💡 Değerlendirme</div>
+                    <div class="result-content" id="recommendationText"></div>
+                </div>
+
+                <button class="btn" onclick="resetApp()" style="width: 100%; margin-top: 20px;">Yeni Analiz Yap</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Türkiye plaka formatı regex
+        const PLATE_REGEX = /^(\d{2})(
