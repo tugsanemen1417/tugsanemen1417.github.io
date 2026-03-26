@@ -1,1501 +1,1662 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plaka Doğrulama Sistemi - Gelişmiş Tespit</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #334155;
-            --text-primary: #f8fafc; --text-secondary: #cbd5e1; --text-muted: #94a3b8;
-            --accent-blue: #3b82f6; --accent-green: #10b981; --accent-red: #ef4444;
-            --accent-yellow: #f59e0b; --border-color: #475569;
-        }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #1e1b4b 100%);
-            color: var(--text-primary); min-height: 100vh; padding: 20px;
-        }
-        .container { max-width: 900px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 30px; padding: 20px; }
-        .header h1 {
-            font-size: 2.5rem; margin-bottom: 10px;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .header p { color: var(--text-muted); font-size: 1.1rem; }
-        .card {
-            background: var(--bg-secondary); border-radius: 20px; padding: 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid var(--border-color);
-        }
-        .upload-zone {
-            border: 3px dashed var(--border-color); border-radius: 16px; padding: 60px 40px;
-            text-align: center; cursor: pointer; transition: all 0.3s ease;
-            background: rgba(51, 65, 85, 0.5);
-        }
-        .upload-zone:hover { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); transform: translateY(-2px); }
-        .upload-zone.dragover { border-color: var(--accent-green); background: rgba(16, 185, 129, 0.1); }
-        .upload-zone.hidden { display: none; }
-        .upload-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.8; }
-        .upload-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 10px; }
-        .upload-desc { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
-        .upload-specs { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-        .spec-badge {
-            background: var(--bg-card); padding: 8px 16px; border-radius: 20px;
-            font-size: 0.85rem; color: var(--text-secondary); border: 1px solid var(--border-color);
-        }
-        .preview-section { display: none; }
-        .preview-section.active { display: block; }
-        .canvas-container {
-            background: var(--bg-primary); border-radius: 12px; padding: 20px;
-            margin-bottom: 24px; border: 1px solid var(--border-color); overflow: hidden;
-            position: relative;
-        }
-        #mainCanvas { width: 100%; height: auto; border-radius: 8px; display: block; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plaka Doğrulama Sistemi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap');
 
-        .enhancement-controls {
-            display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
-            background: var(--bg-card); border-radius: 12px; padding: 16px;
-            border: 1px solid var(--border-color);
-        }
-        .enhancement-controls label {
-            color: var(--text-secondary); font-size: 0.9rem;
-            display: flex; align-items: center; gap: 8px;
-            cursor: pointer;
-        }
-        .enhancement-controls input[type="radio"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            outline: none;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-        .enhancement-controls input[type="radio"]:checked {
-            background-color: var(--accent-blue);
-            border-color: var(--accent-blue);
-        }
-        .enhancement-controls input[type="radio"]:checked::before {
-            content: '';
-            display: block;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
+  :root {
+    --bg: #060a10;
+    --bg2: #0c1220;
+    --bg3: #111927;
+    --border: #1e3a5f;
+    --accent: #0a84ff;
+    --accent2: #00d4ff;
+    --green: #00e676;
+    --yellow: #ffca28;
+    --red: #ff3d3d;
+    --text: #c8dff5;
+    --text2: #6b8cae;
+    --blue-stripe: #003da5;
+  }
 
-        .btn {
-            padding: 14px 28px; border: none; border-radius: 10px; font-size: 1rem;
-            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-            display: inline-flex; align-items: center; gap: 8px; justify-content: center;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; flex: 1;
-        }
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
-        }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-secondary {
-            background: var(--bg-card); color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-        .btn-secondary:hover { background: var(--accent-red); color: white; }
-        .loading { display: none; text-align: center; padding: 40px; }
-        .loading.active { display: block; }
-        .spinner {
-            width: 50px; height: 50px; border: 4px solid var(--bg-card);
-            border-top-color: var(--accent-blue); border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 0 auto 20px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .results { display: none; margin-top: 30px; }
-        .results.show { display: block; animation: slideUp 0.5s ease; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .result-header {
-            border-radius: 16px; padding: 30px; text-align: center;
-            margin-bottom: 24px; position: relative; overflow: hidden;
-        }
-        .result-authentic { background: rgba(16, 185, 129, 0.2); border: 2px solid var(--accent-green); }
-        .result-suspicious { background: rgba(245, 158, 11, 0.2); border: 2px solid var(--accent-yellow); }
-        .result-fake { background: rgba(239, 68, 68, 0.2); border: 2px solid var(--accent-red); }
-        .result-badge {
-            display: inline-block; padding: 8px 20px; border-radius: 20px;
-            font-size: 0.9rem; font-weight: 600; margin-bottom: 16px;
-        }
-        .result-authentic .result-badge { background: var(--accent-green); color: white; }
-        .result-suspicious .result-badge { background: var(--accent-yellow); color: white; }
-        .result-fake .result-badge { background: var(--accent-red); color: white; }
-        .score-display { font-size: 4rem; font-weight: 700; margin-bottom: 8px; }
-        .result-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
-        .result-desc { color: var(--text-muted); font-size: 0.95rem; max-width: 500px; margin: 0 auto; }
-        .features-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;
-        }
-        .feature-card {
-            background: var(--bg-card); border-radius: 12px; padding: 20px;
-            border: 1px solid var(--border-color); display: flex; gap: 16px; transition: transform 0.2s;
-        }
-        .feature-card:hover { transform: translateY(-2px); }
-        .feature-card.pass { border-left: 4px solid var(--accent-green); }
-        .feature-card.warning { border-left: 4px solid var(--accent-yellow); }
-        .feature-card.fail { border-left: 4px solid var(--accent-red); }
-        .feature-icon { font-size: 2rem; flex-shrink: 0; }
-        .feature-content { flex: 1; }
-        .feature-title { font-weight: 600; margin-bottom: 4px; }
-        .feature-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
-        .feature-metrics { display: flex; gap: 20px; margin-bottom: 12px; }
-        .metric { display: flex; flex-direction: column; }
-        .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-        .metric-value { font-weight: 600; font-size: 1.1rem; }
-        .confidence-bar { height: 6px; background: var(--bg-primary); border-radius: 3px; overflow: hidden; }
-        .confidence-fill {
-            height: 100%; background: linear-gradient(90deg, var(--accent-blue), #60a5fa);
-            border-radius: 3px; transition: width 0.5s ease;
-        }
-        .toast {
-            position: fixed; bottom: 30px; left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--bg-secondary); color: var(--text-primary);
-            padding: 16px 24px; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            display: flex; align-items: center; gap: 12px;
-            opacity: 0; transition: all 0.3s ease; z-index: 1000;
-            border: 1px solid var(--border-color);
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .debug-info {
-            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;
-            font-family: monospace; font-size: 11px; color: var(--text-muted);
-            margin-top: 10px; max-height: 100px; overflow-y: auto;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Tile Grid for Analysis */
-        .tile-grid-overlay {
-            position: absolute;
-            top: 20px; /* Adjust to match canvas-container padding */
-            left: 20px; /* Adjust to match canvas-container padding */
-            width: calc(100% - 40px); /* Adjust for padding */
-            height: calc(100% - 40px); /* Adjust for padding */
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(10, 1fr);
-            gap: 0;
-            pointer-events: none; /* Allow clicks to pass through */
-        }
-        .tile {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-            transition: background-color 0.1s ease;
-            pointer-events: auto; /* Re-enable pointer events for tiles */
-            cursor: pointer;
-        }
-        .tile.highlighted {
-            background-color: rgba(255, 255, 0, 0.2); /* Yellow tint for current tile */
-        }
-        .tile.pass-highlight { background-color: rgba(16, 185, 129, 0.2); } /* Green tint */
-        .tile.fail-highlight { background-color: rgba(239, 68, 68, 0.2); } /* Red tint */
-        .tile-label {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.7);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 1px 3px;
-            border-radius: 3px;
-        }
-        /* Modal for Tile Zoom */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.show { display: flex; }
-        .modal-content {
-            background-color: var(--bg-secondary);
-            margin: auto;
-            padding: 20px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .modal-close {
-            color: var(--text-muted);
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .modal-close:hover,
-        .modal-close:focus {
-            color: var(--text-primary);
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .modal-canvas {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .modal-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-        }
-        .metric-item {
-            background: var(--bg-card);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            border: 1px solid var(--border-color);
-        }
-        .metric-item strong {
-            display: block;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        .metric-item span {
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        @media (max-width: 640px) {
-            .header h1 { font-size: 1.8rem; }
-            .card { padding: 20px; }
-            .upload-zone { padding: 40px 20px; }
-            .features-grid { grid-template-columns: 1fr; }
-            .score-display { font-size: 3rem; }
-            .modal-metrics { grid-template-columns: 1fr; }
-            .enhancement-controls { flex-direction: column; }
-        }
-    </style>
-<base target="_blank">
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(10,132,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,132,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-badge {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 20px rgba(10,132,255,0.4);
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .status-dot {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .status-dot::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* UPLOAD AREA */
+  .upload-section {
+    background: var(--bg2);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .upload-section:hover,
+  .upload-section.drag-over {
+    border-color: var(--accent);
+    background: rgba(10,132,255,0.05);
+  }
+
+  .upload-section.drag-over { transform: scale(1.01); }
+
+  .upload-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .upload-section h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .upload-section p {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 16px;
+  }
+
+  .upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--accent), #0066cc);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(10,132,255,0.3);
+  }
+
+  .upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(10,132,255,0.5);
+  }
+
+  #fileInput { display: none; }
+
+  /* MAIN CANVAS AREA */
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 800px) {
+    .workspace { grid-template-columns: 1fr; }
+  }
+
+  .canvas-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .panel-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  #mainCanvas {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+    background: #080e18;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .tb-btn {
+    flex: 1;
+    min-width: 80px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .tb-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .tb-btn.active { background: rgba(10,132,255,0.15); border-color: var(--accent); color: var(--accent2); }
+  .tb-btn.manual-btn { border-color: var(--yellow); color: var(--yellow); }
+  .tb-btn.manual-btn.active { background: rgba(255,202,40,0.15); }
+  .tb-btn.analyze-btn {
+    background: linear-gradient(135deg, var(--accent), #0066cc);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(10,132,255,0.3);
+  }
+  .tb-btn.analyze-btn:hover { box-shadow: 0 4px 20px rgba(10,132,255,0.5); transform: translateY(-1px); }
+
+  /* RIGHT PANEL */
+  .results-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* VERDICT BOX */
+  .verdict-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .verdict-box .verd-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .verdict-score {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .verdict-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .verdict-box.original { border-color: var(--green); }
+  .verdict-box.original .verdict-score { color: var(--green); text-shadow: 0 0 30px var(--green); }
+  .verdict-box.original .verdict-text { color: var(--green); }
+
+  .verdict-box.warn { border-color: var(--yellow); }
+  .verdict-box.warn .verdict-score { color: var(--yellow); text-shadow: 0 0 30px var(--yellow); }
+  .verdict-box.warn .verdict-text { color: var(--yellow); }
+
+  .verdict-box.fake { border-color: var(--red); }
+  .verdict-box.fake .verdict-score { color: var(--red); text-shadow: 0 0 30px var(--red); }
+  .verdict-box.fake .verdict-text { color: var(--red); }
+
+  .verdict-box.not-plate { border-color: var(--red); }
+  .verdict-box.not-plate .verdict-score { color: var(--red); font-size: 42px; text-shadow: 0 0 20px var(--red); }
+  .verdict-box.not-plate .verdict-text { color: var(--red); font-size: 14px; }
+
+  .verdict-box.idle .verdict-score { color: var(--text2); font-size: 42px; }
+  .verdict-box.idle .verdict-text { color: var(--text2); font-size: 15px; letter-spacing: 1px; }
+
+  /* METRIC BARS */
+  .metrics-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .metric-row {
+    margin-bottom: 12px;
+  }
+
+  .metric-row:last-child { margin-bottom: 0; }
+
+  .metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  .metric-name {
+    font-size: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text);
+  }
+
+  .metric-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+  }
+
+  .metric-bar-bg {
+    height: 5px;
+    background: var(--bg3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .metric-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  /* TILES GRID */
+  .tiles-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  #tilesGrid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 2px;
+    margin-top: 10px;
+  }
+
+  .tile-cell {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    cursor: pointer;
+    background: var(--bg3);
+    border: 1px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .tile-cell:hover { transform: scale(1.3); border-color: var(--accent2); z-index: 10; }
+  .tile-cell canvas { width: 100%; height: 100%; display: block; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 0 60px rgba(10,132,255,0.2);
+    animation: modalIn 0.3s ease;
+  }
+
+  @keyframes modalIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-box h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-img-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+  }
+
+  #modalCanvas { width: 100%; border-radius: 8px; display: block; }
+
+  .modal-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .modal-metric {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .modal-metric .mm-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  .modal-metric .mm-label {
+    font-size: 10px;
+    color: var(--text2);
+    margin-top: 2px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .modal-close {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .modal-close:hover { border-color: var(--accent); color: var(--accent2); }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.1s linear;
+    width: 0%;
+  }
+
+  /* MANUAL SELECTION HINT */
+  .manual-hint {
+    display: none;
+    background: rgba(255,202,40,0.1);
+    border: 1px solid var(--yellow);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--yellow);
+    margin-top: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  /* STANDARDS */
+  .standards-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .std-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .std-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .std-item strong {
+    display: block;
+    color: var(--accent2);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+  }
+
+  .std-item span { color: var(--text2); }
+
+  /* ENHANCEMENT FILTERS */
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .filter-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .filter-btn.active { background: rgba(10,132,255,0.15); border-color: var(--accent); color: var(--accent2); }
+
+  /* SCAN LINE ANIM */
+  @keyframes scanDown {
+    0% { top: 0; opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  .scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    pointer-events: none;
+    display: none;
+  }
+
+  .scan-line.active {
+    display: block;
+    animation: scanDown 1.5s linear infinite;
+  }
+
+  /* VERSION BADGE */
+  .version-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-left: auto;
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚗 Plaka Doğrulama Sistemi</h1>
-            <p>Gelişmiş hologram ve mühür tespiti ile TSE standart kontrolü</p>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-badge">🚗</div>
+    <div>
+      <h1>PLAKA DOĞRULAMA SİSTEMİ</h1>
+      <p>TÜRKİYE RESMİ PLAKA STANDARTLARI BAZLI ANALİZ</p>
+    </div>
+    <div class="status-dot">SİSTEM AKTİF</div>
+    <span class="version-tag">v4.0</span>
+  </header>
+
+  <!-- STANDARDS -->
+  <div class="standards-box">
+    <div class="panel-title">TÜRKİYE RESMİ PLAKA STANDARTLARI</div>
+    <div class="std-grid">
+      <div class="std-item">
+        <strong>📐 Boyutlar</strong>
+        <span>520×110 mm · Oran 4.72:1 · Kabartma 1-3 mm</span>
+      </div>
+      <div class="std-item">
+        <strong>🔵 Mavi TR Şeridi</strong>
+        <span>Sol, ~52mm genişlik · AB yıldızları · TR yazısı · Beyaz reflektif</span>
+      </div>
+      <div class="std-item">
+        <strong>🔒 Hologram Şeridi</strong>
+        <span>Alt kenarda · TŞOF logosu · Dalgalı desen · Kırılmaz yapı</span>
+      </div>
+      <div class="std-item">
+        <strong>⭕ TŞOF Mührü</strong>
+        <span>Sol üstte · Kabartmalı · Resmi onay damgası</span>
+      </div>
+      <div class="std-item">
+        <strong>🔡 Karakterler</strong>
+        <span>Standart font · Siyah kabartmalı · 2 harf + 3 rakam + 2 harf</span>
+      </div>
+      <div class="std-item">
+        <strong>⚠️ Eşikler</strong>
+        <span>≥%70 Orijinal · %40-69 Kontrol · &lt;%40 Sahte/Standart Dışı</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-section" id="uploadArea">
+    <span class="upload-icon">📤</span>
+    <h3>Plaka Fotoğrafı Yükle</h3>
+    <p>JPG, PNG, WEBP · Sürükle & Bırak veya tıkla · Maks 10MB</p>
+    <button class="upload-btn" type="button" id="uploadTrigger">
+      📁 Dosya Seç
+    </button>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace" id="workspace" style="display:none">
+
+    <!-- LEFT: CANVAS -->
+    <div class="canvas-panel">
+      <div class="panel-title">GÖRÜNTÜ ANALİZİ</div>
+      <div style="position:relative;">
+        <canvas id="mainCanvas"></canvas>
+        <div class="scan-line" id="scanLine"></div>
+      </div>
+      <div class="manual-hint" id="manualHint">
+        ✏️ Fare ile plaka bölgesini seçin → Tıklayıp sürükleyin, bırakınca analiz başlar
+      </div>
+      <div class="toolbar">
+        <button class="tb-btn manual-btn" id="btnManual" onclick="toggleManualMode()">✏️ Manuel Seçim</button>
+        <button class="tb-btn" onclick="autoDetect()">🎯 Oto Tespit</button>
+        <button class="tb-btn analyze-btn" onclick="runFullAnalysis()">🔍 Analiz Et</button>
+      </div>
+      <!-- FILTERS -->
+      <div style="margin-top:12px;">
+        <div class="panel-title" style="margin-bottom:6px;">GÖRSEL İYİLEŞTİRME</div>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="applyFilter('original',this)">Orijinal</button>
+          <button class="filter-btn" onclick="applyFilter('auto',this)">Oto İyileştir</button>
+          <button class="filter-btn" onclick="applyFilter('contrast',this)">Kontrast</button>
+          <button class="filter-btn" onclick="applyFilter('sharpen',this)">Keskinleştir</button>
+          <button class="filter-btn" onclick="applyFilter('hologram',this)">Hologram</button>
+          <button class="filter-btn" onclick="applyFilter('blue',this)">Mavi Odak</button>
         </div>
-
-        <main class="card">
-            <div class="upload-zone" id="uploadZone">
-                <div class="upload-icon">📸</div>
-                <div class="upload-title">Plaka Fotoğrafı Yükle</div>
-                <div class="upload-desc">Hologram ve mühür detaylarının net göründüğü fotoğraf</div>
-                <div class="upload-specs">
-                    <span class="spec-badge">📁 Max 5MB</span>
-                    <span class="spec-badge">🖼️ JPG, PNG, WEBP</span>
-                    <span class="spec-badge">🔍 Min 800px</span>
-                </div>
-            </div>
-            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden>
-
-            <div class="preview-section" id="previewSection">
-                <div class="canvas-container">
-                    <canvas id="mainCanvas"></canvas>
-                    <div class="tile-grid-overlay" id="tileGridOverlay"></div>
-                </div>
-
-                <div class="enhancement-controls">
-                    <label><input type="radio" name="enhancement" value="original" checked> Orijinal</label>
-                    <label><input type="radio" name="enhancement" value="auto-enhance"> Otomatik İyileştir</label>
-                    <label><input type="radio" name="enhancement" value="contrast"> Kontrast</label>
-                    <label><input type="radio" name="enhancement" value="sharpen"> Keskinleştir</label>
-                    <label><input type="radio" name="enhancement" value="hologram-focus"> Hologram Odak</label>
-                    <label><input type="radio" name="enhancement" value="blue-focus"> Mavi Şerit Odak</label>
-                </div>
-
-                <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-secondary" onclick="removeImage()" style="flex: 0 0 auto;">🗑️ Kaldır</button>
-                    <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePlate()" disabled>🔍 Analiz Et</button>
-                </div>
-
-                <div class="debug-info" id="debugInfo" style="display: none;"></div>
-            </div>
-
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div style="color: var(--text-muted);">Görsel analiz ediliyor...</div>
-            </div>
-
-            <div class="results" id="results"></div>
-        </main>
+      </div>
     </div>
 
-    <div class="toast" id="toast">
-        <span class="toast-icon">ℹ️</span>
-        <span id="toastMessage">Mesaj</span>
-    </div>
+    <!-- RIGHT: RESULTS -->
+    <div class="results-panel">
 
-    <!-- Tile Zoom Modal -->
-    <div id="tileModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeTileModal()">&times;</span>
-            <canvas id="modalCanvas" class="modal-canvas"></canvas>
-            <div id="modalMetrics" class="modal-metrics"></div>
+      <!-- VERDICT -->
+      <div class="verdict-box idle" id="verdictBox">
+        <div class="verd-label">DOĞRULAMA SONUCU</div>
+        <div class="verdict-score" id="verdictScore">—</div>
+        <div class="verdict-text" id="verdictText">Analiz bekleniyor</div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="metrics-box">
+        <div class="panel-title">DETAYLI METRİKLER</div>
+        <div id="metricsContainer">
+          <div class="metric-row">
+            <div class="metric-header"><span class="metric-name">🔵 Mavi TR Şeridi</span><span class="metric-val" id="mBlue">—</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barBlue" style="background:var(--accent)"></div></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-header"><span class="metric-name">⬜ Beyaz Zemin</span><span class="metric-val" id="mWhite">—</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barWhite" style="background:#ddd"></div></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-header"><span class="metric-name">🔤 Siyah Karakterler</span><span class="metric-val" id="mChar">—</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barChar" style="background:#888"></div></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-header"><span class="metric-name">✨ Hologram Şeridi</span><span class="metric-val" id="mHolo">—</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barHolo" style="background:linear-gradient(90deg,#f90,#ff0,#0f0,#0ff,#f0f)"></div></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-header"><span class="metric-name">⭕ TŞOF Mührü</span><span class="metric-val" id="mSeal">—</span></div>
+            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barSeal" style="background:var(--green)"></div></div>
+          </div>
         </div>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- TILES -->
+      <div class="tiles-section">
+        <div class="panel-title">100 BÖLGE TARAMASI</div>
+        <div id="tilesGrid"></div>
+      </div>
+
     </div>
+  </div>
 
-    <script>
-        // State
-        let originalImage = null;
-        let processedImage = null; // This holds the current canvas content (after enhancements)
-        let rawImageData = null; // Store original image data for consistent analysis
-        let canvas = document.getElementById('mainCanvas');
-        let ctx = canvas.getContext('2d');
-        let detectedRegion = null;
-        let debugData = {};
-        let currentEnhancement = 'original'; // Default enhancement
+</div>
 
-        // Elements
-        const uploadZone = document.getElementById('uploadZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewSection = document.getElementById('previewSection');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const debugInfo = document.getElementById('debugInfo');
-        const enhancementRadios = document.querySelectorAll('input[name="enhancement"]');
-        const tileGridOverlay = document.getElementById('tileGridOverlay');
-        const tileModal = document.getElementById('tileModal');
-        const modalCanvas = document.getElementById('modalCanvas');
-        const modalCtx = modalCanvas.getContext('2d');
-        const modalMetricsDiv = document.getElementById('modalMetrics');
+<!-- MODAL -->
+<div class="modal-overlay" id="tileModal">
+  <div class="modal-box">
+    <h3>🔍 <span id="modalTitle">Bölge Detayı</span></h3>
+    <div class="modal-img-wrap">
+      <canvas id="modalCanvas"></canvas>
+    </div>
+    <div class="modal-metrics" id="modalMetrics"></div>
+    <button class="modal-close" onclick="closeTileModal()">✕ Kapat</button>
+  </div>
+</div>
 
-        // Event Listeners
-        uploadZone.addEventListener('click', () => fileInput.click());
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let rawImg = null;
+let rawImageData = null;
+let plateRect = null;   // {x,y,w,h} in canvas coords
+let manualMode = false;
+let drag = {active:false,sx:0,sy:0,ex:0,ey:0};
+let currentFilter = 'original';
+let tileData = [];      // store each tile's imageData for modal
 
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const modalCanvas = document.getElementById('modalCanvas');
+const modalCtx = modalCanvas.getContext('2d');
 
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
+// ============================================================
+// FILE UPLOAD — THREE SEPARATE WAYS TO TRIGGER
+// ============================================================
+const fileInput = document.getElementById('fileInput');
+const uploadArea = document.getElementById('uploadArea');
+const uploadTrigger = document.getElementById('uploadTrigger');
 
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
+// Method 1: Button click (most reliable)
+uploadTrigger.addEventListener('click', function(e){
+  e.stopPropagation();
+  fileInput.click();
+});
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                handleFile(e.target.files[0]);
-            }
-        });
+// Method 2: Area click (excluding button to avoid double trigger)
+uploadArea.addEventListener('click', function(e){
+  if(e.target !== uploadTrigger && !uploadTrigger.contains(e.target)){
+    fileInput.click();
+  }
+});
 
-        enhancementRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                applyEnhancement(e.target.value);
-            });
-        });
+// Method 3: Drag & Drop
+uploadArea.addEventListener('dragover', function(e){
+  e.preventDefault();
+  uploadArea.classList.add('drag-over');
+});
+uploadArea.addEventListener('dragleave', function(){
+  uploadArea.classList.remove('drag-over');
+});
+uploadArea.addEventListener('drop', function(e){
+  e.preventDefault();
+  uploadArea.classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  if(files && files.length > 0) loadFile(files[0]);
+});
 
-        function showToast(message, icon = 'ℹ️') {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            toast.querySelector('.toast-icon').textContent = icon;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+// File input change
+fileInput.addEventListener('change', function(){
+  if(this.files && this.files.length > 0){
+    loadFile(this.files[0]);
+  }
+});
+
+function loadFile(file){
+  if(!file) return;
+  if(!file.type.startsWith('image/')){
+    alert('Lütfen geçerli bir görüntü dosyası seçin (JPG, PNG, WEBP).');
+    return;
+  }
+  if(file.size > 10 * 1024 * 1024){
+    alert('Dosya boyutu 10MB\'ı aşıyor.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      rawImg = img;
+      initCanvas(img);
+      document.getElementById('workspace').style.display = 'grid';
+      uploadArea.style.display = 'none';
+    };
+    img.onerror = function(){
+      alert('Görüntü yüklenirken hata oluştu.');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+// CANVAS INIT
+// ============================================================
+function initCanvas(img){
+  const maxW = canvas.parentElement.clientWidth - 32;
+  const scale = Math.min(1, maxW / img.width);
+  canvas.width  = Math.round(img.width  * scale);
+  canvas.height = Math.round(img.height * scale);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  rawImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  plateRect = null;
+  resetVerdict();
+  setupManualEvents();
+}
+
+// ============================================================
+// DRAW IMAGE (with current filter + plate rect overlay)
+// ============================================================
+function redraw(filter){
+  if(!rawImageData) return;
+  const processed = applyImageFilter(rawImageData, filter || currentFilter);
+  ctx.putImageData(processed, 0, 0);
+  if(plateRect) drawPlateRect(plateRect);
+  if(drag.active) drawDragRect();
+}
+
+function drawPlateRect(r){
+  ctx.save();
+  ctx.strokeStyle = '#00e676';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6,3]);
+  ctx.strokeRect(r.x, r.y, r.w, r.h);
+  ctx.setLineDash([]);
+  // label
+  ctx.fillStyle = '#00e676';
+  ctx.font = 'bold 12px "Rajdhani",sans-serif';
+  const tag = '▶ PLAKA BÖLGESİ';
+  const tagY = r.y > 20 ? r.y - 6 : r.y + 18;
+  ctx.fillText(tag, r.x + 2, tagY);
+  ctx.restore();
+}
+
+function drawDragRect(){
+  const x = Math.min(drag.sx, drag.ex);
+  const y = Math.min(drag.sy, drag.ey);
+  const w = Math.abs(drag.ex - drag.sx);
+  const h = Math.abs(drag.ey - drag.sy);
+  ctx.save();
+  ctx.strokeStyle = '#ffca28';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4,3]);
+  ctx.strokeRect(x, y, w, h);
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,202,40,0.08)';
+  ctx.fillRect(x, y, w, h);
+  ctx.restore();
+}
+
+// ============================================================
+// IMAGE FILTERS
+// ============================================================
+function applyImageFilter(src, mode){
+  const dst = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
+  const d = dst.data;
+  const w = dst.width, h = dst.height;
+
+  if(mode === 'original') return dst;
+
+  if(mode === 'auto'){
+    // Auto levels: find min/max per channel
+    let rMin=255,rMax=0,gMin=255,gMax=0,bMin=255,bMax=0;
+    for(let i=0;i<d.length;i+=4){
+      rMin=Math.min(rMin,d[i]);   rMax=Math.max(rMax,d[i]);
+      gMin=Math.min(gMin,d[i+1]); gMax=Math.max(gMax,d[i+1]);
+      bMin=Math.min(bMin,d[i+2]); bMax=Math.max(bMax,d[i+2]);
+    }
+    for(let i=0;i<d.length;i+=4){
+      d[i]   = rMax>rMin ? clamp((d[i]  -rMin)/(rMax-rMin)*255) : d[i];
+      d[i+1] = gMax>gMin ? clamp((d[i+1]-gMin)/(gMax-gMin)*255) : d[i+1];
+      d[i+2] = bMax>bMin ? clamp((d[i+2]-bMin)/(bMax-bMin)*255) : d[i+2];
+      // S-curve
+      d[i]   = sCurve(d[i]);
+      d[i+1] = sCurve(d[i+1]);
+      d[i+2] = sCurve(d[i+2]);
+    }
+    return dst;
+  }
+
+  if(mode === 'contrast'){
+    const factor = 2.0;
+    for(let i=0;i<d.length;i+=4){
+      d[i]   = clamp(factor*(d[i]  -128)+128);
+      d[i+1] = clamp(factor*(d[i+1]-128)+128);
+      d[i+2] = clamp(factor*(d[i+2]-128)+128);
+    }
+    return dst;
+  }
+
+  if(mode === 'sharpen'){
+    // Unsharp mask via convolution
+    const kernel = [0,-1,0,-1,5,-1,0,-1,0];
+    return convolve(src, kernel, 1);
+  }
+
+  if(mode === 'hologram'){
+    // Amplify saturation + boost contrast
+    for(let i=0;i<d.length;i+=4){
+      const [h2,s2,v2] = rgbToHsv(d[i],d[i+1],d[i+2]);
+      const newS = Math.min(1, s2 * 2.5);
+      const [r,g,b] = hsvToRgb(h2, newS, v2);
+      d[i]   = clamp(r * 1.1);
+      d[i+1] = clamp(g * 1.1);
+      d[i+2] = clamp(b * 1.1);
+    }
+    return dst;
+  }
+
+  if(mode === 'blue'){
+    // Amplify blue hue range, desaturate rest
+    for(let i=0;i<d.length;i+=4){
+      const [hv,sv,vv] = rgbToHsv(d[i],d[i+1],d[i+2]);
+      const isBlue = hv>=185 && hv<=275 && sv>0.08;
+      if(isBlue){
+        const newS = Math.min(1, sv * 3);
+        const newV = Math.min(1, vv * 1.3);
+        const [r,g,b] = hsvToRgb(hv, newS, newV);
+        d[i]=r; d[i+1]=g; d[i+2]=b;
+      } else {
+        const gray = 0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+        d[i]=gray; d[i+1]=gray; d[i+2]=gray;
+      }
+    }
+    return dst;
+  }
+
+  return dst;
+}
+
+function convolve(src, kernel, divisor){
+  const dst = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
+  const w = src.width, h = src.height;
+  const s = src.data, d = dst.data;
+  for(let y=1;y<h-1;y++){
+    for(let x=1;x<w-1;x++){
+      for(let c=0;c<3;c++){
+        let sum=0;
+        let ki=0;
+        for(let ky=-1;ky<=1;ky++){
+          for(let kx=-1;kx<=1;kx++){
+            const idx=((y+ky)*w+(x+kx))*4+c;
+            sum+=s[idx]*kernel[ki++];
+          }
         }
-
-        function logDebug(msg) {
-            debugInfo.style.display = 'block';
-            debugInfo.innerHTML += msg + '<br>';
-            debugInfo.scrollTop = debugInfo.scrollHeight;
-        }
-
-        function handleFile(file) {
-            if (!file.type.match(/image\/(jpeg|png|webp)/)) {
-                showToast('Sadece JPG, PNG, WEBP formatları desteklenir', '❌');
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                showToast('Dosya boyutu 5MB\'ı geçemez', '❌');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    originalImage = img;
-
-                    const maxWidth = 1200;
-                    const scale = Math.min(1, maxWidth / img.width);
-                    canvas.width = img.width * scale;
-                    canvas.height = img.height * scale;
-
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    rawImageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // Store raw data
-                    processedImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // For display
-
-                    uploadZone.classList.add('hidden');
-                    previewSection.classList.add('active');
-                    analyzeBtn.disabled = false;
-                    debugInfo.innerHTML = '';
-                    tileGridOverlay.innerHTML = ''; // Clear old tiles
-
-                    detectPlateRegion(); // Initial detection
-                    applyEnhancement(currentEnhancement); // Apply default enhancement for display
-                    showToast('Fotoğraf yüklendi', '✅');
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function rgbToHsv(r, g, b) {
-            r /= 255; g /= 255; b /= 255;
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            const diff = max - min;
-
-            let h = 0;
-            if (diff !== 0) {
-                if (max === r) h = ((g - b) / diff + 6) % 6;
-                else if (max === g) h = (b - r) / diff + 2;
-                else h = (r - g) / diff + 4;
-                h *= 60;
-            }
-
-            const s = max === 0 ? 0 : diff / max;
-            const v = max;
-
-            return { h, s: s * 100, v: v * 100 };
-        }
-        
-        function hsvToRgb(h, s, v) {
-            s /= 100;
-            v /= 100;
-            let c = v * s;
-            let x = c * (1 - Math.abs((h / 60) % 2 - 1));
-            let m = v - c;
-            let r = 0, g = 0, b = 0;
-
-            if (0 <= h && h < 60) {
-                r = c; g = x; b = 0;
-            } else if (60 <= h && h < 120) {
-                r = x; g = c; b = 0;
-            } else if (120 <= h && h < 180) {
-                r = 0; g = c; b = x;
-            } else if (180 <= h && h < 240) {
-                r = 0; g = x; b = c;
-            } else if (240 <= h && h < 300) {
-                r = x; g = 0; b = c;
-            } else if (300 <= h && h < 360) {
-                r = c; g = 0; b = x;
-            }
-            r = Math.round((r + m) * 255);
-            g = Math.round((g + m) * 255);
-            b = Math.round((b + m) * 255);
-
-            return { r, g, b };
-        }
-
-        function getPixel(imageData, x, y) {
-            if (x < 0 || x >= imageData.width || y < 0 || y >= imageData.height) {
-                return { r: 0, g: 0, b: 0, a: 0 };
-            }
-            const idx = (Math.floor(y) * imageData.width + Math.floor(x)) * 4;
-            return {
-                r: imageData.data[idx],
-                g: imageData.data[idx + 1],
-                b: imageData.data[idx + 2],
-                a: imageData.data[idx + 3]
-            };
-        }
-
-        function detectPlateRegion() {
-            if (!rawImageData) return;
-
-            const data = rawImageData.data;
-            const width = canvas.width;
-            const height = canvas.height;
-
-            // Clear previous drawings on the canvas
-            ctx.clearRect(0, 0, width, height);
-            ctx.putImageData(processedImage, 0, 0); // Redraw processed image content
-
-            let bluePixelCandidates = [];
-            // Scan with smaller steps for better detail, but don't process every pixel for performance
-            for (let y = 0; y < height; y += 2) {
-                for (let x = 0; x < width / 3; x += 2) { // Only scan left third for blue strip
-                    const idx = (y * width + x) * 4;
-                    const r = data[idx], g = data[idx+1], b = data[idx+2];
-                    const hsv = rgbToHsv(r, g, b);
-
-                    // Relaxed blue detection for initial candidates
-                    if ((hsv.h > 195 && hsv.h < 265) && hsv.s > 12 && hsv.v > 10) {
-                        bluePixelCandidates.push({x, y});
-                    }
-                }
-            }
-
-            let blueStripX = -1, blueStripY = -1, blueStripWidth = 0, blueStripHeight = 0;
-
-            if (bluePixelCandidates.length > 50) { // Enough blue pixels to form a strip
-                // Find the densest vertical cluster of blue pixels on the left
-                let xCounts = {};
-                bluePixelCandidates.forEach(p => {
-                    xCounts[p.x] = (xCounts[p.x] || 0) + 1;
-                });
-
-                let maxCount = 0;
-                let dominantX = -1;
-                for (let x in xCounts) {
-                    if (xCounts[x] > maxCount) {
-                        maxCount = xCounts[x];
-                        dominantX = parseInt(x);
-                    }
-                }
-
-                if (dominantX !== -1) {
-                    // Filter candidates to those near the dominantX
-                    let filteredBluePixels = bluePixelCandidates.filter(p => p.x >= dominantX - 10 && p.x <= dominantX + 10);
-
-                    if (filteredBluePixels.length > 30) {
-                        let minX = width, maxX = 0, minY = height, maxY = 0;
-                        filteredBluePixels.forEach(p => {
-                            minX = Math.min(minX, p.x);
-                            maxX = Math.max(maxX, p.x);
-                            minY = Math.min(minY, p.y);
-                            maxY = Math.max(maxY, p.y);
-                        });
-
-                        blueStripX = minX;
-                        blueStripY = minY;
-                        blueStripWidth = maxX - minX;
-                        blueStripHeight = maxY - minY;
-
-                        // Extend blue strip to a plausible plate region
-                        // Standard Turkish plate ratio is approx 520x110 mm (4.72:1)
-                        // Blue strip is about 40mm wide. So plate width is ~13x blue strip width.
-                        const inferredPlateWidth = blueStripWidth * (520 / 40); // Target aspect for full plate
-                        const inferredPlateHeight = blueStripHeight;
-
-                        // Ensure plate width is at least 3 times its height (min aspect ratio)
-                        let targetPlateWidth = Math.max(inferredPlateWidth, inferredPlateHeight * 3);
-                        let targetPlateHeight = inferredPlateHeight;
-
-                        // Apply overall aspect ratio correction for the full plate
-                        const targetAspectRatio = 4.72; // 520 / 110
-                        if (targetPlateWidth / targetPlateHeight < targetAspectRatio * 0.8 || targetPlateWidth / targetPlateHeight > targetAspectRatio * 1.2) {
-                            // If aspect ratio is off, adjust height to match target width, or vice versa
-                            if (targetPlateWidth / targetPlateHeight < targetAspectRatio) {
-                                targetPlateHeight = targetPlateWidth / targetAspectRatio;
-                            } else {
-                                targetPlateWidth = targetPlateHeight * targetAspectRatio;
-                            }
-                        }
-
-                        // Adjust x, y to be slightly outside the detected blue strip for safety
-                        const padding = 10;
-                        detectedRegion = {
-                            x: Math.max(0, blueStripX - padding),
-                            y: Math.max(0, blueStripY - padding),
-                            width: Math.min(width - (blueStripX - padding), targetPlateWidth + 2 * padding),
-                            height: Math.min(height - (blueStripY - padding), targetPlateHeight + 2 * padding),
-                            source: 'blue_strip_detection'
-                        };
-                    }
-                }
-            }
-
-            // Fallback to brightness profile if blue strip not strongly detected, or if detection is too small/malformed
-            if (!detectedRegion || detectedRegion.width < width * 0.4 || detectedRegion.height < height * 0.2) {
-                // Try to find the brightest horizontal band (often where the plate is)
-                let horizontalBrightness = new Array(height).fill(0);
-                for (let y = 0; y < height; y += 2) {
-                    for (let x = 0; x < width; x += 2) {
-                        const idx = (y * width + x) * 4;
-                        horizontalBrightness[y] += (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                    }
-                }
-
-                let maxBrightness = 0;
-                let plateCenterY = -1;
-                for (let y = 0; y < height; y += 2) {
-                    if (horizontalBrightness[y] > maxBrightness) {
-                        maxBrightness = horizontalBrightness[y];
-                        plateCenterY = y;
-                    }
-                }
-
-                if (plateCenterY !== -1) {
-                    const estimatedPlateHeight = height * 0.2; // Guess 20% of image height
-                    detectedRegion = {
-                        x: width * 0.05,
-                        y: Math.max(0, plateCenterY - estimatedPlateHeight / 2),
-                        width: width * 0.9,
-                        height: estimatedPlateHeight,
-                        source: 'brightness_profile_fallback'
-                    };
-                } else {
-                    // Final fallback: default to center large area
-                    detectedRegion = {
-                        x: width * 0.05,
-                        y: height * 0.2,
-                        width: width * 0.9,
-                        height: height * 0.6,
-                        source: 'default_fallback'
-                    };
-                    showToast('Plaka bölgesi kesin olarak tespit edilemedi, varsayılan bölge kullanılıyor.', '⚠️');
-                }
-            }
-
-            // Final aspect ratio enforcement (Turkish standard plates are typically 520x110mm, aspect ratio ~4.72:1)
-            const minAspectRatio = 3.5; // e.g., for short plates or partial views
-            const maxAspectRatio = 6.0; // e.g., for long plates or slight distortions
-            let currentAspectRatio = detectedRegion.width / detectedRegion.height;
-
-            if (currentAspectRatio < minAspectRatio || currentAspectRatio > maxAspectRatio) {
-                const targetAspectRatio = 4.72; // Standard ratio
-
-                let newWidth = detectedRegion.width;
-                let newHeight = detectedRegion.height;
-
-                if (currentAspectRatio < minAspectRatio) { // Too tall
-                    newHeight = newWidth / targetAspectRatio;
-                } else { // Too wide
-                    newWidth = newHeight * targetAspectRatio;
-                }
-
-                // Adjust position to keep it centered
-                detectedRegion.x += (detectedRegion.width - newWidth) / 2;
-                detectedRegion.y += (detectedRegion.height - newHeight) / 2;
-                detectedRegion.width = newWidth;
-                detectedRegion.height = newHeight;
-                detectedRegion.source += '_aspect_corrected';
-            }
-
-            // Ensure bounding box stays within canvas limits
-            detectedRegion.x = Math.max(0, detectedRegion.x);
-            detectedRegion.y = Math.max(0, detectedRegion.y);
-            detectedRegion.width = Math.min(width - detectedRegion.x, detectedRegion.width);
-            detectedRegion.height = Math.min(height - detectedRegion.y, detectedRegion.height);
-
-            drawDetectionBox();
-            logDebug(`Plaka tespit edildi: X:${Math.round(detectedRegion.x)}, Y:${Math.round(detectedRegion.y)}, W:${Math.round(detectedRegion.width)}, H:${Math.round(detectedRegion.height)} (Kaynak: ${detectedRegion.source})`);
-        }
-
-        function drawDetectionBox() {
-            if (!detectedRegion) return;
-
-            // Redraw the processed image first to clear old box
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.putImageData(processedImage, 0, 0);
-
-            ctx.strokeStyle = '#10b981';
-            ctx.lineWidth = 3;
-            ctx.setLineDash([5, 5]);
-            ctx.strokeRect(detectedRegion.x, detectedRegion.y, detectedRegion.width, detectedRegion.height);
-            ctx.setLineDash([]);
-
-            const tagText = 'PLAKA BÖLGESİ';
-            const tagPadding = 8;
-            const tagHeight = 25;
-            const tagWidth = ctx.measureText(tagText).width + tagPadding * 2;
-
-            let tagX = detectedRegion.x;
-            let tagY = detectedRegion.y - tagHeight;
-
-            // Check if tag would go above canvas or overlap with top edge
-            if (tagY < 0) {
-                tagY = detectedRegion.y + detectedRegion.height + 5; // Place below if no space above
-                if (tagY + tagHeight > canvas.height) { // If no space below either, place inside
-                    tagY = detectedRegion.y + 5;
-                }
-            }
-
-            ctx.fillStyle = '#10b981';
-            ctx.fillRect(tagX, tagY, tagWidth, tagHeight);
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 12px sans-serif';
-            ctx.fillText(tagText, tagX + tagPadding, tagY + tagHeight - 8);
-        }
-
-        function removeImage() {
-            originalImage = null;
-            processedImage = null;
-            rawImageData = null;
-            detectedRegion = null;
-            fileInput.value = '';
-
-            uploadZone.classList.remove('hidden');
-            previewSection.classList.remove('active');
-            analyzeBtn.disabled = true;
-            document.getElementById('results').classList.remove('show');
-            debugInfo.style.display = 'none';
-            debugInfo.innerHTML = '';
-            tileGridOverlay.innerHTML = ''; // Clear tiles
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            showToast('Fotoğraf kaldırıldı', '🗑️');
-        }
-
-        function analyzePlate() {
-            if (!rawImageData || !detectedRegion) return; // Use rawImageData for analysis
-
-            document.getElementById('loading').classList.add('active');
-            analyzeBtn.disabled = true;
-            debugInfo.innerHTML = '';
-            document.getElementById('results').classList.remove('show'); // Clear previous results
-
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    performAnalysis();
-                    document.getElementById('loading').classList.remove('active');
-                    analyzeBtn.disabled = false;
-                }, 1000); // Give spinner time to render
-            });
-        }
-
-        // ADVANCED ANALYSIS FUNCTIONS
-
-        function calculateLocalVariance(data, width, x, y, windowSize) {
-            let sum = 0, sumSq = 0, count = 0;
-            const halfWindow = Math.floor(windowSize / 2);
-
-            for (let dy = -halfWindow; dy <= halfWindow; dy++) {
-                for (let dx = -halfWindow; dx <= halfWindow; dx++) {
-                    const nx = x + dx;
-                    const ny = y + dy;
-                    if (nx >= 0 && nx < width && ny >= 0 && ny < canvas.height) {
-                        const idx = (ny * width + nx) * 4;
-                        const gray = (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                        sum += gray;
-                        sumSq += gray * gray;
-                        count++;
-                    }
-                }
-            }
-
-            if (count < 2) return 0;
-            const mean = sum / count;
-            return (sumSq / count) - (mean * mean);
-        }
-
-        function calculateFrequencyProfile(data, width, startY, endY, startX, endX) {
-            const profile = [];
-            const height = endY - startY;
-            if (height <= 0 || (endX - startX) <= 0) return { variance: 0, peaks: 0, profile: [] };
-
-            for (let x = startX; x < endX; x++) {
-                let sum = 0;
-                for (let y = startY; y < endY; y++) {
-                    const idx = (y * width + x) * 4;
-                    sum += (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                }
-                profile.push(sum / height);
-            }
-
-            // Calculate variance of profile (wave pattern indicator)
-            const mean = profile.reduce((a, b) => a + b, 0) / profile.length;
-            const variance = profile.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / profile.length;
-
-            // Count peaks
-            let peaks = 0;
-            for (let i = 1; i < profile.length - 1; i++) {
-                if (profile[i] > profile[i-1] && profile[i] > profile[i+1] && 
-                    Math.abs(profile[i] - mean) > Math.sqrt(variance) * 0.3) {
-                    peaks++;
-                }
-            }
-
-            return { variance, peaks, profile };
-        }
-
-        // Function to calculate chromatic aberration / color fringing (simple proxy for lens quality/authenticity)
-        function calculateChromaticAberration(imageData, x, y, windowSize = 5) {
-            const data = imageData.data;
-            const width = imageData.width;
-            const halfWindow = Math.floor(windowSize / 2);
-            let rX = 0, gX = 0, bX = 0; // Average position of R, G, B channels
-
-            let sumR = 0, sumG = 0, sumB = 0;
-            let count = 0;
-
-            for (let dy = -halfWindow; dy <= halfWindow; dy++) {
-                for (let dx = -halfWindow; dx <= halfWindow; dx++) {
-                    const nx = x + dx;
-                    const ny = y + dy;
-                    if (nx >= 0 && nx < width && ny >= 0 && ny < imageData.height) {
-                        const idx = (ny * width + nx) * 4;
-                        sumR += data[idx];
-                        sumG += data[idx+1];
-                        sumB += data[idx+2];
-                        count++;
-                    }
-                }
-            }
-
-            if (count === 0) return 0;
-
-            // Simple measure: variance of color channels
-            const avgR = sumR / count;
-            const avgG = sumG / count;
-            const avgB = sumB / count;
-
-            const colorVariance = (Math.pow(avgR - avgG, 2) + Math.pow(avgG - avgB, 2) + Math.pow(avgB - avgR, 2)) / 3;
-            return colorVariance;
-        }
-
-        function performAnalysis() {
-            const data = rawImageData.data; // IMPORTANT: Analyze raw image data
-            const width = canvas.width;
-            const height = canvas.height;
-            const r = detectedRegion;
-
-            logDebug(`Analiz başladı... Bölge: ${Math.round(r.width)}x${Math.round(r.height)}, ${Math.round(r.height)} `);
-
-            let metrics = {
-                blueStrip: { score: 0, pixels: 0, total: 0, density: 0 },
-                whiteBg: { score: 0, pixels: 0, total: 0 },
-                characters: { score: 0, pixels: 0, total: 0, textureScore: 0 },
-                hologram: { score: 0, variance: 0, peaks: 0 },
-                seal: { score: 0, textureScore: 0, avgLocalVar: 0 },
-                chroma: { score: 100, avgAberration: 0 } // High score initially, penalize for aberration
-            };
-
-            // --- 1. BLUE STRIP ANALYSIS (Left 10-15% of plate width) ---
-            // Based on official rules: Blue TR band on the left.
-            const blueStripCheckWidth = Math.min(r.width * 0.15, 60); // Max 60px or 15% of plate width
-            let bluePixelCountInStrip = 0;
-            let totalPixelsInStrip = 0;
-            let blueColumnDensity = new Array(Math.ceil(blueStripCheckWidth / 2)).fill(0); // Divided by 2 because of x+=2
-
-            for (let y = r.y; y < r.y + r.height; y += 2) {
-                for (let x = r.x; x < r.x + blueStripCheckWidth; x += 2) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const r_val = data[idx], g_val = data[idx+1], b_val = data[idx+2];
-                    const hsv = rgbToHsv(r_val, g_val, b_val);
-
-                    totalPixelsInStrip++;
-
-                    // More specific blue check for scoring
-                    if ((hsv.h > 195 && hsv.h < 265) && hsv.s > 25 && hsv.v > 15) { // Slightly stricter for final score
-                        bluePixelCountInStrip++;
-                        blueColumnDensity[Math.floor((x - r.x) / 2)]++;
-                    }
-                }
-            }
-
-            metrics.blueStrip.pixels = bluePixelCountInStrip;
-            metrics.blueStrip.total = totalPixelsInStrip;
-            
-            if (totalPixelsInStrip > 0 && blueColumnDensity.length > 0) {
-                const blueRatio = bluePixelCountInStrip / totalPixelsInStrip;
-                const maxColumnDensity = Math.max(...blueColumnDensity);
-                const avgColumnDensity = blueColumnDensity.reduce((a, b) => a + b, 0) / blueColumnDensity.length;
-                metrics.blueStrip.density = (avgColumnDensity > 0) ? maxColumnDensity / avgColumnDensity : 0;
-
-                // Score based on density and ratio
-                if (blueRatio > 0.4 && metrics.blueStrip.density > 2.0) { // High ratio and concentrated blue
-                    metrics.blueStrip.score = Math.min(100, (blueRatio / 0.7) * 50 + (metrics.blueStrip.density / 3.0) * 50);
-                } else if (blueRatio > 0.2) {
-                    metrics.blueStrip.score = Math.min(100, blueRatio * 100);
-                } else {
-                    metrics.blueStrip.score = 0;
-                }
-            }
-            logDebug(`Mavi şerit: ${metrics.blueStrip.score.toFixed(1)}% (Piksel: ${metrics.blueStrip.pixels}, Yoğunluk: ${metrics.blueStrip.density.toFixed(1)})`);
-
-
-            // --- 2. WHITE BACKGROUND & CHARACTERS (Main plate area) ---
-            // Official rule: Black characters on white background. Embossed characters.
-            const plateStartX = r.x + blueStripCheckWidth;
-            const plateWidth = r.width - blueStripCheckWidth;
-
-            let darkPixelsForChar = 0;
-            let whitePixelsForBg = 0;
-            let totalMainPlatePixels = 0;
-            let charTextureSum = 0;
-            let charTextureCount = 0;
-            let chromaticAberrationSum = 0;
-            let chromaticAberrationCount = 0;
-
-            for (let y = r.y; y < r.y + r.height; y += 3) {
-                for (let x = plateStartX; x < plateStartX + plateWidth; x += 3) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const r_val = data[idx], g_val = data[idx+1], b_val = data[idx+2];
-                    const hsv = rgbToHsv(r_val, g_val, b_val);
-                    const gray = (r_val + g_val + b_val) / 3;
-
-                    totalMainPlatePixels++;
-
-                    // White background check
-                    if (hsv.v > 65 && hsv.s < 20) { // High value, low saturation
-                        whitePixelsForBg++;
-                    }
-
-                    // Dark character check
-                    if (hsv.v < 40 && hsv.s < 50) { // Low value, low-ish saturation
-                        darkPixelsForChar++;
-                        // Also check local variance around dark pixels for embossing
-                        const localVar = calculateLocalVariance(rawImageData.data, width, Math.floor(x), Math.floor(y), 5); // Smaller window for characters
-                        charTextureSum += localVar;
-                        charTextureCount++;
-                    }
-
-                    // Chromatic aberration check in high contrast areas (e.g., character edges)
-                    if (gray < 80 || gray > 180) { // Check high contrast areas
-                        const aberration = calculateChromaticAberration(rawImageData, Math.floor(x), Math.floor(y), 5);
-                        chromaticAberrationSum += aberration;
-                        chromaticAberrationCount++;
-                    }
-                }
-            }
-            
-            metrics.whiteBg.pixels = whitePixelsForBg;
-            metrics.whiteBg.total = totalMainPlatePixels;
-            metrics.whiteBg.score = (whitePixelsForBg / totalMainPlatePixels) * 100;
-            
-            metrics.characters.pixels = darkPixelsForChar;
-            metrics.characters.total = totalMainPlatePixels;
-            if (totalMainPlatePixels > 0) {
-                // Character presence score
-                metrics.characters.score = Math.min(100, (darkPixelsForChar / totalMainPlatePixels) * 300); // Expect ~10-20% dark pixels
-
-                // Character embossing/texture score
-                if (charTextureCount > 0) {
-                    metrics.characters.textureScore = Math.min(100, (charTextureSum / charTextureCount) / 100 * 50); // Avg variance, scaled
-                }
-            }
-
-            if (chromaticAberrationCount > 0) {
-                metrics.chroma.avgAberration = chromaticAberrationSum / chromaticAberrationCount;
-                // Higher aberration means lower score
-                metrics.chroma.score = Math.max(0, 100 - (metrics.chroma.avgAberration / 500) * 100); // Scale aberration
-            }
-            logDebug(`Beyaz zemin: ${metrics.whiteBg.score.toFixed(1)}%, Karakterler: ${metrics.characters.score.toFixed(1)}% (Tekstür: ${metrics.characters.textureScore.toFixed(1)}%)`);
-            logDebug(`Kromatik Sapma: ${metrics.chroma.avgAberration.toFixed(1)} (Skor: ${metrics.chroma.score.toFixed(1)}%)`);
-
-
-            // --- 3. HOLOGRAM STRIP ANALYSIS (Bottom 25% of plate) ---
-            // Official rule: Security hologram present (often has a wave-like pattern or fine texture).
-            const holoY = r.y + r.height * 0.75;
-            const holoHeight = r.height * 0.25;
-
-            let totalVariance = 0;
-            let totalPeaks = 0;
-            let bandCount = 0;
-
-            // Multi-band frequency analysis for wave patterns
-            const bandSteps = 4; // Number of horizontal bands to scan
-            const bandHeight = Math.max(5, holoHeight / bandSteps);
-
-            for (let band = 0; band < bandSteps; band++) {
-                const currentBandY = holoY + band * bandHeight;
-                if (currentBandY + bandHeight > r.y + r.height) break; // Ensure band is within plate
-
-                const freq = calculateFrequencyProfile(
-                    rawImageData.data, width, 
-                    Math.floor(currentBandY), Math.floor(currentBandY + bandHeight),
-                    Math.floor(plateStartX), Math.floor(plateStartX + plateWidth)
-                );
-
-                totalVariance += freq.variance;
-                totalPeaks += freq.peaks;
-                bandCount++;
-            }
-
-            if (bandCount > 0) {
-                metrics.hologram.variance = totalVariance / bandCount;
-                metrics.hologram.peaks = totalPeaks;
-
-                // Score based on significant variance and multiple peaks
-                // Genuine holograms show distinct patterns.
-                const varianceComponent = Math.min(100, (metrics.hologram.variance / 500) * 100); // Scale variance to 0-100
-                const peakComponent = Math.min(100, (metrics.hologram.peaks / (plateWidth / 50)) * 100); // Peaks relative to plate width
-                
-                metrics.hologram.score = (varianceComponent * 0.6 + peakComponent * 0.4);
-                if (metrics.hologram.score < 20 && metrics.hologram.variance > 100) { // Small boost if some texture but low peaks
-                    metrics.hologram.score += 10;
-                }
-            }
-            logDebug(`Hologram varyans: ${metrics.hologram.variance.toFixed(0)}, Zirveler: ${metrics.hologram.peaks}, Skor: ${metrics.hologram.score.toFixed(1)}%`);
-
-
-            // --- 4. TŞOF SEAL ANALYSIS (Top-left of main plate area) ---
-            // Official rule: TŞOF seal must be present and embossed.
-            const sealDiameter = Math.min(r.width, r.height) * 0.25; // Estimate seal size
-            const sealX = plateStartX + Math.min(20, r.width * 0.05); // Offset from blue strip
-            const sealY = r.y + Math.min(10, r.height * 0.05);
-
-            let highTexturePixelsSeal = 0;
-            let totalSealSamplePixels = 0;
-            let localVarSumSeal = 0;
-
-            // Sample points within a circular region for local variance
-            for (let y = sealY; y < sealY + sealDiameter && y < r.y + r.height; y += 2) {
-                for (let x = sealX; x < sealX + sealDiameter && x < plateStartX + plateWidth; x += 2) {
-                    const distFromCenter = Math.sqrt(Math.pow(x - (sealX + sealDiameter/2), 2) + 
-                                                    Math.pow(y - (sealY + sealDiameter/2), 2));
-
-                    if (distFromCenter < sealDiameter * 0.5) { // Within the circle
-                        const localVar = calculateLocalVariance(rawImageData.data, width, Math.floor(x), Math.floor(y), 9); // Larger window for seal texture
-                        localVarSumSeal += localVar;
-                        totalSealSamplePixels++;
-
-                        if (localVar > 200) { // Higher variance indicates strong embossing
-                            highTexturePixelsSeal++;
-                        }
-                    }
-                }
-            }
-
-            if (totalSealSamplePixels > 0) {
-                metrics.seal.avgLocalVar = localVarSumSeal / totalSealSamplePixels;
-                metrics.seal.textureScore = (highTexturePixelsSeal / totalSealSamplePixels) * 100;
-
-                // Score based on texture ratio and average variance
-                // Genuine seals should have a good texture ratio (e.g., 20-50%) and high avg variance
-                const textureComponent = Math.min(100, (metrics.seal.textureScore / 30) * 50); // Target 30% texture
-                const varianceComponent = Math.min(100, (metrics.seal.avgLocalVar / 400) * 50); // Target avg var 400
-                
-                metrics.seal.score = textureComponent + varianceComponent;
-            }
-            logDebug(`Mühür tekstür: ${metrics.seal.textureScore.toFixed(1)}%, Ort.Var: ${metrics.seal.avgLocalVar.toFixed(0)}, Skor: ${metrics.seal.score.toFixed(1)}%`);
-
-
-            // --- Calculate weighted total score ---
-            const weights = {
-                blue: 25,     // Very important for Turkish plates
-                white: 15,    // Background integrity
-                chars: 20,    // Character presence and texture
-                hologram: 20, // Security feature
-                seal: 20,      // Official authentication mark
-                chroma: 0 // Adding chroma as a minor factor for overall image quality, not core authenticity
-            };
-
-            const totalScore = 
-                (Math.min(100, metrics.blueStrip.score) * weights.blue / 100) +
-                (Math.min(100, metrics.whiteBg.score) * weights.white / 100) +
-                (Math.min(100, (metrics.characters.score * 0.7 + metrics.characters.textureScore * 0.3))) * weights.chars / 100 + // Combine char presence and texture
-                (Math.min(100, metrics.hologram.score) * weights.hologram / 100) +
-                (Math.min(100, metrics.seal.score) * weights.seal / 100) +
-                (Math.min(100, metrics.chroma.score) * weights.chroma / 100);
-
-            logDebug(`Toplam skor: ${totalScore.toFixed(1)}`);
-
-            // --- Determine status based on explicit thresholds ---
-            let status, statusClass, title, message, badgeText;
-
-            if (totalScore >= 70) { // User requested 70% for compliant
-                status = 'authentic';
-                statusClass = 'result-authentic';
-                title = 'ORİJİNAL PLAKA';
-                message = 'Tüm güvenlik özellikleri ve standartlar başarıyla doğrulandı. Yüksek uyumluluk.';
-                badgeText = '✅ ONAYLANDI';
-            } else if (totalScore >= 40) { // User requested 40% for faulty boundary
-                status = 'suspicious';
-                statusClass = 'result-suspicious';
-                title = 'KONTROL GEREKLİ';
-                message = 'Bazı güvenlik özellikleri zayıf veya standart dışı. Daha detaylı inceleme önerilir.';
-                badgeText = '⚠️ ŞÜPHELİ';
-            } else {
-                status = 'fake';
-                statusClass = 'result-fake';
-                title = 'STANDART DIŞI / SAHTE';
-                message = 'Plaka, resmi standartlara uygun değil. Sahte veya ağır hasarlı olabilir.';
-                badgeText = '❌ ONAYLANMADI';
-            }
-
-            // Render results
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.classList.add('show');
-
-            resultsDiv.innerHTML = `
-                <div class="result-header ${statusClass}">
-                    <div class="result-badge">${badgeText}</div>
-                    <div class="score-display" style="color: ${status === 'authentic' ? '#4ade80' : status === 'suspicious' ? '#fbbf24' : '#fca5a5'}">
-                        %${Math.round(totalScore)}
-                    </div>
-                    <div class="result-title">${title}</div>
-                    <div class="result-desc">${message}</div>
-                </div>
-
-                <div class="features-grid">
-                    ${renderFeatureCard('Mavi TR Şeridi', `Sol şerit bölgesi (Yoğunluk: ${metrics.blueStrip.density.toFixed(1)})`, metrics.blueStrip.score, metrics.blueStrip.pixels, 'blue', '🔵')}
-                    ${renderFeatureCard('Beyaz Zemin', `Plaka arka planı (Piksel: ${metrics.whiteBg.pixels})`, metrics.whiteBg.score, metrics.whiteBg.pixels, 'white', '⬜')}
-                    ${renderFeatureCard('Siyah Karakterler', `Plaka numarası (Tekstür: ${metrics.characters.textureScore.toFixed(1)}%)`, Math.min(100, metrics.characters.score * 0.7 + metrics.characters.textureScore * 0.3), metrics.characters.pixels, 'chars', '🔤')}
-                    ${renderFeatureCard('Hologram Şeridi', `Dalgalı pattern (Varyans: ${Math.round(metrics.hologram.variance)}, Zirveler: ${metrics.hologram.peaks})`, metrics.hologram.score, metrics.hologram.peaks, 'holo', '〰️')}
-                    ${renderFeatureCard('TŞOF Mühürü', `Kabartmalı damga (Tekstür: ${metrics.seal.textureScore.toFixed(1)}%, Ort.Var: ${metrics.seal.avgLocalVar.toFixed(0)})`, metrics.seal.score, highTexturePixelsSeal, 'seal', '🔏')}
-                </div>
-            `;
-
-            drawDetectionBox(); // Redraw box after analysis to ensure it's on top of results
-            generateTileGrid(); // Generate clickable tiles for detailed inspection
-        }
-
-        function renderFeatureCard(title, desc, score, count, type, icon) {
-            let status = score > 65 ? 'pass' : score > 35 ? 'warning' : 'fail'; // Adjust thresholds for card display
-            let statusText = score > 65 ? 'Tespit Edildi' : score > 35 ? 'Zayıf' : 'Bulunamadı';
-
-            return `
-                <div class="feature-card ${status}">
-                    <div class="feature-icon">${icon}</div>
-                    <div class="feature-content">
-                        <div class="feature-title">${title}</div>
-                        <div class="feature-desc">${desc} — ${statusText}</div>
-                        <div class="feature-metrics">
-                            <div class="metric">
-                                <span class="metric-label">Güven</span>
-                                <span class="metric-value" style="color: ${status === 'pass' ? '#4ade80' : status === 'warning' ? '#fbbf24' : '#fca5a5'}">${Math.round(score)}%</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Değer</span>
-                                <span class="metric-value">${count.toLocaleString()}</span>
-                            </div>
-                        </div>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill" style="width: ${Math.min(100, score)}%"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- Image Enhancement Functions ---
-        function applyEnhancement(type) {
-            if (!rawImageData) return;
-
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.putImageData(rawImageData, 0, 0); // Start with original data
-
-            const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-            const data = imgData.data;
-
-            currentEnhancement = type; // Update state
-
-            switch (type) {
-                case 'original':
-                    // No changes, just redraw original
-                    break;
-                case 'auto-enhance':
-                    autoLevels(data);
-                    sCurveContrast(data, 1.2); // Apply moderate S-curve
-                    break;
-                case 'contrast':
-                    adjustContrast(data, 30); // Higher contrast
-                    break;
-                case 'sharpen':
-                    unsharpMask(tempCtx, imgData, 2, 1, 0.05); // Radius, Amount, Threshold
-                    break;
-                case 'hologram-focus':
-                    saturate(data, 1.5);
-                    adjustContrast(data, 10);
-                    break;
-                case 'blue-focus':
-                    for (let i = 0; i < data.length; i += 4) {
-                        const hsv = rgbToHsv(data[i], data[i+1], data[i+2]);
-                        if (hsv.h > 190 && hsv.h < 270) { // Blue range
-                            const newRgb = hsvToRgb(hsv.h, Math.min(100, hsv.s * 1.5), Math.min(100, hsv.v * 1.2));
-                            data[i] = newRgb.r;
-                            data[i+1] = newRgb.g;
-                            data[i+2] = newRgb.b;
-                        }
-                    }
-                    break;
-            }
-            if (type !== 'sharpen') { 
-                tempCtx.putImageData(imgData, 0, 0);
-            }
-            processedImage = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
-            ctx.putImageData(processedImage, 0, 0);
-            drawDetectionBox(); // Redraw box after enhancement
-            generateTileGrid(); // Regenerate tiles for the new enhancement
-        }
-
-        function autoLevels(data) {
-            let hist = new Array(256).fill(0);
-            for (let i = 0; i < data.length; i += 4) {
-                const gray = (data[i] + data[i+1] + data[i+2]) / 3;
-                hist[Math.floor(gray)]++;
-            }
-
-            let minGray = 0;
-            let maxGray = 255;
-            let totalPixels = data.length / 4;
-            let clip = totalPixels * 0.005; // Clip 0.5% from ends
-
-            let sum = 0;
-            for (let i = 0; i < 256; i++) {
-                sum += hist[i];
-                if (sum > clip) {
-                    minGray = i;
-                    break;
-                }
-            }
-            sum = 0;
-            for (let i = 255; i >= 0; i--) {
-                sum += hist[i];
-                if (sum > clip) {
-                    maxGray = i;
-                    break;
-                }
-            }
-
-            const range = maxGray - minGray;
-            if (range === 0) return;
-
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = Math.min(255, Math.max(0, (data[i] - minGray) * 255 / range));
-                data[i+1] = Math.min(255, Math.max(0, (data[i+1] - minGray) * 255 / range));
-                data[i+2] = Math.min(255, Math.max(0, (data[i+2] - minGray) * 255 / range));
-            }
-        }
-
-        function sCurveContrast(data, strength) {
-            const contrastFactor = (259 * (strength + 255)) / (255 * (259 - strength));
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = Math.min(255, Math.max(0, (data[i] - 128) * contrastFactor + 128));
-                data[i+1] = Math.min(255, Math.max(0, (data[i+1] - 128) * contrastFactor + 128));
-                data[i+2] = Math.min(255, Math.max(0, (data[i+2] - 128) * contrastFactor + 128));
-            }
-        }
-
-        function adjustContrast(data, contrast) {
-            const factor = (255 + contrast) / (255.01 - contrast);
-            for (let i = 0; i < data.length; i += 4) {
-                data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));
-                data[i+1] = Math.min(255, Math.max(0, factor * (data[i+1] - 128) + 128));
-                data[i+2] = Math.min(255, Math.max(0, factor * (data[i+2] - 128) + 128));
-            }
-        }
-
-        function unsharpMask(ctx, imageData, radius, amount, threshold) {
-            const width = imageData.width;
-            const height = imageData.height;
-            const data = imageData.data;
-
-            const blurredData = new Uint8ClampedArray(data.length);
-
-            // Simple Box Blur for speed
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    let r = 0, g = 0, b = 0, count = 0;
-                    for (let dy = -radius; dy <= radius; dy++) {
-                        for (let dx = -radius; dx <= radius; dx++) {
-                            const nx = x + dx;
-                            const ny = y + dy;
-                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                                const idx = (ny * width + nx) * 4;
-                                r += data[idx];
-                                g += data[idx + 1];
-                                b += data[idx + 2];
-                                count++;
-                            }
-                        }
-                    }
-                    const outputIdx = (y * width + x) * 4;
-                    blurredData[outputIdx] = r / count;
-                    blurredData[outputIdx + 1] = g / count;
-                    blurredData[outputIdx + 2] = b / count;
-                    blurredData[outputIdx + 3] = data[outputIdx + 3];
-                }
-            }
-
-            for (let i = 0; i < data.length; i += 4) {
-                const originalR = data[i];
-                const originalG = data[i+1];
-                const originalB = data[i+2];
-
-                const blurredR = blurredData[i];
-                const blurredG = blurredData[i+1];
-                const blurredB = blurredData[i+2];
-
-                const diffR = originalR - blurredR;
-                const diffG = originalG - blurredG;
-                const diffB = originalB - blurredB;
-
-                if (Math.abs(diffR) > threshold * 255 || Math.abs(diffG) > threshold * 255 || Math.abs(diffB) > threshold * 255) {
-                    data[i] = Math.min(255, Math.max(0, originalR + diffR * amount));
-                    data[i+1] = Math.min(255, Math.max(0, originalG + diffG * amount));
-                    data[i+2] = Math.min(255, Math.max(0, originalB + diffB * amount));
-                }
-            }
-            ctx.putImageData(imageData, 0, 0);
-        }
-
-        function saturate(data, saturationFactor) {
-            for (let i = 0; i < data.length; i += 4) {
-                const hsv = rgbToHsv(data[i], data[i+1], data[i+2]);
-                const newRgb = hsvToRgb(hsv.h, Math.min(100, hsv.s * saturationFactor), hsv.v);
-                data[i] = newRgb.r;
-                data[i+1] = newRgb.g;
-                data[i+2] = newRgb.b;
-            }
-        }
-
-        // --- Tile Grid and Modal Functions ---
-        function generateTileGrid() {
-            if (!detectedRegion || !processedImage) {
-                tileGridOverlay.innerHTML = '';
-                return;
-            }
-
-            tileGridOverlay.innerHTML = ''; // Clear previous tiles
-            const r = detectedRegion;
-            const tileRows = 10;
-            const tileCols = 10;
-            const tileWidth = r.width / tileCols;
-            const tileHeight = r.height / tileRows;
-
-            for (let i = 0; i < tileRows; i++) {
-                for (let j = 0; j < tileCols; j++) {
-                    const tileDiv = document.createElement('div');
-                    tileDiv.classList.add('tile');
-                    tileDiv.style.left = `${(r.x + j * tileWidth) / canvas.width * 100}%`;
-                    tileDiv.style.top = `${(r.y + i * tileHeight) / canvas.height * 100}%`;
-                    tileDiv.style.width = `${tileWidth / canvas.width * 100}%`;
-                    tileDiv.style.height = `${tileHeight / canvas.height * 100}%`;
-                    tileDiv.dataset.row = i;
-                    tileDiv.dataset.col = j;
-                    tileDiv.title = `Row: ${i}, Col: ${j}`;
-
-                    const tileLabel = document.createElement('span');
-                    tileLabel.classList.add('tile-label');
-                    tileLabel.textContent = `${i},${j}`;
-                    tileDiv.appendChild(tileLabel);
-
-                    tileDiv.addEventListener('click', () => openTileModal(i, j, tileWidth, tileHeight));
-                    tileGridOverlay.appendChild(tileDiv);
-                }
-            }
-        }
-
-        function openTileModal(row, col, tileW, tileH) {
-            if (!rawImageData || !detectedRegion) return;
-
-            const r = detectedRegion;
-            const tileX = r.x + col * tileW;
-            const tileY = r.y + row * tileH;
-
-            // Set modal canvas dimensions (e.g., fixed 500px square for detail)
-            const modalDisplaySize = 500;
-            modalCanvas.width = modalDisplaySize;
-            modalCanvas.height = modalDisplaySize;
-
-            // Draw the selected tile onto the modal canvas, using the currently applied enhancement
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.putImageData(processedImage, 0, 0); // Use processedImage for display in modal
-
-            modalCtx.drawImage(
-                tempCanvas,
-                tileX, tileY, tileW, tileH, // Source rectangle
-                0, 0, modalDisplaySize, modalDisplaySize // Destination rectangle
-            );
-
-            // --- Calculate metrics for the specific tile (using RAW image data for consistent analysis) ---
-            const tileData = rawImageData;
-            const width = tileData.width; // Full image width
-            const height = tileData.height; // Full image height
-
-            let tileMetrics = {
-                bluePx: 0, whitePx: 0, darkPx: 0,
-                localVarSum: 0, localVarCount: 0,
-                hologramVar: 0, hologramPeaks: 0,
-                chromaAberration: 0, chromaCount: 0
-            };
-            let totalTilePixels = 0;
-
-            for (let y = Math.floor(tileY); y < Math.ceil(tileY + tileH); y++) {
-                for (let x = Math.floor(tileX); x < Math.ceil(tileX + tileW); x++) {
-                    if (x < 0 || x >= width || y < 0 || y >= height) continue;
-
-                    const idx = (y * width + x) * 4;
-                    const r_val = tileData.data[idx], g_val = tileData.data[idx+1], b_val = tileData.data[idx+2];
-                    const hsv = rgbToHsv(r_val, g_val, b_val);
-                    const gray = (r_val + g_val + b_val) / 3;
-
-                    totalTilePixels++;
-
-                    if ((hsv.h > 195 && hsv.h < 265) && hsv.s > 25 && hsv.v > 15) tileMetrics.bluePx++;
-                    if (hsv.v > 65 && hsv.s < 20) tileMetrics.whitePx++;
-                    if (hsv.v < 40 && hsv.s < 50) tileMetrics.darkPx++;
-
-                    const localVar = calculateLocalVariance(tileData.data, width, x, y, 5);
-                    tileMetrics.localVarSum += localVar;
-                    tileMetrics.localVarCount++;
-
-                    const aberration = calculateChromaticAberration(tileData, x, y, 5);
-                    tileMetrics.chromaAberration += aberration;
-                    tileMetrics.chromaCount++;
-                }
-            }
-
-            // Hologram analysis for this tile (if it falls in the hologram zone)
-            if (tileY + tileH > r.y + r.height * 0.75) { // If tile overlaps with hologram zone
-                const freq = calculateFrequencyProfile(
-                    tileData.data, width, 
-                    Math.floor(tileY), Math.ceil(tileY + tileH),
-                    Math.floor(tileX), Math.ceil(tileX + tileW)
-                );
-                tileMetrics.hologramVar = freq.variance;
-                tileMetrics.hologramPeaks = freq.peaks;
-            }
-
-
-            modalMetricsDiv.innerHTML = `
-                <div class="metric-item"><strong>Mavi %</strong> <span>${totalTilePixels > 0 ? (tileMetrics.bluePx / totalTilePixels * 100).toFixed(1) : 0}%</span></div>
-                <div class="metric-item"><strong>Beyaz %</strong> <span>${totalTilePixels > 0 ? (tileMetrics.whitePx / totalTilePixels * 100).toFixed(1) : 0}%</span></div>
-                <div class="metric-item"><strong>Koyu %</strong> <span>${totalTilePixels > 0 ? (tileMetrics.darkPx / totalTilePixels * 100).toFixed(1) : 0}%</span></div>
-                <div class="metric-item"><strong>Ort. Varyans</strong> <span>${tileMetrics.localVarCount > 0 ? (tileMetrics.localVarSum / tileMetrics.localVarCount).toFixed(1) : 0}</span></div>
-                <div class="metric-item"><strong>Hologram Var.</strong> <span>${tileMetrics.hologramVar.toFixed(1)}</span></div>
-                <div class="metric-item"><strong>Hologram Zirve</strong> <span>${tileMetrics.hologramPeaks}</span></div>
-                <div class="metric-item"><strong>Ort. Kromatik Sapma</strong> <span>${tileMetrics.chromaCount > 0 ? (tileMetrics.chromaAberration / tileMetrics.chromaCount).toFixed(1) : 0}</span></div>
-            `;
-
-            tileModal.classList.add('show');
-        }
-
-        function closeTileModal() {
-            tileModal.classList.remove('show');
-        }
-
-    </script>
+        d[(y*w+x)*4+c]=clamp(sum/divisor);
+      }
+    }
+  }
+  return dst;
+}
+
+function sCurve(v){
+  const t = v/255;
+  return clamp((-2*t*t*t + 3*t*t)*255);
+}
+function clamp(v){ return Math.max(0,Math.min(255,Math.round(v))); }
+
+// ============================================================
+// COLOR UTILS
+// ============================================================
+function rgbToHsv(r,g,b){
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+  let h=0,s=max===0?0:d/max,v=max;
+  if(d!==0){
+    if(max===r) h=(g-b)/d+(g<b?6:0);
+    else if(max===g) h=(b-r)/d+2;
+    else h=(r-g)/d+4;
+    h*=60;
+  }
+  return [h,s,v];
+}
+
+function hsvToRgb(h,s,v){
+  let r,g,b;
+  const i=Math.floor(h/60)%6;
+  const f=h/60-Math.floor(h/60);
+  const p=v*(1-s),q=v*(1-f*s),t2=v*(1-(1-f)*s);
+  if(i===0){r=v;g=t2;b=p;}
+  else if(i===1){r=q;g=v;b=p;}
+  else if(i===2){r=p;g=v;b=t2;}
+  else if(i===3){r=p;g=q;b=v;}
+  else if(i===4){r=t2;g=p;b=v;}
+  else{r=v;g=p;b=q;}
+  return [r*255,g*255,b*255];
+}
+
+// ============================================================
+// FILTER BUTTON
+// ============================================================
+function applyFilter(mode, btn){
+  currentFilter = mode;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  redraw(mode);
+}
+
+// ============================================================
+// AUTO PLATE DETECTION (improved)
+// ============================================================
+function autoDetect(){
+  if(!rawImageData){ alert('Önce fotoğraf yükleyin.'); return; }
+  const d = rawImageData.data;
+  const W = rawImageData.width, H = rawImageData.height;
+
+  // --- Step 1: Blue column density scan (full image, focused on left 40%)
+  const searchW = Math.floor(W * 0.5);
+  const colBlue = new Float32Array(searchW);
+
+  for(let y=0; y<H; y++){
+    for(let x=0; x<searchW; x++){
+      const i=(y*W+x)*4;
+      const r=d[i],g=d[i+1],b=d[i+2];
+      const [hv,sv,vv]=rgbToHsv(r,g,b);
+      if(hv>=185 && hv<=275 && sv>0.08 && vv>0.08){
+        colBlue[x]++;
+      }
+    }
+  }
+
+  // Find best blue cluster (sliding window of ~10% width)
+  const winW = Math.max(3, Math.floor(W * 0.08));
+  let bestScore = 0, bestX = 0;
+  for(let x=0; x<searchW-winW; x++){
+    let s=0; for(let j=0;j<winW;j++) s+=colBlue[x+j];
+    if(s>bestScore){ bestScore=s; bestX=x; }
+  }
+
+  // --- Step 2: Find row range of blue cluster
+  let blueRowMin=H, blueRowMax=0;
+  let blueFound = bestScore > (H * winW * 0.015); // threshold 1.5%
+
+  if(blueFound){
+    for(let y=0;y<H;y++){
+      let rowBlue=0;
+      for(let x=bestX;x<Math.min(bestX+winW,W);x++){
+        const i=(y*W+x)*4;
+        const [hv,sv,vv]=rgbToHsv(d[i],d[i+1],d[i+2]);
+        if(hv>=185&&hv<=275&&sv>0.08&&vv>0.08) rowBlue++;
+      }
+      if(rowBlue>winW*0.12){
+        blueRowMin=Math.min(blueRowMin,y);
+        blueRowMax=Math.max(blueRowMax,y);
+      }
+    }
+  }
+
+  let rect;
+
+  if(blueFound && blueRowMax > blueRowMin + 5){
+    // Use blue stripe to infer full plate
+    const stripeH = blueRowMax - blueRowMin;
+    const stripeW = winW;
+
+    // Plate height ≈ stripe height (stripe goes full height of plate)
+    const plateH = Math.round(stripeH * 1.1);
+    // Plate width by standard ratio 4.72:1
+    const plateW = Math.round(plateH * 4.72);
+
+    const plateX = Math.max(0, bestX);
+    const plateY = Math.max(0, blueRowMin - Math.floor(stripeH * 0.05));
+
+    rect = { x: plateX, y: plateY, w: Math.min(plateW, W-plateX), h: Math.min(plateH, H-plateY) };
+
+  } else {
+    // Fallback: brightness profile
+    const rowBrightness = new Float32Array(H);
+    for(let y=0;y<H;y++){
+      let s=0;
+      for(let x=0;x<W;x++){
+        const i=(y*W+x)*4;
+        s+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      }
+      rowBrightness[y]=s/W;
+    }
+    const bWin=Math.max(2,Math.floor(H*0.12));
+    let bBest=0,bY=Math.floor(H*0.35);
+    for(let y=Math.floor(H*0.1);y<H*0.9-bWin;y++){
+      let s=0; for(let j=0;j<bWin;j++) s+=rowBrightness[y+j];
+      if(s>bBest){bBest=s;bY=y;}
+    }
+    const pH=Math.round(H*0.22);
+    const pW=Math.round(pH*4.72);
+    const pX=Math.max(0,Math.floor((W-pW)/2));
+    rect={x:pX,y:Math.max(0,bY),w:Math.min(pW,W-pX),h:Math.min(pH,H)};
+  }
+
+  // Validate & correct aspect ratio
+  const ratio = rect.w / rect.h;
+  if(ratio < 2.5 || ratio > 7.5){
+    const newH = Math.round(rect.w / 4.72);
+    const cy = rect.y + rect.h/2;
+    rect.h = newH;
+    rect.y = Math.max(0, Math.round(cy - newH/2));
+    if(rect.y + rect.h > H) rect.y = H - rect.h;
+  }
+
+  plateRect = rect;
+  redraw(currentFilter);
+}
+
+// ============================================================
+// MANUAL SELECTION
+// ============================================================
+function toggleManualMode(){
+  manualMode = !manualMode;
+  const btn = document.getElementById('btnManual');
+  const hint = document.getElementById('manualHint');
+  if(manualMode){
+    btn.classList.add('active');
+    hint.style.display='block';
+    canvas.style.cursor='crosshair';
+  } else {
+    btn.classList.remove('active');
+    hint.style.display='none';
+    canvas.style.cursor='default';
+  }
+}
+
+function setupManualEvents(){
+  canvas.onmousedown = (e)=>{
+    if(!manualMode) return;
+    const r=canvas.getBoundingClientRect();
+    const sx=Math.round((e.clientX-r.left)*(canvas.width/r.width));
+    const sy=Math.round((e.clientY-r.top)*(canvas.height/r.height));
+    drag={active:true,sx,sy,ex:sx,ey:sy};
+  };
+  canvas.onmousemove = (e)=>{
+    if(!drag.active) return;
+    const r=canvas.getBoundingClientRect();
+    drag.ex=Math.round((e.clientX-r.left)*(canvas.width/r.width));
+    drag.ey=Math.round((e.clientY-r.top)*(canvas.height/r.height));
+    redraw(currentFilter);
+  };
+  canvas.onmouseup = (e)=>{
+    if(!drag.active) return;
+    drag.active=false;
+    const x=Math.min(drag.sx,drag.ex), y=Math.min(drag.sy,drag.ey);
+    const w=Math.abs(drag.ex-drag.sx), h=Math.abs(drag.ey-drag.sy);
+    if(w>20 && h>10){
+      plateRect={x,y,w,h};
+      redraw(currentFilter);
+      toggleManualMode();
+      runFullAnalysis();
+    }
+  };
+
+  // Touch
+  canvas.ontouchstart=(e)=>{
+    if(!manualMode) return;
+    e.preventDefault();
+    const t=e.touches[0];
+    const r=canvas.getBoundingClientRect();
+    const sx=Math.round((t.clientX-r.left)*(canvas.width/r.width));
+    const sy=Math.round((t.clientY-r.top)*(canvas.height/r.height));
+    drag={active:true,sx,sy,ex:sx,ey:sy};
+  };
+  canvas.ontouchmove=(e)=>{
+    if(!drag.active) return;
+    e.preventDefault();
+    const t=e.touches[0];
+    const r=canvas.getBoundingClientRect();
+    drag.ex=Math.round((t.clientX-r.left)*(canvas.width/r.width));
+    drag.ey=Math.round((t.clientY-r.top)*(canvas.height/r.height));
+    redraw(currentFilter);
+  };
+  canvas.ontouchend=(e)=>{
+    if(!drag.active) return;
+    drag.active=false;
+    const x=Math.min(drag.sx,drag.ex),y=Math.min(drag.sy,drag.ey);
+    const w=Math.abs(drag.ex-drag.sx),h=Math.abs(drag.ey-drag.sy);
+    if(w>15&&h>8){
+      plateRect={x,y,w,h};
+      redraw(currentFilter);
+      toggleManualMode();
+      runFullAnalysis();
+    }
+  };
+}
+
+// ============================================================
+// IS PLATE IMAGE CHECK
+// ============================================================
+function isPlateImage(data, W, H){
+  const px = data.data;
+  let blueCount=0, whiteCount=0, blackCount=0, total=0;
+  for(let i=0;i<px.length;i+=4){
+    const r=px[i],g=px[i+1],b=px[i+2];
+    const [hv,sv,vv]=rgbToHsv(r,g,b);
+    if(hv>=185&&hv<=275&&sv>0.12&&vv>0.15) blueCount++;
+    if(r>180&&g>180&&b>180) whiteCount++;
+    if(r<80&&g<80&&b<80) blackCount++;
+    total++;
+  }
+  const bPct=blueCount/total, wPct=whiteCount/total, kPct=blackCount/total;
+  const aspect=W/H;
+  // Plate must have: some blue, decent white, some black, and elongated shape
+  const hasBlue=bPct>0.01;
+  const hasWhite=wPct>0.15;
+  const hasBlack=kPct>0.03;
+  const goodAspect=aspect>2.0;
+  const passed=[hasBlue,hasWhite,hasBlack,goodAspect].filter(Boolean).length;
+  return {ok: passed>=3, blueP:bPct, whiteP:wPct, blackP:kPct, aspect, passed};
+}
+
+// ============================================================
+// MAIN ANALYSIS
+// ============================================================
+function runFullAnalysis(){
+  if(!rawImageData){ alert('Önce fotoğraf yükleyin.'); return; }
+
+  // Auto detect if no rect
+  if(!plateRect) autoDetect();
+
+  // --- 1. Check if it's a plate at all (use full image)
+  const fullCheck = isPlateImage(rawImageData, canvas.width, canvas.height);
+  if(!fullCheck.ok){
+    setVerdict('not-plate', '%0', 'BU BİR PLAKA GÖRSELİ DEĞİL');
+    resetMetrics();
+    document.getElementById('tilesGrid').innerHTML =
+      '<p style="color:var(--red);font-size:12px;padding:8px;grid-column:1/-1;">⛔ Plaka tespit edilemedi. Geçerli bir plaka fotoğrafı yükleyin.</p>';
+    return;
+  }
+
+  // --- 2. Extract plate region
+  const off = document.createElement('canvas');
+  off.width  = plateRect.w;
+  off.height = plateRect.h;
+  const offCtx = off.getContext('2d');
+  offCtx.drawImage(rawImg,
+    plateRect.x / (canvas.width/rawImg.width),
+    plateRect.y / (canvas.height/rawImg.height),
+    plateRect.w / (canvas.width/rawImg.width),
+    plateRect.h / (canvas.height/rawImg.height),
+    0, 0, plateRect.w, plateRect.h
+  );
+  const plateData = offCtx.getImageData(0, 0, plateRect.w, plateRect.h);
+
+  // --- 3. Score metrics
+  const scores = scorePlate(plateData, plateRect.w, plateRect.h);
+
+  // --- 4. Show results
+  const total = Math.round(
+    scores.blue*0.25 + scores.white*0.15 + scores.chars*0.20 + scores.holo*0.20 + scores.seal*0.20
+  );
+
+  // Round to nearest 10
+  const roundedTotal = Math.round(total/10)*10;
+
+  setMetric('mBlue','barBlue',scores.blue,'%');
+  setMetric('mWhite','barWhite',scores.white,'%');
+  setMetric('mChar','barChar',scores.chars,'%');
+  setMetric('mHolo','barHolo',scores.holo,'%');
+  setMetric('mSeal','barSeal',scores.seal,'%');
+
+  if(roundedTotal>=70) setVerdict('original',`%${roundedTotal}`,'ORİJİNAL PLAKA ✅');
+  else if(roundedTotal>=40) setVerdict('warn',`%${roundedTotal}`,'KONTROL GEREKLİ ⚠️');
+  else setVerdict('fake',`%${roundedTotal}`,'STANDART DIŞI / SAHTE ❌');
+
+  // --- 5. 100 tile scan
+  runTileScan(plateData, plateRect.w, plateRect.h, offCtx);
+}
+
+// ============================================================
+// PLATE SCORING
+// ============================================================
+function scorePlate(imgData, W, H){
+  const d = imgData.data;
+
+  // --- BLUE score: scan left 15% for dense blue column
+  const blueZoneW = Math.max(3, Math.floor(W*0.20));
+  let bluePixels=0, blueTotalPx=blueZoneW*H;
+  const colBlueDensity = new Float32Array(blueZoneW);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<blueZoneW;x++){
+      const i=(y*W+x)*4;
+      const [hv,sv,vv]=rgbToHsv(d[i],d[i+1],d[i+2]);
+      if(hv>=185&&hv<=275&&sv>0.08&&vv>0.08){
+        bluePixels++;
+        colBlueDensity[x]++;
+      }
+    }
+  }
+  // Peak column density bonus
+  const maxColDensity = Math.max(...colBlueDensity);
+  const peakBonus = maxColDensity/(H) > 0.4 ? 20 : 0;
+  const blueRaw = bluePixels/blueTotalPx;
+  const blueScore = Math.min(100, Math.round((blueRaw*200 + peakBonus)));
+
+  // --- WHITE score: middle 60-90% of width
+  const wStart=Math.floor(W*0.20), wEnd=Math.floor(W*0.95);
+  let wPx=0, wTotal=(wEnd-wStart)*H;
+  for(let y=0;y<H;y++){
+    for(let x=wStart;x<wEnd;x++){
+      const i=(y*W+x)*4;
+      if(d[i]>160&&d[i+1]>160&&d[i+2]>160) wPx++;
+    }
+  }
+  const whiteScore = Math.min(100, Math.round(wPx/wTotal*160));
+
+  // --- CHAR score: black pixels in middle zone (avoid blue & hologram zones)
+  const cYStart=Math.floor(H*0.05), cYEnd=Math.floor(H*0.80);
+  let cPx=0, cTotal=(wEnd-wStart)*(cYEnd-cYStart);
+  for(let y=cYStart;y<cYEnd;y++){
+    for(let x=wStart;x<wEnd;x++){
+      const i=(y*W+x)*4;
+      if(d[i]<70&&d[i+1]<70&&d[i+2]<70) cPx++;
+    }
+  }
+  const charScore = Math.min(100, Math.round(cPx/cTotal*500));
+
+  // --- HOLOGRAM score: bottom 15%, texture variance
+  const hYStart=Math.floor(H*0.82);
+  let hVarSum=0, hCount=0;
+  for(let y=hYStart;y<H;y++){
+    let rowVals=[];
+    for(let x=0;x<W;x++){
+      const i=(y*W+x)*4;
+      const lum=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      rowVals.push(lum);
+    }
+    const mean=rowVals.reduce((a,b)=>a+b,0)/rowVals.length;
+    const v=rowVals.reduce((a,b)=>a+(b-mean)**2,0)/rowVals.length;
+    hVarSum+=v; hCount++;
+  }
+  const avgVar = hCount>0 ? hVarSum/hCount : 0;
+  const holoScore = Math.min(100, Math.round(Math.sqrt(avgVar)*4));
+
+  // --- SEAL score: top-left quadrant texture
+  const sX=Math.floor(W*0.18), sY=Math.floor(H*0.05);
+  const sW=Math.min(Math.floor(W*0.15),sX), sH=Math.min(Math.floor(H*0.4),H-sY*2);
+  let sVarSum=0, sCount=0;
+  for(let y=sY;y<sY+sH;y++){
+    for(let x=sX;x<sX+sW;x++){
+      const i=(y*W+x)*4;
+      const lum=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      sVarSum+=lum; sCount++;
+    }
+  }
+  const sealMean = sCount>0?sVarSum/sCount:128;
+  let sealVar=0;
+  for(let y=sY;y<sY+sH;y++){
+    for(let x=sX;x<sX+sW;x++){
+      const i=(y*W+x)*4;
+      const lum=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      sealVar+=(lum-sealMean)**2;
+    }
+  }
+  sealVar = sCount>0?sealVar/sCount:0;
+  const sealScore = Math.min(100, Math.round(Math.sqrt(sealVar)*3.5));
+
+  return {
+    blue: Math.round(blueScore/10)*10,
+    white: Math.round(whiteScore/10)*10,
+    chars: Math.round(charScore/10)*10,
+    holo: Math.round(holoScore/10)*10,
+    seal: Math.round(sealScore/10)*10
+  };
+}
+
+// ============================================================
+// TILE SCAN (10×10 = 100 tiles)
+// ============================================================
+function runTileScan(plateImgData, PW, PH, srcCtx){
+  const grid = document.getElementById('tilesGrid');
+  grid.innerHTML = '';
+  tileData = [];
+
+  const cols=10, rows=10;
+  const tw=Math.floor(PW/cols), th=Math.floor(PH/rows);
+
+  const scanLine = document.getElementById('scanLine');
+  scanLine.classList.add('active');
+
+  const pb = document.getElementById('progressBar');
+  const pf = document.getElementById('progressFill');
+  pb.style.display='block';
+
+  let idx=0;
+  const cells=[];
+
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const cell = document.createElement('div');
+      cell.className='tile-cell';
+      const tc=document.createElement('canvas');
+      tc.width=tw; tc.height=th;
+      cell.appendChild(tc);
+      grid.appendChild(cell);
+      cells.push({cell,tc,r,c});
+    }
+  }
+
+  function processNext(){
+    if(idx>=100){
+      scanLine.classList.remove('active');
+      pb.style.display='none';
+      return;
+    }
+    const {cell,tc,r,c}=cells[idx];
+    const x=c*tw, y=r*th;
+    const tCtx=tc.getContext('2d');
+
+    // Extract tile from plate
+    const tileBuf=document.createElement('canvas');
+    tileBuf.width=tw; tileBuf.height=th;
+    const tbCtx=tileBuf.getContext('2d');
+    tbCtx.drawImage(rawImg,
+      (plateRect.x+(x/(PW))*(plateRect.w))/(canvas.width/rawImg.width),
+      (plateRect.y+(y/(PH))*(plateRect.h))/(canvas.height/rawImg.height),
+      (tw/PW)*plateRect.w/(canvas.width/rawImg.width),
+      (th/PH)*plateRect.h/(canvas.height/rawImg.height),
+      0,0,tw,th
+    );
+
+    // Auto-enhance tile
+    const tid=tbCtx.getImageData(0,0,tw,th);
+    const enhanced=applyImageFilter(tid,'auto');
+    tCtx.putImageData(enhanced,0,0);
+
+    // Score tile
+    const {blueP,whiteP,score}=scoreTile(tid,c,r,cols,rows);
+    tileData.push({x,y,tw,th,r,c,blueP,whiteP,score,imgData:tid});
+
+    // Color overlay
+    const alpha=0.25;
+    if(score>0.65){ tCtx.fillStyle=`rgba(0,230,118,${alpha})`; cell.style.borderColor='rgba(0,230,118,0.4)'; }
+    else if(score>0.35){ tCtx.fillStyle=`rgba(255,202,40,${alpha})`; cell.style.borderColor='rgba(255,202,40,0.4)'; }
+    else{ tCtx.fillStyle=`rgba(255,61,61,${alpha})`; cell.style.borderColor='rgba(255,61,61,0.4)'; }
+    tCtx.fillRect(0,0,tw,th);
+
+    // Click handler
+    const ti=idx;
+    cell.onclick=()=>openTileModal(ti);
+
+    idx++;
+    pf.style.width=(idx/100*100)+'%';
+
+    if(idx<100) setTimeout(processNext,12);
+    else{
+      scanLine.classList.remove('active');
+      pb.style.display='none';
+    }
+  }
+
+  processNext();
+}
+
+function scoreTile(imgData,c,r,cols,rows){
+  const d=imgData.data, W=imgData.width, H=imgData.height;
+  let blueP=0,whiteP=0,blackP=0,total=W*H;
+  for(let i=0;i<d.length;i+=4){
+    const [hv,sv,vv]=rgbToHsv(d[i],d[i+1],d[i+2]);
+    if(hv>=185&&hv<=275&&sv>0.08&&vv>0.08) blueP++;
+    if(d[i]>160&&d[i+1]>160&&d[i+2]>160) whiteP++;
+    if(d[i]<70&&d[i+1]<70&&d[i+2]<70) blackP++;
+  }
+  blueP/=total; whiteP/=total; blackP/=total;
+
+  // Zone-based expected values
+  const isBlueZone = c<=1;
+  const isHoloZone = r>=8;
+  const isCharZone = c>=2&&c<=8&&r>=2&&r<=7;
+
+  let score=0.5;
+  if(isBlueZone) score=Math.min(1,blueP*8);
+  else if(isHoloZone) score=Math.min(1,whiteP+blackP*2);
+  else if(isCharZone) score=Math.min(1,(whiteP+blackP*2));
+  else score=Math.min(1,whiteP*1.5);
+
+  return {blueP,whiteP,blackP,score};
+}
+
+// ============================================================
+// TILE MODAL
+// ============================================================
+function openTileModal(idx){
+  const t=tileData[idx];
+  if(!t) return;
+  const modal=document.getElementById('tileModal');
+  const title=document.getElementById('modalTitle');
+  title.textContent=`Satır ${t.r+1} / Sütun ${t.c+1} — Bölge Analizi`;
+
+  // Draw zoomed tile
+  const zoom=Math.min(480/t.tw, 200/t.th);
+  modalCanvas.width=Math.round(t.tw*zoom);
+  modalCanvas.height=Math.round(t.th*zoom);
+  modalCtx.imageSmoothingEnabled=false;
+
+  // Draw from rawImg
+  modalCtx.drawImage(rawImg,
+    (plateRect.x+(t.x/tileData[0].tw/10)*plateRect.w)/(canvas.width/rawImg.width) - plateRect.w/(canvas.width/rawImg.width)/10*t.c,
+    (plateRect.y+(t.y/tileData[0].th/10)*plateRect.h)/(canvas.height/rawImg.height) - plateRect.h/(canvas.height/rawImg.height)/10*t.r,
+    (t.tw/( canvas.width*tileData[0].tw/rawImg.width )) * rawImg.width / 10,
+    (t.th/( canvas.height*tileData[0].th/rawImg.height)) * rawImg.height / 10,
+    0,0,modalCanvas.width,modalCanvas.height
+  );
+
+  // Simpler approach: use stored imgData, scale up
+  const tmp=document.createElement('canvas');
+  tmp.width=t.tw; tmp.height=t.th;
+  tmp.getContext('2d').putImageData(t.imgData,0,0);
+  modalCtx.clearRect(0,0,modalCanvas.width,modalCanvas.height);
+  modalCtx.imageSmoothingEnabled=false;
+  modalCtx.drawImage(tmp,0,0,modalCanvas.width,modalCanvas.height);
+
+  // Metrics
+  const {blueP,whiteP,blackP,score}=scoreTile(t.imgData,t.c,t.r,10,10);
+  // Variance
+  const d2=t.imgData.data;
+  let varSum=0,varCnt=0;
+  for(let i=0;i<d2.length;i+=4){
+    const lum=0.299*d2[i]+0.587*d2[i+1]+0.114*d2[i+2];
+    varSum+=lum; varCnt++;
+  }
+  const mean=varSum/varCnt;
+  let variance=0;
+  for(let i=0;i<d2.length;i+=4){
+    const lum=0.299*d2[i]+0.587*d2[i+1]+0.114*d2[i+2];
+    variance+=(lum-mean)**2;
+  }
+  variance=Math.sqrt(variance/varCnt);
+
+  const metricsEl=document.getElementById('modalMetrics');
+  const mets=[
+    {label:'Mavi %',val:(blueP*100).toFixed(1)+'%'},
+    {label:'Beyaz %',val:(whiteP*100).toFixed(1)+'%'},
+    {label:'Siyah %',val:(blackP*100).toFixed(1)+'%'},
+    {label:'Varyans',val:variance.toFixed(1)},
+    {label:'Bölge Skoru',val:Math.round(score*100)+'%'},
+    {label:'Konum',val:`S${t.c+1}R${t.r+1}`}
+  ];
+  metricsEl.innerHTML=mets.map(m=>`
+    <div class="modal-metric">
+      <div class="mm-val">${m.val}</div>
+      <div class="mm-label">${m.label}</div>
+    </div>
+  `).join('');
+
+  modal.classList.add('open');
+}
+
+function closeTileModal(){
+  document.getElementById('tileModal').classList.remove('open');
+}
+
+document.getElementById('tileModal').addEventListener('click',function(e){
+  if(e.target===this) closeTileModal();
+});
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function setVerdict(cls, score, text){
+  const box=document.getElementById('verdictBox');
+  box.className='verdict-box '+cls;
+  document.getElementById('verdictScore').textContent=score;
+  document.getElementById('verdictText').textContent=text;
+}
+
+function resetVerdict(){
+  const box=document.getElementById('verdictBox');
+  box.className='verdict-box idle';
+  document.getElementById('verdictScore').textContent='—';
+  document.getElementById('verdictText').textContent='Analiz bekleniyor';
+  resetMetrics();
+}
+
+function resetMetrics(){
+  ['mBlue','mWhite','mChar','mHolo','mSeal'].forEach(id=>{
+    document.getElementById(id).textContent='—';
+  });
+  ['barBlue','barWhite','barChar','barHolo','barSeal'].forEach(id=>{
+    document.getElementById(id).style.width='0%';
+  });
+}
+
+function setMetric(labelId, barId, value, suffix){
+  document.getElementById(labelId).textContent = value + (suffix||'');
+  setTimeout(()=>{
+    document.getElementById(barId).style.width = Math.min(100,value)+'%';
+  }, 100);
+}
+</script>
 </body>
 </html>
-```
