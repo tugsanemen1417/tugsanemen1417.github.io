@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TR Plaka Kontrol</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TR Plaka Kontrol - Gelişmiş Algılama</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -15,7 +15,7 @@
             color: white;
         }
         
-        .container { max-width: 600px; margin: 0 auto; }
+        .container { max-width: 700px; margin: 0 auto; }
         
         .header { text-align: center; margin-bottom: 30px; }
         
@@ -39,157 +39,74 @@
             transition: all 0.3s;
             background: rgba(245, 158, 11, 0.05);
             margin-bottom: 20px;
-            position: relative;
         }
         
-        .upload-area:hover {
-            border-color: #f59e0b;
-            background: rgba(245, 158, 11, 0.1);
-        }
+        .upload-area:hover { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .upload-area.has-image { border-color: #10b981; background: rgba(16, 185, 129, 0.1); display: none; }
         
-        .upload-area.dragover {
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-            transform: scale(1.02);
-        }
+        .upload-icon { font-size: 48px; margin-bottom: 15px; }
         
-        .upload-area.has-image {
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .upload-area.error {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-            animation: shake 0.5s;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-        
-        .upload-title {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        
-        .upload-subtitle {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 15px;
-        }
-        
-        .upload-limits {
-            display: inline-flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            font-size: 11px;
-            color: #64748b;
-        }
-        
-        .limit-badge {
-            background: rgba(255,255,255,0.1);
-            padding: 4px 10px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .file-input {
-            display: none;
-        }
+        .file-input { display: none; }
         
         .preview-container {
             display: none;
-            margin-top: 20px;
-            padding: 15px;
+            margin-bottom: 20px;
             background: rgba(0,0,0,0.3);
             border-radius: 12px;
+            padding: 15px;
         }
         
-        .preview-container.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .preview-container.show { display: block; }
         
         .preview-image {
             max-width: 100%;
-            max-height: 250px;
+            max-height: 300px;
             border-radius: 8px;
             display: block;
             margin: 0 auto;
         }
         
+        .analysis-overlay {
+            position: relative;
+            margin-top: 15px;
+        }
+        
+        .region-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
         .file-info {
-            margin-top: 12px;
-            padding: 10px;
+            margin-top: 15px;
+            padding: 12px;
             background: rgba(255,255,255,0.05);
             border-radius: 8px;
-            font-size: 12px;
-            color: #94a3b8;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        
-        .file-name {
-            color: white;
-            font-weight: 500;
         }
         
         .remove-btn {
             background: rgba(239, 68, 68, 0.2);
             color: #fca5a5;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        
-        .remove-btn:hover {
-            background: rgba(239, 68, 68, 0.3);
-        }
-        
-        .error-message {
-            display: none;
-            margin-top: 15px;
-            padding: 12px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px;
-            color: #fca5a5;
-            font-size: 13px;
-        }
-        
-        .error-message.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
         }
         
         .btn {
             width: 100%;
-            padding: 18px;
+            padding: 20px;
             border: none;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -201,34 +118,7 @@
             color: white;
         }
         
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.5);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .result {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .result.show {
-            display: block;
-            animation: slideUp 0.4s ease;
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .loading {
             display: none;
@@ -236,9 +126,7 @@
             padding: 40px;
         }
         
-        .loading.show {
-            display: block;
-        }
+        .loading.show { display: block; }
         
         .spinner {
             width: 50px;
@@ -250,249 +138,270 @@
             margin: 0 auto 15px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .result {
+            display: none;
+            margin-top: 24px;
+            animation: slideUp 0.4s ease;
         }
         
-        @media (max-width: 480px) {
-            .upload-area { padding: 30px 20px; }
-            .upload-title { font-size: 16px; }
-            h1 { font-size: 24px; }
+        .result.show { display: block; }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        
+        .result-header {
+            text-align: center;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .result-original {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(16, 185, 129, 0.2));
+            border: 2px solid #10b981;
+        }
+        
+        .result-suspicious {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.2));
+            border: 2px solid #f59e0b;
+        }
+        
+        .result-fake {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2));
+            border: 2px solid #ef4444;
+        }
+        
+        .authenticity-score {
+            font-size: 64px;
+            font-weight: 800;
+            margin: 15px 0;
+        }
+        
+        .features-detailed {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .feature-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+        
+        .feature-row.pass { border-left-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .feature-row.fail { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .feature-row.warning { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .feature-row.pass .feature-icon { background: #10b981; }
+        .feature-row.fail .feature-icon { background: #ef4444; }
+        .feature-row.warning .feature-icon { background: #f59e0b; }
+        
+        .feature-content { flex: 1; }
+        
+        .feature-title { font-weight: 600; margin-bottom: 4px; }
+        
+        .feature-desc { font-size: 12px; color: #94a3b8; }
+        
+        .confidence-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        
+        .plate-reading {
+            background: white;
+            color: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            padding-left: 60px;
+        }
+        
+        .plate-reading::before {
+            content: 'TR';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            background: #0033a0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 12px 0 0 12px;
+            font-family: sans-serif;
+        }
+        
+        .error-message {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            color: #fca5a5;
+            font-size: 13px;
+        }
+        
+        .error-message.show { display: block; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🚗 TR Plaka Kontrol</h1>
-            <p class="subtitle">Fotoğraf yükle ve otomatik analiz et</p>
+            <p class="subtitle">Mavi şerit, mühür ve hologram analizi</p>
         </div>
         
         <div class="card">
-            <!-- Dosya Yükleme Alanı -->
-            <div class="upload-area" id="uploadArea">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">📸</div>
-                <div class="upload-title">Plaka Fotoğrafı Yükle</div>
-                <div class="upload-subtitle">Hologram ve mühür net görünmeli</div>
-                <div class="upload-limits">
-                    <span class="limit-badge">📁 Max 5MB</span>
-                    <span class="limit-badge">🖼️ JPG, PNG, WEBP</span>
-                    <span class="limit-badge">📏 Min 300x200px</span>
-                </div>
-                <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/jpg,image/png,image/webp">
+                <div style="font-weight: 600; font-size: 18px; margin-bottom: 8px;">Plaka Fotoğrafı Yükle</div>
+                <div style="color: #94a3b8; font-size: 13px;">Mavi TR şeridi net görünmeli</div>
+                <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/webp">
             </div>
             
-            <!-- Hata Mesajı -->
-            <div class="error-message" id="errorMessage"></div>
-            
-            <!-- Önizleme -->
             <div class="preview-container" id="previewContainer">
-                <img id="previewImage" class="preview-image" alt="Plaka önizleme">
+                <img id="previewImage" class="preview-image">
                 <div class="file-info">
                     <div>
-                        <div class="file-name" id="fileName">-</div>
-                        <div id="fileSize" style="font-size: 11px; margin-top: 2px;">-</div>
+                        <div id="fileName" style="font-weight: 600;"></div>
+                        <div id="fileDetails" style="font-size: 12px; color: #94a3b8; margin-top: 4px;"></div>
                     </div>
-                    <button class="remove-btn" onclick="removeFile()">🗑️ Kaldır</button>
+                    <button class="remove-btn" onclick="removeImage()">🗑️ Kaldır</button>
                 </div>
             </div>
             
-            <!-- Yükleme Animasyonu -->
+            <div class="error-message" id="errorMessage"></div>
+            
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <div style="color: #94a3b8;">Fotoğraf analiz ediliyor...</div>
+                <div style="color: #94a3b8;">Plaka analiz ediliyor...</div>
             </div>
             
-            <!-- Analiz Butonu -->
-            <button class="btn btn-primary" id="analyzeBtn" onclick="analyze()" disabled>
-                <span>🔍</span> Analiz Et
+            <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePlate()" disabled>
+                <span>🔍</span> Detaylı Analiz Et
             </button>
             
-            <!-- Sonuç -->
             <div class="result" id="result"></div>
         </div>
     </div>
 
     <script>
-        // Sınırlar
-        const LIMITS = {
-            maxSize: 5 * 1024 * 1024, // 5MB
-            minWidth: 300,
-            minHeight: 200,
-            allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-            allowedExtensions: ['.jpg', '.jpeg', '.png', '.webp']
-        };
-        
-        let currentFile = null;
         let currentImage = null;
+        let imageData = null;
         
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
-        const errorMessage = document.getElementById('errorMessage');
         const previewContainer = document.getElementById('previewContainer');
         const previewImage = document.getElementById('previewImage');
         const analyzeBtn = document.getElementById('analyzeBtn');
         
-        // Tıklama ile dosya seçimi
-        uploadArea.addEventListener('click', (e) => {
-            if (e.target !== fileInput) {
-                fileInput.click();
-            }
-        });
+        fileInput.addEventListener('change', handleFileSelect);
         
-        // Dosya seçildiğinde
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files && e.target.files[0]) {
-                validateAndLoadFile(e.target.files[0]);
-            }
-        });
-        
-        // Drag & Drop
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        uploadArea.addEventListener('dragenter', () => {
-            uploadArea.classList.add('dragover');
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                validateAndLoadFile(files[0]);
-            }
-        });
-        
-        // Dosya doğrulama ve yükleme
-        function validateAndLoadFile(file) {
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
             hideError();
             
-            // Tip kontrolü
-            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-            const isValidType = LIMITS.allowedTypes.includes(file.type) || 
-                               LIMITS.allowedExtensions.includes(fileExtension);
-            
-            if (!isValidType) {
-                showError(`❌ Geçersiz dosya tipi: ${file.type || fileExtension}<br><br>` +
-                         `✅ İzin verilenler: JPG, JPEG, PNG, WEBP`);
-                uploadArea.classList.add('error');
-                setTimeout(() => uploadArea.classList.remove('error'), 500);
+            if (!file.type.match(/image\/(jpeg|png|webp)/)) {
+                showError('❌ Sadece JPG, PNG veya WEBP formatları desteklenir.');
                 return;
             }
             
-            // Boyut kontrolü
-            if (file.size > LIMITS.maxSize) {
-                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                const limitMB = (LIMITS.maxSize / (1024 * 1024));
-                showError(`❌ Dosya çok büyük: ${sizeMB} MB<br><br>` +
-                         `✅ Maximum boyut: ${limitMB} MB`);
-                uploadArea.classList.add('error');
-                setTimeout(() => uploadArea.classList.remove('error'), 500);
+            if (file.size > 5 * 1024 * 1024) {
+                showError('❌ Dosya boyutu 5MB\'ı geçemez.');
                 return;
             }
             
-            // Okuma
             const reader = new FileReader();
-            
             reader.onload = (e) => {
-                const img = new Image();
-                
-                img.onload = () => {
-                    // Boyut kontrolü
-                    if (img.width < LIMITS.minWidth || img.height < LIMITS.minHeight) {
-                        showError(`❌ Görsel çok küçük: ${img.width}x${img.height}px<br><br>` +
-                                 `✅ Minimum boyut: ${LIMITS.minWidth}x${LIMITS.minHeight}px`);
-                        return;
-                    }
+                currentImage = e.target.result;
+                previewImage.src = currentImage;
+                previewImage.onload = () => {
+                    document.getElementById('fileName').textContent = file.name;
+                    document.getElementById('fileDetails').textContent = 
+                        `${(file.size/1024).toFixed(1)} KB • ${previewImage.naturalWidth}x${previewImage.naturalHeight}px`;
                     
-                    // Başarılı
-                    currentFile = file;
-                    currentImage = e.target.result;
-                    
-                    showPreview(file, img);
+                    uploadArea.classList.add('has-image');
+                    previewContainer.classList.add('show');
+                    analyzeBtn.disabled = false;
                 };
-                
-                img.onerror = () => {
-                    showError('❌ Görsel okunamadı. Dosya bozuk olabilir.');
-                };
-                
-                img.src = e.target.result;
             };
-            
-            reader.onerror = () => {
-                showError('❌ Dosya okunurken hata oluştu.');
-            };
-            
             reader.readAsDataURL(file);
         }
         
-        // Önizleme göster
-        function showPreview(file, img) {
-            previewImage.src = currentImage;
-            document.getElementById('fileName').textContent = file.name;
-            document.getElementById('fileSize').textContent = 
-                `${(file.size / 1024).toFixed(1)} KB • ${img.width}x${img.height}px`;
-            
-            previewContainer.classList.add('show');
-            uploadArea.classList.add('has-image');
-            uploadArea.style.display = 'none';
-            
-            analyzeBtn.disabled = false;
-            hideError();
-        }
-        
-        // Dosya kaldır
-        function removeFile() {
-            currentFile = null;
+        function removeImage() {
             currentImage = null;
             fileInput.value = '';
-            
-            previewContainer.classList.remove('show');
             uploadArea.classList.remove('has-image');
-            uploadArea.style.display = 'block';
-            
+            previewContainer.classList.remove('show');
             analyzeBtn.disabled = true;
             document.getElementById('result').classList.remove('show');
             hideError();
         }
         
-        // Hata göster
-        function showError(message) {
-            errorMessage.innerHTML = message;
-            errorMessage.classList.add('show');
+        function showError(msg) {
+            const err = document.getElementById('errorMessage');
+            err.textContent = msg;
+            err.classList.add('show');
         }
         
-        // Hata gizle
         function hideError() {
-            errorMessage.classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
         }
         
-        // Analiz
-        function analyze() {
+        // GELİŞMİŞ PLAKA ANALİZİ
+        function analyzePlate() {
             if (!currentImage) return;
             
             document.getElementById('loading').classList.add('show');
             analyzeBtn.disabled = true;
             
             setTimeout(() => {
-                performAnalysis();
+                performAdvancedAnalysis();
                 document.getElementById('loading').classList.remove('show');
                 analyzeBtn.disabled = false;
-            }, 1500);
+            }, 500);
         }
         
-        // Analiz işlemi
-        function performAnalysis() {
+        function performAdvancedAnalysis() {
             const img = previewImage;
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -501,66 +410,243 @@
             canvas.height = img.naturalHeight;
             ctx.drawImage(img, 0, 0);
             
-            try {
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-                
-                // Basit parlaklık analizi
-                let totalBrightness = 0;
-                let darkPixels = 0;
-                let lightPixels = 0;
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    const brightness = (data[i] + data[i+1] + data[i+2]) / 3;
-                    totalBrightness += brightness;
+            const width = canvas.width;
+            const height = canvas.height;
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            
+            // 1. MAVİ TR ŞERİDİ ANALİZİ (Sol kısım)
+            // Mavi: R düşük, G orta, Yüksek
+            const leftStripWidth = width * 0.15;
+            let bluePixels = 0;
+            let totalStripPixels = 0;
+            
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < leftStripWidth; x++) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx], g = data[idx+1], b = data[idx+2];
                     
-                    if (brightness < 50) darkPixels++;
-                    if (brightness > 200) lightPixels++;
+                    // Mavi tespiti: B > R+20 ve B > G+10
+                    if (b > r + 20 && b > g + 10 && b > 100) {
+                        bluePixels++;
+                    }
+                    totalStripPixels++;
+                }
+            }
+            
+            const blueRatio = bluePixels / totalStripPixels;
+            const hasBlueStrip = blueRatio > 0.3;
+            
+            // 2. PLAKA BÖLGESİ ANALİZİ (Orta kısım - beyaz zemin)
+            const plateStartX = width * 0.15;
+            const plateEndX = width * 0.95;
+            const plateStartY = height * 0.2;
+            const plateEndY = height * 0.8;
+            
+            let whitePixels = 0;
+            let blackPixels = 0;
+            let plateTotalPixels = 0;
+            let edgeSharpness = 0;
+            let prevBrightness = 0;
+            
+            for (let y = Math.floor(plateStartY); y < plateEndY; y++) {
+                for (let x = Math.floor(plateStartX); x < plateEndX; x++) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx], g = data[idx+1], b = data[idx+2];
+                    const brightness = (r + g + b) / 3;
+                    
+                    // Beyaz zemin (yüksek parlaklık)
+                    if (brightness > 180 && r > 170 && g > 170 && b > 170) {
+                        whitePixels++;
+                    }
+                    
+                    // Siyah karakterler (düşük parlaklık)
+                    if (brightness < 80) {
+                        blackPixels++;
+                    }
+                    
+                    // Kenar netliği (ani değişimler)
+                    if (prevBrightness > 0) {
+                        const diff = Math.abs(brightness - prevBrightness);
+                        if (diff > 100) edgeSharpness++;
+                    }
+                    prevBrightness = brightness;
+                    
+                    plateTotalPixels++;
+                }
+            }
+            
+            const whiteRatio = whitePixels / plateTotalPixels;
+            const blackRatio = blackPixels / plateTotalPixels;
+            const hasWhiteBackground = whiteRatio > 0.4;
+            const hasBlackCharacters = blackRatio > 0.05;
+            const sharpnessScore = Math.min(100, (edgeSharpness / plateTotalPixels) * 1000);
+            
+            // 3. HOLOGRAM ANALİZİ (Orta şerit - yatay dalgalı desen)
+            const centerY = height / 2;
+            const hologramBand = height * 0.1;
+            let hologramEdges = 0;
+            let hologramVariance = 0;
+            let prevLineBrightness = 0;
+            
+            for (let y = Math.floor(centerY - hologramBand/2); y < centerY + hologramBand/2; y += 2) {
+                let lineBrightness = 0;
+                let linePixels = 0;
+                
+                for (let x = Math.floor(plateStartX); x < plateEndX; x++) {
+                    const idx = (y * width + x) * 4;
+                    const brightness = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+                    lineBrightness += brightness;
+                    linePixels++;
                 }
                 
-                const avgBrightness = totalBrightness / (data.length / 4);
-                const totalPixels = data.length / 4;
-                const contrast = (darkPixels + lightPixels) / totalPixels;
+                const avgLineBrightness = lineBrightness / linePixels;
                 
-                // Sonuç
-                const resultDiv = document.getElementById('result');
-                resultDiv.classList.add('show');
+                if (prevLineBrightness > 0) {
+                    const diff = Math.abs(avgLineBrightness - prevLineBrightness);
+                    if (diff > 15) hologramEdges++;
+                    hologramVariance += diff;
+                }
+                prevLineBrightness = avgLineBrightness;
+            }
+            
+            const hasHologram = hologramEdges > 3 && hologramVariance > 100;
+            
+            // 4. MÜHÜR ANALİZİ (Sol üst köşe - dairesel koyu bölge)
+            const sealSize = Math.min(width, height) * 0.2;
+            let sealDarkPixels = 0;
+            let sealPattern = 0;
+            
+            for (let y = 0; y < sealSize; y += 2) {
+                for (let x = 0; x < sealSize; x += 2) {
+                    const idx = (y * width + x) * 4;
+                    const brightness = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+                    
+                    if (brightness < 100) sealDarkPixels++;
+                    
+                    // Merkeze doğru yoğunluk
+                    const dist = Math.sqrt(x*x + y*y);
+                    if (dist < sealSize * 0.5 && brightness < 120) {
+                        sealPattern++;
+                    }
+                }
+            }
+            
+            const sealArea = (sealSize/2) * (sealSize/2);
+            const hasSeal = (sealDarkPixels / sealArea) > 0.15 || (sealPattern / sealArea) > 0.05;
+            
+            // SKOR HESAPLAMA (Her özellik ağırlıklı)
+            let totalScore = 0;
+            const weights = {
+                blueStrip: 25,    // Mavi TR şeridi çok önemli
+                whiteBg: 20,      // Beyaz zemin
+                blackChars: 15,   // Siyah karakterler
+                sharpness: 15,    // Kenar netliği
+                hologram: 15,     // Hologram
+                seal: 10          // Mühür
+            };
+            
+            const scores = {
+                blueStrip: hasBlueStrip ? weights.blueStrip : 0,
+                whiteBg: hasWhiteBackground ? weights.whiteBg : (whiteRatio > 0.2 ? weights.whiteBg * 0.5 : 0),
+                blackChars: hasBlackCharacters ? weights.blackChars : 0,
+                sharpness: Math.min(weights.sharpness, (sharpnessScore / 100) * weights.sharpness),
+                hologram: hasHologram ? weights.hologram : weights.hologram * 0.3,
+                seal: hasSeal ? weights.seal : weights.seal * 0.3
+            };
+            
+            Object.values(scores).forEach(s => totalScore += s);
+            
+            // DURUM BELİRLEME
+            let status, statusClass, title, message;
+            
+            if (totalScore >= 75 && hasBlueStrip && hasWhiteBackground) {
+                status = 'original';
+                statusClass = 'result-original';
+                title = '✅ ORİJİNAL PLAKA';
+                message = 'Tüm güvenlik özellikleri tespit edildi. Bu plaka TSE ve EGM standartlarına tam uygundur.';
+            } else if (totalScore >= 50 && (hasBlueStrip || hasWhiteBackground)) {
+                status = 'suspicious';
+                statusClass = 'result-suspicious';
+                title = '⚠️ KONTROL GEREKLİ';
+                message = 'Bazı özellikler zayıf veya belirsiz. Daha net fotoğraf çekin veya manuel kontrol yapın.';
+            } else {
+                status = 'fake';
+                statusClass = 'result-fake';
+                title = '❌ SAHTE / STANDART DIŞI';
+                message = 'Güvenlik özellikleri yetersiz. Bu plaka orijinal olmayabilir.';
+            }
+            
+            // SONUÇ GÖSTER
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result show';
+            
+            resultDiv.innerHTML = `
+                <div class="result-header ${statusClass}">
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 10px;">ANALİZ SONUCU</div>
+                    <div class="authenticity-score" style="color: ${status === 'original' ? '#4ade80' : status === 'suspicious' ? '#fbbf24' : '#f87171'}">
+                        %${Math.round(totalScore)}
+                    </div>
+                    <h2 style="margin-bottom: 8px;">${title}</h2>
+                    <p style="font-size: 14px; opacity: 0.9; line-height: 1.5;">${message}</p>
+                </div>
                 
-                const isValid = avgBrightness > 80 && avgBrightness < 220 && contrast > 0.3;
-                
-                resultDiv.innerHTML = `
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <div style="font-size: 48px; margin-bottom: 10px;">${isValid ? '✅' : '⚠️'}</div>
-                        <div style="font-size: 20px; font-weight: 700; color: ${isValid ? '#4ade80' : '#fbbf24'};">
-                            ${isValid ? 'ANALİZ TAMAMLANDI' : 'DÜŞÜK KALİTE'}
+                <div class="features-detailed">
+                    <div class="feature-row ${scores.blueStrip > 20 ? 'pass' : scores.blueStrip > 10 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.blueStrip > 20 ? '✓' : scores.blueStrip > 10 ? '!' : '✗'}</div>
+                        <div class="feature-content">
+                            <div class="feature-title">Mavi TR Şeridi</div>
+                            <div class="feature-desc">${hasBlueStrip ? 'Tespit edildi (%' + Math.round(blueRatio*100) + ')' : 'Zayıf veya yok'}</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.blueStrip/weights.blueStrip)*100}%; background: ${scores.blueStrip > 20 ? '#10b981' : scores.blueStrip > 10 ? '#f59e0b' : '#ef4444'}"></div></div>
                         </div>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
-                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
-                            <div style="color: #94a3b8; font-size: 11px;">Parlaklık</div>
-                            <div style="font-weight: 600; margin-top: 4px;">${avgBrightness.toFixed(0)}/255</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
-                            <div style="color: #94a3b8; font-size: 11px;">Kontrast</div>
-                            <div style="font-weight: 600; margin-top: 4px;">${(contrast * 100).toFixed(0)}%</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
-                            <div style="color: #94a3b8; font-size: 11px;">Boyut</div>
-                            <div style="font-weight: 600; margin-top: 4px;">${canvas.width}x${canvas.height}</div>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
-                            <div style="color: #94a3b8; font-size: 11px;">Durum</div>
-                            <div style="font-weight: 600; margin-top: 4px; color: ${isValid ? '#4ade80' : '#fbbf24'};">
-                                ${isValid ? '✓ Uygun' : '⚠️ Kontrol Et'}
-                            </div>
+                    <div class="feature-row ${scores.whiteBg > 15 ? 'pass' : scores.whiteBg > 8 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.whiteBg > 15 ? '✓' : scores.whiteBg > 8 ? '!' : '✗'}</div>
+                        <div class="feature-content">
+                            <div class="feature-title">Beyaz Zemin</div>
+                            <div class="feature-desc">${hasWhiteBackground ? 'Standart beyaz (%' + Math.round(whiteRatio*100) + ')' : 'Zemin rengi düşük'}</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.whiteBg/weights.whiteBg)*100}%; background: ${scores.whiteBg > 15 ? '#10b981' : scores.whiteBg > 8 ? '#f59e0b' : '#ef4444'}"></div></div>
                         </div>
                     </div>
-                `;
-                
-            } catch (err) {
-                showError('Analiz hatası: ' + err.message);
-            }
+                    
+                    <div class="feature-row ${scores.blackChars > 10 ? 'pass' : scores.blackChars > 5 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.blackChars > 10 ? '✓' : scores.blackChars > 5 ? '!' : '✗'}</div>
+                        <div class="feature-content">
+                            <div class="feature-title">Siyah Karakterler</div>
+                            <div class="feature-desc">${hasBlackCharacters ? 'Net siyah harfler (%' + Math.round(blackRatio*100) + ')' : 'Karakterler belirsiz'}</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.blackChars/weights.blackChars)*100}%; background: ${scores.blackChars > 10 ? '#10b981' : scores.blackChars > 5 ? '#f59e0b' : '#ef4444'}"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-row ${scores.sharpness > 10 ? 'pass' : scores.sharpness > 5 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.sharpness > 10 ? '✓' : scores.sharpness > 5 ? '!' : '✗'}</div>
+                        <div class="feature-content">
+                            <div class="feature-title">Kenar Netliği</div>
+                            <div class="feature-desc">Keskinlik skoru: ${Math.round(sharpnessScore)}/100</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.sharpness/weights.sharpness)*100}%; background: ${scores.sharpness > 10 ? '#10b981' : scores.sharpness > 5 ? '#f59e0b' : '#ef4444'}"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-row ${scores.hologram > 10 ? 'pass' : scores.hologram > 5 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.hologram > 10 ? '✓' : scores.hologram > 5 ? '!' : '✗'}</div>
+                        <div class="feature-content">
+                            <div class="feature-title">Hologram Şeridi</div>
+                            <div class="feature-desc">${hasHologram ? 'Dalgalı desen tespit edildi' : 'Belirsiz veya yok'}</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.hologram/weights.hologram)*100}%; background: ${scores.hologram > 10 ? '#10b981' : scores.hologram > 5 ? '#f59e0b' : '#ef4444'}"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-row ${scores.seal > 7 ? 'pass' : scores.seal > 3 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.seal > 7 ? '✓' : scores.seal > 3 ? '!' : '✗'}</div>
+                        <div class="feature-content">
+                            <div class="feature-title">Mühür/Damga</div>
+                            <div class="feature-desc">${hasSeal ? 'Sol üst mühürü tespit edildi' : 'Mühür belirsiz'}</div>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.seal/weights.seal)*100}%; background: ${scores.seal > 7 ? '#10b981' : scores.seal > 3 ? '#f59e0b' : '#ef4444'}"></div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>
