@@ -3,1660 +3,2158 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plaka Doğrulama Sistemi</title>
+<title>Türk Plaka Doğrulama Sistemi</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans:wght@300;400;600&display=swap');
 
   :root {
-    --bg: #060a10;
-    --bg2: #0c1220;
-    --bg3: #111927;
-    --border: #1e3a5f;
-    --accent: #0a84ff;
-    --accent2: #00d4ff;
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #1e2330;
+    --border2: #252d3d;
+    --accent: #1a6fff;
+    --accent2: #0d4fd4;
     --green: #00e676;
-    --yellow: #ffca28;
-    --red: #ff3d3d;
-    --text: #c8dff5;
-    --text2: #6b8cae;
-    --blue-stripe: #003da5;
+    --yellow: #ffd600;
+    --red: #ff1744;
+    --text: #e8eaf6;
+    --text2: #8892a4;
+    --text3: #4a5568;
+    --blue-stripe: #1565c0;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Exo 2', sans-serif;
+    font-family: 'Noto Sans', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
   }
 
-  /* GRID BG */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(10,132,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(10,132,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .app {
-    position: relative;
-    z-index: 1;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-  }
-
   /* HEADER */
-  header {
+  .header {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0d1526 50%, #0a1020 100%);
+    border-bottom: 1px solid var(--border2);
+    padding: 18px 32px;
     display: flex;
     align-items: center;
-    gap: 18px;
-    margin-bottom: 32px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
   }
 
-  .logo-badge {
-    width: 52px; height: 52px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 0 20px rgba(10,132,255,0.4);
-    flex-shrink: 0;
+  .header-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--accent), #0040aa);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 16px rgba(26,111,255,0.3);
   }
 
-  header h1 {
+  .header-title {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     color: #fff;
   }
 
-  header p {
-    font-size: 12px;
+  .header-subtitle {
+    font-size: 11px;
     color: var(--text2);
-    letter-spacing: 1px;
-    margin-top: 2px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
   }
 
-  .status-dot {
+  .header-badge {
     margin-left: auto;
+    background: rgba(26,111,255,0.15);
+    border: 1px solid rgba(26,111,255,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+  }
+
+  @media (max-width: 1100px) {
+    .main { grid-template-columns: 1fr; }
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    color: var(--green);
-    font-family: 'Share Tech Mono', monospace;
+    gap: 10px;
+    background: rgba(255,255,255,0.02);
   }
 
-  .status-dot::before {
-    content: '';
-    width: 8px; height: 8px;
-    background: var(--green);
+  .card-header-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .card-dot {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    box-shadow: 0 0 8px var(--green);
-    animation: pulse 2s infinite;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
   }
 
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-  /* UPLOAD AREA */
-  .upload-section {
-    background: var(--bg2);
-    border: 2px dashed var(--border);
-    border-radius: 16px;
-    padding: 40px 20px;
+  /* UPLOAD ZONE */
+  .upload-zone {
+    margin: 20px;
+    border: 2px dashed var(--border2);
+    border-radius: 12px;
+    padding: 48px 24px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    background: rgba(26,111,255,0.02);
     position: relative;
     overflow: hidden;
-    margin-bottom: 24px;
   }
 
-  .upload-section:hover,
-  .upload-section.drag-over {
+  .upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(26,111,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .upload-zone:hover {
     border-color: var(--accent);
-    background: rgba(10,132,255,0.05);
+    background: rgba(26,111,255,0.06);
   }
 
-  .upload-section.drag-over { transform: scale(1.01); }
+  .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(26,111,255,0.1);
+    transform: scale(1.01);
+  }
 
   .upload-icon {
     font-size: 48px;
     margin-bottom: 12px;
-    display: block;
+    opacity: 0.7;
   }
 
-  .upload-section h3 {
+  .upload-title {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
-    color: #fff;
     margin-bottom: 6px;
+    color: var(--text);
   }
 
-  .upload-section p {
-    font-size: 13px;
+  .upload-sub {
+    font-size: 12px;
     color: var(--text2);
-    margin-bottom: 16px;
-  }
-
-  .upload-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, var(--accent), #0066cc);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 28px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(10,132,255,0.3);
-  }
-
-  .upload-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(10,132,255,0.5);
+    font-family: 'JetBrains Mono', monospace;
   }
 
   #fileInput { display: none; }
 
-  /* MAIN CANVAS AREA */
-  .workspace {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  @media (max-width: 800px) {
-    .workspace { grid-template-columns: 1fr; }
-  }
-
-  .canvas-panel {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    position: relative;
-  }
-
-  .panel-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    color: var(--text2);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .panel-title::before {
-    content: '';
-    width: 3px; height: 14px;
-    background: var(--accent);
-    border-radius: 2px;
-  }
-
-  #mainCanvas {
-    width: 100%;
+  /* NOT PLATE BANNER */
+  .not-plate-banner {
+    display: none;
+    margin: 0 20px 20px;
+    background: rgba(255,23,68,0.12);
+    border: 1px solid rgba(255,23,68,0.4);
     border-radius: 10px;
-    display: block;
-    background: #080e18;
-  }
-
-  /* TOOLBAR */
-  .toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-  }
-
-  .tb-btn {
-    flex: 1;
-    min-width: 80px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 12px;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.2s;
+    padding: 16px 20px;
     text-align: center;
   }
 
-  .tb-btn:hover { border-color: var(--accent); color: var(--accent2); }
-  .tb-btn.active { background: rgba(10,132,255,0.15); border-color: var(--accent); color: var(--accent2); }
-  .tb-btn.manual-btn { border-color: var(--yellow); color: var(--yellow); }
-  .tb-btn.manual-btn.active { background: rgba(255,202,40,0.15); }
-  .tb-btn.analyze-btn {
-    background: linear-gradient(135deg, var(--accent), #0066cc);
-    border-color: var(--accent);
-    color: #fff;
-    box-shadow: 0 2px 12px rgba(10,132,255,0.3);
+  .not-plate-banner.show { display: block; }
+
+  .not-plate-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
   }
-  .tb-btn.analyze-btn:hover { box-shadow: 0 4px 20px rgba(10,132,255,0.5); transform: translateY(-1px); }
+
+  .not-plate-sub {
+    font-size: 12px;
+    color: rgba(255,23,68,0.7);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* CANVAS CONTAINER */
+  .canvas-container {
+    margin: 0 20px 20px;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+    display: none;
+  }
+
+  .canvas-container.show { display: block; }
+
+  #mainCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+  }
+
+  /* SELECTION OVERLAY INFO */
+  .select-hint {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.75);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(26,111,255,0.3);
+    display: none;
+  }
+
+  .select-hint.show { display: block; }
+
+  /* CONTROLS */
+  .controls {
+    padding: 0 20px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(26,111,255,0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(26,111,255,0.4);
+  }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-danger {
+    background: rgba(255,23,68,0.1);
+    color: var(--red);
+    border: 1px solid rgba(255,23,68,0.3);
+  }
+
+  .btn-danger:hover {
+    background: rgba(255,23,68,0.2);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* FILTER ROW */
+  .filter-row {
+    padding: 0 20px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    display: none;
+  }
+
+  .filter-row.show { display: flex; }
+
+  .filter-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .filter-btn.active {
+    background: rgba(26,111,255,0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .filter-btn:hover:not(.active) {
+    border-color: var(--text3);
+    color: var(--text);
+  }
+
+  /* PROGRESS */
+  .progress-container {
+    margin: 0 20px 20px;
+    display: none;
+  }
+
+  .progress-container.show { display: block; }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar-bg {
+    background: var(--surface2);
+    border-radius: 4px;
+    height: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00e5ff);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.1s ease;
+  }
+
+  /* TILE GRID */
+  .tile-section {
+    padding: 0 20px 20px;
+    display: none;
+  }
+
+  .tile-section.show { display: block; }
+
+  .tile-section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 10px;
+  }
+
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .tile {
+    aspect-ratio: 1;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease;
+  }
+
+  .tile:hover { transform: scale(1.1); z-index: 5; }
+
+  .tile canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+
+  .tile-score {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    font-size: 7px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    background: rgba(0,0,0,0.75);
+    padding: 1px 2px;
+    border-radius: 2px;
+    line-height: 1;
+  }
+
+  /* TILE MODAL */
+  .tile-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+  }
+
+  .tile-modal.show { display: flex; }
+
+  .tile-modal-inner {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 560px;
+    width: 90%;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .tile-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .tile-modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  .tile-modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .tile-modal-close:hover { border-color: var(--red); color: var(--red); }
+
+  #tileZoomCanvas {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  .tile-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .tile-metric {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .tile-metric-label {
+    font-size: 9px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .tile-metric-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
 
   /* RIGHT PANEL */
-  .results-panel {
+  .right-panel {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 20px;
   }
 
-  /* VERDICT BOX */
-  .verdict-box {
-    background: var(--bg2);
+  /* SCORE CARD */
+  .score-card {
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 20px;
+    overflow: hidden;
+  }
+
+  .score-display {
+    padding: 28px 24px;
     text-align: center;
     position: relative;
     overflow: hidden;
   }
 
-  .verdict-box .verd-label {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--text2);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    font-family: 'Share Tech Mono', monospace;
+  .score-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(26,111,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
   }
 
-  .verdict-score {
+  .score-number {
     font-family: 'Rajdhani', sans-serif;
     font-size: 72px;
     font-weight: 700;
     line-height: 1;
+    background: linear-gradient(135deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-percent {
+    font-size: 32px;
+  }
+
+  .score-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 6px;
     margin-bottom: 4px;
   }
 
-  .verdict-text {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
+  .score-label.green { color: var(--green); }
+  .score-label.yellow { color: var(--yellow); }
+  .score-label.red { color: var(--red); }
+  .score-label.default { color: var(--text2); }
+
+  .score-desc {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
   }
 
-  .verdict-box.original { border-color: var(--green); }
-  .verdict-box.original .verdict-score { color: var(--green); text-shadow: 0 0 30px var(--green); }
-  .verdict-box.original .verdict-text { color: var(--green); }
+  /* VERDICT BANNER */
+  .verdict-banner {
+    margin: 0 16px 16px;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    display: none;
+  }
 
-  .verdict-box.warn { border-color: var(--yellow); }
-  .verdict-box.warn .verdict-score { color: var(--yellow); text-shadow: 0 0 30px var(--yellow); }
-  .verdict-box.warn .verdict-text { color: var(--yellow); }
+  .verdict-banner.show { display: flex; }
+  .verdict-banner.green { background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.25); }
+  .verdict-banner.yellow { background: rgba(255,214,0,0.08); border: 1px solid rgba(255,214,0,0.25); }
+  .verdict-banner.red { background: rgba(255,23,68,0.08); border: 1px solid rgba(255,23,68,0.25); }
 
-  .verdict-box.fake { border-color: var(--red); }
-  .verdict-box.fake .verdict-score { color: var(--red); text-shadow: 0 0 30px var(--red); }
-  .verdict-box.fake .verdict-text { color: var(--red); }
+  .verdict-icon { font-size: 24px; }
 
-  .verdict-box.not-plate { border-color: var(--red); }
-  .verdict-box.not-plate .verdict-score { color: var(--red); font-size: 42px; text-shadow: 0 0 20px var(--red); }
-  .verdict-box.not-plate .verdict-text { color: var(--red); font-size: 14px; }
+  .verdict-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
 
-  .verdict-box.idle .verdict-score { color: var(--text2); font-size: 42px; }
-  .verdict-box.idle .verdict-text { color: var(--text2); font-size: 15px; letter-spacing: 1px; }
+  .verdict-text.green { color: var(--green); }
+  .verdict-text.yellow { color: var(--yellow); }
+  .verdict-text.red { color: var(--red); }
 
-  /* METRIC BARS */
-  .metrics-box {
-    background: var(--bg2);
+  /* METRICS LIST */
+  .metrics-list {
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .metric-item {
+    background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 12px 14px;
   }
 
   .metric-row {
-    margin-bottom: 12px;
-  }
-
-  .metric-row:last-child { margin-bottom: 0; }
-
-  .metric-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 5px;
+    justify-content: space-between;
+    margin-bottom: 7px;
   }
 
   .metric-name {
-    font-size: 12px;
     font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
     font-weight: 600;
-    letter-spacing: 0.5px;
     color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  .metric-val {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--accent2);
+  .metric-weight {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .metric-score-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
   }
 
   .metric-bar-bg {
-    height: 5px;
-    background: var(--bg3);
+    background: var(--bg);
     border-radius: 3px;
+    height: 5px;
     overflow: hidden;
   }
 
   .metric-bar-fill {
     height: 100%;
     border-radius: 3px;
-    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    transition: width 0.8s ease;
     width: 0%;
   }
 
-  /* TILES GRID */
-  .tiles-section {
-    background: var(--bg2);
+  .metric-bar-fill.green { background: linear-gradient(90deg, var(--green), #00bfa5); }
+  .metric-bar-fill.yellow { background: linear-gradient(90deg, var(--yellow), #ff8f00); }
+  .metric-bar-fill.red { background: linear-gradient(90deg, var(--red), #d50000); }
+
+  /* RULES PANEL */
+  .rules-panel {
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 16px;
-  }
-
-  #tilesGrid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 2px;
-    margin-top: 10px;
-  }
-
-  .tile-cell {
-    aspect-ratio: 1;
-    border-radius: 2px;
-    cursor: pointer;
-    background: var(--bg3);
-    border: 1px solid transparent;
-    transition: transform 0.15s, border-color 0.15s;
     overflow: hidden;
-    position: relative;
   }
 
-  .tile-cell:hover { transform: scale(1.3); border-color: var(--accent2); z-index: 10; }
-  .tile-cell canvas { width: 100%; height: 100%; display: block; }
-
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    backdrop-filter: blur(4px);
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal-box {
-    background: var(--bg2);
-    border: 1px solid var(--accent);
-    border-radius: 20px;
-    padding: 24px;
-    max-width: 500px;
-    width: 100%;
-    box-shadow: 0 0 60px rgba(10,132,255,0.2);
-    animation: modalIn 0.3s ease;
-  }
-
-  @keyframes modalIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .modal-box h3 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 14px;
+  .rules-list {
+    padding: 12px 16px 16px;
     display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .modal-img-wrap {
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 120px;
-  }
-
-  #modalCanvas { width: 100%; border-radius: 8px; display: block; }
-
-  .modal-metrics {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    flex-direction: column;
     gap: 8px;
-    margin-bottom: 16px;
   }
 
-  .modal-metric {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px;
-    text-align: center;
-  }
-
-  .modal-metric .mm-val {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--accent2);
-  }
-
-  .modal-metric .mm-label {
-    font-size: 10px;
-    color: var(--text2);
-    margin-top: 2px;
-    font-family: 'Rajdhani', sans-serif;
-    letter-spacing: 0.5px;
-  }
-
-  .modal-close {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 10px;
-    padding: 10px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 1px;
-  }
-
-  .modal-close:hover { border-color: var(--accent); color: var(--accent2); }
-
-  /* PROGRESS */
-  .progress-bar {
-    height: 3px;
-    background: var(--bg3);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 8px;
-    display: none;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    transition: width 0.1s linear;
-    width: 0%;
-  }
-
-  /* MANUAL SELECTION HINT */
-  .manual-hint {
-    display: none;
-    background: rgba(255,202,40,0.1);
-    border: 1px solid var(--yellow);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--yellow);
-    margin-top: 10px;
-    font-family: 'Rajdhani', sans-serif;
-    letter-spacing: 0.5px;
-  }
-
-  /* STANDARDS */
-  .standards-box {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 20px;
-  }
-
-  .std-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  .rule-item {
+    display: flex;
     gap: 10px;
-    margin-top: 10px;
-  }
-
-  .std-item {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    align-items: flex-start;
     padding: 10px 12px;
-    font-size: 12px;
-    line-height: 1.6;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
   }
 
-  .std-item strong {
-    display: block;
-    color: var(--accent2);
+  .rule-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .rule-title {
     font-family: 'Rajdhani', sans-serif;
     font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    margin-bottom: 3px;
-  }
-
-  .std-item span { color: var(--text2); }
-
-  /* ENHANCEMENT FILTERS */
-  .filter-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
-  }
-
-  .filter-btn {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-family: 'Rajdhani', sans-serif;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.5px;
+    color: var(--text);
+    margin-bottom: 2px;
   }
 
-  .filter-btn:hover { border-color: var(--accent); color: var(--accent2); }
-  .filter-btn.active { background: rgba(10,132,255,0.15); border-color: var(--accent); color: var(--accent2); }
-
-  /* SCAN LINE ANIM */
-  @keyframes scanDown {
-    0% { top: 0; opacity: 1; }
-    100% { top: 100%; opacity: 0; }
-  }
-
-  .scan-line {
-    position: absolute;
-    left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
-    pointer-events: none;
-    display: none;
-  }
-
-  .scan-line.active {
-    display: block;
-    animation: scanDown 1.5s linear infinite;
-  }
-
-  /* VERSION BADGE */
-  .version-tag {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
+  .rule-desc {
+    font-size: 11px;
     color: var(--text2);
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 2px 6px;
-    margin-left: auto;
+    line-height: 1.5;
   }
+
+  /* THRESHOLD LEGEND */
+  .threshold-legend {
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .threshold-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .threshold-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 52px;
+  }
+
+  .threshold-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .t-green .threshold-pct, .t-green .threshold-label { color: var(--green); }
+  .t-yellow .threshold-pct, .t-yellow .threshold-label { color: var(--yellow); }
+  .t-red .threshold-pct, .t-red .threshold-label { color: var(--red); }
+
+  /* DETECTION BOX OVERLAY */
+  .detection-info {
+    margin: 0 20px 16px;
+    display: none;
+    padding: 10px 14px;
+    background: rgba(26,111,255,0.08);
+    border: 1px solid rgba(26,111,255,0.25);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  .detection-info.show { display: block; }
+
+  /* LOADING SPINNER */
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .main { padding: 12px; gap: 16px; }
+    .score-number { font-size: 56px; }
+    .tile-grid { grid-template-columns: repeat(10, 1fr); }
+  }
+
+  .empty-state {
+    padding: 20px;
+    text-align: center;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  /* Plate preview box */
+  .plate-preview-wrap {
+    margin: 0 20px 16px;
+    display: none;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border2);
+  }
+
+  .plate-preview-wrap.show { display: block; }
+
+  .plate-preview-label {
+    background: rgba(26,111,255,0.1);
+    padding: 6px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #platePreviewCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #000;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  .manual-hint {
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.82);
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    border: 1px solid rgba(255,214,0,0.3);
+    pointer-events: none;
+  }
+
+  .manual-hint.show { display: block; }
 </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- HEADER -->
-  <header>
-    <div class="logo-badge">🚗</div>
-    <div>
-      <h1>PLAKA DOĞRULAMA SİSTEMİ</h1>
-      <p>TÜRKİYE RESMİ PLAKA STANDARTLARI BAZLI ANALİZ</p>
-    </div>
-    <div class="status-dot">SİSTEM AKTİF</div>
-    <span class="version-tag">v4.0</span>
-  </header>
-
-  <!-- STANDARDS -->
-  <div class="standards-box">
-    <div class="panel-title">TÜRKİYE RESMİ PLAKA STANDARTLARI</div>
-    <div class="std-grid">
-      <div class="std-item">
-        <strong>📐 Boyutlar</strong>
-        <span>520×110 mm · Oran 4.72:1 · Kabartma 1-3 mm</span>
-      </div>
-      <div class="std-item">
-        <strong>🔵 Mavi TR Şeridi</strong>
-        <span>Sol, ~52mm genişlik · AB yıldızları · TR yazısı · Beyaz reflektif</span>
-      </div>
-      <div class="std-item">
-        <strong>🔒 Hologram Şeridi</strong>
-        <span>Alt kenarda · TŞOF logosu · Dalgalı desen · Kırılmaz yapı</span>
-      </div>
-      <div class="std-item">
-        <strong>⭕ TŞOF Mührü</strong>
-        <span>Sol üstte · Kabartmalı · Resmi onay damgası</span>
-      </div>
-      <div class="std-item">
-        <strong>🔡 Karakterler</strong>
-        <span>Standart font · Siyah kabartmalı · 2 harf + 3 rakam + 2 harf</span>
-      </div>
-      <div class="std-item">
-        <strong>⚠️ Eşikler</strong>
-        <span>≥%70 Orijinal · %40-69 Kontrol · &lt;%40 Sahte/Standart Dışı</span>
-      </div>
-    </div>
+<div class="header">
+  <div class="header-icon">🔍</div>
+  <div>
+    <div class="header-title">PLAKA ANALİZ SİSTEMİ</div>
+    <div class="header-subtitle">Türkiye · TC Emniyet Standartları · TŞOF</div>
   </div>
-
-  <!-- UPLOAD -->
-  <div class="upload-section" id="uploadArea">
-    <span class="upload-icon">📤</span>
-    <h3>Plaka Fotoğrafı Yükle</h3>
-    <p>JPG, PNG, WEBP · Sürükle & Bırak veya tıkla · Maks 10MB</p>
-    <button class="upload-btn" type="button" id="uploadTrigger">
-      📁 Dosya Seç
-    </button>
-    <input type="file" id="fileInput" accept="image/*">
-  </div>
-
-  <!-- WORKSPACE -->
-  <div class="workspace" id="workspace" style="display:none">
-
-    <!-- LEFT: CANVAS -->
-    <div class="canvas-panel">
-      <div class="panel-title">GÖRÜNTÜ ANALİZİ</div>
-      <div style="position:relative;">
-        <canvas id="mainCanvas"></canvas>
-        <div class="scan-line" id="scanLine"></div>
-      </div>
-      <div class="manual-hint" id="manualHint">
-        ✏️ Fare ile plaka bölgesini seçin → Tıklayıp sürükleyin, bırakınca analiz başlar
-      </div>
-      <div class="toolbar">
-        <button class="tb-btn manual-btn" id="btnManual" onclick="toggleManualMode()">✏️ Manuel Seçim</button>
-        <button class="tb-btn" onclick="autoDetect()">🎯 Oto Tespit</button>
-        <button class="tb-btn analyze-btn" onclick="runFullAnalysis()">🔍 Analiz Et</button>
-      </div>
-      <!-- FILTERS -->
-      <div style="margin-top:12px;">
-        <div class="panel-title" style="margin-bottom:6px;">GÖRSEL İYİLEŞTİRME</div>
-        <div class="filter-row">
-          <button class="filter-btn active" onclick="applyFilter('original',this)">Orijinal</button>
-          <button class="filter-btn" onclick="applyFilter('auto',this)">Oto İyileştir</button>
-          <button class="filter-btn" onclick="applyFilter('contrast',this)">Kontrast</button>
-          <button class="filter-btn" onclick="applyFilter('sharpen',this)">Keskinleştir</button>
-          <button class="filter-btn" onclick="applyFilter('hologram',this)">Hologram</button>
-          <button class="filter-btn" onclick="applyFilter('blue',this)">Mavi Odak</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT: RESULTS -->
-    <div class="results-panel">
-
-      <!-- VERDICT -->
-      <div class="verdict-box idle" id="verdictBox">
-        <div class="verd-label">DOĞRULAMA SONUCU</div>
-        <div class="verdict-score" id="verdictScore">—</div>
-        <div class="verdict-text" id="verdictText">Analiz bekleniyor</div>
-      </div>
-
-      <!-- METRICS -->
-      <div class="metrics-box">
-        <div class="panel-title">DETAYLI METRİKLER</div>
-        <div id="metricsContainer">
-          <div class="metric-row">
-            <div class="metric-header"><span class="metric-name">🔵 Mavi TR Şeridi</span><span class="metric-val" id="mBlue">—</span></div>
-            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barBlue" style="background:var(--accent)"></div></div>
-          </div>
-          <div class="metric-row">
-            <div class="metric-header"><span class="metric-name">⬜ Beyaz Zemin</span><span class="metric-val" id="mWhite">—</span></div>
-            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barWhite" style="background:#ddd"></div></div>
-          </div>
-          <div class="metric-row">
-            <div class="metric-header"><span class="metric-name">🔤 Siyah Karakterler</span><span class="metric-val" id="mChar">—</span></div>
-            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barChar" style="background:#888"></div></div>
-          </div>
-          <div class="metric-row">
-            <div class="metric-header"><span class="metric-name">✨ Hologram Şeridi</span><span class="metric-val" id="mHolo">—</span></div>
-            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barHolo" style="background:linear-gradient(90deg,#f90,#ff0,#0f0,#0ff,#f0f)"></div></div>
-          </div>
-          <div class="metric-row">
-            <div class="metric-header"><span class="metric-name">⭕ TŞOF Mührü</span><span class="metric-val" id="mSeal">—</span></div>
-            <div class="metric-bar-bg"><div class="metric-bar-fill" id="barSeal" style="background:var(--green)"></div></div>
-          </div>
-        </div>
-        <div class="progress-bar" id="progressBar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
-
-      <!-- TILES -->
-      <div class="tiles-section">
-        <div class="panel-title">100 BÖLGE TARAMASI</div>
-        <div id="tilesGrid"></div>
-      </div>
-
-    </div>
-  </div>
-
+  <div class="header-badge">v4.0 · PRO</div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="tileModal">
-  <div class="modal-box">
-    <h3>🔍 <span id="modalTitle">Bölge Detayı</span></h3>
-    <div class="modal-img-wrap">
-      <canvas id="modalCanvas"></canvas>
+<div class="main">
+  <!-- LEFT: Upload + Analysis -->
+  <div>
+    <!-- Upload Card -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-dot"></div>
+        <span class="card-header-title">Görsel Yükle</span>
+      </div>
+
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">Plaka Fotoğrafı Yükle</div>
+        <div class="upload-sub">Sürükle & Bırak veya Tıkla · JPG PNG WEBP · Max 20MB</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+
+      <!-- Not Plate Banner -->
+      <div class="not-plate-banner" id="notPlateBanner">
+        <div class="not-plate-title">⛔ BU BİR PLAKA GÖRSELİ DEĞİL</div>
+        <div class="not-plate-sub">Yüklenen görsel, bir araç plakası içermiyor veya tanımlanamıyor.</div>
+        <div class="not-plate-sub" style="margin-top:4px;color:rgba(255,23,68,0.5)">Analiz Skoru: %0 · Doğrulama Başarısız</div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="mainCanvas"></canvas>
+        <div class="select-hint" id="selectHint">✏️ MANUEL SEÇİM MODU — Fare ile plaka bölgesini çizin</div>
+        <div class="manual-hint" id="manualHint">🖱️ Plaka bölgesini sürükleyerek seçin</div>
+      </div>
+
+      <!-- Plate Preview -->
+      <div class="plate-preview-wrap" id="platePreviewWrap">
+        <div class="plate-preview-label">🎯 Tespit Edilen Plaka Bölgesi</div>
+        <canvas id="platePreviewCanvas"></canvas>
+      </div>
+
+      <!-- Detection info -->
+      <div class="detection-info" id="detectionInfo"></div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn btn-primary" id="btnUpload">
+          <span>📂</span> Fotoğraf Yükle
+        </button>
+        <button class="btn btn-secondary" id="btnAutoDetect" disabled>
+          <span>🎯</span> Otomatik Tespit
+        </button>
+        <button class="btn btn-secondary" id="btnManualSelect" disabled>
+          <span>✏️</span> Manuel Seçim
+        </button>
+        <button class="btn btn-danger" id="btnReset" disabled>
+          <span>🗑️</span> Temizle
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-row" id="filterRow">
+        <button class="filter-btn active" data-filter="original">Orijinal</button>
+        <button class="filter-btn" data-filter="auto">Otomatik</button>
+        <button class="filter-btn" data-filter="contrast">Kontrast</button>
+        <button class="filter-btn" data-filter="sharpen">Keskinleştir</button>
+        <button class="filter-btn" data-filter="hologram">Hologram</button>
+        <button class="filter-btn" data-filter="blue">Mavi Odak</button>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-label" id="progressLabel">Analiz ediliyor...</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+      </div>
     </div>
-    <div class="modal-metrics" id="modalMetrics"></div>
-    <button class="modal-close" onclick="closeTileModal()">✕ Kapat</button>
+
+    <!-- Tile Grid Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot" style="background:var(--yellow);box-shadow:0 0 8px var(--yellow)"></div>
+        <span class="card-header-title">100 Bölge Detay Taraması</span>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">Tile'a tıkla → Net zoom</span>
+      </div>
+
+      <div class="tile-section show" id="tileSection">
+        <div class="empty-state" id="tileEmpty">Plaka tespit edildikten sonra bölge taraması yapılır.</div>
+        <div class="tile-grid" id="tileGrid" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Score Card -->
+    <div class="score-card">
+      <div class="card-header">
+        <div class="card-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>
+        <span class="card-header-title">Uyumluluk Skoru</span>
+      </div>
+
+      <div class="score-display">
+        <div class="score-number" id="scoreNumber">—</div>
+        <div class="score-label default" id="scoreLabel">ANALİZ BEKLENİYOR</div>
+        <div class="score-desc" id="scoreDesc">Plaka fotoğrafı yükleyin</div>
+      </div>
+
+      <div class="verdict-banner" id="verdictBanner">
+        <div class="verdict-icon" id="verdictIcon"></div>
+        <div class="verdict-text" id="verdictText"></div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-list" id="metricsList">
+        <div class="empty-state">Analiz sonuçları burada görünecek.</div>
+      </div>
+    </div>
+
+    <!-- Threshold Legend -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot" style="background:#9c27b0;box-shadow:0 0 8px #9c27b0"></div>
+        <span class="card-header-title">Sınıflandırma Eşikleri</span>
+      </div>
+      <div class="threshold-legend">
+        <div class="threshold-item t-green">
+          <div class="threshold-pct">%70 ↑</div>
+          <div>
+            <div class="threshold-label">✅ ORİJİNAL PLAKA</div>
+            <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">Tüm güvenlik özellikleri doğrulandı</div>
+          </div>
+        </div>
+        <div class="threshold-item t-yellow">
+          <div class="threshold-pct">%40–%69</div>
+          <div>
+            <div class="threshold-label">⚠️ KONTROL GEREKLİ</div>
+            <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">Bazı özellikler zayıf veya eksik</div>
+          </div>
+        </div>
+        <div class="threshold-item t-red">
+          <div class="threshold-pct">%39 ↓</div>
+          <div>
+            <div class="threshold-label">❌ STANDART DIŞI</div>
+            <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">Plaka sahte veya ağır hasarlı</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rules Panel -->
+    <div class="rules-panel">
+      <div class="card-header">
+        <div class="card-dot" style="background:var(--yellow);box-shadow:0 0 8px var(--yellow)"></div>
+        <span class="card-header-title">Resmi Plaka Standartları</span>
+      </div>
+      <div class="rules-list">
+        <div class="rule-item">
+          <div class="rule-icon">🟦</div>
+          <div>
+            <div class="rule-title">Mavi TR Şeridi</div>
+            <div class="rule-desc">Plakanın sol kenarında mavi renkte "TR" yazısı ve Avrupa yıldızları bulunmalıdır. Emniyet Genel Müdürlüğü zorunlu kılar.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">🔲</div>
+          <div>
+            <div class="rule-title">Beyaz Zemin + Siyah Karakter</div>
+            <div class="rule-desc">Ana plaka zemini beyaz, harf ve rakamlar siyah, kabartmalı (1-3 mm) olmalıdır. KTY Yönetmeliği Madde 20.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">✨</div>
+          <div>
+            <div class="rule-title">TŞOF Hologram Şeridi</div>
+            <div class="rule-desc">Plaka alt kısmında TŞOF güvenlik hologramı ve mühür şeridi zorunludur. Sahte plakalarda bu özellik yoktur.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">🔵</div>
+          <div>
+            <div class="rule-title">TŞOF Mührü</div>
+            <div class="rule-desc">Tüm resmi plakalarda Türkiye Şoförler ve Otomobilciler Federasyonu üretim mührü bulunur.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">📐</div>
+          <div>
+            <div class="rule-title">Standart Boyut: 520×110 mm</div>
+            <div class="rule-desc">Türk araç plakaları 520 mm genişlik, 110 mm yükseklik standardındadır. En/boy oranı ≈ 4.72:1.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-icon">🔤</div>
+          <div>
+            <div class="rule-title">Standart Yazı Tipi</div>
+            <div class="rule-desc">Karakter fontu Emniyet tarafından belirlenen özel plaka yazı tipidir. APP plakalarda font farklı ve kalındır.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tile Zoom Modal -->
+<div class="tile-modal" id="tileModal">
+  <div class="tile-modal-inner">
+    <div class="tile-modal-header">
+      <div class="tile-modal-title" id="tileModalTitle">Bölge Detayı</div>
+      <button class="tile-modal-close" id="tileModalClose">✕</button>
+    </div>
+    <canvas id="tileZoomCanvas"></canvas>
+    <div class="tile-metrics" id="tileMetrics"></div>
   </div>
 </div>
 
 <script>
-// ============================================================
-// STATE
-// ============================================================
-let rawImg = null;
-let rawImageData = null;
-let plateRect = null;   // {x,y,w,h} in canvas coords
-let manualMode = false;
-let drag = {active:false,sx:0,sy:0,ex:0,ey:0};
+// ========== STATE ==========
+let originalImage = null;
+let displayImage = null;
+let plateRegion = null; // {x,y,w,h} in original image coords
+let isManualMode = false;
+let manualStart = null;
+let manualRect = null;
 let currentFilter = 'original';
-let tileData = [];      // store each tile's imageData for modal
+let isPlate = false;
+let analysisResult = null;
 
-const canvas = document.getElementById('mainCanvas');
-const ctx = canvas.getContext('2d');
-const modalCanvas = document.getElementById('modalCanvas');
-const modalCtx = modalCanvas.getContext('2d');
-
-// ============================================================
-// FILE UPLOAD — THREE SEPARATE WAYS TO TRIGGER
-// ============================================================
+// ========== DOM ==========
+const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
-const uploadArea = document.getElementById('uploadArea');
-const uploadTrigger = document.getElementById('uploadTrigger');
+const mainCanvas = document.getElementById('mainCanvas');
+const ctx = mainCanvas.getContext('2d');
+const platePreviewCanvas = document.getElementById('platePreviewCanvas');
+const pCtx = platePreviewCanvas.getContext('2d');
+const canvasContainer = document.getElementById('canvasContainer');
+const notPlateBanner = document.getElementById('notPlateBanner');
+const platePreviewWrap = document.getElementById('platePreviewWrap');
+const detectionInfo = document.getElementById('detectionInfo');
+const selectHint = document.getElementById('selectHint');
+const manualHint = document.getElementById('manualHint');
+const filterRow = document.getElementById('filterRow');
+const progressContainer = document.getElementById('progressContainer');
+const progressLabel = document.getElementById('progressLabel');
+const progressFill = document.getElementById('progressFill');
+const tileGrid = document.getElementById('tileGrid');
+const tileEmpty = document.getElementById('tileEmpty');
+const tileModal = document.getElementById('tileModal');
+const tileModalTitle = document.getElementById('tileModalTitle');
+const tileZoomCanvas = document.getElementById('tileZoomCanvas');
+const tileMetrics = document.getElementById('tileMetrics');
+const btnUpload = document.getElementById('btnUpload');
+const btnAutoDetect = document.getElementById('btnAutoDetect');
+const btnManualSelect = document.getElementById('btnManualSelect');
+const btnReset = document.getElementById('btnReset');
+const scoreNumber = document.getElementById('scoreNumber');
+const scoreLabel = document.getElementById('scoreLabel');
+const scoreDesc = document.getElementById('scoreDesc');
+const verdictBanner = document.getElementById('verdictBanner');
+const verdictIcon = document.getElementById('verdictIcon');
+const verdictText = document.getElementById('verdictText');
+const metricsList = document.getElementById('metricsList');
 
-// Method 1: Button click (most reliable)
-uploadTrigger.addEventListener('click', function(e){
-  e.stopPropagation();
-  fileInput.click();
-});
+// ========== UPLOAD ==========
+btnUpload.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('click', () => fileInput.click());
 
-// Method 2: Area click (excluding button to avoid double trigger)
-uploadArea.addEventListener('click', function(e){
-  if(e.target !== uploadTrigger && !uploadTrigger.contains(e.target)){
-    fileInput.click();
-  }
-});
-
-// Method 3: Drag & Drop
-uploadArea.addEventListener('dragover', function(e){
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
   e.preventDefault();
-  uploadArea.classList.add('drag-over');
-});
-uploadArea.addEventListener('dragleave', function(){
-  uploadArea.classList.remove('drag-over');
-});
-uploadArea.addEventListener('drop', function(e){
-  e.preventDefault();
-  uploadArea.classList.remove('drag-over');
-  const files = e.dataTransfer.files;
-  if(files && files.length > 0) loadFile(files[0]);
+  uploadZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
 });
 
-// File input change
-fileInput.addEventListener('change', function(){
-  if(this.files && this.files.length > 0){
-    loadFile(this.files[0]);
-  }
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) loadFile(fileInput.files[0]);
+  fileInput.value = '';
 });
 
-function loadFile(file){
-  if(!file) return;
-  if(!file.type.startsWith('image/')){
-    alert('Lütfen geçerli bir görüntü dosyası seçin (JPG, PNG, WEBP).');
-    return;
-  }
-  if(file.size > 10 * 1024 * 1024){
-    alert('Dosya boyutu 10MB\'ı aşıyor.');
-    return;
-  }
+function loadFile(file) {
+  if (!file.type.startsWith('image/')) { alert('Lütfen geçerli bir görsel dosyası seçin.'); return; }
+  if (file.size > 20 * 1024 * 1024) { alert('Dosya 20MB\'den büyük olamaz.'); return; }
+
   const reader = new FileReader();
-  reader.onload = function(e){
+  reader.onload = e => {
     const img = new Image();
-    img.onload = function(){
-      rawImg = img;
-      initCanvas(img);
-      document.getElementById('workspace').style.display = 'grid';
-      uploadArea.style.display = 'none';
+    img.onload = () => {
+      originalImage = img;
+      displayImage = null;
+      plateRegion = null;
+      isManualMode = false;
+      isPlate = false;
+      analysisResult = null;
+
+      resetUI();
+      drawImageOnCanvas(img);
+
+      // Check if plate
+      const check = checkIfPlate(img);
+      if (!check.isPlate) {
+        showNotPlate();
+        return;
+      }
+
+      // Show image
+      notPlateBanner.classList.remove('show');
+      canvasContainer.classList.add('show');
+      filterRow.classList.add('show');
+      btnAutoDetect.disabled = false;
+      btnManualSelect.disabled = false;
+      btnReset.disabled = false;
+
+      // Auto detect
+      autoDetect();
     };
-    img.onerror = function(){
-      alert('Görüntü yüklenirken hata oluştu.');
-    };
+    img.onerror = () => alert('Görsel yüklenemedi.');
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-// ============================================================
-// CANVAS INIT
-// ============================================================
-function initCanvas(img){
-  const maxW = canvas.parentElement.clientWidth - 32;
-  const scale = Math.min(1, maxW / img.width);
-  canvas.width  = Math.round(img.width  * scale);
-  canvas.height = Math.round(img.height * scale);
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  rawImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  plateRect = null;
-  resetVerdict();
-  setupManualEvents();
+function resetUI() {
+  notPlateBanner.classList.remove('show');
+  canvasContainer.classList.remove('show');
+  filterRow.classList.remove('show');
+  platePreviewWrap.classList.remove('show');
+  detectionInfo.classList.remove('show');
+  selectHint.classList.remove('show');
+  manualHint.classList.remove('show');
+  progressContainer.classList.remove('show');
+  verdictBanner.classList.remove('show');
+  tileGrid.style.display = 'none';
+  tileEmpty.style.display = 'block';
+  tileGrid.innerHTML = '';
+  metricsList.innerHTML = '<div class="empty-state">Analiz sonuçları burada görünecek.</div>';
+  scoreNumber.textContent = '—';
+  scoreLabel.textContent = 'ANALİZ BEKLENİYOR';
+  scoreLabel.className = 'score-label default';
+  scoreDesc.textContent = 'Plaka fotoğrafı yükleyin';
+  btnAutoDetect.disabled = true;
+  btnManualSelect.disabled = true;
+  btnReset.disabled = true;
+  currentFilter = 'original';
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === 'original');
+  });
 }
 
-// ============================================================
-// DRAW IMAGE (with current filter + plate rect overlay)
-// ============================================================
-function redraw(filter){
-  if(!rawImageData) return;
-  const processed = applyImageFilter(rawImageData, filter || currentFilter);
-  ctx.putImageData(processed, 0, 0);
-  if(plateRect) drawPlateRect(plateRect);
-  if(drag.active) drawDragRect();
+function showNotPlate() {
+  notPlateBanner.classList.add('show');
+  canvasContainer.classList.add('show');
+  btnReset.disabled = false;
+  scoreNumber.textContent = '%0';
+  scoreLabel.textContent = 'PLAKA DEĞİL';
+  scoreLabel.className = 'score-label red';
+  scoreDesc.textContent = 'Bu bir plaka görseli değil';
+  verdictBanner.className = 'verdict-banner show red';
+  verdictIcon.textContent = '⛔';
+  verdictText.className = 'verdict-text red';
+  verdictText.textContent = 'BU BİR PLAKA GÖRSELİ DEĞİL — Skor: %0';
 }
 
-function drawPlateRect(r){
-  ctx.save();
-  ctx.strokeStyle = '#00e676';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([6,3]);
-  ctx.strokeRect(r.x, r.y, r.w, r.h);
-  ctx.setLineDash([]);
-  // label
-  ctx.fillStyle = '#00e676';
-  ctx.font = 'bold 12px "Rajdhani",sans-serif';
-  const tag = '▶ PLAKA BÖLGESİ';
-  const tagY = r.y > 20 ? r.y - 6 : r.y + 18;
-  ctx.fillText(tag, r.x + 2, tagY);
-  ctx.restore();
-}
+// ========== PLATE DETECTION ==========
+function checkIfPlate(img) {
+  // Draw to offscreen
+  const oc = document.createElement('canvas');
+  const scale = Math.min(1, 400 / img.width);
+  oc.width = Math.round(img.width * scale);
+  oc.height = Math.round(img.height * scale);
+  const ox = oc.getContext('2d');
+  ox.drawImage(img, 0, 0, oc.width, oc.height);
+  const id = ox.getImageData(0, 0, oc.width, oc.height);
+  const d = id.data;
 
-function drawDragRect(){
-  const x = Math.min(drag.sx, drag.ex);
-  const y = Math.min(drag.sy, drag.ey);
-  const w = Math.abs(drag.ex - drag.sx);
-  const h = Math.abs(drag.ey - drag.sy);
-  ctx.save();
-  ctx.strokeStyle = '#ffca28';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([4,3]);
-  ctx.strokeRect(x, y, w, h);
-  ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,202,40,0.08)';
-  ctx.fillRect(x, y, w, h);
-  ctx.restore();
-}
+  let blue = 0, white = 0, black = 0, total = 0;
 
-// ============================================================
-// IMAGE FILTERS
-// ============================================================
-function applyImageFilter(src, mode){
-  const dst = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
-  const d = dst.data;
-  const w = dst.width, h = dst.height;
-
-  if(mode === 'original') return dst;
-
-  if(mode === 'auto'){
-    // Auto levels: find min/max per channel
-    let rMin=255,rMax=0,gMin=255,gMax=0,bMin=255,bMax=0;
-    for(let i=0;i<d.length;i+=4){
-      rMin=Math.min(rMin,d[i]);   rMax=Math.max(rMax,d[i]);
-      gMin=Math.min(gMin,d[i+1]); gMax=Math.max(gMax,d[i+1]);
-      bMin=Math.min(bMin,d[i+2]); bMax=Math.max(bMax,d[i+2]);
-    }
-    for(let i=0;i<d.length;i+=4){
-      d[i]   = rMax>rMin ? clamp((d[i]  -rMin)/(rMax-rMin)*255) : d[i];
-      d[i+1] = gMax>gMin ? clamp((d[i+1]-gMin)/(gMax-gMin)*255) : d[i+1];
-      d[i+2] = bMax>bMin ? clamp((d[i+2]-bMin)/(bMax-bMin)*255) : d[i+2];
-      // S-curve
-      d[i]   = sCurve(d[i]);
-      d[i+1] = sCurve(d[i+1]);
-      d[i+2] = sCurve(d[i+2]);
-    }
-    return dst;
-  }
-
-  if(mode === 'contrast'){
-    const factor = 2.0;
-    for(let i=0;i<d.length;i+=4){
-      d[i]   = clamp(factor*(d[i]  -128)+128);
-      d[i+1] = clamp(factor*(d[i+1]-128)+128);
-      d[i+2] = clamp(factor*(d[i+2]-128)+128);
-    }
-    return dst;
-  }
-
-  if(mode === 'sharpen'){
-    // Unsharp mask via convolution
-    const kernel = [0,-1,0,-1,5,-1,0,-1,0];
-    return convolve(src, kernel, 1);
-  }
-
-  if(mode === 'hologram'){
-    // Amplify saturation + boost contrast
-    for(let i=0;i<d.length;i+=4){
-      const [h2,s2,v2] = rgbToHsv(d[i],d[i+1],d[i+2]);
-      const newS = Math.min(1, s2 * 2.5);
-      const [r,g,b] = hsvToRgb(h2, newS, v2);
-      d[i]   = clamp(r * 1.1);
-      d[i+1] = clamp(g * 1.1);
-      d[i+2] = clamp(b * 1.1);
-    }
-    return dst;
-  }
-
-  if(mode === 'blue'){
-    // Amplify blue hue range, desaturate rest
-    for(let i=0;i<d.length;i+=4){
-      const [hv,sv,vv] = rgbToHsv(d[i],d[i+1],d[i+2]);
-      const isBlue = hv>=185 && hv<=275 && sv>0.08;
-      if(isBlue){
-        const newS = Math.min(1, sv * 3);
-        const newV = Math.min(1, vv * 1.3);
-        const [r,g,b] = hsvToRgb(hv, newS, newV);
-        d[i]=r; d[i+1]=g; d[i+2]=b;
-      } else {
-        const gray = 0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-        d[i]=gray; d[i+1]=gray; d[i+2]=gray;
-      }
-    }
-    return dst;
-  }
-
-  return dst;
-}
-
-function convolve(src, kernel, divisor){
-  const dst = new ImageData(new Uint8ClampedArray(src.data), src.width, src.height);
-  const w = src.width, h = src.height;
-  const s = src.data, d = dst.data;
-  for(let y=1;y<h-1;y++){
-    for(let x=1;x<w-1;x++){
-      for(let c=0;c<3;c++){
-        let sum=0;
-        let ki=0;
-        for(let ky=-1;ky<=1;ky++){
-          for(let kx=-1;kx<=1;kx++){
-            const idx=((y+ky)*w+(x+kx))*4+c;
-            sum+=s[idx]*kernel[ki++];
-          }
-        }
-        d[(y*w+x)*4+c]=clamp(sum/divisor);
-      }
-    }
-  }
-  return dst;
-}
-
-function sCurve(v){
-  const t = v/255;
-  return clamp((-2*t*t*t + 3*t*t)*255);
-}
-function clamp(v){ return Math.max(0,Math.min(255,Math.round(v))); }
-
-// ============================================================
-// COLOR UTILS
-// ============================================================
-function rgbToHsv(r,g,b){
-  r/=255; g/=255; b/=255;
-  const max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
-  let h=0,s=max===0?0:d/max,v=max;
-  if(d!==0){
-    if(max===r) h=(g-b)/d+(g<b?6:0);
-    else if(max===g) h=(b-r)/d+2;
-    else h=(r-g)/d+4;
-    h*=60;
-  }
-  return [h,s,v];
-}
-
-function hsvToRgb(h,s,v){
-  let r,g,b;
-  const i=Math.floor(h/60)%6;
-  const f=h/60-Math.floor(h/60);
-  const p=v*(1-s),q=v*(1-f*s),t2=v*(1-(1-f)*s);
-  if(i===0){r=v;g=t2;b=p;}
-  else if(i===1){r=q;g=v;b=p;}
-  else if(i===2){r=p;g=v;b=t2;}
-  else if(i===3){r=p;g=q;b=v;}
-  else if(i===4){r=t2;g=p;b=v;}
-  else{r=v;g=p;b=q;}
-  return [r*255,g*255,b*255];
-}
-
-// ============================================================
-// FILTER BUTTON
-// ============================================================
-function applyFilter(mode, btn){
-  currentFilter = mode;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  redraw(mode);
-}
-
-// ============================================================
-// AUTO PLATE DETECTION (improved)
-// ============================================================
-function autoDetect(){
-  if(!rawImageData){ alert('Önce fotoğraf yükleyin.'); return; }
-  const d = rawImageData.data;
-  const W = rawImageData.width, H = rawImageData.height;
-
-  // --- Step 1: Blue column density scan (full image, focused on left 40%)
-  const searchW = Math.floor(W * 0.5);
-  const colBlue = new Float32Array(searchW);
-
-  for(let y=0; y<H; y++){
-    for(let x=0; x<searchW; x++){
-      const i=(y*W+x)*4;
-      const r=d[i],g=d[i+1],b=d[i+2];
-      const [hv,sv,vv]=rgbToHsv(r,g,b);
-      if(hv>=185 && hv<=275 && sv>0.08 && vv>0.08){
-        colBlue[x]++;
-      }
-    }
-  }
-
-  // Find best blue cluster (sliding window of ~10% width)
-  const winW = Math.max(3, Math.floor(W * 0.08));
-  let bestScore = 0, bestX = 0;
-  for(let x=0; x<searchW-winW; x++){
-    let s=0; for(let j=0;j<winW;j++) s+=colBlue[x+j];
-    if(s>bestScore){ bestScore=s; bestX=x; }
-  }
-
-  // --- Step 2: Find row range of blue cluster
-  let blueRowMin=H, blueRowMax=0;
-  let blueFound = bestScore > (H * winW * 0.015); // threshold 1.5%
-
-  if(blueFound){
-    for(let y=0;y<H;y++){
-      let rowBlue=0;
-      for(let x=bestX;x<Math.min(bestX+winW,W);x++){
-        const i=(y*W+x)*4;
-        const [hv,sv,vv]=rgbToHsv(d[i],d[i+1],d[i+2]);
-        if(hv>=185&&hv<=275&&sv>0.08&&vv>0.08) rowBlue++;
-      }
-      if(rowBlue>winW*0.12){
-        blueRowMin=Math.min(blueRowMin,y);
-        blueRowMax=Math.max(blueRowMax,y);
-      }
-    }
-  }
-
-  let rect;
-
-  if(blueFound && blueRowMax > blueRowMin + 5){
-    // Use blue stripe to infer full plate
-    const stripeH = blueRowMax - blueRowMin;
-    const stripeW = winW;
-
-    // Plate height ≈ stripe height (stripe goes full height of plate)
-    const plateH = Math.round(stripeH * 1.1);
-    // Plate width by standard ratio 4.72:1
-    const plateW = Math.round(plateH * 4.72);
-
-    const plateX = Math.max(0, bestX);
-    const plateY = Math.max(0, blueRowMin - Math.floor(stripeH * 0.05));
-
-    rect = { x: plateX, y: plateY, w: Math.min(plateW, W-plateX), h: Math.min(plateH, H-plateY) };
-
-  } else {
-    // Fallback: brightness profile
-    const rowBrightness = new Float32Array(H);
-    for(let y=0;y<H;y++){
-      let s=0;
-      for(let x=0;x<W;x++){
-        const i=(y*W+x)*4;
-        s+=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-      }
-      rowBrightness[y]=s/W;
-    }
-    const bWin=Math.max(2,Math.floor(H*0.12));
-    let bBest=0,bY=Math.floor(H*0.35);
-    for(let y=Math.floor(H*0.1);y<H*0.9-bWin;y++){
-      let s=0; for(let j=0;j<bWin;j++) s+=rowBrightness[y+j];
-      if(s>bBest){bBest=s;bY=y;}
-    }
-    const pH=Math.round(H*0.22);
-    const pW=Math.round(pH*4.72);
-    const pX=Math.max(0,Math.floor((W-pW)/2));
-    rect={x:pX,y:Math.max(0,bY),w:Math.min(pW,W-pX),h:Math.min(pH,H)};
-  }
-
-  // Validate & correct aspect ratio
-  const ratio = rect.w / rect.h;
-  if(ratio < 2.5 || ratio > 7.5){
-    const newH = Math.round(rect.w / 4.72);
-    const cy = rect.y + rect.h/2;
-    rect.h = newH;
-    rect.y = Math.max(0, Math.round(cy - newH/2));
-    if(rect.y + rect.h > H) rect.y = H - rect.h;
-  }
-
-  plateRect = rect;
-  redraw(currentFilter);
-}
-
-// ============================================================
-// MANUAL SELECTION
-// ============================================================
-function toggleManualMode(){
-  manualMode = !manualMode;
-  const btn = document.getElementById('btnManual');
-  const hint = document.getElementById('manualHint');
-  if(manualMode){
-    btn.classList.add('active');
-    hint.style.display='block';
-    canvas.style.cursor='crosshair';
-  } else {
-    btn.classList.remove('active');
-    hint.style.display='none';
-    canvas.style.cursor='default';
-  }
-}
-
-function setupManualEvents(){
-  canvas.onmousedown = (e)=>{
-    if(!manualMode) return;
-    const r=canvas.getBoundingClientRect();
-    const sx=Math.round((e.clientX-r.left)*(canvas.width/r.width));
-    const sy=Math.round((e.clientY-r.top)*(canvas.height/r.height));
-    drag={active:true,sx,sy,ex:sx,ey:sy};
-  };
-  canvas.onmousemove = (e)=>{
-    if(!drag.active) return;
-    const r=canvas.getBoundingClientRect();
-    drag.ex=Math.round((e.clientX-r.left)*(canvas.width/r.width));
-    drag.ey=Math.round((e.clientY-r.top)*(canvas.height/r.height));
-    redraw(currentFilter);
-  };
-  canvas.onmouseup = (e)=>{
-    if(!drag.active) return;
-    drag.active=false;
-    const x=Math.min(drag.sx,drag.ex), y=Math.min(drag.sy,drag.ey);
-    const w=Math.abs(drag.ex-drag.sx), h=Math.abs(drag.ey-drag.sy);
-    if(w>20 && h>10){
-      plateRect={x,y,w,h};
-      redraw(currentFilter);
-      toggleManualMode();
-      runFullAnalysis();
-    }
-  };
-
-  // Touch
-  canvas.ontouchstart=(e)=>{
-    if(!manualMode) return;
-    e.preventDefault();
-    const t=e.touches[0];
-    const r=canvas.getBoundingClientRect();
-    const sx=Math.round((t.clientX-r.left)*(canvas.width/r.width));
-    const sy=Math.round((t.clientY-r.top)*(canvas.height/r.height));
-    drag={active:true,sx,sy,ex:sx,ey:sy};
-  };
-  canvas.ontouchmove=(e)=>{
-    if(!drag.active) return;
-    e.preventDefault();
-    const t=e.touches[0];
-    const r=canvas.getBoundingClientRect();
-    drag.ex=Math.round((t.clientX-r.left)*(canvas.width/r.width));
-    drag.ey=Math.round((t.clientY-r.top)*(canvas.height/r.height));
-    redraw(currentFilter);
-  };
-  canvas.ontouchend=(e)=>{
-    if(!drag.active) return;
-    drag.active=false;
-    const x=Math.min(drag.sx,drag.ex),y=Math.min(drag.sy,drag.ey);
-    const w=Math.abs(drag.ex-drag.sx),h=Math.abs(drag.ey-drag.sy);
-    if(w>15&&h>8){
-      plateRect={x,y,w,h};
-      redraw(currentFilter);
-      toggleManualMode();
-      runFullAnalysis();
-    }
-  };
-}
-
-// ============================================================
-// IS PLATE IMAGE CHECK
-// ============================================================
-function isPlateImage(data, W, H){
-  const px = data.data;
-  let blueCount=0, whiteCount=0, blackCount=0, total=0;
-  for(let i=0;i<px.length;i+=4){
-    const r=px[i],g=px[i+1],b=px[i+2];
-    const [hv,sv,vv]=rgbToHsv(r,g,b);
-    if(hv>=185&&hv<=275&&sv>0.12&&vv>0.15) blueCount++;
-    if(r>180&&g>180&&b>180) whiteCount++;
-    if(r<80&&g<80&&b<80) blackCount++;
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i], g = d[i+1], b = d[i+2];
+    const hsv = rgbToHsv(r, g, b);
+    const h = hsv[0], s = hsv[1], v = hsv[2];
     total++;
-  }
-  const bPct=blueCount/total, wPct=whiteCount/total, kPct=blackCount/total;
-  const aspect=W/H;
-  // Plate must have: some blue, decent white, some black, and elongated shape
-  const hasBlue=bPct>0.01;
-  const hasWhite=wPct>0.15;
-  const hasBlack=kPct>0.03;
-  const goodAspect=aspect>2.0;
-  const passed=[hasBlue,hasWhite,hasBlack,goodAspect].filter(Boolean).length;
-  return {ok: passed>=3, blueP:bPct, whiteP:wPct, blackP:kPct, aspect, passed};
-}
-
-// ============================================================
-// MAIN ANALYSIS
-// ============================================================
-function runFullAnalysis(){
-  if(!rawImageData){ alert('Önce fotoğraf yükleyin.'); return; }
-
-  // Auto detect if no rect
-  if(!plateRect) autoDetect();
-
-  // --- 1. Check if it's a plate at all (use full image)
-  const fullCheck = isPlateImage(rawImageData, canvas.width, canvas.height);
-  if(!fullCheck.ok){
-    setVerdict('not-plate', '%0', 'BU BİR PLAKA GÖRSELİ DEĞİL');
-    resetMetrics();
-    document.getElementById('tilesGrid').innerHTML =
-      '<p style="color:var(--red);font-size:12px;padding:8px;grid-column:1/-1;">⛔ Plaka tespit edilemedi. Geçerli bir plaka fotoğrafı yükleyin.</p>';
-    return;
+    // Blue: hue 185-275, saturation>10%, value>10%
+    if (h >= 185 && h <= 275 && s > 10 && v > 10) blue++;
+    // White: all channels high
+    if (r > 180 && g > 180 && b > 180) white++;
+    // Black/dark: all low
+    if (r < 60 && g < 60 && b < 60) black++;
   }
 
-  // --- 2. Extract plate region
-  const off = document.createElement('canvas');
-  off.width  = plateRect.w;
-  off.height = plateRect.h;
-  const offCtx = off.getContext('2d');
-  offCtx.drawImage(rawImg,
-    plateRect.x / (canvas.width/rawImg.width),
-    plateRect.y / (canvas.height/rawImg.height),
-    plateRect.w / (canvas.width/rawImg.width),
-    plateRect.h / (canvas.height/rawImg.height),
-    0, 0, plateRect.w, plateRect.h
-  );
-  const plateData = offCtx.getImageData(0, 0, plateRect.w, plateRect.h);
+  const bluePct = blue / total;
+  const whitePct = white / total;
+  const blackPct = black / total;
+  const ar = img.width / img.height;
 
-  // --- 3. Score metrics
-  const scores = scorePlate(plateData, plateRect.w, plateRect.h);
+  // Aspect ratio: plates are wide (2:1 to 8:1) or full photo containing a plate
+  const arOk = ar >= 1.0; // Any landscape or square image may contain plate
 
-  // --- 4. Show results
-  const total = Math.round(
-    scores.blue*0.25 + scores.white*0.15 + scores.chars*0.20 + scores.holo*0.20 + scores.seal*0.20
-  );
-
-  // Round to nearest 10
-  const roundedTotal = Math.round(total/10)*10;
-
-  setMetric('mBlue','barBlue',scores.blue,'%');
-  setMetric('mWhite','barWhite',scores.white,'%');
-  setMetric('mChar','barChar',scores.chars,'%');
-  setMetric('mHolo','barHolo',scores.holo,'%');
-  setMetric('mSeal','barSeal',scores.seal,'%');
-
-  if(roundedTotal>=70) setVerdict('original',`%${roundedTotal}`,'ORİJİNAL PLAKA ✅');
-  else if(roundedTotal>=40) setVerdict('warn',`%${roundedTotal}`,'KONTROL GEREKLİ ⚠️');
-  else setVerdict('fake',`%${roundedTotal}`,'STANDART DIŞI / SAHTE ❌');
-
-  // --- 5. 100 tile scan
-  runTileScan(plateData, plateRect.w, plateRect.h, offCtx);
-}
-
-// ============================================================
-// PLATE SCORING
-// ============================================================
-function scorePlate(imgData, W, H){
-  const d = imgData.data;
-
-  // --- BLUE score: scan left 15% for dense blue column
-  const blueZoneW = Math.max(3, Math.floor(W*0.20));
-  let bluePixels=0, blueTotalPx=blueZoneW*H;
-  const colBlueDensity = new Float32Array(blueZoneW);
-  for(let y=0;y<H;y++){
-    for(let x=0;x<blueZoneW;x++){
-      const i=(y*W+x)*4;
-      const [hv,sv,vv]=rgbToHsv(d[i],d[i+1],d[i+2]);
-      if(hv>=185&&hv<=275&&sv>0.08&&vv>0.08){
-        bluePixels++;
-        colBlueDensity[x]++;
-      }
-    }
-  }
-  // Peak column density bonus
-  const maxColDensity = Math.max(...colBlueDensity);
-  const peakBonus = maxColDensity/(H) > 0.4 ? 20 : 0;
-  const blueRaw = bluePixels/blueTotalPx;
-  const blueScore = Math.min(100, Math.round((blueRaw*200 + peakBonus)));
-
-  // --- WHITE score: middle 60-90% of width
-  const wStart=Math.floor(W*0.20), wEnd=Math.floor(W*0.95);
-  let wPx=0, wTotal=(wEnd-wStart)*H;
-  for(let y=0;y<H;y++){
-    for(let x=wStart;x<wEnd;x++){
-      const i=(y*W+x)*4;
-      if(d[i]>160&&d[i+1]>160&&d[i+2]>160) wPx++;
-    }
-  }
-  const whiteScore = Math.min(100, Math.round(wPx/wTotal*160));
-
-  // --- CHAR score: black pixels in middle zone (avoid blue & hologram zones)
-  const cYStart=Math.floor(H*0.05), cYEnd=Math.floor(H*0.80);
-  let cPx=0, cTotal=(wEnd-wStart)*(cYEnd-cYStart);
-  for(let y=cYStart;y<cYEnd;y++){
-    for(let x=wStart;x<wEnd;x++){
-      const i=(y*W+x)*4;
-      if(d[i]<70&&d[i+1]<70&&d[i+2]<70) cPx++;
-    }
-  }
-  const charScore = Math.min(100, Math.round(cPx/cTotal*500));
-
-  // --- HOLOGRAM score: bottom 15%, texture variance
-  const hYStart=Math.floor(H*0.82);
-  let hVarSum=0, hCount=0;
-  for(let y=hYStart;y<H;y++){
-    let rowVals=[];
-    for(let x=0;x<W;x++){
-      const i=(y*W+x)*4;
-      const lum=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-      rowVals.push(lum);
-    }
-    const mean=rowVals.reduce((a,b)=>a+b,0)/rowVals.length;
-    const v=rowVals.reduce((a,b)=>a+(b-mean)**2,0)/rowVals.length;
-    hVarSum+=v; hCount++;
-  }
-  const avgVar = hCount>0 ? hVarSum/hCount : 0;
-  const holoScore = Math.min(100, Math.round(Math.sqrt(avgVar)*4));
-
-  // --- SEAL score: top-left quadrant texture
-  const sX=Math.floor(W*0.18), sY=Math.floor(H*0.05);
-  const sW=Math.min(Math.floor(W*0.15),sX), sH=Math.min(Math.floor(H*0.4),H-sY*2);
-  let sVarSum=0, sCount=0;
-  for(let y=sY;y<sY+sH;y++){
-    for(let x=sX;x<sX+sW;x++){
-      const i=(y*W+x)*4;
-      const lum=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-      sVarSum+=lum; sCount++;
-    }
-  }
-  const sealMean = sCount>0?sVarSum/sCount:128;
-  let sealVar=0;
-  for(let y=sY;y<sY+sH;y++){
-    for(let x=sX;x<sX+sW;x++){
-      const i=(y*W+x)*4;
-      const lum=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-      sealVar+=(lum-sealMean)**2;
-    }
-  }
-  sealVar = sCount>0?sealVar/sCount:0;
-  const sealScore = Math.min(100, Math.round(Math.sqrt(sealVar)*3.5));
+  // Strict rejection: if image has almost no blue/white/black and is clearly not plate-like
+  // Only reject if ALL of: very low blue + very low white + very low black AND very square/portrait
+  const likelyNotPlate = bluePct < 0.005 && whitePct < 0.10 && blackPct < 0.05 && ar < 1.2;
 
   return {
-    blue: Math.round(blueScore/10)*10,
-    white: Math.round(whiteScore/10)*10,
-    chars: Math.round(charScore/10)*10,
-    holo: Math.round(holoScore/10)*10,
-    seal: Math.round(sealScore/10)*10
+    isPlate: !likelyNotPlate,
+    bluePct, whitePct, blackPct, ar
   };
 }
 
-// ============================================================
-// TILE SCAN (10×10 = 100 tiles)
-// ============================================================
-function runTileScan(plateImgData, PW, PH, srcCtx){
-  const grid = document.getElementById('tilesGrid');
-  grid.innerHTML = '';
-  tileData = [];
+// ========== AUTO DETECT ==========
+function autoDetect() {
+  if (!originalImage) return;
 
-  const cols=10, rows=10;
-  const tw=Math.floor(PW/cols), th=Math.floor(PH/rows);
+  const img = originalImage;
+  const oc = document.createElement('canvas');
+  const maxW = 600;
+  const scale = Math.min(1, maxW / img.width);
+  oc.width = Math.round(img.width * scale);
+  oc.height = Math.round(img.height * scale);
+  const ox = oc.getContext('2d');
+  ox.drawImage(img, 0, 0, oc.width, oc.height);
+  const id = ox.getImageData(0, 0, oc.width, oc.height);
+  const d = id.data;
+  const W = oc.width, H = oc.height;
 
-  const scanLine = document.getElementById('scanLine');
-  scanLine.classList.add('active');
-
-  const pb = document.getElementById('progressBar');
-  const pf = document.getElementById('progressFill');
-  pb.style.display='block';
-
-  let idx=0;
-  const cells=[];
-
-  for(let r=0;r<rows;r++){
-    for(let c=0;c<cols;c++){
-      const cell = document.createElement('div');
-      cell.className='tile-cell';
-      const tc=document.createElement('canvas');
-      tc.width=tw; tc.height=th;
-      cell.appendChild(tc);
-      grid.appendChild(cell);
-      cells.push({cell,tc,r,c});
+  // Build blue map
+  const blueMap = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      const r = d[i], g = d[i+1], b = d[i+2];
+      const hsv = rgbToHsv(r, g, b);
+      const h = hsv[0], s = hsv[1], v = hsv[2];
+      // Wide blue range for TR stripe
+      if (h >= 185 && h <= 275 && s > 8 && v > 8) {
+        blueMap[y * W + x] = 1;
+      }
     }
   }
 
-  function processNext(){
-    if(idx>=100){
-      scanLine.classList.remove('active');
-      pb.style.display='none';
-      return;
+  // Find best blue column band (left 35% of image)
+  const searchW = Math.floor(W * 0.35);
+  let bestColScore = 0;
+  let bestCol = -1;
+  const colScores = new Float32Array(searchW);
+  for (let x = 0; x < searchW; x++) {
+    let score = 0;
+    for (let y = 0; y < H; y++) score += blueMap[y * W + x];
+    colScores[x] = score;
+    if (score > bestColScore) { bestColScore = score; bestCol = x; }
+  }
+
+  // Find contiguous blue column cluster around bestCol
+  let blueLeft = bestCol, blueRight = bestCol;
+  const blueThreshold = bestColScore * 0.25;
+
+  if (bestCol >= 0) {
+    // Expand left
+    for (let x = bestCol; x >= 0; x--) {
+      if (colScores[x] < blueThreshold) break;
+      blueLeft = x;
     }
-    const {cell,tc,r,c}=cells[idx];
-    const x=c*tw, y=r*th;
-    const tCtx=tc.getContext('2d');
-
-    // Extract tile from plate
-    const tileBuf=document.createElement('canvas');
-    tileBuf.width=tw; tileBuf.height=th;
-    const tbCtx=tileBuf.getContext('2d');
-    tbCtx.drawImage(rawImg,
-      (plateRect.x+(x/(PW))*(plateRect.w))/(canvas.width/rawImg.width),
-      (plateRect.y+(y/(PH))*(plateRect.h))/(canvas.height/rawImg.height),
-      (tw/PW)*plateRect.w/(canvas.width/rawImg.width),
-      (th/PH)*plateRect.h/(canvas.height/rawImg.height),
-      0,0,tw,th
-    );
-
-    // Auto-enhance tile
-    const tid=tbCtx.getImageData(0,0,tw,th);
-    const enhanced=applyImageFilter(tid,'auto');
-    tCtx.putImageData(enhanced,0,0);
-
-    // Score tile
-    const {blueP,whiteP,score}=scoreTile(tid,c,r,cols,rows);
-    tileData.push({x,y,tw,th,r,c,blueP,whiteP,score,imgData:tid});
-
-    // Color overlay
-    const alpha=0.25;
-    if(score>0.65){ tCtx.fillStyle=`rgba(0,230,118,${alpha})`; cell.style.borderColor='rgba(0,230,118,0.4)'; }
-    else if(score>0.35){ tCtx.fillStyle=`rgba(255,202,40,${alpha})`; cell.style.borderColor='rgba(255,202,40,0.4)'; }
-    else{ tCtx.fillStyle=`rgba(255,61,61,${alpha})`; cell.style.borderColor='rgba(255,61,61,0.4)'; }
-    tCtx.fillRect(0,0,tw,th);
-
-    // Click handler
-    const ti=idx;
-    cell.onclick=()=>openTileModal(ti);
-
-    idx++;
-    pf.style.width=(idx/100*100)+'%';
-
-    if(idx<100) setTimeout(processNext,12);
-    else{
-      scanLine.classList.remove('active');
-      pb.style.display='none';
+    // Expand right
+    for (let x = bestCol; x < searchW; x++) {
+      if (colScores[x] < blueThreshold) break;
+      blueRight = x;
     }
   }
 
-  processNext();
+  // Find vertical extent of blue region
+  let blueTop = H, blueBottom = 0;
+  if (bestCol >= 0 && bestColScore > H * 0.05) {
+    for (let y = 0; y < H; y++) {
+      for (let x = blueLeft; x <= blueRight; x++) {
+        if (blueMap[y * W + x] > 0) {
+          if (y < blueTop) blueTop = y;
+          if (y > blueBottom) blueBottom = y;
+        }
+      }
+    }
+  }
+
+  let plateX, plateY, plateW, plateH;
+  let detectionMethod = '';
+
+  if (bestCol >= 0 && bestColScore > H * 0.04 && blueBottom > blueTop) {
+    // Good blue stripe found
+    const stripeW = blueRight - blueLeft + 1;
+    const stripeH = blueBottom - blueTop;
+
+    // Standard plate ratio ~4.72:1 (width:height)
+    // Blue stripe is ~15% of plate width
+    const estimatedPlateH = Math.max(stripeH, Math.round(stripeW * 3.5));
+    const estimatedPlateW = Math.round(estimatedPlateH * 4.72);
+
+    plateX = blueLeft;
+    plateY = blueTop - Math.round(estimatedPlateH * 0.05);
+    plateW = estimatedPlateW;
+    plateH = estimatedPlateH + Math.round(estimatedPlateH * 0.1);
+
+    detectionMethod = '🟦 Mavi TR Şeridi ile tespit edildi';
+  } else {
+    // Fallback: find brightest horizontal band (likely white plate on dark background)
+    const rowBrightness = new Float32Array(H);
+    for (let y = 0; y < H; y++) {
+      let sum = 0;
+      for (let x = 0; x < W; x++) {
+        const i = (y * W + x) * 4;
+        sum += (d[i] + d[i+1] + d[i+2]) / 3;
+      }
+      rowBrightness[y] = sum / W;
+    }
+
+    // Smooth
+    const smoothed = new Float32Array(H);
+    for (let y = 2; y < H - 2; y++) {
+      smoothed[y] = (rowBrightness[y-2] + rowBrightness[y-1] + rowBrightness[y] + rowBrightness[y+1] + rowBrightness[y+2]) / 5;
+    }
+
+    // Find peak region
+    let maxBright = 0;
+    let peakRow = Math.floor(H * 0.5);
+    for (let y = 0; y < H; y++) {
+      if (smoothed[y] > maxBright) { maxBright = smoothed[y]; peakRow = y; }
+    }
+
+    const bandH = Math.round(H * 0.18);
+    const bandW = Math.round(W * 0.85);
+    plateX = Math.round((W - bandW) / 2);
+    plateY = Math.max(0, peakRow - Math.round(bandH / 2));
+    plateW = bandW;
+    plateH = bandH;
+
+    // Force valid aspect ratio
+    const ar = plateW / plateH;
+    if (ar < 3.0) { plateH = Math.round(plateW / 3.5); }
+    if (ar > 7.0) { plateW = Math.round(plateH * 6.0); }
+
+    detectionMethod = '💡 Parlaklık profili ile tahmin edildi (Manuel seçim önerilir)';
+  }
+
+  // Clamp to canvas
+  plateX = Math.max(0, plateX);
+  plateY = Math.max(0, plateY);
+  if (plateX + plateW > W) plateW = W - plateX;
+  if (plateY + plateH > H) plateH = H - plateY;
+
+  // Enforce plate aspect ratio 3.5:1 to 6.5:1
+  const ar = plateW / plateH;
+  if (ar < 3.5) {
+    plateH = Math.round(plateW / 3.5);
+    if (plateY + plateH > H) plateH = H - plateY;
+  }
+  if (ar > 6.5) {
+    plateW = Math.round(plateH * 6.5);
+    if (plateX + plateW > W) plateW = W - plateX;
+  }
+
+  // Convert back to original image coords
+  const invScale = 1 / scale;
+  plateRegion = {
+    x: Math.round(plateX * invScale),
+    y: Math.round(plateY * invScale),
+    w: Math.round(plateW * invScale),
+    h: Math.round(plateH * invScale)
+  };
+
+  detectionInfo.textContent = detectionMethod + ` | Alan: ${plateRegion.w}×${plateRegion.h}px`;
+  detectionInfo.classList.add('show');
+
+  drawImageOnCanvas(originalImage);
+  showPlatePreview();
+  runAnalysis();
 }
 
-function scoreTile(imgData,c,r,cols,rows){
-  const d=imgData.data, W=imgData.width, H=imgData.height;
-  let blueP=0,whiteP=0,blackP=0,total=W*H;
-  for(let i=0;i<d.length;i+=4){
-    const [hv,sv,vv]=rgbToHsv(d[i],d[i+1],d[i+2]);
-    if(hv>=185&&hv<=275&&sv>0.08&&vv>0.08) blueP++;
-    if(d[i]>160&&d[i+1]>160&&d[i+2]>160) whiteP++;
-    if(d[i]<70&&d[i+1]<70&&d[i+2]<70) blackP++;
+// ========== CANVAS DRAWING ==========
+function drawImageOnCanvas(img) {
+  const maxW = canvasContainer.clientWidth || 700;
+  const scale = Math.min(1, maxW / img.width);
+  mainCanvas.width = Math.round(img.width * scale);
+  mainCanvas.height = Math.round(img.height * scale);
+
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+  // Apply filter
+  applyFilter(img, mainCanvas, ctx, currentFilter);
+
+  // Draw plate region box
+  if (plateRegion) {
+    const sx = img.width > 0 ? mainCanvas.width / img.width : 1;
+    const sy = img.height > 0 ? mainCanvas.height / img.height : 1;
+    const rx = plateRegion.x * sx;
+    const ry = plateRegion.y * sy;
+    const rw = plateRegion.w * sx;
+    const rh = plateRegion.h * sy;
+
+    // Outer glow
+    ctx.shadowColor = '#1a6fff';
+    ctx.shadowBlur = 12;
+    ctx.strokeStyle = '#1a6fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(rx, ry, rw, rh);
+    ctx.shadowBlur = 0;
+
+    // Corner marks
+    const cLen = 14;
+    ctx.strokeStyle = '#00e5ff';
+    ctx.lineWidth = 3;
+    [[rx, ry, 1, 1], [rx+rw, ry, -1, 1], [rx, ry+rh, 1, -1], [rx+rw, ry+rh, -1, -1]].forEach(([cx2,cy2,dx,dy]) => {
+      ctx.beginPath(); ctx.moveTo(cx2, cy2 + dy*cLen); ctx.lineTo(cx2, cy2); ctx.lineTo(cx2 + dx*cLen, cy2); ctx.stroke();
+    });
+
+    // Label
+    ctx.fillStyle = 'rgba(26,111,255,0.85)';
+    ctx.fillRect(rx, ry - 20, 110, 20);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px JetBrains Mono, monospace';
+    ctx.fillText('🎯 PLAKA BÖLGESİ', rx + 6, ry - 6);
   }
-  blueP/=total; whiteP/=total; blackP/=total;
 
-  // Zone-based expected values
-  const isBlueZone = c<=1;
-  const isHoloZone = r>=8;
-  const isCharZone = c>=2&&c<=8&&r>=2&&r<=7;
-
-  let score=0.5;
-  if(isBlueZone) score=Math.min(1,blueP*8);
-  else if(isHoloZone) score=Math.min(1,whiteP+blackP*2);
-  else if(isCharZone) score=Math.min(1,(whiteP+blackP*2));
-  else score=Math.min(1,whiteP*1.5);
-
-  return {blueP,whiteP,blackP,score};
+  // Draw manual selection
+  if (isManualMode && manualRect) {
+    const { x, y, w, h } = manualRect;
+    ctx.strokeStyle = '#ffd600';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 3]);
+    ctx.strokeRect(x, y, w, h);
+    ctx.setLineDash([]);
+  }
 }
 
-// ============================================================
-// TILE MODAL
-// ============================================================
-function openTileModal(idx){
-  const t=tileData[idx];
-  if(!t) return;
-  const modal=document.getElementById('tileModal');
-  const title=document.getElementById('modalTitle');
-  title.textContent=`Satır ${t.r+1} / Sütun ${t.c+1} — Bölge Analizi`;
+function applyFilter(img, canvas, c, filter) {
+  c.drawImage(img, 0, 0, canvas.width, canvas.height);
+  if (filter === 'original') return;
 
-  // Draw zoomed tile
-  const zoom=Math.min(480/t.tw, 200/t.th);
-  modalCanvas.width=Math.round(t.tw*zoom);
-  modalCanvas.height=Math.round(t.th*zoom);
-  modalCtx.imageSmoothingEnabled=false;
+  const id = c.getImageData(0, 0, canvas.width, canvas.height);
+  const d = id.data;
 
-  // Draw from rawImg
-  modalCtx.drawImage(rawImg,
-    (plateRect.x+(t.x/tileData[0].tw/10)*plateRect.w)/(canvas.width/rawImg.width) - plateRect.w/(canvas.width/rawImg.width)/10*t.c,
-    (plateRect.y+(t.y/tileData[0].th/10)*plateRect.h)/(canvas.height/rawImg.height) - plateRect.h/(canvas.height/rawImg.height)/10*t.r,
-    (t.tw/( canvas.width*tileData[0].tw/rawImg.width )) * rawImg.width / 10,
-    (t.th/( canvas.height*tileData[0].th/rawImg.height)) * rawImg.height / 10,
-    0,0,modalCanvas.width,modalCanvas.height
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i+1], b = d[i+2];
+
+    if (filter === 'auto') {
+      // S-curve contrast
+      r = sCurve(r); g = sCurve(g); b = sCurve(b);
+    } else if (filter === 'contrast') {
+      const factor = 1.8;
+      r = clamp((r - 128) * factor + 128);
+      g = clamp((g - 128) * factor + 128);
+      b = clamp((b - 128) * factor + 128);
+    } else if (filter === 'sharpen') {
+      // Applied via convolution below, skip pixel loop
+    } else if (filter === 'hologram') {
+      // Boost saturation
+      const hsv = rgbToHsv(r, g, b);
+      hsv[1] = Math.min(100, hsv[1] * 1.6);
+      const rgb2 = hsvToRgb(hsv[0], hsv[1], hsv[2]);
+      r = rgb2[0]; g = rgb2[1]; b = rgb2[2];
+      r = sCurve(r); g = sCurve(g); b = sCurve(b);
+    } else if (filter === 'blue') {
+      const hsv = rgbToHsv(r, g, b);
+      if (hsv[0] >= 180 && hsv[0] <= 280) {
+        hsv[1] = Math.min(100, hsv[1] * 2.2);
+        hsv[2] = Math.min(100, hsv[2] * 1.4);
+        const rgb2 = hsvToRgb(hsv[0], hsv[1], hsv[2]);
+        r = rgb2[0]; g = rgb2[1]; b = rgb2[2];
+      } else {
+        r = Math.round(r * 0.4);
+        g = Math.round(g * 0.4);
+        b = Math.round(b * 0.4);
+      }
+    }
+
+    d[i] = clamp(r); d[i+1] = clamp(g); d[i+2] = clamp(b);
+  }
+
+  if (filter === 'sharpen') {
+    // Apply unsharp mask
+    const kernel = [0,-1,0,-1,5,-1,0,-1,0];
+    applyConvolution(d, canvas.width, canvas.height, kernel);
+  }
+
+  c.putImageData(id, 0, 0);
+}
+
+function applyConvolution(d, w, h, kernel) {
+  const copy = new Uint8ClampedArray(d);
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      for (let c = 0; c < 3; c++) {
+        let sum = 0;
+        for (let ky = -1; ky <= 1; ky++) {
+          for (let kx = -1; kx <= 1; kx++) {
+            const ki = (ky + 1) * 3 + (kx + 1);
+            const pi = ((y + ky) * w + (x + kx)) * 4 + c;
+            sum += copy[pi] * kernel[ki];
+          }
+        }
+        d[(y * w + x) * 4 + c] = clamp(sum);
+      }
+    }
+  }
+}
+
+function sCurve(v) {
+  const t = v / 255;
+  return Math.round(255 * (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t));
+}
+
+// ========== PLATE PREVIEW ==========
+function showPlatePreview() {
+  if (!plateRegion || !originalImage) return;
+
+  const pr = plateRegion;
+  const maxPreviewW = 680;
+  const scale = Math.min(1, maxPreviewW / pr.w);
+
+  platePreviewCanvas.width = Math.round(pr.w * scale);
+  platePreviewCanvas.height = Math.round(pr.h * scale);
+
+  pCtx.imageSmoothingEnabled = true;
+  pCtx.imageSmoothingQuality = 'high';
+  pCtx.drawImage(
+    originalImage,
+    pr.x, pr.y, pr.w, pr.h,
+    0, 0, platePreviewCanvas.width, platePreviewCanvas.height
   );
 
-  // Simpler approach: use stored imgData, scale up
-  const tmp=document.createElement('canvas');
-  tmp.width=t.tw; tmp.height=t.th;
-  tmp.getContext('2d').putImageData(t.imgData,0,0);
-  modalCtx.clearRect(0,0,modalCanvas.width,modalCanvas.height);
-  modalCtx.imageSmoothingEnabled=false;
-  modalCtx.drawImage(tmp,0,0,modalCanvas.width,modalCanvas.height);
-
-  // Metrics
-  const {blueP,whiteP,blackP,score}=scoreTile(t.imgData,t.c,t.r,10,10);
-  // Variance
-  const d2=t.imgData.data;
-  let varSum=0,varCnt=0;
-  for(let i=0;i<d2.length;i+=4){
-    const lum=0.299*d2[i]+0.587*d2[i+1]+0.114*d2[i+2];
-    varSum+=lum; varCnt++;
-  }
-  const mean=varSum/varCnt;
-  let variance=0;
-  for(let i=0;i<d2.length;i+=4){
-    const lum=0.299*d2[i]+0.587*d2[i+1]+0.114*d2[i+2];
-    variance+=(lum-mean)**2;
-  }
-  variance=Math.sqrt(variance/varCnt);
-
-  const metricsEl=document.getElementById('modalMetrics');
-  const mets=[
-    {label:'Mavi %',val:(blueP*100).toFixed(1)+'%'},
-    {label:'Beyaz %',val:(whiteP*100).toFixed(1)+'%'},
-    {label:'Siyah %',val:(blackP*100).toFixed(1)+'%'},
-    {label:'Varyans',val:variance.toFixed(1)},
-    {label:'Bölge Skoru',val:Math.round(score*100)+'%'},
-    {label:'Konum',val:`S${t.c+1}R${t.r+1}`}
-  ];
-  metricsEl.innerHTML=mets.map(m=>`
-    <div class="modal-metric">
-      <div class="mm-val">${m.val}</div>
-      <div class="mm-label">${m.label}</div>
-    </div>
-  `).join('');
-
-  modal.classList.add('open');
+  platePreviewWrap.classList.add('show');
 }
 
-function closeTileModal(){
-  document.getElementById('tileModal').classList.remove('open');
-}
-
-document.getElementById('tileModal').addEventListener('click',function(e){
-  if(e.target===this) closeTileModal();
+// ========== MANUAL SELECTION ==========
+btnManualSelect.addEventListener('click', () => {
+  isManualMode = !isManualMode;
+  btnManualSelect.textContent = isManualMode ? '✏️ Seçimi İptal' : '✏️ Manuel Seçim';
+  selectHint.classList.toggle('show', isManualMode);
+  manualHint.classList.toggle('show', isManualMode);
+  manualRect = null;
+  if (originalImage) drawImageOnCanvas(originalImage);
 });
 
-// ============================================================
-// UI HELPERS
-// ============================================================
-function setVerdict(cls, score, text){
-  const box=document.getElementById('verdictBox');
-  box.className='verdict-box '+cls;
-  document.getElementById('verdictScore').textContent=score;
-  document.getElementById('verdictText').textContent=text;
-}
+// Mouse events for manual selection
+let isDragging = false;
+let dragStart = {x:0, y:0};
 
-function resetVerdict(){
-  const box=document.getElementById('verdictBox');
-  box.className='verdict-box idle';
-  document.getElementById('verdictScore').textContent='—';
-  document.getElementById('verdictText').textContent='Analiz bekleniyor';
-  resetMetrics();
-}
+mainCanvas.addEventListener('mousedown', e => {
+  if (!isManualMode) return;
+  isDragging = true;
+  const r = mainCanvas.getBoundingClientRect();
+  dragStart = {x: e.clientX - r.left, y: e.clientY - r.top};
+  manualRect = {x: dragStart.x, y: dragStart.y, w: 0, h: 0};
+});
 
-function resetMetrics(){
-  ['mBlue','mWhite','mChar','mHolo','mSeal'].forEach(id=>{
-    document.getElementById(id).textContent='—';
+mainCanvas.addEventListener('mousemove', e => {
+  if (!isManualMode || !isDragging) return;
+  const r = mainCanvas.getBoundingClientRect();
+  const mx = e.clientX - r.left;
+  const my = e.clientY - r.top;
+  manualRect = {
+    x: Math.min(dragStart.x, mx),
+    y: Math.min(dragStart.y, my),
+    w: Math.abs(mx - dragStart.x),
+    h: Math.abs(my - dragStart.y)
+  };
+  drawImageOnCanvas(originalImage);
+});
+
+mainCanvas.addEventListener('mouseup', e => {
+  if (!isManualMode || !isDragging) return;
+  isDragging = false;
+  if (manualRect && manualRect.w > 20 && manualRect.h > 10) {
+    // Convert to original image coords
+    const sx = originalImage.width / mainCanvas.width;
+    const sy = originalImage.height / mainCanvas.height;
+    plateRegion = {
+      x: Math.round(manualRect.x * sx),
+      y: Math.round(manualRect.y * sy),
+      w: Math.round(manualRect.w * sx),
+      h: Math.round(manualRect.h * sy)
+    };
+    isManualMode = false;
+    manualRect = null;
+    btnManualSelect.textContent = '✏️ Manuel Seçim';
+    selectHint.classList.remove('show');
+    manualHint.classList.remove('show');
+    detectionInfo.textContent = '✏️ Manuel seçim uygulandı | Alan: ' + plateRegion.w + '×' + plateRegion.h + 'px';
+    detectionInfo.classList.add('show');
+    drawImageOnCanvas(originalImage);
+    showPlatePreview();
+    runAnalysis();
+  }
+});
+
+// Touch support
+mainCanvas.addEventListener('touchstart', e => {
+  if (!isManualMode) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const r = mainCanvas.getBoundingClientRect();
+  isDragging = true;
+  dragStart = {x: t.clientX - r.left, y: t.clientY - r.top};
+  manualRect = {x: dragStart.x, y: dragStart.y, w: 0, h: 0};
+}, {passive: false});
+
+mainCanvas.addEventListener('touchmove', e => {
+  if (!isManualMode || !isDragging) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const r = mainCanvas.getBoundingClientRect();
+  const mx = t.clientX - r.left;
+  const my = t.clientY - r.top;
+  manualRect = {
+    x: Math.min(dragStart.x, mx), y: Math.min(dragStart.y, my),
+    w: Math.abs(mx - dragStart.x), h: Math.abs(my - dragStart.y)
+  };
+  drawImageOnCanvas(originalImage);
+}, {passive: false});
+
+mainCanvas.addEventListener('touchend', e => {
+  if (!isManualMode || !isDragging) return;
+  isDragging = false;
+  if (manualRect && manualRect.w > 20 && manualRect.h > 10) {
+    const sx = originalImage.width / mainCanvas.width;
+    const sy = originalImage.height / mainCanvas.height;
+    plateRegion = {
+      x: Math.round(manualRect.x * sx), y: Math.round(manualRect.y * sy),
+      w: Math.round(manualRect.w * sx), h: Math.round(manualRect.h * sy)
+    };
+    isManualMode = false; manualRect = null;
+    btnManualSelect.textContent = '✏️ Manuel Seçim';
+    selectHint.classList.remove('show'); manualHint.classList.remove('show');
+    detectionInfo.textContent = '✏️ Manuel seçim uygulandı | Alan: ' + plateRegion.w + '×' + plateRegion.h + 'px';
+    detectionInfo.classList.add('show');
+    drawImageOnCanvas(originalImage);
+    showPlatePreview();
+    runAnalysis();
+  }
+});
+
+// ========== AUTO DETECT BUTTON ==========
+btnAutoDetect.addEventListener('click', () => {
+  if (!originalImage) return;
+  isManualMode = false;
+  manualRect = null;
+  btnManualSelect.textContent = '✏️ Manuel Seçim';
+  selectHint.classList.remove('show');
+  manualHint.classList.remove('show');
+  plateRegion = null;
+  autoDetect();
+});
+
+// ========== FILTERS ==========
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (originalImage) drawImageOnCanvas(originalImage);
   });
-  ['barBlue','barWhite','barChar','barHolo','barSeal'].forEach(id=>{
-    document.getElementById(id).style.width='0%';
-  });
+});
+
+// ========== RESET ==========
+btnReset.addEventListener('click', () => {
+  originalImage = null; displayImage = null; plateRegion = null;
+  isManualMode = false; manualRect = null; isPlate = false; analysisResult = null;
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+  pCtx.clearRect(0, 0, platePreviewCanvas.width, platePreviewCanvas.height);
+  resetUI();
+});
+
+// ========== ANALYSIS ==========
+async function runAnalysis() {
+  if (!plateRegion || !originalImage) return;
+
+  progressContainer.classList.add('show');
+
+  const steps = [
+    { label: '🔵 Mavi TR şeridi analiz ediliyor...', pct: 15 },
+    { label: '⬜ Beyaz zemin kontrol ediliyor...', pct: 30 },
+    { label: '🔤 Karakter analizi yapılıyor...', pct: 50 },
+    { label: '✨ Hologram şeridi taranıyor...', pct: 70 },
+    { label: '🔵 TŞOF mührü inceleniyor...', pct: 85 },
+    { label: '📊 Sonuçlar hesaplanıyor...', pct: 100 }
+  ];
+
+  for (const s of steps) {
+    progressLabel.textContent = s.label;
+    progressFill.style.width = s.pct + '%';
+    await sleep(280);
+  }
+
+  // Extract plate data
+  const plateData = extractPlateData();
+  const metrics = analyzeMetrics(plateData);
+  const totalScore = computeTotal(metrics);
+
+  analysisResult = { metrics, totalScore };
+
+  displayResults(metrics, totalScore);
+  buildTileGrid();
+
+  progressContainer.classList.remove('show');
 }
 
-function setMetric(labelId, barId, value, suffix){
-  document.getElementById(labelId).textContent = value + (suffix||'');
-  setTimeout(()=>{
-    document.getElementById(barId).style.width = Math.min(100,value)+'%';
-  }, 100);
+function extractPlateData() {
+  const pr = plateRegion;
+  const oc = document.createElement('canvas');
+
+  // Use good resolution for analysis
+  const maxW = 800;
+  const scale = Math.min(1, maxW / pr.w);
+  oc.width = Math.max(1, Math.round(pr.w * scale));
+  oc.height = Math.max(1, Math.round(pr.h * scale));
+
+  const ox = oc.getContext('2d');
+  ox.imageSmoothingEnabled = true;
+  ox.imageSmoothingQuality = 'high';
+  ox.drawImage(originalImage, pr.x, pr.y, pr.w, pr.h, 0, 0, oc.width, oc.height);
+
+  return {
+    canvas: oc,
+    ctx: ox,
+    imageData: ox.getImageData(0, 0, oc.width, oc.height),
+    w: oc.width,
+    h: oc.height
+  };
 }
+
+function analyzeMetrics(pd) {
+  const d = pd.imageData.data;
+  const W = pd.w, H = pd.h;
+
+  // ---- METRIC 1: Blue TR Stripe (weight 25%) ----
+  // Scan left 22% of plate
+  const blueZoneW = Math.floor(W * 0.22);
+  let bluePixels = 0, blueZoneTotal = 0;
+
+  // Also track per-column for density
+  const blueColDensity = new Float32Array(blueZoneW);
+
+  for (let x = 0; x < blueZoneW; x++) {
+    let colBlue = 0;
+    for (let y = 0; y < H; y++) {
+      const i = (y * W + x) * 4;
+      const r = d[i], g = d[i+1], b = d[i+2];
+      const hsv = rgbToHsv(r, g, b);
+      const h = hsv[0], s = hsv[1], v = hsv[2];
+      // Liberal blue range — catches dark navy to bright blue
+      const isBlue = h >= 185 && h <= 278 && s > 8 && v > 8;
+      if (isBlue) { bluePixels++; colBlue++; }
+      blueZoneTotal++;
+    }
+    blueColDensity[x] = colBlue / H;
+  }
+
+  // Find peak column density
+  let maxColDensity = 0;
+  for (let x = 0; x < blueZoneW; x++) maxColDensity = Math.max(maxColDensity, blueColDensity[x]);
+
+  const blueRatioPct = bluePixels / blueZoneTotal;
+  // Score: peak column density weighted more
+  const blueScore = Math.min(1, (blueRatioPct * 1.8) + (maxColDensity * 1.2));
+
+  // ---- METRIC 2: White Background (weight 15%) ----
+  // Middle 60% of width, full height
+  const midStart = Math.floor(W * 0.22);
+  const midEnd = Math.floor(W * 0.92);
+  let whitePixels = 0, midTotal = 0;
+
+  for (let x = midStart; x < midEnd; x++) {
+    for (let y = 0; y < H; y++) {
+      const i = (y * W + x) * 4;
+      const r = d[i], g = d[i+1], b = d[i+2];
+      if (r > 170 && g > 170 && b > 170) whitePixels++;
+      midTotal++;
+    }
+  }
+  const whiteScore = Math.min(1, (whitePixels / midTotal) * 1.5);
+
+  // ---- METRIC 3: Black Characters (weight 20%) ----
+  let darkPixels = 0;
+  for (let x = midStart; x < midEnd; x++) {
+    for (let y = Math.floor(H * 0.1); y < Math.floor(H * 0.88); y++) {
+      const i = (y * W + x) * 4;
+      const r = d[i], g = d[i+1], b = d[i+2];
+      if (r < 70 && g < 70 && b < 70) darkPixels++;
+    }
+  }
+  const darkRatio = darkPixels / (midTotal * 0.78);
+  // Good plates have 15-45% dark pixels in char area
+  const charScore = darkRatio < 0.05 ? darkRatio * 4 :
+                    darkRatio <= 0.50 ? 0.6 + (darkRatio - 0.05) * 0.8 :
+                    Math.max(0.2, 1 - (darkRatio - 0.50) * 2);
+
+  // ---- METRIC 4: Hologram stripe (weight 20%) ----
+  // Bottom 18% of plate, full width
+  const holoY = Math.floor(H * 0.82);
+  let holoVariance = 0, holoBrightness = 0;
+  const holoSamples = [];
+
+  for (let x = Math.floor(W * 0.15); x < Math.floor(W * 0.95); x++) {
+    for (let y = holoY; y < H; y++) {
+      const i = (y * W + x) * 4;
+      const lum = (d[i] + d[i+1] + d[i+2]) / 3;
+      holoBrightness += lum;
+      holoSamples.push(lum);
+    }
+  }
+
+  const holoN = holoSamples.length;
+  const holoMean = holoN > 0 ? holoBrightness / holoN : 128;
+  for (const s of holoSamples) holoVariance += Math.pow(s - holoMean, 2);
+  holoVariance = holoN > 0 ? Math.sqrt(holoVariance / holoN) : 0;
+
+  // High variance = holographic texture present
+  const holoScore = Math.min(1, holoVariance / 45);
+
+  // ---- METRIC 5: TŞOF Stamp (weight 20%) ----
+  // Upper-left of main plate area (after blue stripe), top 40% height
+  const stampX1 = Math.floor(W * 0.22);
+  const stampX2 = Math.floor(W * 0.42);
+  const stampY2 = Math.floor(H * 0.5);
+  let stampVariance = 0;
+  const stampSamples = [];
+
+  for (let x = stampX1; x < stampX2; x++) {
+    for (let y = 0; y < stampY2; y++) {
+      const i = (y * W + x) * 4;
+      const lum = (d[i] + d[i+1] + d[i+2]) / 3;
+      stampSamples.push(lum);
+    }
+  }
+
+  const stampN = stampSamples.length;
+  const stampMean = stampN > 0 ? stampSamples.reduce((a,b)=>a+b,0) / stampN : 128;
+  for (const s of stampSamples) stampVariance += Math.pow(s - stampMean, 2);
+  stampVariance = stampN > 0 ? Math.sqrt(stampVariance / stampN) : 0;
+  const stampScore = Math.min(1, stampVariance / 38);
+
+  return [
+    { name: 'Mavi TR Şeridi', icon: '🟦', weight: 0.25, score: blueScore, raw: Math.round(blueRatioPct * 100) },
+    { name: 'Beyaz Zemin', icon: '⬜', weight: 0.15, score: whiteScore, raw: Math.round((whitePixels/midTotal)*100) },
+    { name: 'Siyah Karakterler', icon: '🔤', weight: 0.20, score: charScore, raw: Math.round(darkRatio * 100) },
+    { name: 'Hologram Şeridi', icon: '✨', weight: 0.20, score: holoScore, raw: Math.round(holoVariance) },
+    { name: 'TŞOF Mührü', icon: '🔵', weight: 0.20, score: stampScore, raw: Math.round(stampVariance) },
+  ];
+}
+
+function computeTotal(metrics) {
+  let weighted = 0;
+  for (const m of metrics) weighted += m.score * m.weight;
+  // Round to nearest 10
+  return Math.round(weighted * 10) * 10;
+}
+
+function displayResults(metrics, totalScore) {
+  // Score number
+  scoreNumber.textContent = '%' + totalScore;
+
+  let verdict, colorClass;
+  if (totalScore >= 70) {
+    verdict = 'ORİJİNAL PLAKA';
+    colorClass = 'green';
+    verdictBanner.className = 'verdict-banner show green';
+    verdictIcon.textContent = '✅';
+    verdictText.className = 'verdict-text green';
+    verdictText.textContent = 'ORİJİNAL PLAKA — Tüm güvenlik özellikleri doğrulandı';
+  } else if (totalScore >= 40) {
+    verdict = 'KONTROL GEREKLİ';
+    colorClass = 'yellow';
+    verdictBanner.className = 'verdict-banner show yellow';
+    verdictIcon.textContent = '⚠️';
+    verdictText.className = 'verdict-text yellow';
+    verdictText.textContent = 'KONTROL GEREKLİ — Bazı özellikler zayıf veya eksik';
+  } else {
+    verdict = 'STANDART DIŞI';
+    colorClass = 'red';
+    verdictBanner.className = 'verdict-banner show red';
+    verdictIcon.textContent = '❌';
+    verdictText.className = 'verdict-text red';
+    verdictText.textContent = 'STANDART DIŞI / SAHTE — Plaka doğrulanamadı';
+  }
+
+  scoreLabel.textContent = verdict;
+  scoreLabel.className = 'score-label ' + colorClass;
+  scoreDesc.textContent = 'TC Emniyet · TŞOF Standartları · KTY Yön. Md.20';
+
+  // Build metrics list
+  metricsList.innerHTML = '';
+  for (const m of metrics) {
+    const pct = Math.round(m.score * 100);
+    const rounded = Math.round(pct / 10) * 10;
+    const mColor = pct >= 70 ? 'green' : pct >= 40 ? 'yellow' : 'red';
+
+    const el = document.createElement('div');
+    el.className = 'metric-item';
+    el.innerHTML = `
+      <div class="metric-row">
+        <div class="metric-name">${m.icon} ${m.name} <span class="metric-weight">×${m.weight * 100}%</span></div>
+        <div class="metric-score-val" style="color:var(--${mColor})">%${rounded}</div>
+      </div>
+      <div class="metric-bar-bg">
+        <div class="metric-bar-fill ${mColor}" style="width:${rounded}%"></div>
+      </div>
+    `;
+    metricsList.appendChild(el);
+  }
+}
+
+// ========== TILE GRID ==========
+function buildTileGrid() {
+  if (!plateRegion || !originalImage) return;
+
+  tileEmpty.style.display = 'none';
+  tileGrid.style.display = 'grid';
+  tileGrid.innerHTML = '';
+
+  const COLS = 10, ROWS = 10;
+  const pr = plateRegion;
+  const tileW = pr.w / COLS;
+  const tileH = pr.h / ROWS;
+
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      const tx = pr.x + col * tileW;
+      const ty = pr.y + row * tileH;
+      const tw = tileW;
+      const th = tileH;
+
+      const tileEl = document.createElement('div');
+      tileEl.className = 'tile';
+
+      const tc = document.createElement('canvas');
+      const tsize = 40;
+      tc.width = tsize;
+      tc.height = tsize;
+      const tctx = tc.getContext('2d');
+      tctx.imageSmoothingEnabled = true;
+      tctx.imageSmoothingQuality = 'high';
+      tctx.drawImage(originalImage, tx, ty, tw, th, 0, 0, tsize, tsize);
+
+      // Compute quick blue score for this tile
+      const tileId = tctx.getImageData(0, 0, tsize, tsize);
+      const tileScore = quickBlueScore(tileId.data);
+      const scoreEl = document.createElement('div');
+      scoreEl.className = 'tile-score';
+      scoreEl.textContent = Math.round(tileScore * 10) * 10 + '%';
+
+      // Color overlay on tile based on score
+      if (tileScore > 0.6) {
+        tileEl.style.boxShadow = 'inset 0 0 0 2px rgba(0,230,118,0.5)';
+      } else if (tileScore > 0.3) {
+        tileEl.style.boxShadow = 'inset 0 0 0 1px rgba(255,214,0,0.3)';
+      }
+
+      tileEl.appendChild(tc);
+      tileEl.appendChild(scoreEl);
+
+      tileEl.addEventListener('click', () => openTileModal(row, col, tx, ty, tw, th));
+
+      tileGrid.appendChild(tileEl);
+    }
+  }
+}
+
+function quickBlueScore(d) {
+  let blue = 0, total = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const hsv = rgbToHsv(d[i], d[i+1], d[i+2]);
+    if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) blue++;
+    total++;
+  }
+  return total > 0 ? blue / total : 0;
+}
+
+function openTileModal(row, col, tx, ty, tw, th) {
+  tileModalTitle.textContent = `Bölge ${row * 10 + col + 1} — Satır ${row + 1}, Sütun ${col + 1}`;
+
+  // Draw HIGH QUALITY zoom from original image
+  const zoomSize = 480;
+  tileZoomCanvas.width = zoomSize;
+  tileZoomCanvas.height = Math.round(zoomSize * (th / tw));
+
+  const zCtx = tileZoomCanvas.getContext('2d');
+  zCtx.imageSmoothingEnabled = true;
+  zCtx.imageSmoothingQuality = 'high';
+
+  // Draw directly from original image for crisp output
+  zCtx.drawImage(
+    originalImage,
+    tx, ty, tw, th,
+    0, 0, tileZoomCanvas.width, tileZoomCanvas.height
+  );
+
+  // Compute tile metrics from original
+  const metricCanvas = document.createElement('canvas');
+  metricCanvas.width = Math.max(1, Math.round(tw));
+  metricCanvas.height = Math.max(1, Math.round(th));
+  const mCtx = metricCanvas.getContext('2d');
+  mCtx.drawImage(originalImage, tx, ty, tw, th, 0, 0, metricCanvas.width, metricCanvas.height);
+  const id = mCtx.getImageData(0, 0, metricCanvas.width, metricCanvas.height);
+  const d = id.data;
+
+  let blueCount = 0, whiteCount = 0, darkCount = 0, total = 0;
+  let lumSum = 0, lumSumSq = 0;
+  let rDiff = 0, gDiff = 0, bDiff = 0;
+
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i], g = d[i+1], b = d[i+2];
+    const hsv = rgbToHsv(r, g, b);
+    const lum = (r + g + b) / 3;
+    lumSum += lum; lumSumSq += lum * lum;
+    if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) blueCount++;
+    if (r > 170 && g > 170 && b > 170) whiteCount++;
+    if (r < 70 && g < 70 && b < 70) darkCount++;
+    // Chromatic aberration proxy
+    rDiff += Math.abs(r - lum);
+    gDiff += Math.abs(g - lum);
+    bDiff += Math.abs(b - lum);
+    total++;
+  }
+
+  const mean = total > 0 ? lumSum / total : 128;
+  const variance = total > 0 ? Math.sqrt(lumSumSq / total - mean * mean) : 0;
+  const chromatic = total > 0 ? (rDiff + gDiff + bDiff) / (3 * total) : 0;
+
+  const blueP = Math.round((blueCount / total) * 100);
+  const whiteP = Math.round((whiteCount / total) * 100);
+  const darkP = Math.round((darkCount / total) * 100);
+  const varP = Math.round(variance);
+  const holoP = Math.round(variance * 1.2);
+  const chromP = Math.round(chromatic);
+
+  tileMetrics.innerHTML = `
+    <div class="tile-metric"><div class="tile-metric-label">MAVİ YOĞUNLUK</div><div class="tile-metric-value">${blueP}%</div></div>
+    <div class="tile-metric"><div class="tile-metric-label">BEYAZ YOĞUNLUK</div><div class="tile-metric-value">${whiteP}%</div></div>
+    <div class="tile-metric"><div class="tile-metric-label">KARANLIK %</div><div class="tile-metric-value">${darkP}%</div></div>
+    <div class="tile-metric"><div class="tile-metric-label">VARYANS</div><div class="tile-metric-value">${varP}</div></div>
+    <div class="tile-metric"><div class="tile-metric-label">HOLOGRAM</div><div class="tile-metric-value">${Math.min(99, holoP)}</div></div>
+    <div class="tile-metric"><div class="tile-metric-label">KROMATİK</div><div class="tile-metric-value">${chromP}</div></div>
+  `;
+
+  tileModal.classList.add('show');
+}
+
+document.getElementById('tileModalClose').addEventListener('click', () => {
+  tileModal.classList.remove('show');
+});
+
+tileModal.addEventListener('click', e => {
+  if (e.target === tileModal) tileModal.classList.remove('show');
+});
+
+// ========== UTILS ==========
+function rgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  let h = 0, s = max === 0 ? 0 : d / max, v = max;
+  if (d !== 0) {
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [h * 360, s * 100, v * 100];
+}
+
+function hsvToRgb(h, s, v) {
+  s /= 100; v /= 100;
+  const i = Math.floor(h / 60) % 6;
+  const f = h / 60 - Math.floor(h / 60);
+  const p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+  const m = [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i];
+  return [Math.round(m[0]*255), Math.round(m[1]*255), Math.round(m[2]*255)];
+}
+
+function clamp(v) { return Math.max(0, Math.min(255, Math.round(v))); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
 </body>
 </html>
