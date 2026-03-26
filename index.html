@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TR Plaka Kontrol - Gelişmiş Algılama</title>
+    <title>TR Plaka Kontrol - Akıllı Bölge Tespiti</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -15,7 +15,7 @@
             color: white;
         }
         
-        .container { max-width: 700px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; }
         
         .header { text-align: center; margin-bottom: 30px; }
         
@@ -42,42 +42,55 @@
         }
         
         .upload-area:hover { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
-        .upload-area.has-image { border-color: #10b981; background: rgba(16, 185, 129, 0.1); display: none; }
-        
-        .upload-icon { font-size: 48px; margin-bottom: 15px; }
+        .upload-area.has-image { display: none; }
         
         .file-input { display: none; }
         
-        .preview-container {
+        .preview-section {
             display: none;
             margin-bottom: 20px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            padding: 15px;
         }
         
-        .preview-container.show { display: block; }
+        .preview-section.show { display: block; }
+        
+        .preview-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+        }
         
         .preview-image {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
+            width: 100%;
             display: block;
-            margin: 0 auto;
         }
         
-        .analysis-overlay {
-            position: relative;
-            margin-top: 15px;
-        }
-        
-        .region-markers {
+        .region-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
+        }
+        
+        .detected-region {
+            position: absolute;
+            border: 3px solid #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 4px;
+        }
+        
+        .region-label {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
         }
         
         .file-info {
@@ -143,10 +156,9 @@
         .result {
             display: none;
             margin-top: 24px;
-            animation: slideUp 0.4s ease;
         }
         
-        .result.show { display: block; }
+        .result.show { display: block; animation: slideUp 0.4s ease; }
         
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -160,113 +172,70 @@
             margin-bottom: 20px;
         }
         
-        .result-original {
-            background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(16, 185, 129, 0.2));
-            border: 2px solid #10b981;
-        }
+        .result-original { background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(16, 185, 129, 0.2)); border: 2px solid #10b981; }
+        .result-suspicious { background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.2)); border: 2px solid #f59e0b; }
+        .result-fake { background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2)); border: 2px solid #ef4444; }
         
-        .result-suspicious {
-            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.2));
-            border: 2px solid #f59e0b;
-        }
+        .authenticity-score { font-size: 64px; font-weight: 800; margin: 15px 0; }
         
-        .result-fake {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2));
-            border: 2px solid #ef4444;
-        }
-        
-        .authenticity-score {
-            font-size: 64px;
-            font-weight: 800;
-            margin: 15px 0;
-        }
-        
-        .features-detailed {
+        .features-grid {
             display: grid;
             gap: 12px;
-            margin-top: 20px;
         }
         
-        .feature-row {
+        .feature-card {
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 16px;
+            padding: 20px;
             background: rgba(255,255,255,0.05);
             border-radius: 12px;
             border-left: 4px solid;
+            transition: all 0.3s;
         }
         
-        .feature-row.pass { border-left-color: #10b981; background: rgba(16, 185, 129, 0.1); }
-        .feature-row.fail { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-        .feature-row.warning { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .feature-card.pass { border-left-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .feature-card.fail { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .feature-card.warning { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
         
         .feature-icon {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 24px;
             background: rgba(255,255,255,0.1);
+            flex-shrink: 0;
         }
         
-        .feature-row.pass .feature-icon { background: #10b981; }
-        .feature-row.fail .feature-icon { background: #ef4444; }
-        .feature-row.warning .feature-icon { background: #f59e0b; }
+        .feature-card.pass .feature-icon { background: #10b981; }
+        .feature-card.fail .feature-icon { background: #ef4444; }
+        .feature-card.warning .feature-icon { background: #f59e0b; }
         
         .feature-content { flex: 1; }
         
-        .feature-title { font-weight: 600; margin-bottom: 4px; }
+        .feature-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
         
-        .feature-desc { font-size: 12px; color: #94a3b8; }
+        .feature-desc { font-size: 13px; color: #94a3b8; line-height: 1.5; }
         
-        .confidence-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        
-        .confidence-fill {
-            height: 100%;
-            border-radius: 2px;
-            transition: width 0.5s ease;
-        }
-        
-        .plate-reading {
-            background: white;
-            color: #1e293b;
-            padding: 20px;
-            border-radius: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: 4px;
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            padding-left: 60px;
-        }
-        
-        .plate-reading::before {
-            content: 'TR';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 50px;
-            background: #0033a0;
-            color: white;
+        .detail-values {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            border-radius: 12px 0 0 12px;
-            font-family: sans-serif;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 12px;
         }
+        
+        .detail-value {
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        
+        .detail-label { color: #64748b; margin-right: 6px; }
+        
+        .detail-number { color: white; font-weight: 600; }
         
         .error-message {
             display: none;
@@ -279,25 +248,66 @@
         }
         
         .error-message.show { display: block; }
+        
+        .debug-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            font-size: 11px;
+            font-family: monospace;
+            color: #94a3b8;
+            display: none;
+        }
+        
+        .debug-panel.show { display: block; }
+        
+        .threshold-slider {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        
+        .threshold-slider label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        
+        .threshold-slider input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .threshold-value {
+            text-align: center;
+            font-weight: 600;
+            color: #f59e0b;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🚗 TR Plaka Kontrol</h1>
-            <p class="subtitle">Mavi şerit, mühür ve hologram analizi</p>
+            <p class="subtitle">Akıllı bölge tespiti ile otomatik analiz</p>
         </div>
         
         <div class="card">
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">📸</div>
+                <div style="font-size: 48px; margin-bottom: 15px;">📸</div>
                 <div style="font-weight: 600; font-size: 18px; margin-bottom: 8px;">Plaka Fotoğrafı Yükle</div>
-                <div style="color: #94a3b8; font-size: 13px;">Mavi TR şeridi net görünmeli</div>
+                <div style="color: #94a3b8; font-size: 13px;">Otomatik bölge tespiti yapılacak</div>
                 <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/webp">
             </div>
             
-            <div class="preview-container" id="previewContainer">
-                <img id="previewImage" class="preview-image">
+            <div class="preview-section" id="previewSection">
+                <div class="preview-wrapper">
+                    <img id="previewImage" class="preview-image">
+                    <div class="region-overlay" id="regionOverlay"></div>
+                </div>
                 <div class="file-info">
                     <div>
                         <div id="fileName" style="font-weight: 600;"></div>
@@ -305,32 +315,49 @@
                     </div>
                     <button class="remove-btn" onclick="removeImage()">🗑️ Kaldır</button>
                 </div>
+                
+                <!-- Hassasiyet Ayarı -->
+                <div class="threshold-slider">
+                    <label>🔧 Algılama Hassasiyeti (Düşük değer = Daha katı, Yüksek değer = Daha toleranslı)</label>
+                    <input type="range" id="sensitivitySlider" min="0.1" max="0.9" step="0.1" value="0.3">
+                    <div class="threshold-value" id="sensitivityValue">0.3 (Standart)</div>
+                </div>
             </div>
             
             <div class="error-message" id="errorMessage"></div>
             
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <div style="color: #94a3b8;">Plaka analiz ediliyor...</div>
+                <div style="color: #94a3b8;">Akıllı analiz yapılıyor...</div>
             </div>
             
             <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePlate()" disabled>
-                <span>🔍</span> Detaylı Analiz Et
+                <span>🔍</span> Plakayı Analiz Et
             </button>
             
             <div class="result" id="result"></div>
+            <div class="debug-panel" id="debugPanel"></div>
         </div>
     </div>
 
     <script>
         let currentImage = null;
-        let imageData = null;
+        let detectedRegions = null;
         
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
-        const previewContainer = document.getElementById('previewContainer');
+        const previewSection = document.getElementById('previewSection');
         const previewImage = document.getElementById('previewImage');
         const analyzeBtn = document.getElementById('analyzeBtn');
+        const sensitivitySlider = document.getElementById('sensitivitySlider');
+        const sensitivityValue = document.getElementById('sensitivityValue');
+        
+        // Hassasiyet değişimi
+        sensitivitySlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            let text = val <= 0.2 ? 'Çok Katı' : val <= 0.4 ? 'Standart' : val <= 0.6 ? 'Toleranslı' : 'Çok Toleranslı';
+            sensitivityValue.textContent = `${val} (${text})`;
+        });
         
         fileInput.addEventListener('change', handleFileSelect);
         
@@ -360,8 +387,11 @@
                         `${(file.size/1024).toFixed(1)} KB • ${previewImage.naturalWidth}x${previewImage.naturalHeight}px`;
                     
                     uploadArea.classList.add('has-image');
-                    previewContainer.classList.add('show');
+                    previewSection.classList.add('show');
                     analyzeBtn.disabled = false;
+                    
+                    // Otomatik bölge tespiti
+                    detectPlateRegion();
                 };
             };
             reader.readAsDataURL(file);
@@ -371,15 +401,16 @@
             currentImage = null;
             fileInput.value = '';
             uploadArea.classList.remove('has-image');
-            previewContainer.classList.remove('show');
+            previewSection.classList.remove('show');
             analyzeBtn.disabled = true;
             document.getElementById('result').classList.remove('show');
+            document.getElementById('regionOverlay').innerHTML = '';
             hideError();
         }
         
         function showError(msg) {
             const err = document.getElementById('errorMessage');
-            err.textContent = msg;
+            err.innerHTML = msg;
             err.classList.add('show');
         }
         
@@ -387,21 +418,190 @@
             document.getElementById('errorMessage').classList.remove('show');
         }
         
-        // GELİŞMİŞ PLAKA ANALİZİ
+        function logDebug(msg) {
+            const panel = document.getElementById('debugPanel');
+            panel.classList.add('show');
+            panel.innerHTML += msg + '<br>';
+        }
+        
+        // AKILLI PLAKA BÖLGE TESPİTİ
+        function detectPlateRegion() {
+            const img = previewImage;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Küçük boyutlu analiz için ölçekle (performans)
+            const scale = Math.min(1, 800 / img.naturalWidth);
+            canvas.width = img.naturalWidth * scale;
+            canvas.height = img.naturalHeight * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const sensitivity = parseFloat(sensitivitySlider.value);
+            
+            // 1. BEYAZ BÖLGE TESPİTİ (Plaka zemin)
+            // Yatay tarama - beyaz piksel yoğunluğu
+            let whiteBands = [];
+            
+            for (let y = 0; y < height; y += 2) {
+                let whiteCount = 0;
+                let totalBrightness = 0;
+                
+                for (let x = 0; x < width; x += 2) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx], g = data[idx+1], b = data[idx+2];
+                    const brightness = (r + g + b) / 3;
+                    
+                    totalBrightness += brightness;
+                    
+                    // Beyaz: Yüksek parlaklık + dengeli RGB
+                    if (brightness > 150 && r > 140 && g > 140 && b > 140 && 
+                        Math.abs(r-g) < 30 && Math.abs(r-b) < 30 && Math.abs(g-b) < 30) {
+                        whiteCount++;
+                    }
+                }
+                
+                const bandWidth = Math.ceil(width / 2);
+                const whiteRatio = whiteCount / bandWidth;
+                const avgBrightness = totalBrightness / bandWidth;
+                
+                // Beyaz bant tespiti
+                if (whiteRatio > (0.3 - sensitivity * 0.2) && avgBrightness > 120) {
+                    whiteBands.push({y, whiteRatio, avgBrightness});
+                }
+            }
+            
+            // 2. MAVİ ŞERİDİ TESPİTİ (Sol taraf)
+            let blueRegions = [];
+            
+            for (let x = 0; x < width * 0.3; x += 2) {
+                for (let y = 0; y < height; y += 2) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx], g = data[idx+1], b = data[idx+2];
+                    
+                    // Mavi: B yüksek, R ve G düşük/orta
+                    if (b > r + 30 && b > g + 15 && b > 80) {
+                        blueRegions.push({x, y, b, r, g});
+                    }
+                }
+            }
+            
+            // 3. KARAKTER BÖLGESİ (Siyah/dark pikseller)
+            let charRegions = [];
+            
+            for (let y = 0; y < height; y += 3) {
+                for (let x = width * 0.2; x < width; x += 3) {
+                    const idx = (y * width + x) * 4;
+                    const brightness = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+                    
+                    if (brightness < 100) {
+                        charRegions.push({x, y, brightness});
+                    }
+                }
+            }
+            
+            // BÖLGE HESAPLAMA
+            let plateRegion = null;
+            
+            if (whiteBands.length > 10) {
+                // Beyaz bantların ortalama Y pozisyonu
+                const avgY = whiteBands.reduce((sum, b) => sum + b.y, 0) / whiteBands.length;
+                const bandHeight = whiteBands.length * 2;
+                
+                // Mavi şeridin ortalama X pozisyonu
+                let blueX = 0;
+                if (blueRegions.length > 10) {
+                    blueX = blueRegions.reduce((sum, b) => sum + b.x, 0) / blueRegions.length;
+                }
+                
+                // Karakter bölgesi
+                let charMinX = width, charMaxX = 0;
+                if (charRegions.length > 20) {
+                    charMinX = Math.min(...charRegions.map(c => c.x));
+                    charMaxX = Math.max(...charRegions.map(c => c.x));
+                }
+                
+                plateRegion = {
+                    x: Math.max(0, (blueX || width * 0.05) - 10),
+                    y: Math.max(0, avgY - bandHeight/2),
+                    width: Math.min(width - (blueX || 0), (charMaxX - charMinX) + width * 0.3),
+                    height: bandHeight * 1.5,
+                    whiteRatio: whiteBands.reduce((sum, b) => sum + b.whiteRatio, 0) / whiteBands.length,
+                    blueDetected: blueRegions.length > 20,
+                    charDetected: charRegions.length > 50
+                };
+            }
+            
+            // Görselleştir
+            if (plateRegion) {
+                detectedRegions = plateRegion;
+                showDetectedRegion(plateRegion, scale);
+                
+                logDebug(`Bölge tespit edildi: X:${Math.round(plateRegion.x)}, Y:${Math.round(plateRegion.y)}, ` +
+                        `W:${Math.round(plateRegion.width)}, H:${Math.round(plateRegion.height)}`);
+                logDebug(`Beyaz oranı: ${(plateRegion.whiteRatio * 100).toFixed(1)}%, ` +
+                        `Mavi: ${plateRegion.blueDetected}, Karakter: ${plateRegion.charDetected}`);
+            } else {
+                logDebug('Otomatik tespit başarısız, varsayılan bölge kullanılacak');
+                // Varsayılan: Görselin orta kısmı
+                detectedRegions = {
+                    x: width * 0.1,
+                    y: height * 0.3,
+                    width: width * 0.8,
+                    height: height * 0.4,
+                    whiteRatio: 0.5,
+                    blueDetected: true,
+                    charDetected: true
+                };
+                showDetectedRegion(detectedRegions, scale);
+            }
+        }
+        
+        function showDetectedRegion(region, scale) {
+            const overlay = document.getElementById('regionOverlay');
+            const img = previewImage;
+            
+            // Ölçeklendirme oranını hesapla (görsel ekran boyutu vs analiz boyutu)
+            const displayWidth = img.clientWidth;
+            const displayHeight = img.clientHeight;
+            const actualScale = displayWidth / (img.naturalWidth * scale);
+            
+            const left = (region.x * scale) * actualScale;
+            const top = (region.y * scale) * actualScale;
+            const width = (region.width * scale) * actualScale;
+            const height = (region.height * scale) * actualScale;
+            
+            overlay.innerHTML = `
+                <div class="detected-region" style="
+                    left: ${left}px;
+                    top: ${top}px;
+                    width: ${width}px;
+                    height: ${height}px;
+                ">
+                    <div class="region-label">📍 TESPİT EDİLEN PLAKA BÖLGESİ</div>
+                </div>
+            `;
+        }
+        
+        // ANA ANALİZ FONKSİYONU
         function analyzePlate() {
-            if (!currentImage) return;
+            if (!currentImage || !detectedRegions) return;
             
             document.getElementById('loading').classList.add('show');
             analyzeBtn.disabled = true;
             
             setTimeout(() => {
-                performAdvancedAnalysis();
+                performSmartAnalysis();
                 document.getElementById('loading').classList.remove('show');
                 analyzeBtn.disabled = false;
-            }, 500);
+            }, 800);
         }
         
-        function performAdvancedAnalysis() {
+        function performSmartAnalysis() {
             const img = previewImage;
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -415,166 +615,174 @@
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
             
-            // 1. MAVİ TR ŞERİDİ ANALİZİ (Sol kısım)
-            // Mavi: R düşük, G orta, Yüksek
-            const leftStripWidth = width * 0.15;
-            let bluePixels = 0;
-            let totalStripPixels = 0;
+            // Tespit edilen bölgeyi kullan
+            const region = detectedRegions;
+            const scaleX = width / (img.clientWidth / (img.clientWidth / (img.naturalWidth * Math.min(1, 800 / img.naturalWidth))));
+            const scaleY = height / (img.clientHeight / (img.clientHeight / (img.naturalHeight * Math.min(1, 800 / img.naturalHeight))));
             
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < leftStripWidth; x++) {
+            // Gerçek koordinatlar
+            const rX = Math.max(0, Math.floor(region.x));
+            const rY = Math.max(0, Math.floor(region.y));
+            const rW = Math.min(width - rX, Math.floor(region.width));
+            const rH = Math.min(height - rY, Math.floor(region.height));
+            
+            logDebug(`Analiz bölgesi: ${rX},${rY} ${rW}x${rH}`);
+            
+            // 1. MAVİ ŞERİDİ ANALİZİ (Bölgenin solu)
+            const blueStripWidth = Math.min(rW * 0.2, 100);
+            let blueScore = 0;
+            let bluePixels = 0;
+            let totalBlueArea = 0;
+            
+            for (let y = rY; y < rY + rH; y += 2) {
+                for (let x = rX; x < rX + blueStripWidth; x += 2) {
                     const idx = (y * width + x) * 4;
                     const r = data[idx], g = data[idx+1], b = data[idx+2];
                     
-                    // Mavi tespiti: B > R+20 ve B > G+10
-                    if (b > r + 20 && b > g + 10 && b > 100) {
+                    totalBlueArea++;
+                    
+                    // Mavi tespiti - geniş tolerans
+                    if (b > r + 20 && b > g + 10 && b > 60) {
                         bluePixels++;
                     }
-                    totalStripPixels++;
                 }
             }
             
-            const blueRatio = bluePixels / totalStripPixels;
-            const hasBlueStrip = blueRatio > 0.3;
+            blueScore = (bluePixels / totalBlueArea) * 100;
             
-            // 2. PLAKA BÖLGESİ ANALİZİ (Orta kısım - beyaz zemin)
-            const plateStartX = width * 0.15;
-            const plateEndX = width * 0.95;
-            const plateStartY = height * 0.2;
-            const plateEndY = height * 0.8;
+            // 2. BEYAZ ZEMİN ANALİZİ (Bölgenin ortası)
+            const plateStartX = rX + blueStripWidth;
+            const plateWidth = rW - blueStripWidth;
             
             let whitePixels = 0;
-            let blackPixels = 0;
-            let plateTotalPixels = 0;
-            let edgeSharpness = 0;
-            let prevBrightness = 0;
+            let grayPixels = 0;
+            let totalPlateArea = 0;
             
-            for (let y = Math.floor(plateStartY); y < plateEndY; y++) {
-                for (let x = Math.floor(plateStartX); x < plateEndX; x++) {
+            for (let y = rY; y < rY + rH; y += 2) {
+                for (let x = plateStartX; x < plateStartX + plateWidth; x += 2) {
                     const idx = (y * width + x) * 4;
                     const r = data[idx], g = data[idx+1], b = data[idx+2];
                     const brightness = (r + g + b) / 3;
                     
-                    // Beyaz zemin (yüksek parlaklık)
-                    if (brightness > 180 && r > 170 && g > 170 && b > 170) {
+                    totalPlateArea++;
+                    
+                    // Beyaz: Yüksek parlaklık, dengeli renkler
+                    if (brightness > 140 && Math.abs(r-g) < 40 && Math.abs(r-b) < 40 && Math.abs(g-b) < 40) {
                         whitePixels++;
                     }
-                    
-                    // Siyah karakterler (düşük parlaklık)
-                    if (brightness < 80) {
-                        blackPixels++;
+                    // Gri (gümüş/gri plaka): Orta parlaklık
+                    else if (brightness > 100 && brightness < 180 && Math.abs(r-g) < 30 && Math.abs(r-b) < 30) {
+                        grayPixels++;
                     }
-                    
-                    // Kenar netliği (ani değişimler)
-                    if (prevBrightness > 0) {
-                        const diff = Math.abs(brightness - prevBrightness);
-                        if (diff > 100) edgeSharpness++;
-                    }
-                    prevBrightness = brightness;
-                    
-                    plateTotalPixels++;
                 }
             }
             
-            const whiteRatio = whitePixels / plateTotalPixels;
-            const blackRatio = blackPixels / plateTotalPixels;
-            const hasWhiteBackground = whiteRatio > 0.4;
-            const hasBlackCharacters = blackRatio > 0.05;
-            const sharpnessScore = Math.min(100, (edgeSharpness / plateTotalPixels) * 1000);
+            const whiteScore = ((whitePixels + grayPixels * 0.7) / totalPlateArea) * 100;
             
-            // 3. HOLOGRAM ANALİZİ (Orta şerit - yatay dalgalı desen)
-            const centerY = height / 2;
-            const hologramBand = height * 0.1;
-            let hologramEdges = 0;
-            let hologramVariance = 0;
-            let prevLineBrightness = 0;
+            // 3. KARAKTER ANALİZİ (Koyu pikseller)
+            let darkPixels = 0;
+            let edgePixels = 0;
+            let prevBrightness = 0;
             
-            for (let y = Math.floor(centerY - hologramBand/2); y < centerY + hologramBand/2; y += 2) {
+            for (let y = rY; y < rY + rH; y += 2) {
+                for (let x = plateStartX; x < plateStartX + plateWidth; x += 2) {
+                    const idx = (y * width + x) * 4;
+                    const brightness = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+                    
+                    if (brightness < 90) darkPixels++;
+                    
+                    // Kenar tespiti
+                    if (prevBrightness > 0 && Math.abs(brightness - prevBrightness) > 80) {
+                        edgePixels++;
+                    }
+                    prevBrightness = brightness;
+                }
+            }
+            
+            const charScore = Math.min(100, (darkPixels / totalPlateArea) * 300);
+            const edgeScore = Math.min(100, (edgePixels / totalPlateArea) * 1000);
+            
+            // 4. HOLOGRAM ANALİZİ (Yatay dalgalanma)
+            let hologramScore = 0;
+            const centerY = rY + rH / 2;
+            const bandHeight = rH * 0.15;
+            let varianceSum = 0;
+            let lineCount = 0;
+            
+            for (let y = Math.floor(centerY - bandHeight/2); y < centerY + bandHeight/2; y += 3) {
                 let lineBrightness = 0;
                 let linePixels = 0;
                 
-                for (let x = Math.floor(plateStartX); x < plateEndX; x++) {
+                for (let x = plateStartX; x < plateStartX + plateWidth; x += 3) {
                     const idx = (y * width + x) * 4;
-                    const brightness = (data[idx] + data[idx+1] + data[idx+2]) / 3;
-                    lineBrightness += brightness;
+                    lineBrightness += (data[idx] + data[idx+1] + data[idx+2]) / 3;
                     linePixels++;
                 }
                 
-                const avgLineBrightness = lineBrightness / linePixels;
-                
-                if (prevLineBrightness > 0) {
-                    const diff = Math.abs(avgLineBrightness - prevLineBrightness);
-                    if (diff > 15) hologramEdges++;
-                    hologramVariance += diff;
+                if (linePixels > 0) {
+                    varianceSum += Math.pow(lineBrightness / linePixels - 128, 2);
+                    lineCount++;
                 }
-                prevLineBrightness = avgLineBrightness;
             }
             
-            const hasHologram = hologramEdges > 3 && hologramVariance > 100;
+            const variance = lineCount > 0 ? varianceSum / lineCount : 0;
+            hologramScore = Math.min(100, variance / 50);
             
-            // 4. MÜHÜR ANALİZİ (Sol üst köşe - dairesel koyu bölge)
-            const sealSize = Math.min(width, height) * 0.2;
-            let sealDarkPixels = 0;
-            let sealPattern = 0;
+            // 5. MÜHÜR ANALİZİ (Sol üst köşe)
+            const sealSize = Math.min(rW, rH) * 0.25;
+            let sealScore = 0;
+            let darkSealPixels = 0;
+            let sealTotal = 0;
             
-            for (let y = 0; y < sealSize; y += 2) {
-                for (let x = 0; x < sealSize; x += 2) {
+            for (let y = rY; y < rY + sealSize && y < rY + rH; y += 2) {
+                for (let x = rX; x < rX + sealSize && x < rX + rW; x += 2) {
                     const idx = (y * width + x) * 4;
                     const brightness = (data[idx] + data[idx+1] + data[idx+2]) / 3;
                     
-                    if (brightness < 100) sealDarkPixels++;
-                    
-                    // Merkeze doğru yoğunluk
-                    const dist = Math.sqrt(x*x + y*y);
-                    if (dist < sealSize * 0.5 && brightness < 120) {
-                        sealPattern++;
-                    }
+                    sealTotal++;
+                    if (brightness < 120) darkSealPixels++;
                 }
             }
             
-            const sealArea = (sealSize/2) * (sealSize/2);
-            const hasSeal = (sealDarkPixels / sealArea) > 0.15 || (sealPattern / sealArea) > 0.05;
+            sealScore = (darkSealPixels / sealTotal) * 100;
             
-            // SKOR HESAPLAMA (Her özellik ağırlıklı)
-            let totalScore = 0;
-            const weights = {
-                blueStrip: 25,    // Mavi TR şeridi çok önemli
-                whiteBg: 20,      // Beyaz zemin
-                blackChars: 15,   // Siyah karakterler
-                sharpness: 15,    // Kenar netliği
-                hologram: 15,     // Hologram
-                seal: 10          // Mühür
-            };
-            
+            // SKOR HESAPLAMA
             const scores = {
-                blueStrip: hasBlueStrip ? weights.blueStrip : 0,
-                whiteBg: hasWhiteBackground ? weights.whiteBg : (whiteRatio > 0.2 ? weights.whiteBg * 0.5 : 0),
-                blackChars: hasBlackCharacters ? weights.blackChars : 0,
-                sharpness: Math.min(weights.sharpness, (sharpnessScore / 100) * weights.sharpness),
-                hologram: hasHologram ? weights.hologram : weights.hologram * 0.3,
-                seal: hasSeal ? weights.seal : weights.seal * 0.3
+                blueStrip: Math.min(100, blueScore * 1.2),
+                whiteBg: Math.min(100, whiteScore * 1.1),
+                characters: Math.min(100, charScore + edgeScore * 0.3),
+                hologram: Math.min(100, hologramScore * 1.5),
+                seal: Math.min(100, sealScore * 0.8)
             };
             
-            Object.values(scores).forEach(s => totalScore += s);
+            // Ağırlıklar
+            const weights = { blue: 25, white: 25, chars: 20, hologram: 15, seal: 15 };
+            
+            const totalScore = 
+                (scores.blueStrip * weights.blue / 100) +
+                (scores.whiteBg * weights.white / 100) +
+                (scores.characters * weights.chars / 100) +
+                (scores.hologram * weights.hologram / 100) +
+                (scores.seal * weights.seal / 100);
             
             // DURUM BELİRLEME
             let status, statusClass, title, message;
             
-            if (totalScore >= 75 && hasBlueStrip && hasWhiteBackground) {
+            if (totalScore >= 70) {
                 status = 'original';
                 statusClass = 'result-original';
                 title = '✅ ORİJİNAL PLAKA';
-                message = 'Tüm güvenlik özellikleri tespit edildi. Bu plaka TSE ve EGM standartlarına tam uygundur.';
-            } else if (totalScore >= 50 && (hasBlueStrip || hasWhiteBackground)) {
+                message = 'Tespit edilen bölgedeki tüm güvenlik özellikleri doğrulandı.';
+            } else if (totalScore >= 45) {
                 status = 'suspicious';
                 statusClass = 'result-suspicious';
-                title = '⚠️ KONTROL GEREKLİ';
-                message = 'Bazı özellikler zayıf veya belirsiz. Daha net fotoğraf çekin veya manuel kontrol yapın.';
+                title = '⚠️ KISMEN UYGUN';
+                message = 'Bazı özellikler zayıf. Farklı açıdan fotoğraf çekmeyi deneyin.';
             } else {
                 status = 'fake';
                 statusClass = 'result-fake';
-                title = '❌ SAHTE / STANDART DIŞI';
-                message = 'Güvenlik özellikleri yetersiz. Bu plaka orijinal olmayabilir.';
+                title = '❌ STANDART DIŞI';
+                message = 'Güvenlik özellikleri yetersiz veya plaka bölgesi tespit edilemedi.';
             }
             
             // SONUÇ GÖSTER
@@ -591,62 +799,70 @@
                     <p style="font-size: 14px; opacity: 0.9; line-height: 1.5;">${message}</p>
                 </div>
                 
-                <div class="features-detailed">
-                    <div class="feature-row ${scores.blueStrip > 20 ? 'pass' : scores.blueStrip > 10 ? 'warning' : 'fail'}">
-                        <div class="feature-icon">${scores.blueStrip > 20 ? '✓' : scores.blueStrip > 10 ? '!' : '✗'}</div>
+                <div class="features-grid">
+                    <div class="feature-card ${scores.blueStrip > 60 ? 'pass' : scores.blueStrip > 30 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.blueStrip > 60 ? '✓' : scores.blueStrip > 30 ? '!' : '✗'}</div>
                         <div class="feature-content">
                             <div class="feature-title">Mavi TR Şeridi</div>
-                            <div class="feature-desc">${hasBlueStrip ? 'Tespit edildi (%' + Math.round(blueRatio*100) + ')' : 'Zayıf veya yok'}</div>
-                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.blueStrip/weights.blueStrip)*100}%; background: ${scores.blueStrip > 20 ? '#10b981' : scores.blueStrip > 10 ? '#f59e0b' : '#ef4444'}"></div></div>
+                            <div class="feature-desc">${scores.blueStrip > 60 ? 'Net mavi şerit tespit edildi' : scores.blueStrip > 30 ? 'Zayıf mavi tonları' : 'Mavi şerit bulunamadı'}</div>
+                            <div class="detail-values">
+                                <div class="detail-value"><span class="detail-label">Skor:</span><span class="detail-number">${Math.round(scores.blueStrip)}%</span></div>
+                                <div class="detail-value"><span class="detail-label">Piksel:</span><span class="detail-number">${Math.round(bluePixels)}</span></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="feature-row ${scores.whiteBg > 15 ? 'pass' : scores.whiteBg > 8 ? 'warning' : 'fail'}">
-                        <div class="feature-icon">${scores.whiteBg > 15 ? '✓' : scores.whiteBg > 8 ? '!' : '✗'}</div>
+                    <div class="feature-card ${scores.whiteBg > 60 ? 'pass' : scores.whiteBg > 30 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.whiteBg > 60 ? '✓' : scores.whiteBg > 30 ? '!' : '✗'}</div>
                         <div class="feature-content">
                             <div class="feature-title">Beyaz Zemin</div>
-                            <div class="feature-desc">${hasWhiteBackground ? 'Standart beyaz (%' + Math.round(whiteRatio*100) + ')' : 'Zemin rengi düşük'}</div>
-                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.whiteBg/weights.whiteBg)*100}%; background: ${scores.whiteBg > 15 ? '#10b981' : scores.whiteBg > 8 ? '#f59e0b' : '#ef4444'}"></div></div>
+                            <div class="feature-desc">${scores.whiteBg > 60 ? 'Standart beyaz/gri zemin' : scores.whiteBg > 30 ? 'Zemin rengi düşük' : 'Zemin tespit edilemedi'}</div>
+                            <div class="detail-values">
+                                <div class="detail-value"><span class="detail-label">Skor:</span><span class="detail-number">${Math.round(scores.whiteBg)}%</span></div>
+                                <div class="detail-value"><span class="detail-label">Beyaz:</span><span class="detail-number">${Math.round(whitePixels)}</span></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="feature-row ${scores.blackChars > 10 ? 'pass' : scores.blackChars > 5 ? 'warning' : 'fail'}">
-                        <div class="feature-icon">${scores.blackChars > 10 ? '✓' : scores.blackChars > 5 ? '!' : '✗'}</div>
+                    <div class="feature-card ${scores.characters > 60 ? 'pass' : scores.characters > 30 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.characters > 60 ? '✓' : scores.characters > 30 ? '!' : '✗'}</div>
                         <div class="feature-content">
-                            <div class="feature-title">Siyah Karakterler</div>
-                            <div class="feature-desc">${hasBlackCharacters ? 'Net siyah harfler (%' + Math.round(blackRatio*100) + ')' : 'Karakterler belirsiz'}</div>
-                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.blackChars/weights.blackChars)*100}%; background: ${scores.blackChars > 10 ? '#10b981' : scores.blackChars > 5 ? '#f59e0b' : '#ef4444'}"></div></div>
+                            <div class="feature-title">Karakter Netliği</div>
+                            <div class="feature-desc">${scores.characters > 60 ? 'Net siyah karakterler' : scores.characters > 30 ? 'Karakterler belirsiz' : 'Karakter bulunamadı'}</div>
+                            <div class="detail-values">
+                                <div class="detail-value"><span class="detail-label">Skor:</span><span class="detail-number">${Math.round(scores.characters)}%</span></div>
+                                <div class="detail-value"><span class="detail-label">Kenar:</span><span class="detail-number">${Math.round(edgeScore)}</span></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="feature-row ${scores.sharpness > 10 ? 'pass' : scores.sharpness > 5 ? 'warning' : 'fail'}">
-                        <div class="feature-icon">${scores.sharpness > 10 ? '✓' : scores.sharpness > 5 ? '!' : '✗'}</div>
-                        <div class="feature-content">
-                            <div class="feature-title">Kenar Netliği</div>
-                            <div class="feature-desc">Keskinlik skoru: ${Math.round(sharpnessScore)}/100</div>
-                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.sharpness/weights.sharpness)*100}%; background: ${scores.sharpness > 10 ? '#10b981' : scores.sharpness > 5 ? '#f59e0b' : '#ef4444'}"></div></div>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-row ${scores.hologram > 10 ? 'pass' : scores.hologram > 5 ? 'warning' : 'fail'}">
-                        <div class="feature-icon">${scores.hologram > 10 ? '✓' : scores.hologram > 5 ? '!' : '✗'}</div>
+                    <div class="feature-card ${scores.hologram > 50 ? 'pass' : scores.hologram > 25 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.hologram > 50 ? '✓' : scores.hologram > 25 ? '!' : '✗'}</div>
                         <div class="feature-content">
                             <div class="feature-title">Hologram Şeridi</div>
-                            <div class="feature-desc">${hasHologram ? 'Dalgalı desen tespit edildi' : 'Belirsiz veya yok'}</div>
-                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.hologram/weights.hologram)*100}%; background: ${scores.hologram > 10 ? '#10b981' : scores.hologram > 5 ? '#f59e0b' : '#ef4444'}"></div></div>
+                            <div class="feature-desc">${scores.hologram > 50 ? 'Dalgalı hologram deseni var' : scores.hologram > 25 ? 'Hologram zayıf' : 'Hologram tespit edilemedi'}</div>
+                            <div class="detail-values">
+                                <div class="detail-value"><span class="detail-label">Skor:</span><span class="detail-number">${Math.round(scores.hologram)}%</span></div>
+                                <div class="detail-value"><span class="detail-label">Varyans:</span><span class="detail-number">${Math.round(variance)}</span></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="feature-row ${scores.seal > 7 ? 'pass' : scores.seal > 3 ? 'warning' : 'fail'}">
-                        <div class="feature-icon">${scores.seal > 7 ? '✓' : scores.seal > 3 ? '!' : '✗'}</div>
+                    <div class="feature-card ${scores.seal > 40 ? 'pass' : scores.seal > 20 ? 'warning' : 'fail'}">
+                        <div class="feature-icon">${scores.seal > 40 ? '✓' : scores.seal > 20 ? '!' : '✗'}</div>
                         <div class="feature-content">
                             <div class="feature-title">Mühür/Damga</div>
-                            <div class="feature-desc">${hasSeal ? 'Sol üst mühürü tespit edildi' : 'Mühür belirsiz'}</div>
-                            <div class="confidence-bar"><div class="confidence-fill" style="width: ${(scores.seal/weights.seal)*100}%; background: ${scores.seal > 7 ? '#10b981' : scores.seal > 3 ? '#f59e0b' : '#ef4444'}"></div></div>
+                            <div class="feature-desc">${scores.seal > 40 ? 'Sol üst mühürü tespit edildi' : scores.seal > 20 ? 'Mühür belirsiz' : 'Mühür bulunamadı'}</div>
+                            <div class="detail-values">
+                                <div class="detail-value"><span class="detail-label">Skor:</span><span class="detail-number">${Math.round(scores.seal)}%</span></div>
+                                <div class="detail-value"><span class="detail-label">Koyu:</span><span class="detail-number">${Math.round(darkSealPixels)}</span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
+            
+            logDebug(`Final skor: ${totalScore.toFixed(1)}`);
         }
     </script>
 </body>
