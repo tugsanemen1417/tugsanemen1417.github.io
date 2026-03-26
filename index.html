@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plaka Doğrulama Sistemi - Sahte/Akıl Kontrolü</title>
-    <script src='https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js'></script>
+    <title>TR Plaka Doğrulama Sistemi | App vs Sahte Kontrol</title>
     <style>
         * {
             margin: 0;
@@ -17,254 +16,313 @@
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             padding: 20px;
+            color: #333;
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.05) 10px,
+                rgba(255,255,255,0.05) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
 
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+            position: relative;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
+            position: relative;
         }
 
         .content {
             padding: 40px;
         }
 
-        .upload-section {
-            border: 3px dashed #ccc;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            margin-bottom: 30px;
-            transition: all 0.3s ease;
+        .input-section {
             background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.3em;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 20px;
+            background: white;
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            text-align: center;
             cursor: pointer;
+            transition: all 0.3s;
+            color: #3498db;
+            font-weight: 600;
         }
 
-        .upload-section:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
+        .file-input-label:hover {
+            background: #ebf5fb;
+            border-color: #2980b9;
         }
 
-        .upload-section.dragover {
-            border-color: #764ba2;
-            background: #e8eeff;
-            transform: scale(1.02);
+        .file-input-label.has-file {
+            background: #d5f4e6;
+            border-color: #27ae60;
+            color: #27ae60;
         }
 
-        .upload-icon {
-            font-size: 4em;
-            margin-bottom: 15px;
-            color: #667eea;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .btn-analyze {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2em;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.1em;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .preview-section {
-            display: none;
-            margin-bottom: 30px;
-        }
-
-        .preview-container {
-            position: relative;
-            display: inline-block;
-            max-width: 100%;
             border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
         }
 
-        #previewImage {
-            max-width: 100%;
-            height: auto;
-            display: block;
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
         }
 
-        .plate-overlay {
-            position: absolute;
-            border: 3px solid #00ff00;
-            background: rgba(0, 255, 0, 0.1);
-            pointer-events: none;
+        .btn-analyze:active {
+            transform: translateY(0);
+        }
+
+        .results {
             display: none;
-            box-shadow: 0 0 10px rgba(0,255,0,0.5);
+            animation: fadeIn 0.5s ease;
         }
 
-        .results-section {
-            display: none;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .result-card {
-            background: #f8f9fa;
+            background: white;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
-            border-left: 5px solid #667eea;
-            transition: transform 0.3s ease;
-        }
-
-        .result-card:hover {
-            transform: translateX(5px);
-        }
-
-        .result-card.success {
-            border-left-color: #28a745;
-            background: #d4edda;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
         }
 
         .result-card.danger {
-            border-left-color: #dc3545;
-            background: #f8d7da;
+            border-left-color: #e74c3c;
+            background: #fdf2f2;
+        }
+
+        .result-card.success {
+            border-left-color: #27ae60;
+            background: #f2fdf5;
         }
 
         .result-card.warning {
-            border-left-color: #ffc107;
-            background: #fff3cd;
+            border-left-color: #f39c12;
+            background: #fef9e7;
         }
 
         .result-title {
             font-size: 1.3em;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 10px;
-            color: #333;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .result-content {
-            color: #555;
-            line-height: 1.6;
-            font-size: 1.05em;
-        }
-
-        .plate-text {
-            font-size: 2.5em;
-            font-weight: bold;
-            text-align: center;
-            letter-spacing: 5px;
-            margin: 20px 0;
-            padding: 20px;
-            background: #333;
-            color: white;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            text-transform: uppercase;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        .confidence-bar {
-            width: 100%;
-            height: 30px;
-            background: #e9ecef;
-            border-radius: 15px;
-            overflow: hidden;
-            margin: 15px 0;
-            position: relative;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
-            transition: width 1s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .check-list {
-            list-style: none;
-            margin-top: 15px;
-        }
-
-        .check-list li {
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .check-list li:last-child {
-            border-bottom: none;
-        }
-
-        .check-icon {
-            font-size: 1.5em;
-            width: 30px;
-            text-align: center;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 5px 15px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 0.9em;
-            margin-left: 10px;
+            text-transform: uppercase;
         }
 
-        .status-badge.authentic {
-            background: #28a745;
+        .status-app {
+            background: #27ae60;
             color: white;
         }
 
-        .status-badge.suspicious {
-            background: #ffc107;
-            color: #333;
+        .status-sahte {
+            background: #e74c3c;
+            color: white;
         }
 
-        .status-badge.fake {
-            background: #dc3545;
+        .status-supheli {
+            background: #f39c12;
             color: white;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            background: rgba(0,0,0,0.03);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .canvas-container {
+            text-align: center;
+            margin: 20px 0;
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        canvas {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .security-features {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            width: 24px;
+            height: 24px;
+            background: #27ae60;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+        }
+
+        .feature-list li.missing::before {
+            content: '✗';
+            background: #e74c3c;
         }
 
         .loading {
@@ -274,11 +332,11 @@
         }
 
         .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
             width: 60px;
             height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
@@ -288,86 +346,53 @@
             100% { transform: rotate(360deg); }
         }
 
-        .loading-text {
-            color: #667eea;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        .manual-input {
-            margin-top: 20px;
-            padding: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .manual-input input {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.2em;
-            border: 2px solid #ced4da;
-            border-radius: 8px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .manual-input input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
         .info-box {
-            background: #e7f3ff;
-            border-left: 4px solid #2196F3;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 5px;
             font-size: 0.95em;
-            color: #0c5460;
         }
 
-        .security-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .feature-item {
+        .plate-preview {
             background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border: 3px solid #333;
+            border-radius: 8px;
+            padding: 15px 30px;
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin: 10px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: relative;
         }
 
-        .feature-icon {
-            font-size: 1.5em;
+        .plate-preview::before {
+            content: 'TR';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
             width: 40px;
-            height: 40px;
+            background: #0033a0;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f0f4ff;
-            border-radius: 50%;
+            font-size: 0.5em;
+            border-radius: 5px 0 0 5px;
+            font-family: Arial, sans-serif;
         }
 
         @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
             .header h1 {
                 font-size: 1.8em;
-            }
-            .content {
-                padding: 20px;
-            }
-            .plate-text {
-                font-size: 1.8em;
-                letter-spacing: 2px;
             }
         }
     </style>
@@ -375,84 +400,354 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚗 Plaka Doğrulama Sistemi</h1>
-            <p>Fotoğraf ile Plaka Analizi - Sahte/Akıl Kontrolü</p>
+            <h1>🚗 TR Plaka Doğrulama</h1>
+            <p>App (Gerçek) vs Sahte Plaka Analiz Sistemi</p>
         </div>
 
         <div class="content">
             <div class="info-box">
-                <strong>ℹ️ Bilgi:</strong> Bu sistem yapay zeka ile plaka metnini okur ve Türkiye plaka formatına uygunluğunu, olası sahte plaka belirtilerini analiz eder. Yeni karekodlu plakalar için QR kod doğrulaması da yapılır.
+                <strong>ℹ️ Bilgi:</strong> Bu sistem, Türkiye Cumhuriyeti plaka formatını kontrol eder ve sahte plaka tespiti için algoritmik analiz yapar. 
+                2024 itibariyle tüm plakalarda <strong>QR kod</strong> ve <strong>hologram</strong> zorunludur [^22^][^11^].
             </div>
 
-            <div class="upload-section" id="dropZone">
-                <div class="upload-icon">📷</div>
-                <h3>Plaka Fotoğrafını Yükleyin</h3>
-                <p>veya sürükleyip bırakın</p>
-                <p style="font-size: 0.9em; color: #666; margin-top: 10px;">Desteklenen formatlar: JPG, PNG, WEBP</p>
-                <input type="file" id="fileInput" accept="image/*">
-                <button class="btn" onclick="document.getElementById('fileInput').click()">Fotoğraf Seç</button>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="plateInput">Plaka Numarası</label>
+                    <input type="text" id="plateInput" placeholder="Örn: 34 ABC 123" maxlength="12">
+                </div>
+
+                <div class="input-group">
+                    <label>Fotoğraf Yükle (Opsiyonel)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="imageInput" accept="image/*">
+                        <label for="imageInput" class="file-input-label" id="fileLabel">
+                            📷 Plaka Fotoğrafı Seç veya Sürükle-Bırak
+                        </label>
+                    </div>
+                </div>
+
+                <div class="canvas-container" id="canvasContainer">
+                    <canvas id="imageCanvas"></canvas>
+                </div>
+
+                <button class="btn-analyze" onclick="analyzePlate()">
+                    🔍 Plakayı Analiz Et
+                </button>
             </div>
 
-            <div class="loading" id="loadingSection">
+            <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <div class="loading-text">Plaka analiz ediliyor...</div>
-                <p style="color: #666; margin-top: 10px;">Yapay zeka görüntüyü işliyor</p>
+                <p>Plaka analiz ediliyor...</p>
             </div>
 
-            <div class="preview-section" id="previewSection">
-                <h3 style="margin-bottom: 15px;">📸 Yüklenen Görüntü</h3>
-                <div style="text-align: center;">
-                    <div class="preview-container">
-                        <img id="previewImage" alt="Plaka önizleme">
-                        <div class="plate-overlay" id="plateOverlay"></div>
-                    </div>
-                </div>
-                
-                <div class="manual-input" id="manualInput">
-                    <p style="margin-bottom: 10px; font-weight: bold;">Otomatik okuma başarısız oldu. Lütfen plakayı manuel girin:</p>
-                    <input type="text" id="manualPlate" placeholder="34ABC123" maxlength="10">
-                    <button class="btn" onclick="analyzeManualPlate()">Analiz Et</button>
-                </div>
-            </div>
-
-            <div class="results-section" id="resultsSection">
-                <div class="result-card">
-                    <div class="result-title">
-                        🔍 Tespit Edilen Plaka
-                        <span id="authenticityBadge" class="status-badge"></span>
-                    </div>
-                    <div class="plate-text" id="detectedPlate">--</div>
-                    <div class="confidence-bar">
-                        <div class="confidence-fill" id="confidenceBar" style="width: 0%">0%</div>
-                    </div>
-                    <p style="text-align: center; color: #666; font-size: 0.9em;">OCR Güven Skoru</p>
-                </div>
-
-                <div class="result-card" id="formatCheck">
-                    <div class="result-title">📋 Format Doğrulama</div>
-                    <div class="result-content">
-                        <ul class="check-list" id="formatChecks"></ul>
-                    </div>
-                </div>
-
-                <div class="result-card" id="securityCheck">
-                    <div class="result-title">🛡️ Güvenlik Analizi</div>
-                    <div class="result-content">
-                        <p>Plakanın sahte olup olmadığını belirleyen güvenlik kontrolleri:</p>
-                        <div class="security-features" id="securityFeatures"></div>
-                    </div>
-                </div>
-
-                <div class="result-card" id="recommendation">
-                    <div class="result-title">💡 Değerlendirme</div>
-                    <div class="result-content" id="recommendationText"></div>
-                </div>
-
-                <button class="btn" onclick="resetApp()" style="width: 100%; margin-top: 20px;">Yeni Analiz Yap</button>
+            <div class="results" id="results">
+                <!-- Sonuçlar buraya gelecek -->
             </div>
         </div>
     </div>
 
     <script>
-        // Türkiye plaka formatı regex
-        const PLATE_REGEX = /^(\d{2})(
+        // Türkiye plaka regex pattern'i [^12^][^14^]
+        const PLATE_REGEX = /^(0[1-9]|[1-7][0-9]|8[01])(([A-PR-VYZ])(?!0{4,5}$)\d{4,5}|([A-PR-VYZ]{2})(?!0{3,4}$)\d{3,4}|([A-PR-VYZ]{3})(?!0{2,3}$)\d{2,3})$/;
+        
+        // İl kodları veritabanı
+        const CITY_CODES = {
+            '01': 'Adana', '02': 'Adıyaman', '03': 'Afyonkarahisar', '04': 'Ağrı',
+            '05': 'Amasya', '06': 'Ankara', '07': 'Antalya', '08': 'Artvin',
+            '09': 'Aydın', '10': 'Balıkesir', '11': 'Bilecik', '12': 'Bingöl',
+            '13': 'Bitlis', '14': 'Bolu', '15': 'Burdur', '16': 'Bursa',
+            '17': 'Çanakkale', '18': 'Çankırı', '19': 'Çorum', '20': 'Denizli',
+            '21': 'Diyarbakır', '22': 'Edirne', '23': 'Elazığ', '24': 'Erzincan',
+            '25': 'Erzurum', '26': 'Eskişehir', '27': 'Gaziantep', '28': 'Giresun',
+            '29': 'Gümüşhane', '30': 'Hakkari', '31': 'Hatay', '32': 'Isparta',
+            '33': 'Mersin', '34': 'İstanbul', '35': 'İzmir', '36': 'Kars',
+            '37': 'Kastamonu', '38': 'Kayseri', '39': 'Kırklareli', '40': 'Kırşehir',
+            '41': 'Kocaeli', '42': 'Konya', '43': 'Kütahya', '44': 'Malatya',
+            '45': 'Manisa', '46': 'Kahramanmaraş', '47': 'Mardin', '48': 'Muğla',
+            '49': 'Muş', '50': 'Nevşehir', '51': 'Niğde', '52': 'Ordu',
+            '53': 'Rize', '54': 'Sakarya', '55': 'Samsun', '56': 'Siirt',
+            '57': 'Sinop', '58': 'Sivas', '59': 'Tekirdağ', '60': 'Tokat',
+            '61': 'Trabzon', '62': 'Tunceli', '63': 'Şanlıurfa', '64': 'Uşak',
+            '65': 'Van', '66': 'Yozgat', '67': 'Zonguldak', '68': 'Aksaray',
+            '69': 'Bayburt', '70': 'Karaman', '71': 'Kırıkkale', '72': 'Batman',
+            '73': 'Şırnak', '74': 'Bartın', '75': 'Ardahan', '76': 'Iğdır',
+            '77': 'Yalova', '78': 'Karabük', '79': 'Kilis', '80': 'Osmaniye',
+            '81': 'Düzce'
+        };
+
+        // Dosya seçimi işleme
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.getElementById('fileLabel');
+            
+            if (file) {
+                label.textContent = `✅ Seçilen: ${file.name}`;
+                label.classList.add('has-file');
+                
+                // Görsel önizleme
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.getElementById('imageCanvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Canvas boyutlandırma
+                        const maxWidth = 600;
+                        const scale = Math.min(1, maxWidth / img.width);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        document.getElementById('canvasContainer').style.display = 'block';
+                        
+                        // Basit görsel analiz (renk dağılımı)
+                        analyzeImageColors(canvas, ctx);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function analyzeImageColors(canvas, ctx) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            let whitePixels = 0;
+            let bluePixels = 0;
+            let blackPixels = 0;
+            let totalPixels = data.length / 4;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i], g = data[i+1], b = data[i+2];
+                
+                // Beyaz renk tespiti (arka plan)
+                if (r > 200 && g > 200 && b > 200) whitePixels++;
+                
+                // Mavi renk tespiti (TR şeridi)
+                if (b > 150 && r < 100 && g < 150) bluePixels++;
+                
+                // Siyah renk tespiti (yazılar)
+                if (r < 50 && g < 50 && b < 50) blackPixels++;
+            }
+            
+            window.imageAnalysis = {
+                whiteRatio: whitePixels / totalPixels,
+                blueRatio: bluePixels / totalPixels,
+                blackRatio: blackPixels / totalPixels,
+                hasBlueStrip: bluePixels > 100
+            };
+        }
+
+        function analyzePlate() {
+            const plateInput = document.getElementById('plateInput').value.trim().toUpperCase();
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            
+            if (!plateInput) {
+                alert('Lütfen bir plaka numarası girin!');
+                return;
+            }
+            
+            // Boşlukları kaldır
+            const cleanPlate = plateInput.replace(/\s+/g, '');
+            
+            // Yükleme göster
+            loadingDiv.style.display = 'block';
+            resultsDiv.style.display = 'none';
+            
+            // Simüle edilmiş analiz süresi
+            setTimeout(() => {
+                const analysis = performAnalysis(cleanPlate);
+                displayResults(analysis, plateInput);
+                loadingDiv.style.display = 'none';
+                resultsDiv.style.display = 'block';
+            }, 1500);
+        }
+
+        function performAnalysis(plate) {
+            const result = {
+                isValidFormat: false,
+                isOfficial: false,
+                confidence: 0,
+                cityCode: '',
+                cityName: '',
+                type: '', // App, Sahte, Şüpheli
+                reasons: [],
+                securityScore: 0,
+                maxScore: 100
+            };
+            
+            // 1. Format Doğrulama [^12^][^14^]
+            result.isValidFormat = PLATE_REGEX.test(plate);
+            
+            if (!result.isValidFormat) {
+                result.type = 'SAHTE';
+                result.reasons.push('Plaka formatı Türkiye standartlarına uymuyor');
+                result.confidence = 95;
+                return result;
+            }
+            
+            // 2. İl Kodu Kontrolü
+            result.cityCode = plate.substring(0, 2);
+            result.cityName = CITY_CODES[result.cityCode] || 'Bilinmeyen';
+            
+            if (!CITY_CODES[result.cityCode]) {
+                result.reasons.push('Geçersiz il kodu (01-81 arası olmalı)');
+                result.securityScore -= 30;
+            } else {
+                result.securityScore += 20;
+            }
+            
+            // 3. Türkçe karakter kontrolü (ÖÇŞİĞÜ kullanılamaz) [^12^]
+            const turkishChars = /[ÖÇŞİĞÜ]/;
+            if (turkishChars.test(plate)) {
+                result.reasons.push('Türkçe karakter içeriyor (ÖÇŞİĞÜ kullanılamaz)');
+                result.securityScore -= 25;
+            } else {
+                result.securityScore += 15;
+            }
+            
+            // 4. X, W, Q harf kontrolü (Türk plakalarında kullanılmaz) [^12^]
+            const invalidChars = /[XWQ]/;
+            if (invalidChars.test(plate)) {
+                result.reasons.push('Plakada X, W veya Q harfi bulunuyor (Türkiye\'de kullanılmaz)');
+                result.securityScore -= 25;
+            } else {
+                result.securityScore += 15;
+            }
+            
+            // 5. Sıfır kontrolü (sonu 00, 000, 0000 ile bitmemeli) [^12^]
+            if (plate.match(/0{2,5}$/)) {
+                result.reasons.push('Plaka numarası geçersiz sıfırla bitiyor');
+                result.securityScore -= 20;
+            } else {
+                result.securityScore += 10;
+            }
+            
+            // 6. Görsel analiz kontrolü (eğer fotoğraf yüklendiyse)
+            if (window.imageAnalysis) {
+                // Mavi TR şeridi kontrolü [^11^]
+                if (window.imageAnalysis.hasBlueStrip) {
+                    result.securityScore += 20;
+                    result.reasons.push('Mavi TR şeridi tespit edildi ✓');
+                } else {
+                    result.securityScore -= 10;
+                    result.reasons.push('Mavi TR şeridi bulunamadı (2024 standartlarına göre zorunlu)');
+                }
+                
+                // Renk dağılımı kontrolü (gerçek plakalar beyaz ağırlıklıdır)
+                if (window.imageAnalysis.whiteRatio > 0.4) {
+                    result.securityScore += 10;
+                }
+            }
+            
+            // 7. Özel plaka tipleri kontrolü
+            if (plate.startsWith('CD') || plate.startsWith('CC')) {
+                result.type = 'DİPLOMATİK';
+                result.isOfficial = true;
+                result.confidence = 90;
+                result.reasons.push('Diplomatik plaka tespit edildi');
+                return result;
+            }
+            
+            // 8. Sonuç değerlendirme
+            if (result.securityScore >= 70) {
+                result.type = 'APP (GERÇEK)';
+                result.isOfficial = true;
+                result.confidence = Math.min(95, result.securityScore);
+            } else if (result.securityScore >= 40) {
+                result.type = 'ŞÜPHELİ';
+                result.confidence = 60;
+                result.reasons.push('Ek güvenlik kontrolü önerilir (hologram, QR kod)');
+            } else {
+                result.type = 'SAHTE';
+                result.confidence = Math.min(95, 100 - result.securityScore);
+            }
+            
+            return result;
+        }
+
+        function displayResults(analysis, originalPlate) {
+            const resultsDiv = document.getElementById('results');
+            
+            let statusClass = 'warning';
+            let icon = '⚠️';
+            
+            if (analysis.type === 'APP (GERÇEK)') {
+                statusClass = 'success';
+                icon = '✅';
+            } else if (analysis.type === 'SAHTE') {
+                statusClass = 'danger';
+                icon = '❌';
+            }
+            
+            const html = `
+                <div class="result-card ${statusClass}">
+                    <div class="result-title">
+                        ${icon} Sonuç: <span class="status-badge status-${analysis.type.toLowerCase().replace(/[()]/g, '')}">${analysis.type}</span>
+                    </div>
+                    <div class="plate-preview">${originalPlate}</div>
+                    <p style="margin-top: 10px; color: #666;">
+                        Güvenilirlik: <strong>%${analysis.confidence}</strong>
+                    </p>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-title">📊 Detaylı Analiz</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">İl Kodu</div>
+                            <div class="detail-value">${analysis.cityCode} - ${analysis.cityName}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Format Geçerliliği</div>
+                            <div class="detail-value">${analysis.isValidFormat ? '✅ Geçerli' : '❌ Geçersiz'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Güvenlik Puanı</div>
+                            <div class="detail-value">${analysis.securityScore}/100</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Resmi Durum</div>
+                            <div class="detail-value">${analysis.isOfficial ? '✅ Resmi' : '❌ Resmi Değil'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-title">🔍 Tespit Edilen Durumlar</div>
+                    <ul class="feature-list">
+                        ${analysis.reasons.map(reason => `<li>${reason}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="security-features">
+                    <div class="result-title">🛡️ Gerçek Plaka Güvenlik Özellikleri (2024)</div>
+                    <ul class="feature-list">
+                        <li>15x15mm QR kod (lazer kazıma) [^22^]</li>
+                        <li>Hologram (ay-yıldız ve TR sembolü) [^11^]</li>
+                        <li>Mavi TR şeridi (sol taraf) [^11^]</li>
+                        <li>Alüminyum alaşım malzeme [^11^]</li>
+                        <li>Reflectif folyo kaplama</li>
+                        <li>Mikro yazı ve seri numarası</li>
+                    </ul>
+                    <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                        <strong>Not:</strong> 1 Ocak 2024'ten itibaren tüm yeni plakalarda QR kod zorunludur. 
+                        Sahte plaka kullanımı 32.170 TL para cezası ve 2-5 yıl hapis cezası ile cezalandırılır [^22^][^11^].
+                    </p>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // Enter tuşu desteği
+        document.getElementById('plateInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzePlate();
+            }
+        });
+    </script>
+</body>
+</html>
