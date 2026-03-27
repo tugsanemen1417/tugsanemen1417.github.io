@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plaka Pro - Manuel Güvenlik Analizi</title>
+    <title>Plaka Pro - Akıllı Tarama Sistemi</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,17 +23,19 @@
             --zone-hologram: #14b8a6;
             --zone-tr: #f59e0b;
             --zone-laser: #dc2626;
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0f172a;
+            background: var(--bg-dark);
             min-height: 100vh;
-            color: #1e293b;
+            color: #e2e8f0;
         }
 
         .navbar {
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(15, 23, 42, 0.98);
             padding: 1rem 2rem;
             position: fixed;
             top: 0;
@@ -41,15 +43,9 @@
             right: 0;
             z-index: 1000;
             border-bottom: 1px solid #334155;
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: white;
         }
 
         .logo {
@@ -58,10 +54,11 @@
             gap: 0.75rem;
             font-size: 1.5rem;
             font-weight: 800;
+            color: white;
         }
 
         .main-container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 5rem 1rem 2rem;
         }
@@ -69,33 +66,130 @@
         /* Layout */
         .workspace {
             display: grid;
-            grid-template-columns: 280px 1fr 320px;
+            grid-template-columns: 300px 1fr 350px;
             gap: 1rem;
             height: calc(100vh - 6rem);
         }
 
-        /* Left Panel - Tools */
-        .tools-panel {
-            background: #1e293b;
+        /* Left Panel */
+        .left-panel {
+            background: var(--panel-bg);
             border-radius: 1rem;
-            padding: 1rem;
-            color: white;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
             overflow-y: auto;
         }
 
-        .tool-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .tool-title {
+        .panel-title {
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 0.75rem;
             letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
         }
 
+        /* Big Scan Button */
+        .mega-scan-btn {
+            width: 100%;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.4);
+        }
+
+        .mega-scan-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -5px rgba(37, 99, 235, 0.5);
+        }
+
+        .mega-scan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .mega-scan-btn i {
+            font-size: 2rem;
+        }
+
+        .mega-scan-btn .subtext {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        /* Manual Mark Toggle */
+        .manual-toggle {
+            background: #0f172a;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 2px solid #334155;
+        }
+
+        .toggle-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #334155;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        .manual-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        /* Zone Buttons */
         .zone-btn {
             width: 100%;
             padding: 0.875rem;
@@ -114,12 +208,7 @@
 
         .zone-btn:hover {
             border-color: #475569;
-            background: #334155;
-        }
-
-        .zone-btn.active {
-            border-color: var(--primary);
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(255,255,255,0.05);
         }
 
         .zone-btn.plate { border-left: 4px solid var(--zone-plate); }
@@ -142,7 +231,7 @@
         .zone-btn.tr .zone-icon { background: rgba(245, 158, 11, 0.2); color: var(--zone-tr); }
         .zone-btn.laser .zone-icon { background: rgba(220, 38, 38, 0.2); color: var(--zone-laser); }
 
-        /* Center - Canvas */
+        /* Center Canvas */
         .canvas-area {
             background: #0f172a;
             border-radius: 1rem;
@@ -151,6 +240,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 2px solid #334155;
         }
 
         .upload-placeholder {
@@ -173,14 +263,14 @@
             margin-top: 1rem;
         }
 
-        .image-container {
+        .image-wrapper {
             position: relative;
             display: none;
             max-width: 100%;
             max-height: 100%;
         }
 
-        .image-container.active {
+        .image-wrapper.active {
             display: block;
         }
 
@@ -189,75 +279,79 @@
             max-height: calc(100vh - 8rem);
             display: block;
             user-select: none;
+            cursor: crosshair;
         }
 
-        /* Zones */
-        .zone {
+        .plate-image.marking {
+            cursor: crosshair;
+        }
+
+        /* Click Marker for Manual Plate */
+        .click-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--zone-plate);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: markerPulse 1s infinite;
+            display: none;
+            z-index: 50;
+        }
+
+        .click-marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: var(--zone-plate);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes markerPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            50% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+        }
+
+        /* Auto Detected Zones */
+        .auto-zone {
             position: absolute;
             border: 3px solid;
-            background: rgba(0,0,0,0.3);
-            cursor: move;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
-            min-width: 60px;
-            min-height: 40px;
+            pointer-events: none;
         }
 
-        .zone.plate { border-color: var(--zone-plate); }
-        .zone.hologram { border-color: var(--zone-hologram); }
-        .zone.tr { border-color: var(--zone-tr); }
-        .zone.laser { border-color: var(--zone-laser); }
+        .auto-zone.plate { border-color: var(--zone-plate); }
+        .auto-zone.hologram { border-color: var(--zone-hologram); }
+        .auto-zone.tr { border-color: var(--zone-tr); }
+        .auto-zone.laser { border-color: var(--zone-laser); }
 
-        .zone-header {
+        .zone-label {
             position: absolute;
             top: -28px;
             left: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             padding: 0.25rem 0.75rem;
             border-radius: 0.375rem;
             font-size: 0.75rem;
             font-weight: 700;
             white-space: nowrap;
+            color: white;
         }
 
-        .zone.plate .zone-header { background: var(--zone-plate); color: white; }
-        .zone.hologram .zone-header { background: var(--zone-hologram); color: white; }
-        .zone.tr .zone-header { background: var(--zone-tr); color: white; }
-        .zone.laser .zone-header { background: var(--zone-laser); color: white; }
+        .auto-zone.plate .zone-label { background: var(--zone-plate); }
+        .auto-zone.hologram .zone-label { background: var(--zone-hologram); }
+        .auto-zone.tr .zone-label { background: var(--zone-tr); }
+        .auto-zone.laser .zone-label { background: var(--zone-laser); }
 
-        .zone-close {
-            cursor: pointer;
-            opacity: 0.8;
-        }
-
-        .zone-close:hover {
-            opacity: 1;
-        }
-
-        /* Resize Handles */
-        .resize-handle {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: white;
-            border: 2px solid;
-            border-radius: 50%;
-        }
-
-        .zone.plate .resize-handle { border-color: var(--zone-plate); }
-        .zone.hologram .resize-handle { border-color: var(--zone-hologram); }
-        .zone.tr .resize-handle { border-color: var(--zone-tr); }
-        .zone.laser .resize-handle { border-color: var(--zone-laser); }
-
-        .resize-nw { top: -6px; left: -6px; cursor: nw-resize; }
-        .resize-ne { top: -6px; right: -6px; cursor: ne-resize; }
-        .resize-sw { bottom: -6px; left: -6px; cursor: sw-resize; }
-        .resize-se { bottom: -6px; right: -6px; cursor: se-resize; }
-
-        /* Laser Scan Line */
-        .laser-line {
+        /* Laser Animation */
+        .laser-beam {
             position: absolute;
             top: 0;
             left: 0;
@@ -270,65 +364,123 @@
                 var(--laser) 80%, 
                 transparent 100%
             );
-            box-shadow: 0 0 15px var(--laser), 0 0 30px var(--laser);
+            box-shadow: 0 0 20px var(--laser), 0 0 40px var(--laser);
             display: none;
-            z-index: 50;
+            z-index: 100;
         }
 
-        .laser-line.active {
+        .laser-beam.scanning {
             display: block;
-            animation: laserScan 2s linear;
+            animation: laserMove 2s linear;
         }
 
-        @keyframes laserScan {
+        @keyframes laserMove {
             0% { left: 0; opacity: 0; }
             5% { opacity: 1; }
             95% { opacity: 1; }
             100% { left: 100%; opacity: 0; }
         }
 
-        /* Scan Button on Zone */
-        .zone-scan {
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.5rem 1rem;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .zone-scan:hover {
-            background: #059669;
-        }
-
-        /* Right Panel - Results */
-        .results-panel {
-            background: #1e293b;
+        /* Right Panel - OCR Results */
+        .right-panel {
+            background: var(--panel-bg);
             border-radius: 1rem;
-            padding: 1rem;
-            color: white;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
             overflow-y: auto;
         }
 
-        .result-item {
+        /* OCR Result Card */
+        .ocr-hero {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            color: white;
+        }
+
+        .ocr-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ocr-plate {
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            background: rgba(0,0,0,0.3);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .ocr-confidence {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Plate Details */
+        .plate-details {
             background: #0f172a;
             border-radius: 0.75rem;
             padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-left: 4px solid #334155;
         }
 
-        .result-item.success { border-left-color: var(--success); }
-        .result-item.warning { border-left-color: var(--warning); }
-        .result-item.danger { border-left-color: var(--danger); }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #334155;
+            font-size: 0.875rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #64748b;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .detail-value.success { color: var(--success); }
+        .detail-value.warning { color: var(--warning); }
+
+        /* Analysis Results */
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .result-card {
+            background: #0f172a;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border-left: 4px solid #334155;
+            transition: all 0.3s;
+        }
+
+        .result-card.success { border-left-color: var(--success); }
+        .result-card.warning { border-left-color: var(--warning); }
+        .result-card.danger { border-left-color: var(--danger); }
 
         .result-header {
             display: flex;
@@ -338,8 +490,8 @@
         }
 
         .result-icon {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -348,9 +500,9 @@
             background: #334155;
         }
 
-        .result-item.success .result-icon { background: var(--success); }
-        .result-item.warning .result-icon { background: var(--warning); color: #1e293b; }
-        .result-item.danger .result-icon { background: var(--danger); }
+        .result-card.success .result-icon { background: var(--success); color: white; }
+        .result-card.warning .result-icon { background: var(--warning); color: #1e293b; }
+        .result-card.danger .result-icon { background: var(--danger); color: white; }
 
         .result-title {
             font-weight: 600;
@@ -362,88 +514,105 @@
             color: #64748b;
         }
 
-        .result-detail {
+        .result-desc {
             font-size: 0.75rem;
             color: #94a3b8;
             margin-top: 0.5rem;
             padding-top: 0.5rem;
             border-top: 1px solid #334155;
+            line-height: 1.4;
         }
 
-        /* Bottom Controls */
-        .bottom-controls {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 0.75rem;
-            background: #1e293b;
-            padding: 0.75rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-
-        .control-btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
+        /* Progress */
+        .scan-progress {
+            background: #0f172a;
             border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .control-btn.primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .control-btn.secondary {
-            background: #334155;
-            color: white;
-        }
-
-        .control-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Coordinates Display */
-        .coords-display {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(0,0,0,0.8);
-            color: #4ade80;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-family: monospace;
-            font-size: 0.75rem;
+            padding: 1rem;
             display: none;
         }
 
-        .image-container.active + .coords-display {
+        .scan-progress.active {
             display: block;
         }
 
-        /* Instructions */
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #60a5fa);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Instructions Overlay */
         .instructions {
             position: absolute;
             bottom: 1rem;
             left: 1rem;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             color: white;
             padding: 1rem;
             border-radius: 0.75rem;
             font-size: 0.875rem;
-            max-width: 300px;
+            max-width: 280px;
+            border: 1px solid #334155;
+        }
+
+        .instructions h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
         }
 
         .instructions ul {
-            margin-top: 0.5rem;
+            margin: 0;
             padding-left: 1.25rem;
             font-size: 0.75rem;
             color: #94a3b8;
@@ -453,83 +622,110 @@
             margin-bottom: 0.25rem;
         }
 
+        .instructions.hidden {
+            display: none;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .workspace {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto 1fr auto;
             }
-            .tools-panel, .results-panel {
-                max-height: 200px;
+            .left-panel, .right-panel {
+                max-height: 250px;
             }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
-                Plaka Pro - Manuel Analiz
-            </div>
-            <div style="font-size: 0.875rem; color: #64748b;">
-                <i class="fas fa-mouse-pointer"></i> Sürükle-bırak ile alan belirleme
-            </div>
+        <div class="logo">
+            <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+            Plaka Pro - Akıllı Tarama
+        </div>
+        <div style="font-size: 0.875rem; color: #64748b;">
+            <i class="fas fa-bolt"></i> Tek tuşta tam analiz
         </div>
     </nav>
 
     <div class="main-container">
         <div class="workspace">
-            <!-- Left Tools -->
-            <div class="tools-panel">
-                <div class="tool-section">
-                    <div class="tool-title">Analiz Bölgesi Ekle</div>
-                    <button class="zone-btn plate" onclick="addZone('plate')">
-                        <div class="zone-icon"><i class="fas fa-font"></i></div>
-                        <div>
-                            <div style="font-weight: 600;">Plaka Numarası</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Karakter tanıma</div>
-                        </div>
-                    </button>
-                    <button class="zone-btn hologram" onclick="addZone('hologram')">
-                        <div class="zone-icon"><i class="fas fa-certificate"></i></div>
-                        <div>
-                            <div style="font-weight: 600;">Hologram</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">3D efekt kontrolü</div>
-                        </div>
-                    </button>
-                    <button class="zone-btn tr" onclick="addZone('tr')">
-                        <div class="zone-icon"><i class="fas fa-flag"></i></div>
-                        <div>
-                            <div style="font-weight: 600;">TR Bandı</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Reflektif şerit</div>
-                        </div>
-                    </button>
-                    <button class="zone-btn laser" onclick="addZone('laser')">
-                        <div class="zone-icon"><i class="fas fa-barcode"></i></div>
-                        <div>
-                            <div style="font-weight: 600;">Laser/Mikro</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Gizli işaretler</div>
-                        </div>
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <!-- One Click Scan -->
+                <div>
+                    <div class="panel-title">Analiz</div>
+                    <button class="mega-scan-btn" id="megaScanBtn" onclick="startFullScan()" disabled>
+                        <i class="fas fa-radar"></i>
+                        <span>TÜMÜNÜ TARA</span>
+                        <span class="subtext">Space tuşu ile hızlı başlat</span>
                     </button>
                 </div>
 
-                <div class="tool-section">
-                    <div class="tool-title">Aktif Bölgeler</div>
-                    <div id="activeZones" style="font-size: 0.875rem; color: #64748b;">
-                        Henüz bölge eklenmedi...
+                <!-- Manual Mark Toggle -->
+                <div class="manual-toggle">
+                    <div class="toggle-header">
+                        <div class="toggle-label">
+                            <i class="fas fa-hand-pointer"></i>
+                            Manuel İşaretleme
+                        </div>
+                        <div class="toggle-switch" id="manualToggle" onclick="toggleManualMark()"></div>
+                    </div>
+                    <div class="manual-hint" id="manualHint" style="display: none;">
+                        <i class="fas fa-info-circle"></i> Plakanın ortasına tıklayın. Sistem otomatik bölge belirleyecek.
                     </div>
                 </div>
 
-                <div class="tool-section">
-                    <div class="tool-title">Kısayollar</div>
-                    <div style="font-size: 0.75rem; color: #64748b; line-height: 1.6;">
-                        <div><strong>P</strong> - Plaka ekle</div>
-                        <div><strong>H</strong> - Hologram ekle</div>
-                        <div><strong>T</strong> - TR bandı ekle</div>
-                        <div><strong>L</strong> - Laser ekle</div>
-                        <div><strong>Del</strong> - Seçili sil</div>
-                        <div><strong>Enter</strong> - Taramayı başlat</div>
+                <!-- Progress -->
+                <div class="scan-progress" id="scanProgress">
+                    <div class="progress-header">
+                        <span>Tarama durumu...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <!-- Quick Add Zones -->
+                <div>
+                    <div class="panel-title">Bölge Ekle (Opsiyonel)</div>
+                    <button class="zone-btn plate" onclick="addManualZone('plate')">
+                        <div class="zone-icon"><i class="fas fa-font"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Plaka</div>
+                        </div>
+                        <i class="fas fa-plus" style="color: #64748b;"></i>
+                    </button>
+                    <button class="zone-btn hologram" onclick="addManualZone('hologram')">
+                        <div class="zone-icon"><i class="fas fa-certificate"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Hologram</div>
+                        </div>
+                        <i class="fas fa-plus" style="color: #64748b;"></i>
+                    </button>
+                    <button class="zone-btn tr" onclick="addManualZone('tr')">
+                        <div class="zone-icon"><i class="fas fa-flag"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">TR Bandı</div>
+                        </div>
+                        <i class="fas fa-plus" style="color: #64748b;"></i>
+                    </button>
+                    <button class="zone-btn laser" onclick="addManualZone('laser')">
+                        <div class="zone-icon"><i class="fas fa-barcode"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">Laser</div>
+                        </div>
+                        <i class="fas fa-plus" style="color: #64748b;"></i>
+                    </button>
+                </div>
+
+                <!-- Active Zones -->
+                <div style="flex: 1;">
+                    <div class="panel-title">Aktif Bölgeler</div>
+                    <div id="activeZonesList" style="font-size: 0.875rem; color: #64748b;">
+                        Otomatik tespit edilecek...
                     </div>
                 </div>
             </div>
@@ -537,83 +733,124 @@
             <!-- Center Canvas -->
             <div class="canvas-area" id="canvasArea">
                 <div class="upload-placeholder" id="uploadPlaceholder">
-                    <i class="fas fa-image" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <div style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">Plaka Fotoğrafı Yükleyin</div>
-                    <div style="font-size: 0.875rem; margin-bottom: 1rem;">Hologram ve TR bandı net görünsün</div>
+                    <i class="fas fa-image"></i>
+                    <div style="font-size: 1.125rem; font-weight: 600; margin: 1rem 0 0.5rem;">Plaka Fotoğrafı Yükleyin</div>
+                    <div style="font-size: 0.875rem; margin-bottom: 1rem;"> veya sürükleyip bırakın</div>
                     <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleUpload(this)">
                     <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-upload"></i>
-                        Görsel Seç
+                        <i class="fas fa-upload"></i> Görsel Seç
                     </button>
                 </div>
 
-                <div class="image-container" id="imageContainer">
-                    <img class="plate-image" id="plateImage" src="" alt="Plaka">
-                    <div class="laser-line" id="laserLine"></div>
+                <div class="image-wrapper" id="imageWrapper">
+                    <img class="plate-image" id="plateImage" src="" alt="Plaka" onclick="handleImageClick(event)">
+                    <div class="click-marker" id="clickMarker"></div>
+                    <div class="laser-beam" id="laserBeam"></div>
+                    <div id="zonesContainer"></div>
                 </div>
 
-                <div class="coords-display" id="coordsDisplay">
-                    X: 0 | Y: 0 | W: 0 | H: 0
-                </div>
-
-                <div class="instructions" id="instructions" style="display: none;">
-                    <strong><i class="fas fa-info-circle"></i> Nasıl kullanılır:</strong>
+                <div class="instructions" id="instructions">
+                    <h4><i class="fas fa-question-circle"></i> Nasıl Kullanılır?</h4>
                     <ul>
-                        <li>Sol panelden bölge tipi seçin</li>
-                        <li>Görsel üzerinde sürükleyerek konumlandırın</li>
-                        <li>Köşelerden tutarak boyutlandırın</li>
-                        <li>Her bölge için "Tara" butonuna basın</li>
+                        <li><strong>Otomatik:</strong> "TÜMÜNÜ TARA" butonuna basın</li>
+                        <li><strong>Manuel:</strong> Toggle açın, plakaya tıklayın</li>
+                        <li><strong>Space:</strong> Hızlı tarama başlatır</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Right Results -->
-            <div class="results-panel">
-                <div class="tool-title" style="margin-bottom: 1rem;">Analiz Sonuçları</div>
-                
-                <div id="resultsList">
-                    <div style="text-align: center; padding: 2rem; color: #64748b;">
-                        <i class="fas fa-clipboard-list" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-                        <div style="font-size: 0.875rem;">Sonuçlar burada görünecek</div>
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <!-- OCR Result -->
+                <div class="ocr-hero" id="ocrResult" style="display: none;">
+                    <div class="ocr-label">Tespit Edilen Plaka</div>
+                    <div class="ocr-plate" id="detectedPlateText">34 ABC 1234</div>
+                    <div class="ocr-confidence">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="confidenceText">%99.4 Doğruluk</span>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-clipboard-check"></i>
+                    <div>Tarama sonuçları burada görünecek</div>
+                    <div style="font-size: 0.75rem; margin-top: 0.5rem;">"TÜMÜNÜ TARA" butonuna basın</div>
+                </div>
+
+                <!-- Plate Details -->
+                <div class="plate-details" id="plateDetails" style="display: none;">
+                    <div class="panel-title" style="margin-bottom: 0.75rem;">Plaka Detayları</div>
+                    <div class="detail-row">
+                        <span class="detail-label">İl Kodu</span>
+                        <span class="detail-value" id="cityCode">34</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">İl</span>
+                        <span class="detail-value" id="cityName">İstanbul</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Format</span>
+                        <span class="detail-value success" id="plateFormat">Standart</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Karakter Sayısı</span>
+                        <span class="detail-value" id="charCount">10</span>
+                    </div>
+                </div>
+
+                <!-- Analysis Results -->
+                <div class="results-list" id="resultsList" style="display: none;">
+                    <div class="panel-title">Güvenlik Analizi</div>
+                    <!-- Results will be added here -->
+                </div>
+
+                <!-- Final Status -->
+                <div id="finalStatus" style="display: none; margin-top: auto;">
+                    <div class="status-badge success">
+                        <i class="fas fa-shield-alt"></i>
+                        ORİJİNAL PLAKA
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; text-align: center;">
+                        Tüm güvenlik elemanları doğrulandı
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Bottom Controls -->
-        <div class="bottom-controls">
-            <button class="control-btn secondary" onclick="clearAllZones()">
-                <i class="fas fa-trash"></i>
-                Temizle
-            </button>
-            <button class="control-btn secondary" onclick="resetImage()">
-                <i class="fas fa-redo"></i>
-                Yeni Görsel
-            </button>
-            <button class="control-btn primary" id="scanAllBtn" onclick="scanAllZones()" disabled>
-                <i class="fas fa-radar"></i>
-                Tümünü Tara
-            </button>
-        </div>
     </div>
 
     <script>
+        let manualMarkMode = false;
+        let manualPlatePoint = null;
         let zones = [];
-        let currentZone = null;
-        let isDragging = false;
-        let isResizing = false;
-        let dragOffset = { x: 0, y: 0 };
-        let zoneCounter = 0;
+        let isScanning = false;
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'p' || e.key === 'P') addZone('plate');
-            if (e.key === 'h' || e.key === 'H') addZone('hologram');
-            if (e.key === 't' || e.key === 'T') addZone('tr');
-            if (e.key === 'l' || e.key === 'L') addZone('laser');
-            if (e.key === 'Delete' && currentZone) deleteZone(currentZone);
-            if (e.key === 'Enter') scanAllZones();
+            if (e.code === 'Space' && !isScanning) {
+                e.preventDefault();
+                startFullScan();
+            }
         });
+
+        function toggleManualMark() {
+            manualMarkMode = !manualMarkMode;
+            const toggle = document.getElementById('manualToggle');
+            const hint = document.getElementById('manualHint');
+            const img = document.getElementById('plateImage');
+            
+            toggle.classList.toggle('active', manualMarkMode);
+            hint.style.display = manualMarkMode ? 'block' : 'none';
+            
+            if (img) {
+                img.classList.toggle('marking', manualMarkMode);
+            }
+            
+            if (!manualMarkMode) {
+                document.getElementById('clickMarker').style.display = 'none';
+                manualPlatePoint = null;
+            }
+        }
 
         function handleUpload(input) {
             const file = input.files[0];
@@ -623,265 +860,274 @@
             reader.onload = (e) => {
                 document.getElementById('plateImage').src = e.target.result;
                 document.getElementById('uploadPlaceholder').style.display = 'none';
-                document.getElementById('imageContainer').classList.add('active');
-                document.getElementById('instructions').style.display = 'block';
+                document.getElementById('imageWrapper').classList.add('active');
+                document.getElementById('megaScanBtn').disabled = false;
             };
             reader.readAsDataURL(file);
         }
 
-        function addZone(type) {
-            const container = document.getElementById('imageContainer');
-            if (!container.classList.contains('active')) {
-                alert('Önce plaka fotoğrafı yükleyin!');
+        function handleImageClick(e) {
+            if (!manualMarkMode) return;
+            
+            const img = e.target;
+            const rect = img.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            manualPlatePoint = { x, y };
+            
+            const marker = document.getElementById('clickMarker');
+            marker.style.left = x + 'px';
+            marker.style.top = y + 'px';
+            marker.style.display = 'block';
+            
+            // Auto create zones around click point
+            createZonesAroundPoint(x, y, rect.width, rect.height);
+            
+            // Disable manual mode after marking
+            toggleManualMark();
+        }
+
+        function createZonesAroundPoint(x, y, imgWidth, imgHeight) {
+            const container = document.getElementById('zonesContainer');
+            container.innerHTML = ''; // Clear previous
+            zones = [];
+            
+            // Plate zone (centered on click, larger)
+            const plateZone = createZoneElement('plate', x - 100, y - 30, 200, 60, 'PLAKA NO');
+            container.appendChild(plateZone);
+            zones.push({ type: 'plate', element: plateZone });
+            
+            // Hologram zone (top right of plate)
+            const holoZone = createZoneElement('hologram', x + 80, y - 50, 60, 40, 'HOLOGRAM');
+            container.appendChild(holoZone);
+            zones.push({ type: 'hologram', element: holoZone });
+            
+            // TR zone (bottom of plate)
+            const trZone = createZoneElement('tr', x - 100, y + 40, 200, 25, 'TR BANDI');
+            container.appendChild(trZone);
+            zones.push({ type: 'tr', element: trZone });
+            
+            // Laser zone (right side)
+            const laserZone = createZoneElement('laser', x + 110, y - 20, 50, 50, 'LASER');
+            container.appendChild(laserZone);
+            zones.push({ type: 'laser', element: laserZone });
+            
+            updateActiveZonesList();
+        }
+
+        function createZoneElement(type, x, y, w, h, label) {
+            const zone = document.createElement('div');
+            zone.className = `auto-zone ${type}`;
+            zone.style.left = Math.max(0, x) + 'px';
+            zone.style.top = Math.max(0, y) + 'px';
+            zone.style.width = w + 'px';
+            zone.style.height = h + 'px';
+            zone.innerHTML = `<div class="zone-label">${label}</div>`;
+            return zone;
+        }
+
+        function addManualZone(type) {
+            const wrapper = document.getElementById('imageWrapper');
+            if (!wrapper.classList.contains('active')) {
+                alert('Önce görsel yükleyin!');
                 return;
             }
-
-            zoneCounter++;
-            const zoneId = `zone-${zoneCounter}`;
             
-            const zoneNames = {
+            const container = document.getElementById('zonesContainer');
+            const img = document.getElementById('plateImage');
+            const rect = img.getBoundingClientRect();
+            
+            const labels = {
                 plate: 'PLAKA NO',
                 hologram: 'HOLOGRAM',
                 tr: 'TR BANDI',
                 laser: 'LASER'
             };
-
-            const zone = document.createElement('div');
-            zone.className = `zone ${type}`;
-            zone.id = zoneId;
-            zone.style.left = '20%';
-            zone.style.top = '20%';
-            zone.style.width = '200px';
-            zone.style.height = '100px';
             
-            zone.innerHTML = `
-                <div class="zone-header">
-                    <span>${zoneNames[type]}</span>
-                    <i class="fas fa-times zone-close" onclick="deleteZone('${zoneId}')"></i>
-                </div>
-                <div class="resize-handle resize-nw" data-handle="nw"></div>
-                <div class="resize-handle resize-ne" data-handle="ne"></div>
-                <div class="resize-handle resize-sw" data-handle="sw"></div>
-                <div class="resize-handle resize-se" data-handle="se"></div>
-                <button class="zone-scan" onclick="scanZone('${zoneId}', '${type}')">
-                    <i class="fas fa-search"></i> Tara
-                </button>
-            `;
-
+            const defaults = {
+                plate: { x: 50, y: rect.height/2 - 30, w: 200, h: 60 },
+                hologram: { x: rect.width - 100, y: 20, w: 80, h: 60 },
+                tr: { x: 50, y: rect.height - 40, w: rect.width - 100, h: 30 },
+                laser: { x: rect.width - 80, y: rect.height/2 - 25, w: 60, h: 50 }
+            };
+            
+            const d = defaults[type];
+            const zone = createZoneElement(type, d.x, d.y, d.w, d.h, labels[type]);
             container.appendChild(zone);
-            zones.push({ id: zoneId, type: type, element: zone });
+            zones.push({ type: type, element: zone });
             
-            setupZoneEvents(zone);
             updateActiveZonesList();
-            selectZone(zoneId);
-            
-            // Enable scan all button
-            document.getElementById('scanAllBtn').disabled = false;
-        }
-
-        function setupZoneEvents(zone) {
-            const header = zone.querySelector('.zone-header');
-            const handles = zone.querySelectorAll('.resize-handle');
-
-            // Drag
-            header.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('zone-close')) return;
-                
-                isDragging = true;
-                currentZone = zone.id;
-                selectZone(zone.id);
-                
-                const rect = zone.getBoundingClientRect();
-                const parent = zone.offsetParent.getBoundingClientRect();
-                
-                dragOffset.x = e.clientX - rect.left;
-                dragOffset.y = e.clientY - rect.top;
-                
-                e.preventDefault();
-            });
-
-            // Resize
-            handles.forEach(handle => {
-                handle.addEventListener('mousedown', (e) => {
-                    isResizing = true;
-                    currentZone = zone.id;
-                    selectZone(zone.id);
-                    e.stopPropagation();
-                    e.preventDefault();
-                });
-            });
-        }
-
-        // Global mouse events
-        document.addEventListener('mousemove', (e) => {
-            if (!currentZone) return;
-            
-            const zone = document.getElementById(currentZone);
-            const parent = zone.offsetParent;
-            const parentRect = parent.getBoundingClientRect();
-
-            if (isDragging) {
-                let newLeft = e.clientX - parentRect.left - dragOffset.x;
-                let newTop = e.clientY - parentRect.top - dragOffset.y;
-                
-                // Bounds
-                newLeft = Math.max(0, Math.min(newLeft, parentRect.width - zone.offsetWidth));
-                newTop = Math.max(0, Math.min(newTop, parentRect.height - zone.offsetHeight));
-                
-                zone.style.left = newLeft + 'px';
-                zone.style.top = newTop + 'px';
-                
-                updateCoords(zone);
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            isResizing = false;
-        });
-
-        function selectZone(zoneId) {
-            // Deselect all
-            document.querySelectorAll('.zone').forEach(z => {
-                z.style.zIndex = 10;
-                z.style.boxShadow = 'none';
-            });
-            
-            // Select current
-            const zone = document.getElementById(zoneId);
-            if (zone) {
-                zone.style.zIndex = 100;
-                zone.style.boxShadow = '0 0 20px rgba(255,255,255,0.3)';
-                currentZone = zoneId;
-            }
-        }
-
-        function deleteZone(zoneId) {
-            const zone = document.getElementById(zoneId);
-            if (zone) zone.remove();
-            
-            zones = zones.filter(z => z.id !== zoneId);
-            updateActiveZonesList();
-            
-            if (zones.length === 0) {
-                document.getElementById('scanAllBtn').disabled = true;
-            }
-        }
-
-        function clearAllZones() {
-            zones.forEach(z => {
-                const el = document.getElementById(z.id);
-                if (el) el.remove();
-            });
-            zones = [];
-            updateActiveZonesList();
-            document.getElementById('scanAllBtn').disabled = true;
-        }
-
-        function resetImage() {
-            clearAllZones();
-            document.getElementById('imageContainer').classList.remove('active');
-            document.getElementById('uploadPlaceholder').style.display = 'flex';
-            document.getElementById('plateImage').src = '';
-            document.getElementById('instructions').style.display = 'none';
-            document.getElementById('fileInput').value = '';
         }
 
         function updateActiveZonesList() {
-            const container = document.getElementById('activeZones');
+            const list = document.getElementById('activeZonesList');
             if (zones.length === 0) {
-                container.innerHTML = 'Henüz bölge eklenmedi...';
+                list.innerHTML = 'Otomatik tespit edilecek...';
                 return;
             }
             
-            container.innerHTML = zones.map(z => `
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; padding: 0.5rem; background: #0f172a; border-radius: 0.5rem; cursor: pointer;" onclick="selectZone('${z.id}')">
+            const typeNames = {
+                plate: 'Plaka Numarası',
+                hologram: 'Hologram Damga',
+                tr: 'TR Emniyet Bandı',
+                laser: 'Laser İşaret'
+            };
+            
+            list.innerHTML = zones.map((z, i) => `
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; padding: 0.5rem; background: #0f172a; border-radius: 0.5rem;">
                     <i class="fas fa-square" style="color: var(--zone-${z.type})"></i>
-                    <span style="font-size: 0.75rem; text-transform: uppercase;">${z.type}</span>
-                    <span style="margin-left: auto; font-size: 0.625rem; color: #64748b;">#${z.id.split('-')[1]}</span>
+                    <span style="font-size: 0.75rem;">${typeNames[z.type]}</span>
+                    <span style="margin-left: auto; font-size: 0.625rem; color: #64748b;">#${i+1}</span>
                 </div>
             `).join('');
         }
 
-        function updateCoords(zone) {
-            const display = document.getElementById('coordsDisplay');
-            display.textContent = `X: ${parseInt(zone.style.left)} | Y: ${parseInt(zone.style.top)} | W: ${parseInt(zone.style.width)} | H: ${parseInt(zone.style.height)}`;
-        }
-
-        async function scanZone(zoneId, type) {
-            const zone = document.getElementById(zoneId);
-            const laser = document.getElementById('laserLine');
+        async function startFullScan() {
+            if (isScanning) return;
+            isScanning = true;
             
-            // Position laser at zone start
-            laser.style.left = zone.style.left;
-            laser.style.width = zone.style.width;
-            laser.classList.add('active');
+            const btn = document.getElementById('megaScanBtn');
+            const progress = document.getElementById('scanProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const laser = document.getElementById('laserBeam');
             
-            // Disable button
-            const btn = zone.querySelector('.zone-scan');
+            // If no zones exist, create auto zones
+            if (zones.length === 0) {
+                const img = document.getElementById('plateImage');
+                const rect = img.getBoundingClientRect();
+                createZonesAroundPoint(rect.width/2, rect.height/2, rect.width, rect.height);
+            }
+            
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Taranıyor...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>TARANIYOR...</span><span class="subtext">Lütfen bekleyin</span>';
+            progress.classList.add('active');
             
-            await sleep(2000);
+            // Clear previous results
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('ocrResult').style.display = 'none';
+            document.getElementById('plateDetails').style.display = 'none';
+            document.getElementById('resultsList').style.display = 'none';
+            document.getElementById('resultsList').innerHTML = '<div class="panel-title">Güvenlik Analizi</div>';
+            document.getElementById('finalStatus').style.display = 'none';
             
-            laser.classList.remove('active');
-            btn.innerHTML = '<i class="fas fa-check"></i> Tamamlandı';
+            // Scan each zone with laser
+            for (let i = 0; i < zones.length; i++) {
+                const zone = zones[i];
+                const zoneEl = zone.element;
+                
+                // Position laser at zone
+                laser.style.left = zoneEl.style.left;
+                laser.style.width = zoneEl.style.width;
+                laser.classList.add('scanning');
+                
+                // Update progress
+                const percent = Math.round(((i) / zones.length) * 100);
+                progressFill.style.width = percent + '%';
+                progressPercent.textContent = percent + '%';
+                
+                await sleep(1500);
+                laser.classList.remove('scanning');
+                
+                // Add result
+                addZoneResult(zone.type);
+                
+                // If plate zone, update OCR
+                if (zone.type === 'plate') {
+                    showOCRResult();
+                }
+            }
+            
+            // Complete
+            progressFill.style.width = '100%';
+            progressPercent.textContent = '100%';
+            
+            await sleep(500);
+            
+            // Show final status
+            document.getElementById('finalStatus').style.display = 'block';
+            
+            // Reset button
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i><span>TAMAMLANDI</span><span class="subtext">Tekrar taramak için tıklayın</span>';
             btn.style.background = 'var(--success)';
             
-            addResult(type, zoneId);
-        }
-
-        async function scanAllZones() {
-            for (let zone of zones) {
-                await scanZone(zone.id, zone.type);
-                await sleep(500);
-            }
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-radar"></i><span>TÜMÜNÜ TARA</span><span class="subtext">Space tuşu ile hızlı başlat</span>';
+                btn.style.background = '';
+                isScanning = false;
+                progress.classList.remove('active');
+                progressFill.style.width = '0%';
+            }, 3000);
         }
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        function addResult(type, zoneId) {
+        function showOCRResult() {
+            const ocrResult = document.getElementById('ocrResult');
+            const plateDetails = document.getElementById('plateDetails');
+            
+            // Random plate for demo
+            const plates = ['34 ABC 1234', '06 DEF 567', '35 GHI 8901', '16 JKL 2345', '07 MNO 678'];
+            const selectedPlate = plates[Math.floor(Math.random() * plates.length)];
+            const cityCode = selectedPlate.substring(0, 2);
+            
+            const cities = {
+                '34': 'İstanbul', '06': 'Ankara', '35': 'İzmir', '16': 'Bursa', '07': 'Antalya'
+            };
+            
+            document.getElementById('detectedPlateText').textContent = selectedPlate;
+            document.getElementById('cityCode').textContent = cityCode;
+            document.getElementById('cityName').textContent = cities[cityCode] || 'Bilinmiyor';
+            document.getElementById('charCount').textContent = selectedPlate.replace(/\s/g, '').length;
+            
+            ocrResult.style.display = 'block';
+            plateDetails.style.display = 'block';
+        }
+
+        function addZoneResult(type) {
             const resultsList = document.getElementById('resultsList');
-            const zone = zones.find(z => z.id === zoneId);
+            resultsList.style.display = 'block';
             
             const results = {
                 plate: {
                     icon: 'fa-font',
                     title: 'Plaka Numarası',
-                    status: 'Doğrulandı',
-                    detail: '34 ABC 1234 | İl: 34 (İstanbul) | Format: Standart',
+                    status: 'Orijinal',
+                    desc: 'Karakterler standart Türk plaka fontuyla uyumlu. OCR doğruluk oranı yüksek.',
                     class: 'success'
                 },
                 hologram: {
                     icon: 'fa-certificate',
-                    title: 'Hologram Analizi',
-                    status: 'Orijinal',
-                    detail: '3D efekt: Var | Renk değişimi: Mor/Yeşil | Mikro yazı: Tespit edildi',
+                    title: 'Hologram Damga',
+                    status: 'Doğrulandı',
+                    desc: '3D derinlik efekti tespit edildi. Renk değişimi (mor-yeşil) normal. Mikro yazı okunabilir.',
                     class: 'success'
                 },
                 tr: {
                     icon: 'fa-flag',
-                    title: 'TR Bandı',
-                    status: 'Standartlara Uygun',
-                    detail: 'Genişlik: 44mm | Refleks: 420 cd/lx/m² | Yapışkan: Orijinal',
+                    title: 'TR Emniyet Bandı',
+                    status: 'Standart',
+                    desc: 'Mavi-kırmızı reflektif şerit ölçüleri standartta (44mm). Refleks değeri normal.',
                     class: 'success'
                 },
                 laser: {
                     icon: 'fa-barcode',
-                    title: 'Laser İşaret',
+                    title: 'Laser Mikro İşaret',
                     status: 'Tespit Edildi',
-                    detail: 'UV kod: 8A3F-9B2E | Seri: TR-2024-884321 | Üretim: 03/2024',
+                    desc: 'UV ışık altında görünen gizli kodlar mevcut. Seri numarası ve üretim bilgisi okundu.',
                     class: 'success'
                 }
             };
             
             const r = results[type];
             
-            const item = document.createElement('div');
-            item.className = `result-item ${r.class}`;
-            item.innerHTML = `
+            const card = document.createElement('div');
+            card.className = `result-card ${r.class}`;
+            card.innerHTML = `
                 <div class="result-header">
                     <div class="result-icon"><i class="fas ${r.icon}"></i></div>
                     <div>
@@ -889,15 +1135,10 @@
                         <div class="result-status">${r.status}</div>
                     </div>
                 </div>
-                <div class="result-detail">${r.detail}</div>
+                <div class="result-desc">${r.desc}</div>
             `;
             
-            // Remove empty state if exists
-            if (resultsList.querySelector('.fa-clipboard-list')) {
-                resultsList.innerHTML = '';
-            }
-            
-            resultsList.insertBefore(item, resultsList.firstChild);
+            resultsList.appendChild(card);
         }
     </script>
 </body>
