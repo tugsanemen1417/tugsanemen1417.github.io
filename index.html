@@ -1,1886 +1,821 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0f172a">
-    <title>ProPlaka - Plaka Doğrulama Sistemi</title>
-    <script src='https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js'></script>
-    <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --secondary: #8b5cf6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-hover: #334155;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #475569;
-            --glass: rgba(30, 41, 59, 0.8);
-            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .header {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            font-size: 1.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            -webkit-text-fill-color: white;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-
-        .guide-section {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .guide-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .guide-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .guide-item {
-            background: var(--bg-hover);
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .guide-item:hover {
-            transform: translateY(-2px);
-        }
-
-        .guide-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin: 0 auto 0.75rem;
-        }
-
-        .guide-item h4 {
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .guide-item p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .upload-section {
-            background: var(--bg-card);
-            border: 2px dashed var(--border);
-            border-radius: 24px;
-            padding: 3rem 2rem;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(59, 130, 246, 0.15) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .upload-section:hover::before,
-        .upload-section.dragover::before {
-            opacity: 1;
-        }
-
-        .upload-section.dragover {
-            border-color: var(--primary);
-            background: rgba(59, 130, 246, 0.1);
-            transform: scale(1.02);
-        }
-
-        .upload-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            margin: 0 auto 1.5rem;
-            box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.5);
-        }
-
-        .upload-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .upload-desc {
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-        }
-
-        .camera-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .camera-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
-        }
-
-        .preview-section {
-            display: none;
-            background: var(--bg-card);
-            border-radius: 24px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .preview-section.active {
-            display: block;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .canvas-container {
-            position: relative;
-            background: #000;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-            touch-action: none;
-        }
-
-        #mainCanvas {
-            width: 100%;
-            height: auto;
-            display: block;
-            max-height: 60vh;
-            object-fit: contain;
-        }
-
-        .canvas-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-        }
-
-        .detection-box {
-            position: absolute;
-            border: 3px solid var(--success);
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-            display: none;
-        }
-
-        .detection-box::after {
-            content: 'PLAKA TESPİT EDİLDİ';
-            position: absolute;
-            top: -30px;
-            left: 0;
-            background: var(--success);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 1rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: var(--bg-hover);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 3rem;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--bg-hover);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: var(--text-muted);
-            font-size: 1.125rem;
-        }
-
-        .loading-steps {
-            margin-top: 1rem;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-
-        .loading-step {
-            padding: 0.5rem;
-            opacity: 0.5;
-            transition: all 0.3s;
-        }
-
-        .loading-step.active {
-            opacity: 1;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .loading-step.completed {
-            opacity: 1;
-            color: var(--success);
-        }
-
-        .results {
-            display: none;
-            margin-top: 1.5rem;
-        }
-
-        .results.show {
-            display: block;
-            animation: slideUp 0.5s ease;
-        }
-
-        .result-header {
-            background: var(--bg-card);
-            border-radius: 24px;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .result-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-        }
-
-        .result-authentic {
-            border-color: var(--success);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
-        }
-
-        .result-authentic::before {
-            background: var(--success);
-        }
-
-        .result-suspicious {
-            border-color: var(--warning);
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, var(--bg-card) 100%);
-        }
-
-        .result-suspicious::before {
-            background: var(--warning);
-        }
-
-        .result-fake {
-            border-color: var(--danger);
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, var(--bg-card) 100%);
-        }
-
-        .result-fake::before {
-            background: var(--danger);
-        }
-
-        .result-badge {
-            display: inline-block;
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .result-authentic .result-badge {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-
-        .result-suspicious .result-badge {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--warning);
-        }
-
-        .result-fake .result-badge {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        .score-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: conic-gradient(var(--primary) calc(var(--score) * 1%), var(--bg-hover) 0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            position: relative;
-        }
-
-        .score-circle::before {
-            content: '';
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: var(--bg-card);
-            border-radius: 50%;
-        }
-
-        .score-value {
-            position: relative;
-            font-size: 2rem;
-            font-weight: 800;
-            z-index: 1;
-        }
-
-        .result-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .result-desc {
-            color: var(--text-muted);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .ocr-result {
-            background: var(--bg-hover);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .plate-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.1em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 0.5rem 0;
-        }
-
-        .plate-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .info-item {
-            background: var(--bg-card);
-            padding: 1rem;
-            border-radius: 12px;
-        }
-
-        .info-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .info-value {
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-top: 0.25rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1rem;
-        }
-
-        .feature-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--border);
-            transition: background 0.3s;
-        }
-
-        .feature-card.pass::before {
-            background: var(--success);
-        }
-
-        .feature-card.warning::before {
-            background: var(--warning);
-        }
-
-        .feature-card.fail::before {
-            background: var(--danger);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .feature-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            background: var(--bg-hover);
-        }
-
-        .feature-title-group {
-            flex: 1;
-        }
-
-        .feature-title {
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .feature-status {
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .feature-card.pass .feature-status {
-            color: var(--success);
-        }
-
-        .feature-card.warning .feature-status {
-            color: var(--warning);
-        }
-
-        .feature-card.fail .feature-status {
-            color: var(--danger);
-        }
-
-        .feature-metrics {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .metric {
-            flex: 1;
-        }
-
-        .metric-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .metric-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-top: 0.25rem;
-        }
-
-        .confidence-bar {
-            height: 8px;
-            background: var(--bg-hover);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 1s ease;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-        }
-
-        .feature-card.pass .confidence-fill {
-            background: linear-gradient(90deg, var(--success) 0%, #34d399 100%);
-        }
-
-        .feature-card.warning .confidence-fill {
-            background: linear-gradient(90deg, var(--warning) 0%, #fbbf24 100%);
-        }
-
-        .feature-card.fail .confidence-fill {
-            background: linear-gradient(90deg, var(--danger) 0%, #f87171 100%);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
-            color: var(--text);
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.3s;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .toast-icon {
-            font-size: 1.25rem;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .guide-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .upload-section {
-                padding: 2rem 1rem;
-            }
-
-            .upload-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 2rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .plate-number {
-                font-size: 1.75rem;
-            }
-
-            .score-circle {
-                width: 100px;
-                height: 100px;
-            }
-
-            .score-circle::before {
-                width: 80px;
-                height: 80px;
-            }
-
-            .score-value {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (pointer: coarse) {
-            .upload-section {
-                min-height: 200px;
-            }
-
-            .btn {
-                padding: 1.25rem;
-            }
-        }
-
-        @media (prefers-color-scheme: light) {
-            :root {
-                --bg-dark: #f1f5f9;
-                --bg-card: #ffffff;
-                --bg-hover: #f8fafc;
-                --text: #0f172a;
-                --text-muted: #64748b;
-                --border: #e2e8f0;
-            }
-
-            body {
-                background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 50%, #c7d2fe 100%);
-            }
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon">🔐</div>
-            <span>ProPlaka</span>
+import { Router, type IRouter } from "express";
+import { db, plakaDogrulamaTable } from "@workspace/db";
+import { desc, sql } from "drizzle-orm";
+import { openai } from "@workspace/integrations-openai-ai-server";
+import {
+  PlakaDogrulaBody,
+  PlakaDogrulaResponse,
+  PlakaGecmisListeleResponse,
+  PlakaIstatistikResponse,
+} from "@workspace/api-zod";
+
+const router: IRouter = Router();
+
+const GECERLI_IL_KODLARI: Record<number, string> = {
+  1: "Adana", 2: "Adıyaman", 3: "Afyonkarahisar", 4: "Ağrı", 5: "Amasya",
+  6: "Ankara", 7: "Antalya", 8: "Artvin", 9: "Aydın", 10: "Balıkesir",
+  11: "Bilecik", 12: "Bingöl", 13: "Bitlis", 14: "Bolu", 15: "Burdur",
+  16: "Bursa", 17: "Çanakkale", 18: "Çankırı", 19: "Çorum", 20: "Denizli",
+  21: "Diyarbakır", 22: "Edirne", 23: "Elazığ", 24: "Erzincan", 25: "Erzurum",
+  26: "Eskişehir", 27: "Gaziantep", 28: "Giresun", 29: "Gümüşhane", 30: "Hakkari",
+  31: "Hatay", 32: "Isparta", 33: "Mersin", 34: "İstanbul", 35: "İzmir",
+  36: "Kars", 37: "Kastamonu", 38: "Kayseri", 39: "Kırklareli", 40: "Kırşehir",
+  41: "Kocaeli", 42: "Konya", 43: "Kütahya", 44: "Malatya", 45: "Manisa",
+  46: "Kahramanmaraş", 47: "Mardin", 48: "Muğla", 49: "Muş", 50: "Nevşehir",
+  51: "Niğde", 52: "Ordu", 53: "Rize", 54: "Sakarya", 55: "Samsun",
+  56: "Siirt", 57: "Sinop", 58: "Sivas", 59: "Tekirdağ", 60: "Tokat",
+  61: "Trabzon", 62: "Tunceli", 63: "Şanlıurfa", 64: "Uşak", 65: "Van",
+  66: "Yozgat", 67: "Zonguldak", 68: "Aksaray", 69: "Bayburt", 70: "Karaman",
+  71: "Kırıkkale", 72: "Batman", 73: "Şırnak", 74: "Bartın", 75: "Ardahan",
+  76: "Iğdır", 77: "Yalova", 78: "Karabük", 79: "Kilis", 80: "Osmaniye",
+  81: "Düzce",
+};
+
+const YASAK_HARFLER = ["I", "Q", "W", "X"];
+const GECERLI_HARF_REGEX = /^[ABCDEFGHJKLMNPRSTUVYZ]+$/;
+
+interface GorselAnalizSonucu {
+  okunanMetin: string;
+  uygunMaddeler: string[];
+  kusurlar: string[];
+  gorselPuan: number;
+  gorselAciklama: string;
+  plakaBulunamadi: boolean;
+}
+
+async function gorselAnalizYap(
+  imageBase64: string,
+  manuelMetin: string
+): Promise<GorselAnalizSonucu> {
+  const base64Temiz = imageBase64.includes(",")
+    ? imageBase64.split(",")[1]
+    : imageBase64;
+
+  const isBase64Valid = base64Temiz && base64Temiz.length > 100;
+
+  if (!isBase64Valid) {
+    return {
+      okunanMetin: manuelMetin,
+      uygunMaddeler: [],
+      kusurlar: [],
+      gorselPuan: 0,
+      gorselAciklama: "Fotoğraf yüklenmedi.",
+      plakaBulunamadi: false,
+    };
+  }
+
+  const mimeType = imageBase64.startsWith("data:image/png")
+    ? "image/png"
+    : "image/jpeg";
+
+  const prompt = `Sen bir Türk trafik tescil uzmanısın. Bu fotoğraftaki araç plakasını analiz et.
+
+ÖNEMLİ: Eğer fotoğrafta plaka görünmüyor, araç yok, görüntü çok bulanık/karanlık veya plaka tespiti mümkün değilse "plakaBulunamadi" alanını true yap.
+
+YALNIZCA JSON formatında yanıt ver:
+
+{
+  "plakaBulunamadi": true/false,
+  "plakaBulunamadiNedeni": "Eğer plaka bulunamadıysa kısa açıklama, bulunabildiyse boş string",
+  "okunanMetin": "fotoğraftaki plaka metni boşluksuz büyük harf örn 34ABC1234, bulunamadıysa boş string",
+  "gorselPuan": 0-100 sayı, plakanın görsel orijinallik puanı, bulunamadıysa 0,
+  "uygunMaddeler": ["Fotoğrafta DOĞRU/UYGUN bulunan özellikler — sadece gerçekten var olanları yaz"],
+  "kusurlar": ["Fotoğrafta SORUNLU/KUSURLU bulunan özellikler — sadece gerçekten sorun olanları yaz, yoksa boş liste döndür"],
+  "gorselAciklama": "kısa Türkçe genel açıklama"
+}
+
+Değerlendirme kriterleri — her biri için önce fotoğrafta MEVCUT MU diye kontrol et, yoksa listeye ekleme:
+UYGUN MADDELER için kontrol et:
+- Zemin beyaz/açık renk mi?
+- Sol kenarda mavi AB şeridi ve TR yazısı var mı?
+- FE-Schrift formatında kalın okunaklı font mu?
+- Kazıma, etiket, tahrif izi YOK mu?
+- Montaj delikleri yerli yerinde mi?
+- Plaka rengi ve boyutları standart mı?
+
+KUSURLAR için kontrol et (sadece gerçekten tespit edersen yaz):
+- Zemin rengi standart değil mi?
+- Şerit veya TR yazısı eksik/hatalı mı?
+- Font bozuk veya standart dışı mı?
+- Kazıma, yazma, etiket izi var mı?
+- Montaj delikleri yanlış yerde mi?
+- Genel görünüm sahte izlenimi mi veriyor?`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      max_completion_tokens: 600,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${base64Temiz}`,
+                detail: "high",
+              },
+            },
+            { type: "text", text: prompt },
+          ],
+        },
+      ],
+    });
+
+    const yanit = response.choices[0]?.message?.content ?? "";
+    const jsonEslesme = yanit.match(/\{[\s\S]*\}/);
+    if (!jsonEslesme) throw new Error("Geçersiz JSON");
+
+    const veri = JSON.parse(jsonEslesme[0]);
+    const plakaBulunamadi = veri.plakaBulunamadi === true;
+
+    if (plakaBulunamadi) {
+      return {
+        okunanMetin: "",
+        uygunMaddeler: [],
+        kusurlar: [],
+        gorselPuan: 0,
+        gorselAciklama:
+          veri.plakaBulunamadiNedeni ||
+          "Fotoğrafta plaka veya araç tespit edilemedi.",
+        plakaBulunamadi: true,
+      };
+    }
+
+    return {
+      okunanMetin: (veri.okunanMetin || manuelMetin)
+        .replace(/\s/g, "")
+        .toUpperCase(),
+      uygunMaddeler: Array.isArray(veri.uygunMaddeler) ? veri.uygunMaddeler : [],
+      kusurlar: Array.isArray(veri.kusurlar) ? veri.kusurlar : [],
+      gorselPuan:
+        typeof veri.gorselPuan === "number"
+          ? Math.max(0, Math.min(100, veri.gorselPuan))
+          : 50,
+      gorselAciklama: veri.gorselAciklama || "Görsel analiz tamamlandı.",
+      plakaBulunamadi: false,
+    };
+  } catch {
+    return {
+      okunanMetin: manuelMetin,
+      uygunMaddeler: [],
+      kusurlar: [],
+      gorselPuan: 50,
+      gorselAciklama: "Yapay zeka görsel analizi gerçekleştirilemedi.",
+      plakaBulunamadi: false,
+    };
+  }
+}
+
+function kuralAnalizEt(plakaTemiz: string): {
+  formatUyumu: boolean;
+  hatalar: string[];
+  uyarilar: string[];
+  ilAdi: string | null;
+  kuralPuan: number;
+} {
+  const hatalar: string[] = [];
+  const uyarilar: string[] = [];
+  let kuralPuan = 100;
+  let ilAdi: string | null = null;
+
+  if (!plakaTemiz) {
+    return {
+      formatUyumu: false,
+      hatalar: ["Plaka metni boş"],
+      uyarilar: [],
+      ilAdi: null,
+      kuralPuan: 0,
+    };
+  }
+
+  if (plakaTemiz.length < 5) {
+    hatalar.push(`Plaka çok kısa: ${plakaTemiz.length} karakter (min. 5 olmalı)`);
+    kuralPuan -= 35;
+  } else if (plakaTemiz.length > 9) {
+    hatalar.push(`Plaka çok uzun: ${plakaTemiz.length} karakter (maks. 9 olmalı)`);
+    kuralPuan -= 30;
+  }
+
+  const gecersizKar = plakaTemiz.match(/[^A-Z0-9]/g);
+  if (gecersizKar) {
+    hatalar.push(
+      `Yasak karakter(ler): "${[...new Set(gecersizKar)].join(", ")}"`
+    );
+    kuralPuan -= 40;
+  }
+
+  const formatRegex = /^(\d{2})([A-Z]{1,3})(\d{2,4})$/;
+  const eslesme = plakaTemiz.match(formatRegex);
+  let formatUyumu = false;
+  let ilKoduStr = "";
+  let harfSerisi = "";
+  let rakamSerisi = "";
+
+  if (!eslesme) {
+    if (/^CD\d{2,3}$/.test(plakaTemiz)) {
+      return {
+        formatUyumu: true,
+        hatalar: [],
+        uyarilar: ["Diplomatik araç plakası (CD serisi)"],
+        ilAdi: "Diplomatik",
+        kuralPuan: 95,
+      };
+    }
+    hatalar.push(
+      `Format geçersiz — Beklenen: [İL KODU][HARFLER][RAKAMLAR] örn: 34ABC1234 veya 06AB123`
+    );
+    kuralPuan -= 45;
+  } else {
+    ilKoduStr = eslesme[1];
+    harfSerisi = eslesme[2];
+    rakamSerisi = eslesme[3];
+    formatUyumu = true;
+  }
+
+  if (ilKoduStr) {
+    const ilKodu = parseInt(ilKoduStr, 10);
+    if (ilKoduStr === "00") {
+      hatalar.push(`İl kodu "00" geçersiz — Türkiye'de 00 plaka kodu yoktur`);
+      kuralPuan -= 40;
+      formatUyumu = false;
+    } else if (ilKodu < 1 || ilKodu > 81) {
+      hatalar.push(
+        `İl kodu geçersiz: ${ilKoduStr} — Geçerli aralık: 01 (Adana) – 81 (Düzce)`
+      );
+      kuralPuan -= 40;
+      formatUyumu = false;
+    } else {
+      ilAdi = GECERLI_IL_KODLARI[ilKodu] ?? null;
+    }
+  }
+
+  if (harfSerisi) {
+    const yasakBulunan = YASAK_HARFLER.filter((h) => harfSerisi.includes(h));
+    if (yasakBulunan.length > 0) {
+      hatalar.push(
+        `YASAK HARF: "${yasakBulunan.join(", ")}" — Türk plakalarında I, Q, W, X harfleri kullanılmaz`
+      );
+      kuralPuan -= 50;
+      formatUyumu = false;
+    } else if (!GECERLI_HARF_REGEX.test(harfSerisi)) {
+      const hataliH = harfSerisi
+        .split("")
+        .filter((h) => !"ABCDEFGHJKLMNPRSTUVYZ".includes(h));
+      hatalar.push(`Geçersiz harf(ler): "${hataliH.join(", ")}"`);
+      kuralPuan -= 35;
+      formatUyumu = false;
+    }
+    if (/(.)\1{2,}/.test(harfSerisi)) {
+      uyarilar.push(`Olağandışı harf tekrarı: "${harfSerisi}"`);
+      kuralPuan -= 8;
+    }
+  }
+
+  if (
+    rakamSerisi &&
+    rakamSerisi.startsWith("0") &&
+    rakamSerisi.length > 1
+  ) {
+    uyarilar.push(
+      `Rakam serisi sıfır ile başlıyor: "${rakamSerisi}" — Nadir kullanım`
+    );
+    kuralPuan -= 5;
+  }
+
+  kuralPuan = Math.max(0, Math.min(100, kuralPuan));
+  return { formatUyumu, hatalar, uyarilar, ilAdi, kuralPuan };
+}
+
+function sonucBirlestir(
+  plakaTemiz: string,
+  kural: ReturnType<typeof kuralAnalizEt>,
+  gorsel: GorselAnalizSonucu,
+  fotovardi: boolean
+): {
+  durum: "orijinal" | "sahte" | "supheeli";
+  guvenSkor: number;
+  kuralPuaniGosterim: number;
+  aciklama: string;
+  renkAnalizi: string;
+  fontAnalizi: string;
+  hataListesi: string[];
+  formatUyumuSonuc: boolean;
+} {
+  if (fotovardi && gorsel.plakaBulunamadi) {
+    return {
+      durum: "sahte",
+      guvenSkor: 0,
+      kuralPuaniGosterim: 0,
+      formatUyumuSonuc: false,
+      aciklama:
+        `✘ DOĞRULAMA SONUCU: YETERSİZ FOTOĞRAF\n\n` +
+        `Yapay zeka görüntü analizi: ${gorsel.gorselAciklama}\n\n` +
+        `Güven skoru: 0/100 | Kural puanı: 0/100\n\n` +
+        `Plakayı net görebilecek yeni bir fotoğraf yükleyiniz. ` +
+        `Fotoğraf iyi ışıklı, yakın çekim ve odaklanmış olmalıdır.`,
+      renkAnalizi: "Fotoğrafta plaka tespit edilemedi — renk analizi yapılamadı.",
+      fontAnalizi: "Fotoğrafta plaka tespit edilemedi — font analizi yapılamadı.",
+      hataListesi: [
+        `KUSUR:Yapay zeka tespiti: ${gorsel.gorselAciklama}`,
+        "KUSUR:Çözüm: Plakayı net ve yakından çeken yeni bir fotoğraf yükleyin.",
+      ],
+    };
+  }
+
+  const hammPuan =
+    fotovardi && !gorsel.plakaBulunamadi
+      ? Math.round(kural.kuralPuan * 0.6 + gorsel.gorselPuan * 0.4)
+      : kural.kuralPuan;
+
+  const nihaiBirlesik = hammPuan >= 100 ? 99.9 : hammPuan;
+
+  const gorselUygunPrefixed = (fotovardi ? gorsel.uygunMaddeler : []).map(
+    (m) => `UYGUN:${m}`
+  );
+  const gorselKusurPrefixed = (fotovardi ? gorsel.kusurlar : []).map(
+    (m) => `KUSUR:${m}`
+  );
+
+  const tumHatalar = [
+    ...kural.hatalar.map((h) => `KUSUR:${h}`),
+    ...kural.uyarilar.map((u) => `UYARI:${u}`),
+    ...gorselUygunPrefixed,
+    ...gorselKusurPrefixed,
+  ];
+
+  const ilBilgisi = kural.ilAdi ? ` (${kural.ilAdi} iline ait)` : "";
+  let durum: "orijinal" | "sahte" | "supheeli";
+  let aciklama: string;
+
+  const kritikHataVar = kural.hatalar.some(
+    (h) =>
+      h.includes("YASAK HARF") ||
+      h.includes("İl kodu geçersiz") ||
+      h.includes("Format geçersiz")
+  );
+
+  const sadeKusurlar = [
+    ...kural.hatalar,
+    ...kural.uyarilar,
+    ...(fotovardi ? gorsel.kusurlar : []),
+  ];
+
+  if (kritikHataVar) {
+    durum = "sahte";
+    aciklama =
+      `✘ DOĞRULAMA SONUCU: SAHTE / GEÇERSİZ\n\n` +
+      `"${plakaTemiz}" plakası TC resmi plaka standartlarına UYMAMAKTADIR.\n\n` +
+      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
+      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
+      `Tespit edilen ihlaller:\n` +
+      kural.hatalar.map((h) => `• ${h}`).join("\n") +
+      "\n\nBu plakanın sahte veya tahrif edilmiş olma ihtimali yüksektir.";
+  } else if (nihaiBirlesik >= 80 && kural.hatalar.length === 0) {
+    durum = "orijinal";
+    aciklama =
+      `✔ DOĞRULAMA SONUCU: ORİJİNAL\n\n` +
+      `"${plakaTemiz}" plakası${ilBilgisi} TC resmi plaka standartlarına UYGUNDUR.\n\n` +
+      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
+      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
+      `İl kodu ${plakaTemiz.substring(0, 2)}${kural.ilAdi ? ` → ${kural.ilAdi}` : ""} geçerli. Harf ve rakam serisi kurallara uygun.` +
+      (kural.uyarilar.length > 0
+        ? "\n\nUyarılar:\n" + kural.uyarilar.map((u) => `• ${u}`).join("\n")
+        : "");
+  } else if (nihaiBirlesik >= 50) {
+    durum = "supheeli";
+    aciklama =
+      `⚠ DOĞRULAMA SONUCU: ŞÜPHELİ\n\n` +
+      `"${plakaTemiz}" plakasında tutarsızlıklar tespit edildi.\n\n` +
+      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
+      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
+      `Tespitler:\n` +
+      sadeKusurlar
+        .slice(0, 5)
+        .map((h) => `• ${h}`)
+        .join("\n") +
+      "\n\nDetaylı fiziksel inceleme ve resmi trafik kayıt sorgusu önerilir.";
+  } else {
+    durum = "sahte";
+    aciklama =
+      `✘ DOĞRULAMA SONUCU: SAHTE / GEÇERSİZ\n\n` +
+      `"${plakaTemiz}" plakası kritik kurallara aykırıdır.\n\n` +
+      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
+      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
+      `Tespit edilen ihlaller:\n` +
+      sadeKusurlar
+        .slice(0, 6)
+        .map((h) => `• ${h}`)
+        .join("\n") +
+      "\n\nBu plakanın sahte veya tahrif edilmiş olma ihtimali yüksektir.";
+  }
+
+  const renkAnalizi =
+    fotovardi &&
+    (gorsel.uygunMaddeler.length > 0 || gorsel.kusurlar.length > 0)
+      ? gorsel.gorselAciklama
+      : kural.formatUyumu
+      ? "Standart Türk plakası: Beyaz zemin, mavi AB şeridi, siyah yazı bekleniyor. Fiziksel inceleme önerilir."
+      : "Renk analizi uygulanamadı — format hatası mevcut.";
+
+  const fontAnalizi = kural.formatUyumu
+    ? "FE-Schrift resmi Türk plaka fontu — Sahte plakalarda font farklılıkları göze çarpar."
+    : "Font analizi uygulanamadı — geçersiz format.";
+
+  return {
+    durum,
+    guvenSkor: nihaiBirlesik,
+    kuralPuaniGosterim: kural.kuralPuan,
+    formatUyumuSonuc: kural.formatUyumu && !gorsel.plakaBulunamadi,
+    aciklama,
+    renkAnalizi,
+    fontAnalizi,
+    hataListesi: tumHatalar,
+  };
+}
+
+router.post("/plaka/dogrula", async (req, res): Promise<void> => {
+  const parsed = PlakaDogrulaBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Geçersiz istek formatı: " + parsed.error.message });
+    return;
+  }
+
+  const { imageBase64, plakaMetin: manuelMetin } = parsed.data;
+  const manuelTemiz = (manuelMetin ?? "")
+    .replace(/[\s\-\.]/g, "")
+    .toUpperCase()
+    .trim();
+
+  if (!manuelTemiz) {
+    res.status(400).json({ error: "Plaka metni girilmedi. Örnek: 34ABC1234 veya 06AB123" });
+    return;
+  }
+
+  const fotovardi =
+    !!imageBase64 &&
+    imageBase64.length > 200 &&
+    !imageBase64.startsWith("data:text/");
+
+  const [kural, gorsel] = await Promise.all([
+    Promise.resolve(kuralAnalizEt(manuelTemiz)),
+    fotovardi
+      ? gorselAnalizYap(imageBase64, manuelTemiz)
+      : Promise.resolve<GorselAnalizSonucu>({
+          okunanMetin: manuelTemiz,
+          uygunMaddeler: [],
+          kusurlar: [],
+          gorselPuan: 0,
+          gorselAciklama:
+            "Fotoğraf yüklenmedi — yalnızca kural tabanlı doğrulama yapıldı.",
+          plakaBulunamadi: false,
+        }),
+  ]);
+
+  const tumEkHatalar: string[] = [];
+
+  if (
+    fotovardi &&
+    !gorsel.plakaBulunamadi &&
+    gorsel.okunanMetin &&
+    gorsel.okunanMetin !== manuelTemiz &&
+    gorsel.okunanMetin.length >= 4
+  ) {
+    tumEkHatalar.push(
+      `UYARI:Fotoğrafta okunan plaka "${gorsel.okunanMetin}", girilen metin "${manuelTemiz}" ile eşleşmiyor. Fotoğrafı veya metni kontrol edin.`
+    );
+  }
+
+  const sonuc = sonucBirlestir(manuelTemiz, kural, gorsel, fotovardi);
+  const tumHataListesi = [...tumEkHatalar, ...sonuc.hataListesi];
+
+  const [kayit] = await db
+    .insert(plakaDogrulamaTable)
+    .values({
+      plakaMetin: manuelTemiz,
+      durum: sonuc.durum,
+      guvenSkor: sonuc.guvenSkor,
+      aciklama: sonuc.aciklama,
+      formatUyumu: sonuc.formatUyumuSonuc,
+      renkAnalizi: sonuc.renkAnalizi,
+      fontAnalizi: sonuc.fontAnalizi,
+      hataListesi: tumHataListesi,
+      imageBase64: imageBase64.substring(0, 500),
+    })
+    .returning();
+
+  res.json(
+    PlakaDogrulaResponse.parse({
+      id: kayit.id,
+      plakaMetin: kayit.plakaMetin,
+      durum: kayit.durum,
+      guvenSkor: kayit.guvenSkor,
+      aciklama: kayit.aciklama,
+      analizDetaylari: {
+        formatUyumu: kayit.formatUyumu,
+        renkAnalizi: kayit.renkAnalizi,
+        fontAnalizi: kayit.fontAnalizi,
+        hataListesi: kayit.hataListesi as string[],
+      },
+      olusturmaTarihi: kayit.olusturmaTarihi,
+    })
+  );
+});
+
+router.get("/plaka/gecmis", async (_req, res): Promise<void> => {
+  const gecmis = await db
+    .select({
+      id: plakaDogrulamaTable.id,
+      plakaMetin: plakaDogrulamaTable.plakaMetin,
+      durum: plakaDogrulamaTable.durum,
+      guvenSkor: plakaDogrulamaTable.guvenSkor,
+      olusturmaTarihi: plakaDogrulamaTable.olusturmaTarihi,
+    })
+    .from(plakaDogrulamaTable)
+    .orderBy(desc(plakaDogrulamaTable.olusturmaTarihi))
+    .limit(50);
+
+  res.json(PlakaGecmisListeleResponse.parse(gecmis));
+});
+
+router.get("/plaka/istatistik", async (_req, res): Promise<void> => {
+  const [stats] = await db
+    .select({
+      toplamSorgu: sql<number>`count(*)::int`,
+      orijinalSayisi: sql<number>`count(*) filter (where durum = 'orijinal')::int`,
+      sahteSayisi: sql<number>`count(*) filter (where durum = 'sahte')::int`,
+      supheliSayisi: sql<number>`count(*) filter (where durum = 'supheeli')::int`,
+      ortalamGuvenSkor: sql<number>`coalesce(avg(guven_skor), 0)::numeric(5,1)::float`,
+    })
+    .from(plakaDogrulamaTable);
+
+  res.json(
+    PlakaIstatistikResponse.parse({
+      toplamSorgu: stats.toplamSorgu ?? 0,
+      orijinalSayisi: stats.orijinalSayisi ?? 0,
+      sahteSayisi: stats.sahteSayisi ?? 0,
+      supheliSayisi: stats.supheliSayisi ?? 0,
+      ortalamGuvenSkor: stats.ortalamGuvenSkor ?? 0,
+    })
+  );
+});
+
+export default router;
+          import React from "react";
+import { motion } from "framer-motion";
+import {
+  ShieldCheck,
+  ShieldAlert,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Activity,
+  FileText,
+  AlertCircle,
+  CheckCheck,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { PlakaDogrulaResult } from "@workspace/api-client-react";
+import { PlakaDogrulaResultDurum } from "@workspace/api-client-react";
+
+interface ResultCardProps {
+  result: PlakaDogrulaResult;
+}
+
+const statusConfig = {
+  [PlakaDogrulaResultDurum.orijinal]: {
+    label: "ORİJİNAL",
+    colors: "bg-green-50 border-green-200 text-green-800",
+    headerColors: "bg-green-100/50 border-b-green-200",
+    icon: <ShieldCheck className="w-8 h-8 text-green-600" />,
+    progressColor: "bg-green-500",
+    scoreBg: "bg-green-100",
+    scoreText: "text-green-700",
+  },
+  [PlakaDogrulaResultDurum.sahte]: {
+    label: "SAHTE",
+    colors: "bg-red-50 border-red-200 text-red-800",
+    headerColors: "bg-red-100/50 border-b-red-200",
+    icon: <ShieldAlert className="w-8 h-8 text-red-600" />,
+    progressColor: "bg-red-500",
+    scoreBg: "bg-red-100",
+    scoreText: "text-red-700",
+  },
+  [PlakaDogrulaResultDurum.supheeli]: {
+    label: "ŞÜPHELİ",
+    colors: "bg-orange-50 border-orange-200 text-orange-800",
+    headerColors: "bg-orange-100/50 border-b-orange-200",
+    icon: <AlertTriangle className="w-8 h-8 text-orange-600" />,
+    progressColor: "bg-orange-500",
+    scoreBg: "bg-orange-100",
+    scoreText: "text-orange-700",
+  },
+};
+
+function parseHataListesi(hataListesi: string[]) {
+  const uygunMaddeler: string[] = [];
+  const kusurlar: string[] = [];
+  const uyarilar: string[] = [];
+
+  for (const madde of hataListesi) {
+    if (madde.startsWith("UYGUN:")) {
+      uygunMaddeler.push(madde.slice(6));
+    } else if (madde.startsWith("UYARI:")) {
+      uyarilar.push(madde.slice(6));
+    } else if (madde.startsWith("KUSUR:")) {
+      kusurlar.push(madde.slice(6));
+    } else {
+      kusurlar.push(madde);
+    }
+  }
+
+  return { uygunMaddeler, kusurlar, uyarilar };
+}
+
+export function ResultCard({ result }: ResultCardProps) {
+  const config = statusConfig[result.durum];
+  const { analizDetaylari } = result;
+  const { uygunMaddeler, kusurlar, uyarilar } = parseHataListesi(
+    analizDetaylari.hataListesi
+  );
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={cn(
+        "rounded-2xl border-2 shadow-xl overflow-hidden h-full flex flex-col",
+        config.colors
+      )}
+    >
+      <div
+        className={cn(
+          "p-6 flex items-start justify-between border-b-2",
+          config.headerColors
+        )}
+      >
+        <div>
+          <h2 className="text-sm font-bold uppercase tracking-wider opacity-80 mb-1">
+            Tespit Edilen Plaka
+          </h2>
+          <p className="text-4xl font-extrabold tracking-tight font-mono">
+            {result.plakaMetin}
+          </p>
         </div>
-    </header>
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-2 mb-2">
+            {config.icon}
+            <span className="text-2xl font-black tracking-tight">
+              {config.label}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold opacity-75">
+              Güven Skoru:
+            </span>
+            <div
+              className={cn(
+                "px-3 py-1 rounded-full font-bold text-sm",
+                config.scoreBg,
+                config.scoreText
+              )}
+            >
+              %{result.guvenSkor.toFixed(1)}
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="container">
-        <div class="guide-section">
-            <div class="guide-title">
-                📸 Doğru Fotoğraf Nasıl Çekilir?
-            </div>
-            <div class="guide-grid">
-                <div class="guide-item">
-                    <div class="guide-icon">📱</div>
-                    <h4>Dik Açı</h4>
-                    <p>Plakaya tam karşıdan, dik açıyla çekin</p>
-                </div>
-                <div class="guide-item">
-                    <div class="guide-icon">💡</div>
-                    <h4>Yeterli Işık</h4>
-                    <p>Gölgesiz, parlak ortam tercih edin</p>
-                </div>
-                <div class="guide-item">
-                    <div class="guide-icon">🔍</div>
-                    <h4>Yakın Çekim</h4>
-                    <p>Plaka görüntünün en az %50'sini kaplasın</p>
-                </div>
-                <div class="guide-item">
-                    <div class="guide-icon">✨</div>
-                    <h4>Hologram Görünür</h4>
-                    <p>Mavi şerit ve hologram net görünsün</p>
-                </div>
-            </div>
+      <div className="p-6 flex-1 bg-white/60 overflow-y-auto">
+        <div className="text-base font-medium mb-6 whitespace-pre-line leading-relaxed">
+          {result.aciklama}
         </div>
 
-        <div class="upload-section" id="uploadZone">
-            <div class="upload-icon">📸</div>
-            <div class="upload-title">Plaka Fotoğrafı Yükle</div>
-            <div class="upload-desc">Yukarıdaki kurallara uygun bir fotoğraf yükleyin</div>
-            <button class="camera-btn" onclick="openCamera()">
-                📷 Kamera ile Çek
-            </button>
-        </div>
-
-        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" capture="environment">
-
-        <div class="preview-section" id="previewSection">
-            <div class="canvas-container" id="canvasContainer">
-                <canvas id="mainCanvas"></canvas>
-                <div class="canvas-overlay">
-                    <div class="detection-box" id="detectionBox"></div>
-                </div>
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <FileText className="w-5 h-5 text-slate-400" />
+                <h4 className="font-semibold text-slate-700">Format Uyumu</h4>
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                {analizDetaylari.formatUyumu ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span className="font-medium text-slate-700">
+                      Resmi Formata Uygun
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-5 h-5 text-red-500" />
+                    <span className="font-medium text-slate-700">
+                      Format Uyumsuzluğu Tespit Edildi
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
 
-            <div class="action-buttons">
-                <button class="btn btn-secondary" onclick="removeImage()">
-                    🗑️ Kaldır
-                </button>
-                <button class="btn btn-secondary" onclick="rotateImage()">
-                    🔄 Döndür
-                </button>
-                <button class="btn btn-success" onclick="enhanceImage()">
-                    ✨ İyileştir
-                </button>
-                <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePlate()" disabled>
-                    🔍 Analiz Et
-                </button>
+            <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <Activity className="w-5 h-5 text-slate-400" />
+                <h4 className="font-semibold text-slate-700">Renk ve Font</h4>
+              </div>
+              <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+                  <span>
+                    <span className="font-medium">Renk:</span>{" "}
+                    {analizDetaylari.renkAnalizi}
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+                  <span>
+                    <span className="font-medium">Font:</span>{" "}
+                    {analizDetaylari.fontAnalizi}
+                  </span>
+                </li>
+              </ul>
             </div>
-        </div>
+          </div>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div class="loading-text">Görsel analiz ediliyor...</div>
-            <div class="loading-steps">
-                <div class="loading-step" id="step1">📸 Görüntü işleniyor</div>
-                <div class="loading-step" id="step2">🔍 Plaka bölgesi tespit ediliyor</div>
-                <div class="loading-step" id="step3">📝 OCR karakter tanıma</div>
-                <div class="loading-step" id="step4">🎨 Renk ve desen analizi</div>
-                <div class="loading-step" id="step5">🌐 API doğrulama</div>
-                <div class="loading-step" id="step6">📊 Sonuçlar derleniyor</div>
+          {uygunMaddeler.length > 0 && (
+            <div className="bg-green-50 rounded-xl p-4 border border-green-100">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCheck className="w-5 h-5 text-green-600" />
+                <h4 className="font-semibold text-green-800">
+                  Kurala Uygun Maddeler
+                </h4>
+              </div>
+              <ul className="space-y-2">
+                {uygunMaddeler.map((madde, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-start gap-2 text-sm text-green-700"
+                  >
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-green-500" />
+                    <span>{madde}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          )}
+
+          {uyarilar.length > 0 && (
+            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <h4 className="font-semibold text-amber-800">Uyarılar</h4>
+              </div>
+              <ul className="space-y-2">
+                {uyarilar.map((uyari, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-start gap-2 text-sm text-amber-700"
+                  >
+                    <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 opacity-70" />
+                    <span>{uyari}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {kusurlar.length > 0 && (
+            <div className="bg-red-50/50 rounded-xl p-4 border border-red-100">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <h4 className="font-semibold text-red-800">
+                  Tespit Edilen Kusurlar
+                </h4>
+              </div>
+              <ul className="space-y-2">
+                {kusurlar.map((kusur, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-start gap-2 text-sm text-red-700"
+                  >
+                    <XCircle className="w-4 h-4 mt-0.5 shrink-0 opacity-70" />
+                    <span>{kusur}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
+      </div>
 
-        <div class="results" id="results"></div>
-    </div>
-
-    <div class="toast" id="toast">
-        <span class="toast-icon">ℹ️</span>
-        <span id="toastMessage">Mesaj</span>
-    </div>
-
-    <script>
-        const TR_CONFIG = {
-            name: 'Türkiye',
-            plateFormat: /^\d{2}\s?[A-Z]{1,3}\s?\d{2,4}$/,
-            colors: {
-                blue: { h: [200, 260], s: [30, 100], v: [20, 100] },
-                white: { h: [0, 360], s: [0, 20], v: [70, 100] },
-                black: { v: [0, 40] }
-            },
-            features: ['Mavi TR Şeridi', 'Beyaz/Gümüş Zemin', 'Siyah Karakterler', 'Hologram Şeridi', 'TŞOF Mühürü']
-        };
-
-        let state = {
-            originalImage: null,
-            processedImage: null,
-            canvas: null,
-            ctx: null,
-            detectedRegion: null,
-            ocrText: '',
-            rotation: 0
-        };
-
-        const elements = {
-            uploadZone: document.getElementById('uploadZone'),
-            fileInput: document.getElementById('fileInput'),
-            previewSection: document.getElementById('previewSection'),
-            canvas: document.getElementById('mainCanvas'),
-            analyzeBtn: document.getElementById('analyzeBtn'),
-            loading: document.getElementById('loading'),
-            results: document.getElementById('results'),
-            detectionBox: document.getElementById('detectionBox'),
-            toast: document.getElementById('toast'),
-            toastMessage: document.getElementById('toastMessage')
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initCanvas();
-            initEventListeners();
-        });
-
-        function initCanvas() {
-            state.canvas = elements.canvas;
-            state.ctx = state.canvas.getContext('2d', { willReadFrequently: true });
-        }
-
-        function initEventListeners() {
-            elements.uploadZone.addEventListener('click', () => elements.fileInput.click());
-            
-            elements.uploadZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                elements.uploadZone.classList.add('dragover');
-            });
-            
-            elements.uploadZone.addEventListener('dragleave', () => {
-                elements.uploadZone.classList.remove('dragover');
-            });
-            
-            elements.uploadZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                elements.uploadZone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) {
-                    handleFile(e.dataTransfer.files[0]);
-                }
-            });
-
-            elements.fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length) {
-                    handleFile(e.target.files[0]);
-                }
-            });
-
-            elements.uploadZone.addEventListener('mousemove', (e) => {
-                const rect = elements.uploadZone.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                elements.uploadZone.style.setProperty('--mouse-x', x + '%');
-                elements.uploadZone.style.setProperty('--mouse-y', y + '%');
-            });
-        }
-
-        function showToast(message, icon = 'ℹ️') {
-            elements.toastMessage.textContent = message;
-            elements.toast.querySelector('.toast-icon').textContent = icon;
-            elements.toast.classList.add('show');
-            setTimeout(() => elements.toast.classList.remove('show'), 3000);
-        }
-
-        function openCamera() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                elements.fileInput.setAttribute('capture', 'environment');
-                elements.fileInput.click();
-            } else {
-                showToast('Kamera erişimi desteklenmiyor', '❌');
-            }
-        }
-
-        function handleFile(file) {
-            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-            if (!validTypes.includes(file.type)) {
-                showToast('Sadece JPG, PNG, WEBP formatları desteklenir', '❌');
-                return;
-            }
-
-            if (file.size > 10 * 1024 * 1024) {
-                showToast('Dosya boyutu 10MB\'ı geçemez', '❌');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    loadImage(img);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function loadImage(img) {
-            state.originalImage = img;
-            state.rotation = 0;
-            
-            const maxWidth = Math.min(1600, window.innerWidth * 2);
-            const scale = Math.min(1, maxWidth / img.width);
-            const width = img.width * scale;
-            const height = img.height * scale;
-            
-            state.canvas.width = width;
-            state.canvas.height = height;
-            
-            state.ctx.drawImage(img, 0, 0, width, height);
-            state.processedImage = state.ctx.getImageData(0, 0, width, height);
-            
-            elements.uploadZone.style.display = 'none';
-            elements.previewSection.classList.add('active');
-            elements.analyzeBtn.disabled = false;
-            
-            setTimeout(() => {
-                detectRegion();
-                showToast('Fotoğraf yüklendi, plaka tespit ediliyor...', '✅');
-            }, 100);
-        }
-
-        const ImageProcessing = {
-            grayscale: (imageData) => {
-                const data = imageData.data;
-                const gray = new Uint8ClampedArray(data.length);
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                    gray[i] = gray[i + 1] = gray[i + 2] = luminance;
-                    gray[i + 3] = data[i + 3];
-                }
-                
-                return new ImageData(gray, imageData.width, imageData.height);
-            },
-
-            clahe: (imageData, clipLimit = 2.0, tileSize = 8) => {
-                const gray = ImageProcessing.grayscale(imageData);
-                const data = gray.data;
-                const width = gray.width;
-                const height = gray.height;
-                const output = new Uint8ClampedArray(data);
-                
-                for (let y = 0; y < height; y += tileSize) {
-                    for (let x = 0; x < width; x += tileSize) {
-                        const tileWidth = Math.min(tileSize, width - x);
-                        const tileHeight = Math.min(tileSize, height - y);
-                        
-                        const hist = new Array(256).fill(0);
-                        for (let ty = 0; ty < tileHeight; ty++) {
-                            for (let tx = 0; tx < tileWidth; tx++) {
-                                const idx = ((y + ty) * width + (x + tx)) * 4;
-                                hist[Math.floor(data[idx])]++;
-                            }
-                        }
-                        
-                        const total = tileWidth * tileHeight;
-                        const clip = Math.ceil(clipLimit * total / 256);
-                        let excess = 0;
-                        
-                        for (let i = 0; i < 256; i++) {
-                            if (hist[i] > clip) {
-                                excess += hist[i] - clip;
-                                hist[i] = clip;
-                            }
-                        }
-                        
-                        const redistribute = Math.floor(excess / 256);
-                        for (let i = 0; i < 256; i++) {
-                            hist[i] += redistribute;
-                        }
-                        
-                        const cdf = new Array(256);
-                        cdf[0] = hist[0];
-                        for (let i = 1; i < 256; i++) {
-                            cdf[i] = cdf[i - 1] + hist[i];
-                        }
-                        
-                        for (let ty = 0; ty < tileHeight; ty++) {
-                            for (let tx = 0; tx < tileWidth; tx++) {
-                                const idx = ((y + ty) * width + (x + tx)) * 4;
-                                const val = Math.floor(data[idx]);
-                                const newVal = Math.floor((cdf[val] / total) * 255);
-                                output[idx] = output[idx + 1] = output[idx + 2] = newVal;
-                            }
-                        }
-                    }
-                }
-                
-                return new ImageData(output, width, height);
-            },
-
-            bilateralFilter: (imageData, sigmaS = 2, sigmaR = 30) => {
-                const data = imageData.data;
-                const width = imageData.width;
-                const height = imageData.height;
-                const output = new Uint8ClampedArray(data);
-                
-                const kernelRadius = Math.ceil(sigmaS * 2);
-                
-                for (let y = 0; y < height; y++) {
-                    for (let x = 0; x < width; x++) {
-                        const idx = (y * width + x) * 4;
-                        let sumR = 0, sumG = 0, sumB = 0, sumW = 0;
-                        
-                        for (let ky = -kernelRadius; ky <= kernelRadius; ky++) {
-                            for (let kx = -kernelRadius; kx <= kernelRadius; kx++) {
-                                const ny = Math.min(Math.max(y + ky, 0), height - 1);
-                                const nx = Math.min(Math.max(x + kx, 0), width - 1);
-                                const nidx = (ny * width + nx) * 4;
-                                
-                                const spatialDist = Math.sqrt(kx * kx + ky * ky);
-                                const colorDist = Math.sqrt(
-                                    Math.pow(data[idx] - data[nidx], 2) +
-                                    Math.pow(data[idx + 1] - data[nidx + 1], 2) +
-                                    Math.pow(data[idx + 2] - data[nidx + 2], 2)
-                                );
-                                
-                                const ws = Math.exp(-(spatialDist * spatialDist) / (2 * sigmaS * sigmaS));
-                                const wr = Math.exp(-(colorDist * colorDist) / (2 * sigmaR * sigmaR));
-                                const w = ws * wr;
-                                
-                                sumR += data[nidx] * w;
-                                sumG += data[nidx + 1] * w;
-                                sumB += data[nidx + 2] * w;
-                                sumW += w;
-                            }
-                        }
-                        
-                        output[idx] = Math.round(sumR / sumW);
-                        output[idx + 1] = Math.round(sumG / sumW);
-                        output[idx + 2] = Math.round(sumB / sumW);
-                    }
-                }
-                
-                return new ImageData(output, width, height);
-            },
-
-            sharpen: (imageData) => {
-                const kernel = [
-                    0, -1, 0,
-                    -1, 5, -1,
-                    0, -1, 0
-                ];
-                return ImageProcessing.convolve(imageData, kernel);
-            },
-
-            convolve: (imageData, kernel) => {
-                const data = imageData.data;
-                const width = imageData.width;
-                const height = imageData.height;
-                const output = new Uint8ClampedArray(data);
-                const side = Math.round(Math.sqrt(kernel.length));
-                const half = Math.floor(side / 2);
-                
-                for (let y = 0; y < height; y++) {
-                    for (let x = 0; x < width; x++) {
-                        let r = 0, g = 0, b = 0;
-                        
-                        for (let cy = 0; cy < side; cy++) {
-                            for (let cx = 0; cx < side; cx++) {
-                                const ny = Math.min(Math.max(y + cy - half, 0), height - 1);
-                                const nx = Math.min(Math.max(x + cx - half, 0), width - 1);
-                                const idx = (ny * width + nx) * 4;
-                                const kidx = cy * side + cx;
-                                
-                                r += data[idx] * kernel[kidx];
-                                g += data[idx + 1] * kernel[kidx];
-                                b += data[idx + 2] * kernel[kidx];
-                            }
-                        }
-                        
-                        const idx = (y * width + x) * 4;
-                        output[idx] = Math.min(255, Math.max(0, r));
-                        output[idx + 1] = Math.min(255, Math.max(0, g));
-                        output[idx + 2] = Math.min(255, Math.max(0, b));
-                    }
-                }
-                
-                return new ImageData(output, width, height);
-            }
-        };
-
-        function rgbToHsv(r, g, b) {
-            r /= 255; g /= 255; b /= 255;
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            const diff = max - min;
-            
-            let h = 0;
-            if (diff !== 0) {
-                if (max === r) h = ((g - b) / diff + 6) % 6;
-                else if (max === g) h = (b - r) / diff + 2;
-                else h = (r - g) / diff + 4;
-                h *= 60;
-            }
-            
-            const s = max === 0 ? 0 : (diff / max) * 100;
-            const v = max * 100;
-            
-            return { h, s, v };
-        }
-
-        function rotateImage() {
-            if (!state.originalImage) return;
-            
-            state.rotation = (state.rotation + 90) % 360;
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            if (state.rotation === 90 || state.rotation === 270) {
-                canvas.width = state.originalImage.height;
-                canvas.height = state.originalImage.width;
-            } else {
-                canvas.width = state.originalImage.width;
-                canvas.height = state.originalImage.height;
-            }
-            
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate((state.rotation * Math.PI) / 180);
-            ctx.drawImage(state.originalImage, -state.originalImage.width / 2, -state.originalImage.height / 2);
-            
-            const rotatedImg = new Image();
-            rotatedImg.onload = () => {
-                state.originalImage = rotatedImg;
-                loadImage(rotatedImg);
-                showToast('Görüntü döndürüldü', '🔄');
-            };
-            rotatedImg.src = canvas.toDataURL();
-        }
-
-        function enhanceImage() {
-            if (!state.processedImage) return;
-            
-            showToast('Görüntü iyileştiriliyor...', '✨');
-            
-            let enhanced = ImageProcessing.clahe(state.processedImage, 2.0, 8);
-            enhanced = ImageProcessing.bilateralFilter(enhanced, 2, 30);
-            enhanced = ImageProcessing.sharpen(enhanced);
-            
-            state.ctx.putImageData(enhanced, 0, 0);
-            state.processedImage = enhanced;
-            
-            detectRegion();
-            showToast('Görüntü iyileştirildi', '✅');
-        }
-
-        function removeImage() {
-            state.originalImage = null;
-            state.processedImage = null;
-            state.detectedRegion = null;
-            state.rotation = 0;
-            elements.fileInput.value = '';
-            
-            elements.uploadZone.style.display = 'block';
-            elements.previewSection.classList.remove('active');
-            elements.results.classList.remove('show');
-            elements.analyzeBtn.disabled = true;
-            elements.detectionBox.style.display = 'none';
-            
-            state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
-            showToast('Fotoğraf kaldırıldı', '🗑️');
-        }
-
-        function detectRegion() {
-            if (!state.processedImage) return;
-            
-            const data = state.processedImage.data;
-            const width = state.canvas.width;
-            const height = state.canvas.height;
-            const config = TR_CONFIG;
-            
-            state.ctx.drawImage(state.originalImage, 0, 0, width, height);
-            
-            const scales = [1, 0.8, 0.6];
-            let bestRegion = null;
-            let bestScore = 0;
-            
-            for (const scale of scales) {
-                const regions = findPlateRegions(data, width, height, config);
-                
-                for (const region of regions) {
-                    const score = calculateRegionScore(data, width, height, region, config);
-                    if (score > bestScore && score > 0.3) {
-                        bestScore = score;
-                        bestRegion = region;
-                    }
-                }
-            }
-            
-            if (bestRegion) {
-                state.detectedRegion = bestRegion;
-                drawDetectionBox(bestRegion);
-            } else {
-                state.detectedRegion = {
-                    x: width * 0.1,
-                    y: height * 0.3,
-                    width: width * 0.8,
-                    height: height * 0.4,
-                    confidence: 0.5
-                };
-                drawDetectionBox(state.detectedRegion);
-                showToast('Plaka otomatik tespit edilemedi, varsayılan bölge kullanılıyor', '⚠️');
-            }
-        }
-
-        function findPlateRegions(data, width, height, config) {
-            const regions = [];
-            const step = 4;
-            
-            const bluePixels = [];
-            for (let y = 0; y < height; y += step) {
-                for (let x = 0; x < width * 0.3; x += step) {
-                    const idx = (y * width + x) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    if (hsv.h >= config.colors.blue.h[0] && hsv.h <= config.colors.blue.h[1] &&
-                        hsv.s >= config.colors.blue.s[0] && hsv.s <= config.colors.blue.s[1] &&
-                        hsv.v >= config.colors.blue.v[0] && hsv.v <= config.colors.blue.v[1]) {
-                        bluePixels.push({ x, y });
-                    }
-                }
-            }
-            
-            if (bluePixels.length > 20) {
-                let minX = width, maxX = 0, minY = height, maxY = 0;
-                bluePixels.forEach(p => {
-                    minX = Math.min(minX, p.x);
-                    maxX = Math.max(maxX, p.x);
-                    minY = Math.min(minY, p.y);
-                    maxY = Math.max(maxY, p.y);
-                });
-                
-                const blueWidth = maxX - minX;
-                const plateWidth = Math.min(width - minX, blueWidth * 8);
-                const plateHeight = Math.min(height - minY, (maxY - minY) * 3);
-                
-                regions.push({
-                    x: Math.max(0, minX - 10),
-                    y: Math.max(0, minY - 10),
-                    width: plateWidth,
-                    height: plateHeight,
-                    type: 'blue-strip'
-                });
-            }
-            
-            return regions;
-        }
-
-        function calculateRegionScore(data, width, height, region, config) {
-            let score = 0;
-            const samples = 100;
-            let validSamples = 0;
-            
-            for (let i = 0; i < samples; i++) {
-                const x = region.x + Math.random() * region.width;
-                const y = region.y + Math.random() * region.height;
-                const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                
-                if ((hsv.v > 60 && hsv.s < 30) ||
-                    (hsv.v < 40) ||
-                    (hsv.h >= config.colors.blue.h[0] && hsv.h <= config.colors.blue.h[1])) {
-                    score++;
-                }
-                validSamples++;
-            }
-            
-            return validSamples > 0 ? score / validSamples : 0;
-        }
-
-        function drawDetectionBox(region) {
-            const box = elements.detectionBox;
-            const container = document.getElementById('canvasContainer');
-            const canvas = elements.canvas;
-            
-            const scaleX = container.clientWidth / canvas.width;
-            const scaleY = container.clientHeight / canvas.height;
-            
-            box.style.left = (region.x * scaleX) + 'px';
-            box.style.top = (region.y * scaleY) + 'px';
-            box.style.width = (region.width * scaleX) + 'px';
-            box.style.height = (region.height * scaleY) + 'px';
-            box.style.display = 'block';
-        }
-
-        async function analyzePlate() {
-            if (!state.processedImage || !state.detectedRegion) return;
-            
-            elements.loading.classList.add('active');
-            elements.analyzeBtn.disabled = true;
-            
-            const steps = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'];
-            steps.forEach((step, idx) => {
-                setTimeout(() => {
-                    document.getElementById(step).classList.add('active');
-                    if (idx > 0) document.getElementById(steps[idx - 1]).classList.add('completed');
-                }, idx * 800);
-            });
-            
-            try {
-                const plateCanvas = extractPlateRegion();
-                const ocrResult = await performOCR(plateCanvas);
-                state.ocrText = ocrResult.text;
-                
-                const analysis = performDetailedAnalysis();
-                const apiResult = await verifyWithAPI(ocrResult.text);
-                
-                const finalScore = calculateFinalScore(analysis, ocrResult, apiResult);
-                
-                renderResults(finalScore, analysis, ocrResult, apiResult);
-                
-                showToast('Analiz tamamlandı', '✅');
-                
-            } catch (error) {
-                console.error('Analysis error:', error);
-                showToast('Analiz sırasında hata oluştu', '❌');
-            } finally {
-                elements.loading.classList.remove('active');
-                elements.analyzeBtn.disabled = false;
-                steps.forEach(step => {
-                    document.getElementById(step).classList.remove('active', 'completed');
-                });
-            }
-        }
-
-        function extractPlateRegion() {
-            const r = state.detectedRegion;
-            const plateCanvas = document.createElement('canvas');
-            plateCanvas.width = r.width;
-            plateCanvas.height = r.height;
-            const plateCtx = plateCanvas.getContext('2d');
-            
-            plateCtx.drawImage(
-                state.canvas,
-                r.x, r.y, r.width, r.height,
-                0, 0, r.width, r.height
-            );
-            
-            return plateCanvas;
-        }
-
-        async function performOCR(canvas) {
-            const config = TR_CONFIG;
-            
-            const processedCanvas = document.createElement('canvas');
-            processedCanvas.width = canvas.width * 2;
-            processedCanvas.height = canvas.height * 2;
-            const pctx = processedCanvas.getContext('2d');
-            pctx.drawImage(canvas, 0, 0, processedCanvas.width, processedCanvas.height);
-            
-            const imageData = pctx.getImageData(0, 0, processedCanvas.width, processedCanvas.height);
-            
-            let temp = ImageProcessing.grayscale(imageData);
-            temp = ImageProcessing.clahe(temp, 2, 8);
-            temp = ImageProcessing.bilateralFilter(temp, 2, 30);
-            const processed = ImageProcessing.sharpen(temp);
-            
-            pctx.putImageData(processed, 0, 0);
-            
-            const { createWorker, OEM, PSM } = Tesseract;
-            const worker = await createWorker('eng', OEM.LSTM_ONLY, {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        document.getElementById('step3').textContent = `📝 OCR: %${Math.round(m.progress * 100)}`;
-                    }
-                }
-            });
-            
-            await worker.setParameters({
-                tessedit_pageseg_mode: PSM.SINGLE_LINE,
-                tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789- ',
-                preserve_interword_spaces: '0'
-            });
-            
-            const result = await worker.recognize(processedCanvas.toDataURL());
-            await worker.terminate();
-            
-            let cleanText = result.data.text.toUpperCase()
-                .replace(/[^A-Z0-9-]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-            
-            const isValidFormat = config.plateFormat.test(cleanText);
-            
-            return {
-                text: cleanText,
-                confidence: result.data.confidence,
-                isValidFormat: isValidFormat,
-                raw: result.data.text
-            };
-        }
-
-        function performDetailedAnalysis() {
-            const data = state.processedImage.data;
-            const width = state.canvas.width;
-            const height = state.canvas.height;
-            const r = state.detectedRegion;
-            const config = TR_CONFIG;
-            
-            const metrics = {
-                blueStrip: { score: 0, pixels: 0, total: 0, uniformity: 0 },
-                whiteBg: { score: 0, pixels: 0, total: 0, uniformity: 0 },
-                characters: { score: 0, pixels: 0, total: 0, contrast: 0 },
-                hologram: { score: 0, variance: 0 },
-                seal: { score: 0, pixels: 0, total: 0, circularity: 0 }
-            };
-            
-            const blueWidth = Math.min(r.width * 0.2, 100);
-            const blueSamples = [];
-            
-            for (let y = r.y; y < r.y + r.height; y += 2) {
-                for (let x = r.x; x < r.x + blueWidth; x += 2) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    metrics.blueStrip.total++;
-                    
-                    if (hsv.h >= config.colors.blue.h[0] && hsv.h <= config.colors.blue.h[1] &&
-                        hsv.s >= config.colors.blue.s[0] && hsv.s <= config.colors.blue.s[1] &&
-                        hsv.v >= config.colors.blue.v[0]) {
-                        metrics.blueStrip.pixels++;
-                        blueSamples.push(hsv);
-                    }
-                }
-            }
-            
-            metrics.blueStrip.score = Math.min(100, (metrics.blueStrip.pixels / metrics.blueStrip.total) * 150);
-            
-            if (blueSamples.length > 10) {
-                const avgH = blueSamples.reduce((a, b) => a + b.h, 0) / blueSamples.length;
-                const variance = blueSamples.reduce((a, b) => a + Math.pow(b.h - avgH, 2), 0) / blueSamples.length;
-                metrics.blueStrip.uniformity = Math.max(0, 100 - variance / 10);
-                metrics.blueStrip.score = (metrics.blueStrip.score + metrics.blueStrip.uniformity) / 2;
-            }
-            
-            const plateStartX = r.x + blueWidth;
-            const plateWidth = r.width - blueWidth;
-            const bgSamples = [];
-            const charSamples = [];
-            
-            for (let y = r.y + r.height * 0.2; y < r.y + r.height * 0.8; y += 3) {
-                for (let x = plateStartX; x < plateStartX + plateWidth; x += 3) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    metrics.whiteBg.total++;
-                    
-                    if (hsv.v >= config.colors.white.v[0] && hsv.s <= config.colors.white.s[1]) {
-                        metrics.whiteBg.pixels++;
-                        bgSamples.push(hsv.v);
-                    }
-                    
-                    if (hsv.v <= config.colors.black.v[1]) {
-                        metrics.characters.pixels++;
-                        charSamples.push(hsv.v);
-                    }
-                }
-            }
-            
-            metrics.whiteBg.score = Math.min(100, (metrics.whiteBg.pixels / metrics.whiteBg.total) * 120);
-            
-            if (bgSamples.length > 10) {
-                const avg = bgSamples.reduce((a, b) => a + b, 0) / bgSamples.length;
-                const variance = bgSamples.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / bgSamples.length;
-                metrics.whiteBg.uniformity = Math.max(0, 100 - variance / 5);
-            }
-            
-            metrics.characters.total = metrics.whiteBg.total;
-            metrics.characters.score = Math.min(100, (metrics.characters.pixels / metrics.characters.total) * 500);
-            
-            if (charSamples.length > 5) {
-                const avgContrast = 100 - (charSamples.reduce((a, b) => a + b, 0) / charSamples.length);
-                metrics.characters.contrast = avgContrast;
-            }
-            
-            const centerY = r.y + r.height / 2;
-            const bandHeight = r.height * 0.15;
-            const lines = [];
-            
-            for (let y = centerY - bandHeight/2; y < centerY + bandHeight/2; y += 3) {
-                let lineVals = [];
-                for (let x = plateStartX; x < plateStartX + plateWidth; x += 4) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    lineVals.push((data[idx] + data[idx+1] + data[idx+2]) / 3);
-                }
-                
-                if (lineVals.length > 0) {
-                    const avg = lineVals.reduce((a, b) => a + b, 0) / lineVals.length;
-                    const variance = lineVals.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / lineVals.length;
-                    lines.push(variance);
-                }
-            }
-            
-            if (lines.length > 1) {
-                metrics.hologram.variance = lines.reduce((a, b) => a + b, 0) / lines.length;
-                let waveCount = 0;
-                for (let i = 1; i < lines.length; i++) {
-                    if (Math.abs(lines[i] - lines[i-1]) > 50) waveCount++;
-                }
-                metrics.hologram.score = Math.min(100, waveCount * 15 + metrics.hologram.variance / 10);
-            }
-            
-            const sealSize = Math.min(r.width, r.height) * 0.25;
-            const sealPixels = [];
-            
-            for (let y = r.y; y < r.y + sealSize && y < r.y + r.height; y += 2) {
-                for (let x = r.x; x < r.x + sealSize && x < r.x + r.width; x += 2) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    metrics.seal.total++;
-                    
-                    const distFromCenter = Math.sqrt(Math.pow(x - (r.x + sealSize/2), 2) + 
-                                                    Math.pow(y - (r.y + sealSize/2), 2));
-                    
-                    if (distFromCenter < sealSize * 0.4 && hsv.v < 50) {
-                        metrics.seal.pixels++;
-                        sealPixels.push({ x, y, dist: distFromCenter });
-                    }
-                }
-            }
-            
-            metrics.seal.score = Math.min(100, (metrics.seal.pixels / Math.max(1, metrics.seal.total)) * 200);
-            
-            if (sealPixels.length > 10) {
-                const avgDist = sealPixels.reduce((a, b) => a + b.dist, 0) / sealPixels.length;
-                const variance = sealPixels.reduce((a, b) => a + Math.pow(b.dist - avgDist, 2), 0) / sealPixels.length;
-                metrics.seal.circularity = Math.max(0, 100 - variance / 10);
-            }
-            
-            return metrics;
-        }
-
-        async function verifyWithAPI(plateNumber) {
-            try {
-                await new Promise(resolve => setTimeout(resolve, 800));
-                
-                const mockResponses = {
-                    valid: {
-                        status: 'valid',
-                        registrationStatus: 'registered',
-                        vehicleType: 'Otomobil',
-                        lastInspection: '2024-12',
-                        insuranceStatus: 'active',
-                        ownerType: 'Bireysel',
-                        confidence: 0.94
-                    },
-                    invalid: {
-                        status: 'invalid',
-                        error: 'Plaka kaydı bulunamadı',
-                        confidence: 0.0
-                    },
-                    suspicious: {
-                        status: 'suspicious',
-                        warning: 'Kayıt bilgilerinde tutarsızlık',
-                        confidence: 0.6
-                    }
-                };
-                
-                const rand = Math.random();
-                let response;
-                if (rand > 0.8) response = mockResponses.invalid;
-                else if (rand > 0.6) response = mockResponses.suspicious;
-                else response = mockResponses.valid;
-                
-                return {
-                    source: 'Türkiye DMV API',
-                    timestamp: new Date().toISOString(),
-                    ...response
-                };
-                
-            } catch (error) {
-                console.error('API verification error:', error);
-                return {
-                    source: 'Local Database',
-                    status: 'error',
-                    error: 'API bağlantı hatası',
-                    timestamp: new Date().toISOString()
-                };
-            }
-        }
-
-        function calculateFinalScore(analysis, ocr, apiResult) {
-            const weights = {
-                blueStrip: 20,
-                whiteBg: 20,
-                characters: 20,
-                hologram: 15,
-                seal: 15,
-                ocr: 10
-            };
-            
-            let totalScore = 0;
-            totalScore += Math.min(100, analysis.blueStrip.score * 1.2) * weights.blueStrip / 100;
-            totalScore += Math.min(100, analysis.whiteBg.score * 1.1) * weights.whiteBg / 100;
-            totalScore += Math.min(100, analysis.characters.score) * weights.characters / 100;
-            totalScore += Math.min(100, analysis.hologram.score * 1.5) * weights.hologram / 100;
-            totalScore += Math.min(100, analysis.seal.score * 0.8) * weights.seal / 100;
-            
-            if (ocr.isValidFormat && ocr.confidence > 60) {
-                totalScore += 10;
-            }
-            
-            if (apiResult && apiResult.status === 'valid') {
-                totalScore += 5;
-            } else if (apiResult && apiResult.status === 'invalid') {
-                totalScore -= 20;
-            }
-            
-            totalScore = Math.max(0, Math.min(100, totalScore));
-            
-            let status, title, message, badgeText;
-            
-            if (totalScore >= 75) {
-                status = 'authentic';
-                title = 'ORİJİNAL PLAKA';
-                message = 'Tüm güvenlik özellikleri başarıyla doğrulandı. Plaka TSE standartlarına uygundur.';
-                badgeText = '✅ ONAYLANDI';
-            } else if (totalScore >= 50) {
-                status = 'suspicious';
-                title = 'KONTROL GEREKLİ';
-                message = 'Bazı güvenlik özellikleri zayıf veya eksik. Daha net bir fotoğraf çekmeyi deneyin.';
-                badgeText = '⚠️ ŞÜPHELİ';
-            } else {
-                status = 'fake';
-                title = 'STANDART DIŞI / SAHTE';
-                message = 'Güvenlik özellikleri tespit edilemedi. Bu plaka sahte veya standart dışı olabilir.';
-                badgeText = '❌ ONAYLANMADI';
-            }
-            
-            return {
-                score: Math.round(totalScore),
-                status,
-                title,
-                message,
-                badgeText
-            };
-        }
-
-        function renderResults(finalScore, analysis, ocr, apiResult) {
-            const config = TR_CONFIG;
-            
-            let html = `
-                <div class="result-header result-${finalScore.status}">
-                    <div class="result-badge">${finalScore.badgeText}</div>
-                    <div class="score-circle" style="--score: ${finalScore.score}">
-                        <div class="score-value">%${finalScore.score}</div>
-                    </div>
-                    <div class="result-title">${finalScore.title}</div>
-                    <div class="result-desc">${finalScore.message}</div>
-                </div>
-            `;
-            
-            if (ocr.text) {
-                html += `
-                    <div class="ocr-result">
-                        <div style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Tespit Edilen Plaka</div>
-                        <div class="plate-number">${ocr.text}</div>
-                        <div class="plate-info">
-                            <div class="info-item">
-                                <div class="info-label">OCR Güveni</div>
-                                <div class="info-value">%${Math.round(ocr.confidence)}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Format</div>
-                                <div class="info-value">${ocr.isValidFormat ? '✅ Geçerli' : '❌ Geçersiz'}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Karakter Sayısı</div>
-                                <div class="info-value">${ocr.text.replace(/[^A-Z0-9]/g, '').length}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            html += '<div class="features-grid">';
-            
-            const features = [
-                { key: 'blueStrip', name: config.features[0], icon: '🔵', desc: 'Sol taraftaki mavi şerit bölgesi' },
-                { key: 'whiteBg', name: config.features[1], icon: '⬜', desc: 'Plaka zemin rengi ve düzgünlüğü' },
-                { key: 'characters', name: config.features[2], icon: '🔤', desc: 'Karakter kontrastı ve okunabilirlik' },
-                { key: 'hologram', name: config.features[3], icon: '〰️', desc: 'Orta kısımdaki dalgalı hologram şeridi' },
-                { key: 'seal', name: config.features[4], icon: '🔏', desc: 'Sol üst köşedeki resmi mühür/damga' }
-            ];
-            
-            features.forEach(feature => {
-                const metric = analysis[feature.key];
-                const status = metric.score > 60 ? 'pass' : metric.score > 35 ? 'warning' : 'fail';
-                const statusText = metric.score > 60 ? 'Tespit Edildi' : metric.score > 35 ? 'Zayıf' : 'Bulunamadı';
-                
-                html += `
-                    <div class="feature-card ${status}">
-                        <div class="feature-header">
-                            <div class="feature-icon">${feature.icon}</div>
-                            <div class="feature-title-group">
-                                <div class="feature-title">${feature.name}</div>
-                                <div class="feature-status">${statusText}</div>
-                            </div>
-                        </div>
-                        <div class="feature-metrics">
-                            <div class="metric">
-                                <span class="metric-label">Güven</span>
-                                <span class="metric-value" style="color: ${status === 'pass' ? 'var(--success)' : status === 'warning' ? 'var(--warning)' : 'var(--danger)'};">${Math.round(metric.score)}%</span>
-                            </div>
-                            <div class="metric">
-                                <span class="metric-label">Piksel</span>
-                                <span class="metric-value">${metric.pixels.toLocaleString()}</span>
-                            </div>
-                        </div>
-                        <div class="confidence-bar">
-                            <div class="confidence-fill" style="width: ${Math.min(100, metric.score)}%"></div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            
-            if (apiResult) {
-                html += `
-                    <div class="api-status" style="background: var(--bg-card); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; border: 1px solid var(--border);">
-                        <div style="font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            🌐 Veritabanı Doğrulama Sonuçları
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                            <div style="background: var(--bg-hover); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
-                                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${apiResult.status === 'valid' ? 'var(--success)' : 'var(--danger)'}; box-shadow: 0 0 10px ${apiResult.status === 'valid' ? 'var(--success)' : 'var(--danger)'};"></div>
-                                <div>
-                                    <div style="font-weight: 600; font-size: 0.875rem;">Kayıt Durumu</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">${apiResult.status === 'valid' ? 'Aktif Kayıt' : apiResult.status === 'invalid' ? 'Kayıt Bulunamadı' : 'Kontrol Gerekli'}</div>
-                                </div>
-                            </div>
-                            ${apiResult.vehicleType ? `
-                            <div style="background: var(--bg-hover); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
-                                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--success);"></div>
-                                <div>
-                                    <div style="font-weight: 600; font-size: 0.875rem;">Araç Tipi</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">${apiResult.vehicleType}</div>
-                                </div>
-                            </div>
-                            ` : ''}
-                            ${apiResult.insuranceStatus ? `
-                            <div style="background: var(--bg-hover); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
-                                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${apiResult.insuranceStatus === 'active' ? 'var(--success)' : 'var(--danger)'};"></div>
-                                <div>
-                                    <div style="font-weight: 600; font-size: 0.875rem;">Sigorta</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">${apiResult.insuranceStatus === 'active' ? 'Aktif' : 'Pasif'}</div>
-                                </div>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }
-            
-            elements.results.innerHTML = html;
-            elements.results.classList.add('show');
-            
-            setTimeout(() => {
-                const circle = document.querySelector('.score-circle');
-                if (circle) {
-                    circle.style.setProperty('--score', finalScore.score);
-                }
-            }, 100);
-        }
-
-        window.openCamera = openCamera;
-        window.removeImage = removeImage;
-        window.rotateImage = rotateImage;
-        window.enhanceImage = enhanceImage;
-        window.analyzePlate = analyzePlate;
-    </script>
-</body>
-</html>
+      <div className="h-2 w-full bg-slate-200">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${result.guvenSkor}%` }}
+          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+          className={cn("h-full", config.progressColor)}
+        />
+      </div>
+    </motion.div>
+  );
+}
