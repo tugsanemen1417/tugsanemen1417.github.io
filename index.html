@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>Pro Plaka Doğrulama Sistemi | Professional License Plate Verification</title>
+    <title>ProPlaka - Plaka Doğrulama Sistemi</title>
     <script src='https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js'></script>
     <style>
         :root {
@@ -43,27 +43,16 @@
             background: var(--glass);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+            padding: 1.5rem;
+            text-align: center;
         }
 
         .logo {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.75rem;
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 800;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
@@ -72,84 +61,78 @@
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            -webkit-text-fill-color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .guide-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .guide-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .guide-item {
+            background: var(--bg-hover);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .guide-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .guide-icon {
+            width: 48px;
+            height: 48px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            -webkit-text-fill-color: white;
+            margin: 0 auto 0.75rem;
         }
 
-        .country-selector {
-            display: flex;
-            gap: 0.5rem;
-            background: var(--bg-card);
-            padding: 0.25rem;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .country-btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            border-radius: 8px;
-            cursor: pointer;
+        .guide-item h4 {
             font-size: 0.875rem;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
-        .country-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-
-        .stats-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1rem;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .stat-label {
+        .guide-item p {
             font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 0.25rem;
         }
 
         .upload-section {
@@ -210,29 +193,9 @@
         .upload-desc {
             color: var(--text-muted);
             margin-bottom: 1.5rem;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .upload-specs {
-            display: flex;
-            justify-content: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .spec-badge {
-            background: var(--bg-hover);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
         }
 
         .camera-btn {
-            margin-top: 1.5rem;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             border: none;
             color: white;
@@ -317,69 +280,6 @@
             font-weight: 700;
         }
 
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .control-group {
-            background: var(--bg-hover);
-            padding: 1.25rem;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-        }
-
-        .control-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-
-        .control-value {
-            background: var(--bg-card);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            background: var(--bg-card);
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
-            transition: transform 0.2s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        .range-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
-
         .action-buttons {
             display: flex;
             gap: 1rem;
@@ -388,7 +288,7 @@
 
         .btn {
             flex: 1;
-            min-width: 140px;
+            min-width: 120px;
             padding: 1rem 1.5rem;
             border: none;
             border-radius: 12px;
@@ -789,67 +689,6 @@
             background: linear-gradient(90deg, var(--danger) 0%, #f87171 100%);
         }
 
-        .api-status {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .api-status-title {
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .api-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .api-item {
-            background: var(--bg-hover);
-            padding: 1rem;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .api-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
-            animation: pulse 2s infinite;
-        }
-
-        .api-indicator.offline {
-            background: var(--danger);
-            box-shadow: 0 0 10px var(--danger);
-            animation: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .api-name {
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        .api-desc {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
         .toast {
             position: fixed;
             bottom: 2rem;
@@ -883,14 +722,8 @@
         }
 
         @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .country-selector {
-                width: 100%;
-                justify-content: center;
+            .guide-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .upload-section {
@@ -901,10 +734,6 @@
                 width: 60px;
                 height: 60px;
                 font-size: 2rem;
-            }
-
-            .controls-grid {
-                grid-template-columns: 1fr;
             }
 
             .action-buttons {
@@ -943,11 +772,6 @@
                 min-height: 200px;
             }
 
-            input[type="range"]::-webkit-slider-thumb {
-                width: 28px;
-                height: 28px;
-            }
-
             .btn {
                 padding: 1.25rem;
             }
@@ -971,57 +795,45 @@
 </head>
 <body>
     <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <div class="logo-icon">🔐</div>
-                <span>ProPlaka Verify</span>
-            </div>
-            <div class="country-selector">
-                <button class="country-btn active" data-country="TR" onclick="setCountry('TR')">
-                    🇹🇷 TR
-                </button>
-                <button class="country-btn" data-country="EU" onclick="setCountry('EU')">
-                    🇪🇺 EU
-                </button>
-                <button class="country-btn" data-country="US" onclick="setCountry('US')">
-                    🇺🇸 US
-                </button>
-            </div>
+        <div class="logo">
+            <div class="logo-icon">🔐</div>
+            <span>ProPlaka</span>
         </div>
     </header>
 
     <div class="container">
-        <div class="stats-bar">
-            <div class="stat-card">
-                <div class="stat-value" id="totalScans">0</div>
-                <div class="stat-label">Toplam Tarama</div>
+        <div class="guide-section">
+            <div class="guide-title">
+                📸 Doğru Fotoğraf Nasıl Çekilir?
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="authenticCount">0</div>
-                <div class="stat-label">Orijinal</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="suspiciousCount">0</div>
-                <div class="stat-label">Şüpheli</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="apiStatus">🟢</div>
-                <div class="stat-label">API Durumu</div>
+            <div class="guide-grid">
+                <div class="guide-item">
+                    <div class="guide-icon">📱</div>
+                    <h4>Dik Açı</h4>
+                    <p>Plakaya tam karşıdan, dik açıyla çekin</p>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-icon">💡</div>
+                    <h4>Yeterli Işık</h4>
+                    <p>Gölgesiz, parlak ortam tercih edin</p>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-icon">🔍</div>
+                    <h4>Yakın Çekim</h4>
+                    <p>Plaka görüntünün en az %50'sini kaplasın</p>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-icon">✨</div>
+                    <h4>Hologram Görünür</h4>
+                    <p>Mavi şerit ve hologram net görünsün</p>
+                </div>
             </div>
         </div>
 
         <div class="upload-section" id="uploadZone">
             <div class="upload-icon">📸</div>
             <div class="upload-title">Plaka Fotoğrafı Yükle</div>
-            <div class="upload-desc">
-                Hologram ve mühür detaylarının net göründüğü fotoğraf yükleyin. 
-                Otomatik OCR ve yapay zeka analizi yapılacaktır.
-            </div>
-            <div class="upload-specs">
-                <span class="spec-badge">📁 Max 10MB</span>
-                <span class="spec-badge">🖼️ JPG, PNG, WEBP</span>
-                <span class="spec-badge">🔍 Min 800px</span>
-            </div>
+            <div class="upload-desc">Yukarıdaki kurallara uygun bir fotoğraf yükleyin</div>
             <button class="camera-btn" onclick="openCamera()">
                 📷 Kamera ile Çek
             </button>
@@ -1034,57 +846,6 @@
                 <canvas id="mainCanvas"></canvas>
                 <div class="canvas-overlay">
                     <div class="detection-box" id="detectionBox"></div>
-                </div>
-            </div>
-
-            <div class="controls-grid">
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>🔧 Algılama Hassasiyeti</span>
-                        <span class="control-value" id="sensitivityValue">0.3</span>
-                    </div>
-                    <input type="range" id="sensitivitySlider" min="0.1" max="0.9" step="0.05" value="0.3">
-                    <div class="range-labels">
-                        <span>Katı</span>
-                        <span>Toleranslı</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>🎨 Renk Toleransı</span>
-                        <span class="control-value" id="colorValue">40</span>
-                    </div>
-                    <input type="range" id="colorSlider" min="10" max="100" step="5" value="40">
-                    <div class="range-labels">
-                        <span>Düşük</span>
-                        <span>Yüksek</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>🔍 OCR Kalitesi</span>
-                        <span class="control-value" id="ocrValue">Orta</span>
-                    </div>
-                    <input type="range" id="ocrSlider" min="1" max="3" step="1" value="2">
-                    <div class="range-labels">
-                        <span>Hızlı</span>
-                        <span>Dengeli</span>
-                        <span>Kesin</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>🌐 API Entegrasyonu</span>
-                        <span class="control-value" id="apiValue">Aktif</span>
-                    </div>
-                    <input type="range" id="apiSlider" min="0" max="1" step="1" value="1">
-                    <div class="range-labels">
-                        <span>Yerel</span>
-                        <span>Online</span>
-                    </div>
                 </div>
             </div>
 
@@ -1126,60 +887,25 @@
     </div>
 
     <script>
-        const COUNTRY_CONFIGS = {
-            TR: {
-                name: 'Türkiye',
-                flag: '🇹🇷',
-                plateFormat: /^\d{2}\s?[A-Z]{1,3}\s?\d{2,4}$/,
-                colors: {
-                    blue: { h: [200, 260], s: [30, 100], v: [20, 100] },
-                    white: { h: [0, 360], s: [0, 20], v: [70, 100] },
-                    black: { v: [0, 40] }
-                },
-                features: ['Mavi TR Şeridi', 'Beyaz/Gümüş Zemin', 'Siyah Karakterler', 'Hologram Şeridi', 'TŞOF Mühürü'],
-                apiEndpoint: 'https://api.plaka.gov.tr/verify'
+        const TR_CONFIG = {
+            name: 'Türkiye',
+            plateFormat: /^\d{2}\s?[A-Z]{1,3}\s?\d{2,4}$/,
+            colors: {
+                blue: { h: [200, 260], s: [30, 100], v: [20, 100] },
+                white: { h: [0, 360], s: [0, 20], v: [70, 100] },
+                black: { v: [0, 40] }
             },
-            EU: {
-                name: 'Avrupa Birliği',
-                flag: '🇪🇺',
-                plateFormat: /^[A-Z]{1,3}[-\s]?[A-Z]{1,2}[-\s]?\d{1,4}$/,
-                colors: {
-                    blue: { h: [200, 260], s: [30, 100], v: [20, 100] },
-                    white: { h: [0, 360], s: [0, 25], v: [65, 100] },
-                    black: { v: [0, 45] }
-                },
-                features: ['Mavi EU Şeridi', 'Beyaz Zemin', 'Siyah Karakterler', 'Hologram', 'Ülke Kodu'],
-                apiEndpoint: 'https://api.eucarplate.eu/verify'
-            },
-            US: {
-                name: 'ABD',
-                flag: '🇺🇸',
-                plateFormat: /^[A-Z0-9]{3,8}$/,
-                colors: {
-                    blue: { h: [180, 280], s: [20, 100], v: [20, 100] },
-                    white: { h: [0, 360], s: [0, 30], v: [60, 100] },
-                    black: { v: [0, 50] }
-                },
-                features: ['Eyalet Logosu', 'Renkli Zemin', 'Kontrastlı Yazı', 'Hologram', 'Kayıt Etiketi'],
-                apiEndpoint: 'https://api.dmv.gov/verify'
-            }
+            features: ['Mavi TR Şeridi', 'Beyaz/Gümüş Zemin', 'Siyah Karakterler', 'Hologram Şeridi', 'TŞOF Mühürü']
         };
 
         let state = {
-            currentCountry: 'TR',
             originalImage: null,
             processedImage: null,
             canvas: null,
             ctx: null,
             detectedRegion: null,
-            analysisData: null,
             ocrText: '',
-            rotation: 0,
-            stats: {
-                total: parseInt(localStorage.getItem('totalScans') || '0'),
-                authentic: parseInt(localStorage.getItem('authenticCount') || '0'),
-                suspicious: parseInt(localStorage.getItem('suspiciousCount') || '0')
-            }
+            rotation: 0
         };
 
         const elements = {
@@ -1188,14 +914,6 @@
             previewSection: document.getElementById('previewSection'),
             canvas: document.getElementById('mainCanvas'),
             analyzeBtn: document.getElementById('analyzeBtn'),
-            sensitivitySlider: document.getElementById('sensitivitySlider'),
-            colorSlider: document.getElementById('colorSlider'),
-            ocrSlider: document.getElementById('ocrSlider'),
-            apiSlider: document.getElementById('apiSlider'),
-            sensitivityValue: document.getElementById('sensitivityValue'),
-            colorValue: document.getElementById('colorValue'),
-            ocrValue: document.getElementById('ocrValue'),
-            apiValue: document.getElementById('apiValue'),
             loading: document.getElementById('loading'),
             results: document.getElementById('results'),
             detectionBox: document.getElementById('detectionBox'),
@@ -1206,8 +924,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             initCanvas();
             initEventListeners();
-            updateStats();
-            checkAPIStatus();
         });
 
         function initCanvas() {
@@ -1241,36 +957,6 @@
                 }
             });
 
-            elements.sensitivitySlider.addEventListener('input', debounce((e) => {
-                elements.sensitivityValue.textContent = e.target.value;
-                if (state.originalImage) {
-                    detectRegion();
-                    showToast('Hassasiyet güncellendi', '🔧');
-                }
-            }, 300));
-
-            elements.colorSlider.addEventListener('input', (e) => {
-                elements.colorValue.textContent = e.target.value;
-            });
-
-            elements.ocrSlider.addEventListener('input', (e) => {
-                const values = ['Hızlı', 'Orta', 'Kesin'];
-                elements.ocrValue.textContent = values[e.target.value - 1];
-            });
-
-            elements.apiSlider.addEventListener('input', (e) => {
-                elements.apiValue.textContent = e.target.value === '1' ? 'Aktif' : 'Yerel';
-            });
-
-            let touchStartY = 0;
-            elements.canvas.addEventListener('touchstart', (e) => {
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
-
-            elements.canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-            }, { passive: false });
-
             elements.uploadZone.addEventListener('mousemove', (e) => {
                 const rect = elements.uploadZone.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -1280,46 +966,11 @@
             });
         }
 
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
         function showToast(message, icon = 'ℹ️') {
             elements.toastMessage.textContent = message;
             elements.toast.querySelector('.toast-icon').textContent = icon;
             elements.toast.classList.add('show');
             setTimeout(() => elements.toast.classList.remove('show'), 3000);
-        }
-
-        function updateStats() {
-            document.getElementById('totalScans').textContent = state.stats.total;
-            document.getElementById('authenticCount').textContent = state.stats.authentic;
-            document.getElementById('suspiciousCount').textContent = state.stats.suspicious;
-        }
-
-        function saveStats() {
-            localStorage.setItem('totalScans', state.stats.total);
-            localStorage.setItem('authenticCount', state.stats.authentic);
-            localStorage.setItem('suspiciousCount', state.stats.suspicious);
-        }
-
-        function setCountry(country) {
-            state.currentCountry = country;
-            document.querySelectorAll('.country-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.country === country);
-            });
-            showToast(`${COUNTRY_CONFIGS[country].name} formatı seçildi`, COUNTRY_CONFIGS[country].flag);
-            if (state.originalImage) {
-                detectRegion();
-            }
         }
 
         function openCamera() {
@@ -1627,8 +1278,7 @@
             const data = state.processedImage.data;
             const width = state.canvas.width;
             const height = state.canvas.height;
-            const sensitivity = parseFloat(elements.sensitivitySlider.value);
-            const config = COUNTRY_CONFIGS[state.currentCountry];
+            const config = TR_CONFIG;
             
             state.ctx.drawImage(state.originalImage, 0, 0, width, height);
             
@@ -1637,7 +1287,7 @@
             let bestScore = 0;
             
             for (const scale of scales) {
-                const regions = findPlateRegions(data, width, height, config, sensitivity);
+                const regions = findPlateRegions(data, width, height, config);
                 
                 for (const region of regions) {
                     const score = calculateRegionScore(data, width, height, region, config);
@@ -1664,9 +1314,9 @@
             }
         }
 
-        function findPlateRegions(data, width, height, config, sensitivity) {
+        function findPlateRegions(data, width, height, config) {
             const regions = [];
-            const step = Math.max(4, Math.floor(4 / sensitivity));
+            const step = 4;
             
             const bluePixels = [];
             for (let y = 0; y < height; y += step) {
@@ -1692,7 +1342,7 @@
                 });
                 
                 const blueWidth = maxX - minX;
-                const plateWidth = Math.min(width - minX, blueWidth * (state.currentCountry === 'EU' ? 6 : 8));
+                const plateWidth = Math.min(width - minX, blueWidth * 8);
                 const plateHeight = Math.min(height - minY, (maxY - minY) * 3);
                 
                 regions.push({
@@ -1701,45 +1351,6 @@
                     width: plateWidth,
                     height: plateHeight,
                     type: 'blue-strip'
-                });
-            }
-            
-            const contrastRegions = findContrastRegions(data, width, height, step);
-            regions.push(...contrastRegions);
-            
-            return regions;
-        }
-
-        function findContrastRegions(data, width, height, step) {
-            const regions = [];
-            const contrastMap = new Array(Math.ceil(width / step) * Math.ceil(height / step)).fill(0);
-            
-            for (let y = step; y < height - step; y += step) {
-                for (let x = step; x < width - step; x += step) {
-                    const idx = (y * width + x) * 4;
-                    const leftIdx = (y * width + (x - step)) * 4;
-                    const rightIdx = (y * width + (x + step)) * 4;
-                    
-                    const contrast = Math.abs(data[idx] - data[leftIdx]) + 
-                                    Math.abs(data[idx + 1] - data[leftIdx + 1]) +
-                                    Math.abs(data[idx + 2] - data[leftIdx + 2]) +
-                                    Math.abs(data[idx] - data[rightIdx]) +
-                                    Math.abs(data[idx + 1] - data[rightIdx + 1]) +
-                                    Math.abs(data[idx + 2] - data[rightIdx + 2]);
-                    
-                    const mapIdx = Math.floor(y / step) * Math.ceil(width / step) + Math.floor(x / step);
-                    contrastMap[mapIdx] = contrast;
-                }
-            }
-            
-            const avgContrast = contrastMap.reduce((a, b) => a + b, 0) / contrastMap.length;
-            if (avgContrast > 100) {
-                regions.push({
-                    x: width * 0.15,
-                    y: height * 0.35,
-                    width: width * 0.7,
-                    height: height * 0.3,
-                    type: 'contrast'
                 });
             }
             
@@ -1803,19 +1414,9 @@
                 state.ocrText = ocrResult.text;
                 
                 const analysis = performDetailedAnalysis();
-                
-                let apiResult = null;
-                if (elements.apiSlider.value === '1') {
-                    apiResult = await verifyWithAPI(ocrResult.text);
-                }
+                const apiResult = await verifyWithAPI(ocrResult.text);
                 
                 const finalScore = calculateFinalScore(analysis, ocrResult, apiResult);
-                
-                state.stats.total++;
-                if (finalScore.status === 'authentic') state.stats.authentic++;
-                else if (finalScore.status === 'suspicious') state.stats.suspicious++;
-                saveStats();
-                updateStats();
                 
                 renderResults(finalScore, analysis, ocrResult, apiResult);
                 
@@ -1850,8 +1451,7 @@
         }
 
         async function performOCR(canvas) {
-            const quality = parseInt(elements.ocrSlider.value);
-            const config = COUNTRY_CONFIGS[state.currentCountry];
+            const config = TR_CONFIG;
             
             const processedCanvas = document.createElement('canvas');
             processedCanvas.width = canvas.width * 2;
@@ -1861,17 +1461,10 @@
             
             const imageData = pctx.getImageData(0, 0, processedCanvas.width, processedCanvas.height);
             
-            let processed;
-            if (quality === 1) {
-                processed = ImageProcessing.grayscale(imageData);
-            } else if (quality === 2) {
-                processed = ImageProcessing.clahe(ImageProcessing.grayscale(imageData), 2, 8);
-            } else {
-                let temp = ImageProcessing.grayscale(imageData);
-                temp = ImageProcessing.clahe(temp, 2, 8);
-                temp = ImageProcessing.bilateralFilter(temp, 2, 30);
-                processed = ImageProcessing.sharpen(temp);
-            }
+            let temp = ImageProcessing.grayscale(imageData);
+            temp = ImageProcessing.clahe(temp, 2, 8);
+            temp = ImageProcessing.bilateralFilter(temp, 2, 30);
+            const processed = ImageProcessing.sharpen(temp);
             
             pctx.putImageData(processed, 0, 0);
             
@@ -1913,8 +1506,7 @@
             const width = state.canvas.width;
             const height = state.canvas.height;
             const r = state.detectedRegion;
-            const colorTolerance = parseInt(elements.colorSlider.value);
-            const config = COUNTRY_CONFIGS[state.currentCountry];
+            const config = TR_CONFIG;
             
             const metrics = {
                 blueStrip: { score: 0, pixels: 0, total: 0, uniformity: 0 },
@@ -1934,9 +1526,8 @@
                     
                     metrics.blueStrip.total++;
                     
-                    if (hsv.h >= config.colors.blue.h[0] - colorTolerance/2 && 
-                        hsv.h <= config.colors.blue.h[1] + colorTolerance/2 &&
-                        hsv.s >= config.colors.blue.s[0] - colorTolerance/3 &&
+                    if (hsv.h >= config.colors.blue.h[0] && hsv.h <= config.colors.blue.h[1] &&
+                        hsv.s >= config.colors.blue.s[0] && hsv.s <= config.colors.blue.s[1] &&
                         hsv.v >= config.colors.blue.v[0]) {
                         metrics.blueStrip.pixels++;
                         blueSamples.push(hsv);
@@ -2052,8 +1643,6 @@
         }
 
         async function verifyWithAPI(plateNumber) {
-            const config = COUNTRY_CONFIGS[state.currentCountry];
-            
             try {
                 await new Promise(resolve => setTimeout(resolve, 800));
                 
@@ -2086,7 +1675,7 @@
                 else response = mockResponses.valid;
                 
                 return {
-                    source: config.name + ' DMV API',
+                    source: 'Türkiye DMV API',
                     timestamp: new Date().toISOString(),
                     ...response
                 };
@@ -2136,17 +1725,17 @@
             if (totalScore >= 75) {
                 status = 'authentic';
                 title = 'ORİJİNAL PLAKA';
-                message = 'Tüm güvenlik özellikleri başarıyla doğrulandı. Plaka TSE ve uluslararası standartlara uygundur.';
+                message = 'Tüm güvenlik özellikleri başarıyla doğrulandı. Plaka TSE standartlarına uygundur.';
                 badgeText = '✅ ONAYLANDI';
             } else if (totalScore >= 50) {
                 status = 'suspicious';
                 title = 'KONTROL GEREKLİ';
-                message = 'Bazı güvenlik özellikleri zayıf veya eksik. Daha net bir fotoğraf çekmeyi deneyin veya manuel kontrol yapın.';
+                message = 'Bazı güvenlik özellikleri zayıf veya eksik. Daha net bir fotoğraf çekmeyi deneyin.';
                 badgeText = '⚠️ ŞÜPHELİ';
             } else {
                 status = 'fake';
                 title = 'STANDART DIŞI / SAHTE';
-                message = 'Güvenlik özellikleri tespit edilemedi veya plaka formatı geçersiz. Bu plaka sahte veya standart dışı olabilir.';
+                message = 'Güvenlik özellikleri tespit edilemedi. Bu plaka sahte veya standart dışı olabilir.';
                 badgeText = '❌ ONAYLANMADI';
             }
             
@@ -2160,7 +1749,7 @@
         }
 
         function renderResults(finalScore, analysis, ocr, apiResult) {
-            const config = COUNTRY_CONFIGS[state.currentCountry];
+            const config = TR_CONFIG;
             
             let html = `
                 <div class="result-header result-${finalScore.status}">
@@ -2186,10 +1775,6 @@
                             <div class="info-item">
                                 <div class="info-label">Format</div>
                                 <div class="info-value">${ocr.isValidFormat ? '✅ Geçerli' : '❌ Geçersiz'}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Ülke</div>
-                                <div class="info-value">${config.flag} ${config.name}</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Karakter Sayısı</div>
@@ -2245,43 +1830,36 @@
             
             if (apiResult) {
                 html += `
-                    <div class="api-status">
-                        <div class="api-status-title">
+                    <div class="api-status" style="background: var(--bg-card); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; border: 1px solid var(--border);">
+                        <div style="font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                             🌐 Veritabanı Doğrulama Sonuçları
                         </div>
-                        <div class="api-grid">
-                            <div class="api-item">
-                                <div class="api-indicator ${apiResult.status === 'valid' ? '' : 'offline'}"></div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div style="background: var(--bg-hover); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${apiResult.status === 'valid' ? 'var(--success)' : 'var(--danger)'}; box-shadow: 0 0 10px ${apiResult.status === 'valid' ? 'var(--success)' : 'var(--danger)'};"></div>
                                 <div>
-                                    <div class="api-name">Kayıt Durumu</div>
-                                    <div class="api-desc">${apiResult.status === 'valid' ? 'Aktif Kayıt' : apiResult.status === 'invalid' ? 'Kayıt Bulunamadı' : 'Kontrol Gerekli'}</div>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">Kayıt Durumu</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">${apiResult.status === 'valid' ? 'Aktif Kayıt' : apiResult.status === 'invalid' ? 'Kayıt Bulunamadı' : 'Kontrol Gerekli'}</div>
                                 </div>
                             </div>
                             ${apiResult.vehicleType ? `
-                            <div class="api-item">
-                                <div class="api-indicator"></div>
+                            <div style="background: var(--bg-hover); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--success);"></div>
                                 <div>
-                                    <div class="api-name">Araç Tipi</div>
-                                    <div class="api-desc">${apiResult.vehicleType}</div>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">Araç Tipi</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">${apiResult.vehicleType}</div>
                                 </div>
                             </div>
                             ` : ''}
                             ${apiResult.insuranceStatus ? `
-                            <div class="api-item">
-                                <div class="api-indicator ${apiResult.insuranceStatus === 'active' ? '' : 'offline'}"></div>
+                            <div style="background: var(--bg-hover); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${apiResult.insuranceStatus === 'active' ? 'var(--success)' : 'var(--danger)'};"></div>
                                 <div>
-                                    <div class="api-name">Sigorta</div>
-                                    <div class="api-desc">${apiResult.insuranceStatus === 'active' ? 'Aktif' : 'Pasif'}</div>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">Sigorta</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">${apiResult.insuranceStatus === 'active' ? 'Aktif' : 'Pasif'}</div>
                                 </div>
                             </div>
                             ` : ''}
-                            <div class="api-item">
-                                <div class="api-indicator"></div>
-                                <div>
-                                    <div class="api-name">Veri Kaynağı</div>
-                                    <div class="api-desc">${apiResult.source}</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 `;
@@ -2298,13 +1876,6 @@
             }, 100);
         }
 
-        async function checkAPIStatus() {
-            setTimeout(() => {
-                document.getElementById('apiStatus').textContent = '🟢';
-            }, 1000);
-        }
-
-        window.setCountry = setCountry;
         window.openCamera = openCamera;
         window.removeImage = removeImage;
         window.rotateImage = rotateImage;
