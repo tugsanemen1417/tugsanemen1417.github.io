@@ -1,821 +1,2106 @@
-import { Router, type IRouter } from "express";
-import { db, plakaDogrulamaTable } from "@workspace/db";
-import { desc, sql } from "drizzle-orm";
-import { openai } from "@workspace/integrations-openai-ai-server";
-import {
-  PlakaDogrulaBody,
-  PlakaDogrulaResponse,
-  PlakaGecmisListeleResponse,
-  PlakaIstatistikResponse,
-} from "@workspace/api-zod";
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Türk Plaka Doğrulama Sistemi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans:wght@300;400;600&display=swap');
 
-const router: IRouter = Router();
-
-const GECERLI_IL_KODLARI: Record<number, string> = {
-  1: "Adana", 2: "Adıyaman", 3: "Afyonkarahisar", 4: "Ağrı", 5: "Amasya",
-  6: "Ankara", 7: "Antalya", 8: "Artvin", 9: "Aydın", 10: "Balıkesir",
-  11: "Bilecik", 12: "Bingöl", 13: "Bitlis", 14: "Bolu", 15: "Burdur",
-  16: "Bursa", 17: "Çanakkale", 18: "Çankırı", 19: "Çorum", 20: "Denizli",
-  21: "Diyarbakır", 22: "Edirne", 23: "Elazığ", 24: "Erzincan", 25: "Erzurum",
-  26: "Eskişehir", 27: "Gaziantep", 28: "Giresun", 29: "Gümüşhane", 30: "Hakkari",
-  31: "Hatay", 32: "Isparta", 33: "Mersin", 34: "İstanbul", 35: "İzmir",
-  36: "Kars", 37: "Kastamonu", 38: "Kayseri", 39: "Kırklareli", 40: "Kırşehir",
-  41: "Kocaeli", 42: "Konya", 43: "Kütahya", 44: "Malatya", 45: "Manisa",
-  46: "Kahramanmaraş", 47: "Mardin", 48: "Muğla", 49: "Muş", 50: "Nevşehir",
-  51: "Niğde", 52: "Ordu", 53: "Rize", 54: "Sakarya", 55: "Samsun",
-  56: "Siirt", 57: "Sinop", 58: "Sivas", 59: "Tekirdağ", 60: "Tokat",
-  61: "Trabzon", 62: "Tunceli", 63: "Şanlıurfa", 64: "Uşak", 65: "Van",
-  66: "Yozgat", 67: "Zonguldak", 68: "Aksaray", 69: "Bayburt", 70: "Karaman",
-  71: "Kırıkkale", 72: "Batman", 73: "Şırnak", 74: "Bartın", 75: "Ardahan",
-  76: "Iğdır", 77: "Yalova", 78: "Karabük", 79: "Kilis", 80: "Osmaniye",
-  81: "Düzce",
-};
-
-const YASAK_HARFLER = ["I", "Q", "W", "X"];
-const GECERLI_HARF_REGEX = /^[ABCDEFGHJKLMNPRSTUVYZ]+$/;
-
-interface GorselAnalizSonucu {
-  okunanMetin: string;
-  uygunMaddeler: string[];
-  kusurlar: string[];
-  gorselPuan: number;
-  gorselAciklama: string;
-  plakaBulunamadi: boolean;
-}
-
-async function gorselAnalizYap(
-  imageBase64: string,
-  manuelMetin: string
-): Promise<GorselAnalizSonucu> {
-  const base64Temiz = imageBase64.includes(",")
-    ? imageBase64.split(",")[1]
-    : imageBase64;
-
-  const isBase64Valid = base64Temiz && base64Temiz.length > 100;
-
-  if (!isBase64Valid) {
-    return {
-      okunanMetin: manuelMetin,
-      uygunMaddeler: [],
-      kusurlar: [],
-      gorselPuan: 0,
-      gorselAciklama: "Fotoğraf yüklenmedi.",
-      plakaBulunamadi: false,
-    };
+  :root {
+    --bg: #07090f;
+    --surface: #0e1117;
+    --surface2: #151a24;
+    --surface3: #1c2333;
+    --border: #1a2035;
+    --border2: #222d44;
+    --accent: #1a6fff;
+    --accent2: #0d4fd4;
+    --accent-glow: rgba(26,111,255,0.18);
+    --green: #00e676;
+    --green-dim: rgba(0,230,118,0.12);
+    --yellow: #ffd600;
+    --yellow-dim: rgba(255,214,0,0.12);
+    --red: #ff1744;
+    --red-dim: rgba(255,23,68,0.12);
+    --text: #dde4f0;
+    --text2: #7a8699;
+    --text3: #3d4a60;
+    --cyan: #00e5ff;
   }
 
-  const mimeType = imageBase64.startsWith("data:image/png")
-    ? "image/png"
-    : "image/jpeg";
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  const prompt = `Sen bir Türk trafik tescil uzmanısın. Bu fotoğraftaki araç plakasını analiz et.
+  html { scroll-behavior: smooth; }
 
-ÖNEMLİ: Eğer fotoğrafta plaka görünmüyor, araç yok, görüntü çok bulanık/karanlık veya plaka tespiti mümkün değilse "plakaBulunamadi" alanını true yap.
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      linear-gradient(rgba(26,111,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,111,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
 
-YALNIZCA JSON formatında yanıt ver:
+  /* ─── SCANLINE OVERLAY ─── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.04) 2px,
+      rgba(0,0,0,0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
 
-{
-  "plakaBulunamadi": true/false,
-  "plakaBulunamadiNedeni": "Eğer plaka bulunamadıysa kısa açıklama, bulunabildiyse boş string",
-  "okunanMetin": "fotoğraftaki plaka metni boşluksuz büyük harf örn 34ABC1234, bulunamadıysa boş string",
-  "gorselPuan": 0-100 sayı, plakanın görsel orijinallik puanı, bulunamadıysa 0,
-  "uygunMaddeler": ["Fotoğrafta DOĞRU/UYGUN bulunan özellikler — sadece gerçekten var olanları yaz"],
-  "kusurlar": ["Fotoğrafta SORUNLU/KUSURLU bulunan özellikler — sadece gerçekten sorun olanları yaz, yoksa boş liste döndür"],
-  "gorselAciklama": "kısa Türkçe genel açıklama"
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(135deg, rgba(10,14,26,0.98) 0%, rgba(12,18,36,0.98) 100%);
+    border-bottom: 1px solid var(--border2);
+    padding: 0 32px;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    backdrop-filter: blur(20px);
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .header-logo {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #1a6fff 0%, #0830aa 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 20px rgba(26,111,255,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .header-logo::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 11px;
+    border: 1px solid rgba(26,111,255,0.5);
+  }
+
+  .header-info { flex: 1; }
+
+  .header-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+    line-height: 1.1;
+  }
+
+  .header-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse-dot 2s ease infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+    50% { opacity: 0.5; box-shadow: 0 0 4px var(--green); }
+  }
+
+  .header-badge {
+    background: rgba(26,111,255,0.12);
+    border: 1px solid rgba(26,111,255,0.28);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+
+  /* ─── LAYOUT ─── */
+  .main {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 20px;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 20px;
+  }
+
+  @media (max-width: 1100px) {
+    .main { grid-template-columns: 1fr; }
+    .right-panel { order: -1; }
+  }
+
+  /* ─── PANEL / CARD ─── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(26,111,255,0.3), transparent);
+    pointer-events: none;
+  }
+
+  .panel-head {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.015);
+    position: relative;
+  }
+
+  .panel-head-icon {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .panel-head-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .panel-head-tag {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── UPLOAD ZONE ─── */
+  .upload-zone {
+    margin: 18px;
+    border: 2px dashed var(--border2);
+    border-radius: 12px;
+    padding: 44px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    background: rgba(26,111,255,0.02);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-zone::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, rgba(26,111,255,0.07) 0%, transparent 68%);
+    pointer-events: none;
+  }
+
+  .upload-zone:hover {
+    border-color: rgba(26,111,255,0.6);
+    background: rgba(26,111,255,0.05);
+    transform: translateY(-1px);
+  }
+
+  .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(26,111,255,0.09);
+    transform: scale(1.01);
+  }
+
+  .upload-icon-wrap {
+    width: 62px; height: 62px;
+    margin: 0 auto 14px;
+    background: linear-gradient(135deg, rgba(26,111,255,0.15), rgba(26,111,255,0.05));
+    border: 1px solid rgba(26,111,255,0.2);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+
+  .upload-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px; font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .upload-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 0.3px;
+    line-height: 1.6;
+  }
+
+  #fileInput { display: none; }
+
+  /* ─── ALERT BANNER ─── */
+  .alert-banner {
+    display: none;
+    margin: 0 18px 16px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  .alert-banner.show { display: block; }
+
+  .alert-banner.info {
+    background: rgba(26,111,255,0.1);
+    border: 1px solid rgba(26,111,255,0.3);
+    color: var(--accent);
+  }
+
+  .alert-banner.error {
+    background: var(--red-dim);
+    border: 1px solid rgba(255,23,68,0.35);
+    color: var(--red);
+  }
+
+  .alert-banner.success {
+    background: var(--green-dim);
+    border: 1px solid rgba(0,230,118,0.3);
+    color: var(--green);
+  }
+
+  .alert-title {
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+
+  .alert-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    opacity: 0.75;
+  }
+
+  /* ─── CANVAS ─── */
+  .canvas-wrap {
+    margin: 0 18px 16px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    display: none;
+    border: 1px solid var(--border2);
+  }
+
+  .canvas-wrap.show { display: block; }
+
+  #mainCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+  }
+
+  .canvas-overlay-tag {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid rgba(26,111,255,0.35);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    display: none;
+    pointer-events: none;
+  }
+
+  .canvas-overlay-tag.show { display: block; }
+
+  .manual-pulse {
+    position: absolute;
+    bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    border: 1px solid rgba(255,214,0,0.35);
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    display: none;
+    pointer-events: none;
+    animation: fadeBlink 1.5s ease infinite;
+  }
+
+  .manual-pulse.show { display: block; }
+
+  @keyframes fadeBlink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+
+  /* ─── PLATE PREVIEW ─── */
+  .plate-preview {
+    margin: 0 18px 16px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border2);
+    display: none;
+  }
+
+  .plate-preview.show { display: block; }
+
+  .plate-preview-label {
+    background: rgba(0,229,255,0.07);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  #platePreviewCanvas {
+    display: block;
+    width: 100%;
+    background: #000;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  /* ─── DETECT INFO ─── */
+  .detect-info {
+    display: none;
+    margin: 0 18px 16px;
+    padding: 9px 14px;
+    background: rgba(0,229,255,0.05);
+    border: 1px solid rgba(0,229,255,0.18);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+  }
+
+  .detect-info.show { display: block; }
+
+  /* ─── CONTROLS ─── */
+  .ctrl-bar {
+    padding: 0 18px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.15s;
+  }
+
+  .btn:hover::after { background: rgba(255,255,255,0.06); }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #1a6fff, #0d4fd4);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(26,111,255,0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(26,111,255,0.45);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(26,111,255,0.5);
+    color: var(--accent);
+  }
+
+  .btn-secondary.active-mode {
+    background: rgba(255,214,0,0.1);
+    border-color: rgba(255,214,0,0.5);
+    color: var(--yellow);
+  }
+
+  .btn-ghost {
+    background: rgba(255,23,68,0.08);
+    color: var(--red);
+    border: 1px solid rgba(255,23,68,0.25);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255,23,68,0.14);
+    border-color: rgba(255,23,68,0.45);
+  }
+
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* ─── FILTERS ─── */
+  .filter-bar {
+    padding: 0 18px 16px;
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .filter-bar.show { display: flex; }
+
+  .filter-chip {
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.16s;
+    letter-spacing: 0.3px;
+  }
+
+  .filter-chip.active {
+    background: rgba(26,111,255,0.16);
+    border-color: rgba(26,111,255,0.5);
+    color: var(--accent);
+  }
+
+  .filter-chip:hover:not(.active) {
+    border-color: var(--text3);
+    color: var(--text);
+  }
+
+  /* ─── PROGRESS ─── */
+  .progress-wrap {
+    margin: 0 18px 18px;
+    display: none;
+  }
+
+  .progress-wrap.show { display: block; }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 7px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .progress-label .spinner {
+    width: 12px; height: 12px;
+    border: 2px solid rgba(26,111,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .progress-track {
+    background: var(--surface3);
+    border-radius: 4px;
+    height: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--cyan));
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.15s ease;
+  }
+
+  /* ─── TILE GRID ─── */
+  .tile-section { padding: 0 18px 18px; }
+
+  .tile-section-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+
+  .tile-empty {
+    padding: 30px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+  }
+
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    display: none;
+  }
+
+  .tile {
+    aspect-ratio: 1;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.13s ease, z-index 0s;
+  }
+
+  .tile:hover { transform: scale(1.12); z-index: 5; }
+
+  .tile canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+
+  .tile-badge {
+    position: absolute;
+    bottom: 1px; right: 1px;
+    font-size: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    background: rgba(0,0,0,0.75);
+    padding: 1px 2px;
+    border-radius: 2px;
+    line-height: 1.2;
+  }
+
+  /* ─── MODAL ─── */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .modal-backdrop.show { display: flex; }
+
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 540px;
+    width: 92%;
+    animation: modalIn 0.18s ease;
+    position: relative;
+  }
+
+  .modal-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    border-radius: 16px 16px 0 0;
+  }
+
+  @keyframes modalIn {
+    from { transform: scale(0.9) translateY(8px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .modal-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .modal-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 8px;
+    width: 30px; height: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.16s;
+  }
+
+  .modal-close:hover { border-color: var(--red); color: var(--red); }
+
+  #tileZoomCanvas {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  .modal-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .mm-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .mm-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+
+  .mm-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* ─── RIGHT PANEL ─── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* ─── SCORE CARD ─── */
+  .score-display {
+    padding: 30px 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .score-display::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(26,111,255,0.09) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .score-ring {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .score-ring svg {
+    width: 120px; height: 120px;
+    transform: rotate(-90deg);
+  }
+
+  .score-ring-text {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .score-num {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 36px; font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .score-pct-sym {
+    font-size: 18px;
+    color: var(--text2);
+  }
+
+  .score-status-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .score-status-label.green { color: var(--green); }
+  .score-status-label.yellow { color: var(--yellow); }
+  .score-status-label.red { color: var(--red); }
+  .score-status-label.neutral { color: var(--text3); }
+
+  .score-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  /* ─── VERDICT ─── */
+  .verdict-box {
+    display: none;
+    margin: 0 16px 16px;
+    border-radius: 10px;
+    padding: 12px 16px;
+    align-items: center; gap: 12px;
+  }
+
+  .verdict-box.show { display: flex; }
+  .verdict-box.green { background: var(--green-dim); border: 1px solid rgba(0,230,118,0.22); }
+  .verdict-box.yellow { background: var(--yellow-dim); border: 1px solid rgba(255,214,0,0.22); }
+  .verdict-box.red { background: var(--red-dim); border: 1px solid rgba(255,23,68,0.22); }
+
+  .verdict-icon { font-size: 22px; flex-shrink: 0; }
+
+  .verdict-msg {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .verdict-msg.green { color: var(--green); }
+  .verdict-msg.yellow { color: var(--yellow); }
+  .verdict-msg.red { color: var(--red); }
+
+  /* ─── METRICS ─── */
+  .metrics-body {
+    padding: 0 14px 16px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  .metric-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 13px;
+    transition: border-color 0.2s;
+  }
+
+  .metric-card:hover { border-color: var(--border2); }
+
+  .metric-top {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+  }
+
+  .metric-name-wrap {
+    display: flex; align-items: center; gap: 7px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
+  }
+
+  .metric-wt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    margin-left: 2px;
+  }
+
+  .metric-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700;
+  }
+
+  .metric-val.green { color: var(--green); }
+  .metric-val.yellow { color: var(--yellow); }
+  .metric-val.red { color: var(--red); }
+
+  .metric-track {
+    background: var(--bg);
+    border-radius: 3px;
+    height: 4px;
+    overflow: hidden;
+  }
+
+  .metric-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .metric-fill.green { background: linear-gradient(90deg, var(--green), #00bfa5); }
+  .metric-fill.yellow { background: linear-gradient(90deg, var(--yellow), #ff8f00); }
+  .metric-fill.red { background: linear-gradient(90deg, var(--red), #d50000); }
+
+  .metrics-empty {
+    padding: 24px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* ─── THRESHOLD ─── */
+  .threshold-list {
+    padding: 12px 14px 16px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .thresh-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .thresh-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    min-width: 58px;
+  }
+
+  .thresh-desc { flex: 1; }
+
+  .thresh-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .thresh-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+  }
+
+  .thresh-item.t-green .thresh-pct,
+  .thresh-item.t-green .thresh-label { color: var(--green); }
+
+  .thresh-item.t-yellow .thresh-pct,
+  .thresh-item.t-yellow .thresh-label { color: var(--yellow); }
+
+  .thresh-item.t-red .thresh-pct,
+  .thresh-item.t-red .thresh-label { color: var(--red); }
+
+  /* ─── RULES ─── */
+  .rules-body {
+    padding: 12px 14px 16px;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+
+  .rule-row {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.16s;
+  }
+
+  .rule-row:hover { border-color: var(--border2); }
+
+  .rule-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+  .rule-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .rule-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    line-height: 1.55;
+  }
+
+  /* ─── DIVIDER LINE ─── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 18px;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .header { padding: 0 14px; }
+    .main { padding: 12px; gap: 14px; }
+    .score-num { font-size: 28px; }
+    .header-title { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">🔍</div>
+  <div class="header-info">
+    <div class="header-title">PLAKA ANALİZ SİSTEMİ</div>
+    <div class="header-sub">Türkiye · TC Emniyet Standartları · TŞOF</div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot"></div>
+    <div class="header-badge">v4.2 · MANUEL</div>
+  </div>
+</header>
+
+<!-- MAIN GRID -->
+<div class="main">
+
+  <!-- LEFT COL -->
+  <div>
+
+    <!-- Upload Panel -->
+    <div class="panel" style="margin-bottom:18px">
+      <div class="panel-head">
+        <div class="panel-head-icon" style="background:var(--accent);box-shadow:0 0 8px var(--accent)"></div>
+        <span class="panel-head-title">Görsel Yükle &amp; Seç</span>
+        <span class="panel-head-tag">JPG · PNG · WEBP · max 20MB</span>
+      </div>
+
+      <!-- Upload Zone -->
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon-wrap">📷</div>
+        <div class="upload-title">Plaka Fotoğrafı Yükle</div>
+        <div class="upload-sub">
+          Sürükle &amp; Bırak veya tıkla<br>
+          Yüklendikten sonra fare ile plaka bölgesini seçin
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+
+      <!-- Alert: Not Plate -->
+      <div class="alert-banner error" id="bannerNotPlate">
+        <div class="alert-title">⛔ BU BİR PLAKA GÖRSELİ DEĞİL</div>
+        <div class="alert-sub">Yüklenen görsel tanımlanamıyor · Analiz Skoru: %0 · Doğrulama Başarısız</div>
+      </div>
+
+      <!-- Alert: Manuel Mode -->
+      <div class="alert-banner info" id="bannerManual">
+        <div class="alert-title">✏️ MANUEL SEÇİM MODU AKTİF</div>
+        <div class="alert-sub">Fare ile plaka bölgesini sürükleyerek çizin → bırakınca analiz başlar</div>
+      </div>
+
+      <!-- Alert: Selection Done -->
+      <div class="alert-banner success" id="bannerDone">
+        <div class="alert-title" id="bannerDoneTitle">✅ BÖLGE SEÇİLDİ</div>
+        <div class="alert-sub" id="bannerDoneSub">Analiz başlatılıyor...</div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="mainCanvas"></canvas>
+        <div class="canvas-overlay-tag" id="overlayTag">✏️ SEÇİM MODU — Plaka bölgesini sürükleyin</div>
+        <div class="manual-pulse" id="manualPulse">🖱️ Plaka bölgesini sürükleyerek seçin</div>
+      </div>
+
+      <!-- Plate Preview -->
+      <div class="plate-preview" id="platePreview">
+        <div class="plate-preview-label">
+          <span>⬜</span>
+          <span>TESPİT EDİLEN PLAKA BÖLGESİ</span>
+        </div>
+        <canvas id="platePreviewCanvas"></canvas>
+      </div>
+
+      <!-- Detection Info -->
+      <div class="detect-info" id="detectInfo"></div>
+
+      <!-- Controls -->
+      <div class="ctrl-bar">
+        <button class="btn btn-primary" id="btnUpload">
+          <span>📂</span> Fotoğraf Yükle
+        </button>
+        <button class="btn btn-secondary" id="btnManualSelect" disabled>
+          <span>✏️</span> Manuel Seçim
+        </button>
+        <button class="btn btn-ghost" id="btnReset" disabled>
+          <span>🗑️</span> Temizle
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-chip active" data-filter="original">Orijinal</button>
+        <button class="filter-chip" data-filter="auto">Otomatik</button>
+        <button class="filter-chip" data-filter="contrast">Kontrast</button>
+        <button class="filter-chip" data-filter="sharpen">Keskinleştir</button>
+        <button class="filter-chip" data-filter="hologram">Hologram</button>
+        <button class="filter-chip" data-filter="blue">Mavi Odak</button>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-label">
+          <div class="spinner"></div>
+          <span id="progressText">Analiz ediliyor...</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tile Grid Panel -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-icon" style="background:var(--yellow);box-shadow:0 0 8px var(--yellow)"></div>
+        <span class="panel-head-title">100 Bölge Detay Taraması</span>
+        <span class="panel-head-tag">Tile'a tıkla → Zoom</span>
+      </div>
+
+      <div class="tile-section">
+        <div class="tile-empty" id="tileEmpty">Plaka bölgesi seçildikten sonra 10×10 detay taraması yapılır.</div>
+        <div class="tile-grid" id="tileGrid"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COL -->
+  <div class="right-panel">
+
+    <!-- Score Card -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-icon" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>
+        <span class="panel-head-title">Uyumluluk Skoru</span>
+      </div>
+
+      <div class="score-display">
+        <div class="score-ring">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--surface3)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none"
+              stroke="var(--accent)" stroke-width="10"
+              stroke-linecap="round"
+              stroke-dasharray="314"
+              stroke-dashoffset="314"
+              id="scoreArc"
+              style="transition: stroke-dashoffset 1.1s cubic-bezier(0.4,0,0.2,1), stroke 0.4s ease"
+            />
+          </svg>
+          <div class="score-ring-text">
+            <div class="score-num" id="scoreNum">—</div>
+            <div class="score-pct-sym" id="scorePctSym">%</div>
+          </div>
+        </div>
+        <div class="score-status-label neutral" id="scoreStatusLabel">ANALİZ BEKLENİYOR</div>
+        <div class="score-sub" id="scoreSub">Plaka fotoğrafı yükleyin ve bölge seçin</div>
+      </div>
+
+      <div class="verdict-box" id="verdictBox">
+        <div class="verdict-icon" id="verdictIcon"></div>
+        <div class="verdict-msg" id="verdictMsg"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="metrics-body" id="metricsBody">
+        <div class="metrics-empty">Analiz sonuçları burada görünecek.</div>
+      </div>
+    </div>
+
+    <!-- Threshold -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-icon" style="background:#9c27b0;box-shadow:0 0 8px #9c27b0"></div>
+        <span class="panel-head-title">Sınıflandırma Eşikleri</span>
+      </div>
+      <div class="threshold-list">
+        <div class="thresh-item t-green">
+          <div class="thresh-pct">%70 ↑</div>
+          <div class="thresh-desc">
+            <div class="thresh-label">✅ ORİJİNAL PLAKA</div>
+            <div class="thresh-sub">Tüm güvenlik özellikleri doğrulandı</div>
+          </div>
+        </div>
+        <div class="thresh-item t-yellow">
+          <div class="thresh-pct">%40–%69</div>
+          <div class="thresh-desc">
+            <div class="thresh-label">⚠️ KONTROL GEREKLİ</div>
+            <div class="thresh-sub">Bazı özellikler zayıf veya eksik</div>
+          </div>
+        </div>
+        <div class="thresh-item t-red">
+          <div class="thresh-pct">%39 ↓</div>
+          <div class="thresh-desc">
+            <div class="thresh-label">❌ STANDART DIŞI</div>
+            <div class="thresh-sub">Plaka sahte veya ağır hasarlı</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-icon" style="background:var(--yellow);box-shadow:0 0 8px var(--yellow)"></div>
+        <span class="panel-head-title">Resmi Plaka Standartları</span>
+      </div>
+      <div class="rules-body">
+        <div class="rule-row">
+          <div class="rule-icon">🟦</div>
+          <div>
+            <div class="rule-name">Mavi TR Şeridi</div>
+            <div class="rule-text">Sol kenarda mavi "TR" yazısı ve Avrupa yıldızları · Emniyet Genel Müdürlüğü zorunlu kılar</div>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon">🔲</div>
+          <div>
+            <div class="rule-name">Beyaz Zemin + Siyah Karakter</div>
+            <div class="rule-text">Ana zemin beyaz, harfler siyah kabartmalı (1–3 mm) · KTY Yönetmeliği Madde 20</div>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon">✨</div>
+          <div>
+            <div class="rule-name">TŞOF Hologram Şeridi</div>
+            <div class="rule-text">Alt kısımda TŞOF güvenlik hologramı zorunlu · Sahte plakalarda bu özellik yoktur</div>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon">🔵</div>
+          <div>
+            <div class="rule-name">TŞOF Üretim Mührü</div>
+            <div class="rule-text">Türkiye Şoförler ve Otomobilciler Federasyonu üretim mührü tüm resmi plakalarda bulunur</div>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon">📐</div>
+          <div>
+            <div class="rule-name">Standart Boyut: 520×110 mm</div>
+            <div class="rule-text">En/boy oranı ≈ 4.72:1 · Otobüs/kamyon arka plakaları farklı boyut kullanabilir</div>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon">🔤</div>
+          <div>
+            <div class="rule-name">Standart Plaka Fontu</div>
+            <div class="rule-text">Emniyet tarafından onaylı özel plaka yazı tipi · APP plakalarda font kalın ve farklıdır</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TILE ZOOM MODAL -->
+<div class="modal-backdrop" id="tileModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Bölge Detayı</div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <canvas id="tileZoomCanvas"></canvas>
+    <div class="modal-metrics" id="modalMetrics"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let originalImage = null;
+let plateRegion   = null;  // {x,y,w,h} in original coords
+let isManualMode  = false;
+let isDragging    = false;
+let dragStart     = { x: 0, y: 0 };
+let manualRect    = null;
+let currentFilter = 'original';
+
+/* ============================================================
+   DOM REFS
+   ============================================================ */
+const uploadZone         = document.getElementById('uploadZone');
+const fileInput          = document.getElementById('fileInput');
+const mainCanvas         = document.getElementById('mainCanvas');
+const ctx                = mainCanvas.getContext('2d');
+const platePreviewCanvas = document.getElementById('platePreviewCanvas');
+const pCtx               = platePreviewCanvas.getContext('2d');
+const canvasWrap         = document.getElementById('canvasWrap');
+const platePreview       = document.getElementById('platePreview');
+const detectInfo         = document.getElementById('detectInfo');
+const overlayTag         = document.getElementById('overlayTag');
+const manualPulse        = document.getElementById('manualPulse');
+const filterBar          = document.getElementById('filterBar');
+const progressWrap       = document.getElementById('progressWrap');
+const progressText       = document.getElementById('progressText');
+const progressFill       = document.getElementById('progressFill');
+const tileGrid           = document.getElementById('tileGrid');
+const tileEmpty          = document.getElementById('tileEmpty');
+const tileModal          = document.getElementById('tileModal');
+const modalTitle         = document.getElementById('modalTitle');
+const tileZoomCanvas     = document.getElementById('tileZoomCanvas');
+const modalMetrics       = document.getElementById('modalMetrics');
+const btnUpload          = document.getElementById('btnUpload');
+const btnManualSelect    = document.getElementById('btnManualSelect');
+const btnReset           = document.getElementById('btnReset');
+const scoreNum           = document.getElementById('scoreNum');
+const scorePctSym        = document.getElementById('scorePctSym');
+const scoreArc           = document.getElementById('scoreArc');
+const scoreStatusLabel   = document.getElementById('scoreStatusLabel');
+const scoreSub           = document.getElementById('scoreSub');
+const verdictBox         = document.getElementById('verdictBox');
+const verdictIcon        = document.getElementById('verdictIcon');
+const verdictMsg         = document.getElementById('verdictMsg');
+const metricsBody        = document.getElementById('metricsBody');
+const bannerNotPlate     = document.getElementById('bannerNotPlate');
+const bannerManual       = document.getElementById('bannerManual');
+const bannerDone         = document.getElementById('bannerDone');
+const bannerDoneTitle    = document.getElementById('bannerDoneTitle');
+const bannerDoneSub      = document.getElementById('bannerDoneSub');
+
+/* ============================================================
+   UPLOAD
+   ============================================================ */
+btnUpload.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('click', () => fileInput.click());
+
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) loadFile(fileInput.files[0]);
+  fileInput.value = '';
+});
+
+function loadFile(file) {
+  if (!file.type.startsWith('image/')) { alert('Lütfen geçerli bir görsel dosyası seçin.'); return; }
+  if (file.size > 20 * 1024 * 1024) { alert('Dosya 20MB\'den büyük olamaz.'); return; }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      originalImage = img;
+      plateRegion   = null;
+      isManualMode  = false;
+      manualRect    = null;
+
+      resetUI();
+
+      // Basic plate check
+      const check = checkIfPlate(img);
+      if (!check.isPlate) {
+        showBanner(bannerNotPlate);
+        canvasWrap.classList.add('show');
+        drawImageOnCanvas(img);
+        btnReset.disabled = false;
+        setScoreDisplay(0, false);
+        return;
+      }
+
+      // Show canvas and enable controls
+      canvasWrap.classList.add('show');
+      filterBar.classList.add('show');
+      drawImageOnCanvas(img);
+      btnManualSelect.disabled = false;
+      btnReset.disabled = false;
+
+      // Prompt user to select
+      activateManualMode();
+    };
+    img.onerror = () => alert('Görsel yüklenemedi.');
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
-Değerlendirme kriterleri — her biri için önce fotoğrafta MEVCUT MU diye kontrol et, yoksa listeye ekleme:
-UYGUN MADDELER için kontrol et:
-- Zemin beyaz/açık renk mi?
-- Sol kenarda mavi AB şeridi ve TR yazısı var mı?
-- FE-Schrift formatında kalın okunaklı font mu?
-- Kazıma, etiket, tahrif izi YOK mu?
-- Montaj delikleri yerli yerinde mi?
-- Plaka rengi ve boyutları standart mı?
+/* ============================================================
+   RESET
+   ============================================================ */
+function resetUI() {
+  hideBanner(bannerNotPlate);
+  hideBanner(bannerManual);
+  hideBanner(bannerDone);
+  canvasWrap.classList.remove('show');
+  platePreview.classList.remove('show');
+  detectInfo.classList.remove('show');
+  overlayTag.classList.remove('show');
+  manualPulse.classList.remove('show');
+  filterBar.classList.remove('show');
+  progressWrap.classList.remove('show');
+  tileGrid.style.display = 'none';
+  tileGrid.innerHTML = '';
+  tileEmpty.style.display = 'block';
+  metricsBody.innerHTML = '<div class="metrics-empty">Analiz sonuçları burada görünecek.</div>';
+  verdictBox.className = 'verdict-box';
+  scoreNum.textContent = '—';
+  scorePctSym.textContent = '%';
+  scoreArc.style.strokeDashoffset = '314';
+  scoreArc.style.stroke = 'var(--accent)';
+  scoreStatusLabel.textContent = 'ANALİZ BEKLENİYOR';
+  scoreStatusLabel.className = 'score-status-label neutral';
+  scoreSub.textContent = 'Plaka fotoğrafı yükleyin ve bölge seçin';
+  btnManualSelect.disabled = true;
+  btnManualSelect.textContent = '✏️ Manuel Seçim';
+  btnManualSelect.classList.remove('active-mode');
+  btnReset.disabled = true;
+  currentFilter = 'original';
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.filter === 'original');
+  });
+}
 
-KUSURLAR için kontrol et (sadece gerçekten tespit edersen yaz):
-- Zemin rengi standart değil mi?
-- Şerit veya TR yazısı eksik/hatalı mı?
-- Font bozuk veya standart dışı mı?
-- Kazıma, yazma, etiket izi var mı?
-- Montaj delikleri yanlış yerde mi?
-- Genel görünüm sahte izlenimi mi veriyor?`;
+btnReset.addEventListener('click', () => {
+  originalImage = null;
+  plateRegion   = null;
+  isManualMode  = false;
+  manualRect    = null;
+  isDragging    = false;
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+  pCtx.clearRect(0, 0, platePreviewCanvas.width, platePreviewCanvas.height);
+  resetUI();
+});
 
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      max_completion_tokens: 600,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:${mimeType};base64,${base64Temiz}`,
-                detail: "high",
-              },
-            },
-            { type: "text", text: prompt },
-          ],
-        },
-      ],
+/* ============================================================
+   BANNER HELPERS
+   ============================================================ */
+function showBanner(el) { el.classList.add('show'); }
+function hideBanner(el) { el.classList.remove('show'); }
+
+/* ============================================================
+   BASIC PLATE CHECK (very permissive — just rejects pure non-plates)
+   ============================================================ */
+function checkIfPlate(img) {
+  const oc = document.createElement('canvas');
+  const scale = Math.min(1, 400 / img.width);
+  oc.width  = Math.max(1, Math.round(img.width  * scale));
+  oc.height = Math.max(1, Math.round(img.height * scale));
+  const ox = oc.getContext('2d');
+  ox.drawImage(img, 0, 0, oc.width, oc.height);
+  const d = ox.getImageData(0, 0, oc.width, oc.height).data;
+
+  let blue = 0, white = 0, dark = 0, total = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i], g = d[i+1], b = d[i+2];
+    const hsv = rgbToHsv(r, g, b);
+    total++;
+    if (hsv[0] >= 185 && hsv[0] <= 275 && hsv[1] > 10 && hsv[2] > 10) blue++;
+    if (r > 180 && g > 180 && b > 180) white++;
+    if (r < 60  && g < 60  && b < 60)  dark++;
+  }
+
+  const ar = img.width / img.height;
+  const notPlate =
+    (blue / total) < 0.005 &&
+    (white / total) < 0.10 &&
+    (dark  / total) < 0.05 &&
+    ar < 1.2;
+
+  return { isPlate: !notPlate };
+}
+
+/* ============================================================
+   MANUAL SELECTION
+   ============================================================ */
+function activateManualMode() {
+  isManualMode = true;
+  overlayTag.classList.add('show');
+  manualPulse.classList.add('show');
+  showBanner(bannerManual);
+  hideBanner(bannerDone);
+  btnManualSelect.textContent = '✏️ Seçimi İptal';
+  btnManualSelect.classList.add('active-mode');
+}
+
+function deactivateManualMode() {
+  isManualMode = false;
+  isDragging   = false;
+  manualRect   = null;
+  overlayTag.classList.remove('show');
+  manualPulse.classList.remove('show');
+  hideBanner(bannerManual);
+  btnManualSelect.textContent = '✏️ Manuel Seçim';
+  btnManualSelect.classList.remove('active-mode');
+}
+
+btnManualSelect.addEventListener('click', () => {
+  if (isManualMode) {
+    deactivateManualMode();
+    if (originalImage) drawImageOnCanvas(originalImage);
+  } else {
+    activateManualMode();
+  }
+});
+
+/* ── Mouse ── */
+mainCanvas.addEventListener('mousedown', e => {
+  if (!isManualMode) return;
+  isDragging = true;
+  const r = mainCanvas.getBoundingClientRect();
+  const scaleX = mainCanvas.width  / r.width;
+  const scaleY = mainCanvas.height / r.height;
+  dragStart = {
+    x: (e.clientX - r.left) * scaleX,
+    y: (e.clientY - r.top)  * scaleY
+  };
+  manualRect = { x: dragStart.x, y: dragStart.y, w: 0, h: 0 };
+});
+
+mainCanvas.addEventListener('mousemove', e => {
+  if (!isManualMode || !isDragging) return;
+  const r = mainCanvas.getBoundingClientRect();
+  const scaleX = mainCanvas.width  / r.width;
+  const scaleY = mainCanvas.height / r.height;
+  const mx = (e.clientX - r.left) * scaleX;
+  const my = (e.clientY - r.top)  * scaleY;
+  manualRect = {
+    x: Math.min(dragStart.x, mx),
+    y: Math.min(dragStart.y, my),
+    w: Math.abs(mx - dragStart.x),
+    h: Math.abs(my - dragStart.y)
+  };
+  drawImageOnCanvas(originalImage);
+});
+
+mainCanvas.addEventListener('mouseup', e => {
+  if (!isManualMode || !isDragging) return;
+  isDragging = false;
+  finalizeSelection();
+});
+
+/* ── Touch ── */
+mainCanvas.addEventListener('touchstart', e => {
+  if (!isManualMode) return;
+  e.preventDefault();
+  isDragging = true;
+  const t = e.touches[0];
+  const r = mainCanvas.getBoundingClientRect();
+  const scaleX = mainCanvas.width  / r.width;
+  const scaleY = mainCanvas.height / r.height;
+  dragStart = {
+    x: (t.clientX - r.left) * scaleX,
+    y: (t.clientY - r.top)  * scaleY
+  };
+  manualRect = { x: dragStart.x, y: dragStart.y, w: 0, h: 0 };
+}, { passive: false });
+
+mainCanvas.addEventListener('touchmove', e => {
+  if (!isManualMode || !isDragging) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const r = mainCanvas.getBoundingClientRect();
+  const scaleX = mainCanvas.width  / r.width;
+  const scaleY = mainCanvas.height / r.height;
+  const mx = (t.clientX - r.left) * scaleX;
+  const my = (t.clientY - r.top)  * scaleY;
+  manualRect = {
+    x: Math.min(dragStart.x, mx),
+    y: Math.min(dragStart.y, my),
+    w: Math.abs(mx - dragStart.x),
+    h: Math.abs(my - dragStart.y)
+  };
+  drawImageOnCanvas(originalImage);
+}, { passive: false });
+
+mainCanvas.addEventListener('touchend', e => {
+  if (!isManualMode || !isDragging) return;
+  isDragging = false;
+  finalizeSelection();
+});
+
+function finalizeSelection() {
+  if (!manualRect || manualRect.w < 20 || manualRect.h < 8) {
+    manualRect = null;
+    if (originalImage) drawImageOnCanvas(originalImage);
+    return;
+  }
+
+  // Convert canvas coords → original image coords
+  const sx = originalImage.width  / mainCanvas.width;
+  const sy = originalImage.height / mainCanvas.height;
+  plateRegion = {
+    x: Math.round(manualRect.x * sx),
+    y: Math.round(manualRect.y * sy),
+    w: Math.round(manualRect.w * sx),
+    h: Math.round(manualRect.h * sy)
+  };
+
+  deactivateManualMode();
+
+  bannerDoneTitle.textContent = '✅ BÖLGE SEÇİLDİ';
+  bannerDoneSub.textContent   = `Alan: ${plateRegion.w}×${plateRegion.h}px · Analiz başlatılıyor...`;
+  showBanner(bannerDone);
+
+  detectInfo.textContent = `✏️ Manuel seçim · Alan: ${plateRegion.w}×${plateRegion.h}px`;
+  detectInfo.classList.add('show');
+
+  drawImageOnCanvas(originalImage);
+  showPlatePreview();
+  runAnalysis();
+}
+
+/* ============================================================
+   CANVAS DRAWING
+   ============================================================ */
+function drawImageOnCanvas(img) {
+  const maxW  = canvasWrap.clientWidth || 700;
+  const scale = Math.min(1, maxW / img.width);
+  mainCanvas.width  = Math.round(img.width  * scale);
+  mainCanvas.height = Math.round(img.height * scale);
+
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+  applyFilter(img, mainCanvas, ctx, currentFilter);
+
+  // Draw confirmed plateRegion box
+  if (plateRegion && !isManualMode) {
+    const sx = mainCanvas.width  / img.width;
+    const sy = mainCanvas.height / img.height;
+    const rx = plateRegion.x * sx;
+    const ry = plateRegion.y * sy;
+    const rw = plateRegion.w * sx;
+    const rh = plateRegion.h * sy;
+
+    ctx.save();
+    ctx.shadowColor = 'var(--accent)';
+    ctx.shadowBlur  = 14;
+    ctx.strokeStyle = '#1a6fff';
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(rx, ry, rw, rh);
+    ctx.restore();
+
+    // Corner ticks
+    const cLen = 14;
+    ctx.strokeStyle = '#00e5ff';
+    ctx.lineWidth   = 3;
+    [[rx, ry, 1, 1], [rx+rw, ry, -1, 1], [rx, ry+rh, 1, -1], [rx+rw, ry+rh, -1, -1]].forEach(([cx,cy,dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + dy * cLen); ctx.lineTo(cx, cy); ctx.lineTo(cx + dx * cLen, cy);
+      ctx.stroke();
     });
 
-    const yanit = response.choices[0]?.message?.content ?? "";
-    const jsonEslesme = yanit.match(/\{[\s\S]*\}/);
-    if (!jsonEslesme) throw new Error("Geçersiz JSON");
+    // Label
+    ctx.fillStyle = 'rgba(26,111,255,0.88)';
+    ctx.fillRect(rx, ry - 20, 116, 20);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 10px JetBrains Mono, monospace';
+    ctx.fillText('🎯 PLAKA BÖLGESİ', rx + 6, ry - 6);
+  }
 
-    const veri = JSON.parse(jsonEslesme[0]);
-    const plakaBulunamadi = veri.plakaBulunamadi === true;
-
-    if (plakaBulunamadi) {
-      return {
-        okunanMetin: "",
-        uygunMaddeler: [],
-        kusurlar: [],
-        gorselPuan: 0,
-        gorselAciklama:
-          veri.plakaBulunamadiNedeni ||
-          "Fotoğrafta plaka veya araç tespit edilemedi.",
-        plakaBulunamadi: true,
-      };
-    }
-
-    return {
-      okunanMetin: (veri.okunanMetin || manuelMetin)
-        .replace(/\s/g, "")
-        .toUpperCase(),
-      uygunMaddeler: Array.isArray(veri.uygunMaddeler) ? veri.uygunMaddeler : [],
-      kusurlar: Array.isArray(veri.kusurlar) ? veri.kusurlar : [],
-      gorselPuan:
-        typeof veri.gorselPuan === "number"
-          ? Math.max(0, Math.min(100, veri.gorselPuan))
-          : 50,
-      gorselAciklama: veri.gorselAciklama || "Görsel analiz tamamlandı.",
-      plakaBulunamadi: false,
-    };
-  } catch {
-    return {
-      okunanMetin: manuelMetin,
-      uygunMaddeler: [],
-      kusurlar: [],
-      gorselPuan: 50,
-      gorselAciklama: "Yapay zeka görsel analizi gerçekleştirilemedi.",
-      plakaBulunamadi: false,
-    };
+  // Draw live drag rect
+  if (isManualMode && manualRect && manualRect.w > 0) {
+    ctx.strokeStyle = '#ffd600';
+    ctx.lineWidth   = 2;
+    ctx.setLineDash([6, 3]);
+    ctx.strokeRect(manualRect.x, manualRect.y, manualRect.w, manualRect.h);
+    ctx.setLineDash([]);
   }
 }
 
-function kuralAnalizEt(plakaTemiz: string): {
-  formatUyumu: boolean;
-  hatalar: string[];
-  uyarilar: string[];
-  ilAdi: string | null;
-  kuralPuan: number;
-} {
-  const hatalar: string[] = [];
-  const uyarilar: string[] = [];
-  let kuralPuan = 100;
-  let ilAdi: string | null = null;
+/* ============================================================
+   FILTERS
+   ============================================================ */
+function applyFilter(img, canvas, c, filter) {
+  c.drawImage(img, 0, 0, canvas.width, canvas.height);
+  if (filter === 'original') return;
 
-  if (!plakaTemiz) {
-    return {
-      formatUyumu: false,
-      hatalar: ["Plaka metni boş"],
-      uyarilar: [],
-      ilAdi: null,
-      kuralPuan: 0,
-    };
-  }
+  const id = c.getImageData(0, 0, canvas.width, canvas.height);
+  const d  = id.data;
 
-  if (plakaTemiz.length < 5) {
-    hatalar.push(`Plaka çok kısa: ${plakaTemiz.length} karakter (min. 5 olmalı)`);
-    kuralPuan -= 35;
-  } else if (plakaTemiz.length > 9) {
-    hatalar.push(`Plaka çok uzun: ${plakaTemiz.length} karakter (maks. 9 olmalı)`);
-    kuralPuan -= 30;
-  }
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i+1], b = d[i+2];
 
-  const gecersizKar = plakaTemiz.match(/[^A-Z0-9]/g);
-  if (gecersizKar) {
-    hatalar.push(
-      `Yasak karakter(ler): "${[...new Set(gecersizKar)].join(", ")}"`
-    );
-    kuralPuan -= 40;
-  }
-
-  const formatRegex = /^(\d{2})([A-Z]{1,3})(\d{2,4})$/;
-  const eslesme = plakaTemiz.match(formatRegex);
-  let formatUyumu = false;
-  let ilKoduStr = "";
-  let harfSerisi = "";
-  let rakamSerisi = "";
-
-  if (!eslesme) {
-    if (/^CD\d{2,3}$/.test(plakaTemiz)) {
-      return {
-        formatUyumu: true,
-        hatalar: [],
-        uyarilar: ["Diplomatik araç plakası (CD serisi)"],
-        ilAdi: "Diplomatik",
-        kuralPuan: 95,
-      };
+    if (filter === 'auto') {
+      r = sCurve(r); g = sCurve(g); b = sCurve(b);
+    } else if (filter === 'contrast') {
+      const f = 1.8;
+      r = clamp((r - 128) * f + 128);
+      g = clamp((g - 128) * f + 128);
+      b = clamp((b - 128) * f + 128);
+    } else if (filter === 'hologram') {
+      const hsv = rgbToHsv(r, g, b);
+      hsv[1] = Math.min(100, hsv[1] * 1.6);
+      const rgb2 = hsvToRgb(hsv[0], hsv[1], hsv[2]);
+      r = sCurve(rgb2[0]); g = sCurve(rgb2[1]); b = sCurve(rgb2[2]);
+    } else if (filter === 'blue') {
+      const hsv = rgbToHsv(r, g, b);
+      if (hsv[0] >= 180 && hsv[0] <= 280) {
+        hsv[1] = Math.min(100, hsv[1] * 2.2);
+        hsv[2] = Math.min(100, hsv[2] * 1.4);
+        const rgb2 = hsvToRgb(hsv[0], hsv[1], hsv[2]);
+        r = rgb2[0]; g = rgb2[1]; b = rgb2[2];
+      } else {
+        r = Math.round(r * 0.35);
+        g = Math.round(g * 0.35);
+        b = Math.round(b * 0.35);
+      }
     }
-    hatalar.push(
-      `Format geçersiz — Beklenen: [İL KODU][HARFLER][RAKAMLAR] örn: 34ABC1234 veya 06AB123`
-    );
-    kuralPuan -= 45;
-  } else {
-    ilKoduStr = eslesme[1];
-    harfSerisi = eslesme[2];
-    rakamSerisi = eslesme[3];
-    formatUyumu = true;
+
+    d[i] = clamp(r); d[i+1] = clamp(g); d[i+2] = clamp(b);
   }
 
-  if (ilKoduStr) {
-    const ilKodu = parseInt(ilKoduStr, 10);
-    if (ilKoduStr === "00") {
-      hatalar.push(`İl kodu "00" geçersiz — Türkiye'de 00 plaka kodu yoktur`);
-      kuralPuan -= 40;
-      formatUyumu = false;
-    } else if (ilKodu < 1 || ilKodu > 81) {
-      hatalar.push(
-        `İl kodu geçersiz: ${ilKoduStr} — Geçerli aralık: 01 (Adana) – 81 (Düzce)`
-      );
-      kuralPuan -= 40;
-      formatUyumu = false;
-    } else {
-      ilAdi = GECERLI_IL_KODLARI[ilKodu] ?? null;
-    }
+  if (filter === 'sharpen') {
+    applyConvolution(d, canvas.width, canvas.height, [0,-1,0,-1,5,-1,0,-1,0]);
   }
 
-  if (harfSerisi) {
-    const yasakBulunan = YASAK_HARFLER.filter((h) => harfSerisi.includes(h));
-    if (yasakBulunan.length > 0) {
-      hatalar.push(
-        `YASAK HARF: "${yasakBulunan.join(", ")}" — Türk plakalarında I, Q, W, X harfleri kullanılmaz`
-      );
-      kuralPuan -= 50;
-      formatUyumu = false;
-    } else if (!GECERLI_HARF_REGEX.test(harfSerisi)) {
-      const hataliH = harfSerisi
-        .split("")
-        .filter((h) => !"ABCDEFGHJKLMNPRSTUVYZ".includes(h));
-      hatalar.push(`Geçersiz harf(ler): "${hataliH.join(", ")}"`);
-      kuralPuan -= 35;
-      formatUyumu = false;
-    }
-    if (/(.)\1{2,}/.test(harfSerisi)) {
-      uyarilar.push(`Olağandışı harf tekrarı: "${harfSerisi}"`);
-      kuralPuan -= 8;
-    }
-  }
-
-  if (
-    rakamSerisi &&
-    rakamSerisi.startsWith("0") &&
-    rakamSerisi.length > 1
-  ) {
-    uyarilar.push(
-      `Rakam serisi sıfır ile başlıyor: "${rakamSerisi}" — Nadir kullanım`
-    );
-    kuralPuan -= 5;
-  }
-
-  kuralPuan = Math.max(0, Math.min(100, kuralPuan));
-  return { formatUyumu, hatalar, uyarilar, ilAdi, kuralPuan };
+  c.putImageData(id, 0, 0);
 }
 
-function sonucBirlestir(
-  plakaTemiz: string,
-  kural: ReturnType<typeof kuralAnalizEt>,
-  gorsel: GorselAnalizSonucu,
-  fotovardi: boolean
-): {
-  durum: "orijinal" | "sahte" | "supheeli";
-  guvenSkor: number;
-  kuralPuaniGosterim: number;
-  aciklama: string;
-  renkAnalizi: string;
-  fontAnalizi: string;
-  hataListesi: string[];
-  formatUyumuSonuc: boolean;
-} {
-  if (fotovardi && gorsel.plakaBulunamadi) {
-    return {
-      durum: "sahte",
-      guvenSkor: 0,
-      kuralPuaniGosterim: 0,
-      formatUyumuSonuc: false,
-      aciklama:
-        `✘ DOĞRULAMA SONUCU: YETERSİZ FOTOĞRAF\n\n` +
-        `Yapay zeka görüntü analizi: ${gorsel.gorselAciklama}\n\n` +
-        `Güven skoru: 0/100 | Kural puanı: 0/100\n\n` +
-        `Plakayı net görebilecek yeni bir fotoğraf yükleyiniz. ` +
-        `Fotoğraf iyi ışıklı, yakın çekim ve odaklanmış olmalıdır.`,
-      renkAnalizi: "Fotoğrafta plaka tespit edilemedi — renk analizi yapılamadı.",
-      fontAnalizi: "Fotoğrafta plaka tespit edilemedi — font analizi yapılamadı.",
-      hataListesi: [
-        `KUSUR:Yapay zeka tespiti: ${gorsel.gorselAciklama}`,
-        "KUSUR:Çözüm: Plakayı net ve yakından çeken yeni bir fotoğraf yükleyin.",
-      ],
-    };
+function applyConvolution(d, w, h, k) {
+  const copy = new Uint8ClampedArray(d);
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      for (let c = 0; c < 3; c++) {
+        let sum = 0;
+        for (let ky = -1; ky <= 1; ky++)
+          for (let kx = -1; kx <= 1; kx++)
+            sum += copy[((y + ky) * w + (x + kx)) * 4 + c] * k[(ky+1)*3+(kx+1)];
+        d[(y * w + x) * 4 + c] = clamp(sum);
+      }
+    }
   }
+}
 
-  const hammPuan =
-    fotovardi && !gorsel.plakaBulunamadi
-      ? Math.round(kural.kuralPuan * 0.6 + gorsel.gorselPuan * 0.4)
-      : kural.kuralPuan;
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    currentFilter = chip.dataset.filter;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    if (originalImage) drawImageOnCanvas(originalImage);
+  });
+});
 
-  const nihaiBirlesik = hammPuan >= 100 ? 99.9 : hammPuan;
+/* ============================================================
+   PLATE PREVIEW
+   ============================================================ */
+function showPlatePreview() {
+  if (!plateRegion || !originalImage) return;
+  const pr      = plateRegion;
+  const maxW    = 680;
+  const scale   = Math.min(1, maxW / pr.w);
+  platePreviewCanvas.width  = Math.max(1, Math.round(pr.w * scale));
+  platePreviewCanvas.height = Math.max(1, Math.round(pr.h * scale));
+  pCtx.imageSmoothingEnabled  = true;
+  pCtx.imageSmoothingQuality  = 'high';
+  pCtx.drawImage(originalImage, pr.x, pr.y, pr.w, pr.h, 0, 0, platePreviewCanvas.width, platePreviewCanvas.height);
+  platePreview.classList.add('show');
+}
 
-  const gorselUygunPrefixed = (fotovardi ? gorsel.uygunMaddeler : []).map(
-    (m) => `UYGUN:${m}`
-  );
-  const gorselKusurPrefixed = (fotovardi ? gorsel.kusurlar : []).map(
-    (m) => `KUSUR:${m}`
-  );
+/* ============================================================
+   ANALYSIS
+   ============================================================ */
+async function runAnalysis() {
+  if (!plateRegion || !originalImage) return;
 
-  const tumHatalar = [
-    ...kural.hatalar.map((h) => `KUSUR:${h}`),
-    ...kural.uyarilar.map((u) => `UYARI:${u}`),
-    ...gorselUygunPrefixed,
-    ...gorselKusurPrefixed,
+  progressWrap.classList.add('show');
+
+  const steps = [
+    { text: '🟦 Mavi TR şeridi analiz ediliyor...', pct: 15 },
+    { text: '⬜ Beyaz zemin kontrol ediliyor...',   pct: 30 },
+    { text: '🔤 Karakter analizi yapılıyor...',     pct: 50 },
+    { text: '✨ Hologram şeridi taranıyor...',       pct: 70 },
+    { text: '🔵 TŞOF mührü inceleniyor...',         pct: 85 },
+    { text: '📊 Sonuçlar hesaplanıyor...',          pct: 100 },
   ];
 
-  const ilBilgisi = kural.ilAdi ? ` (${kural.ilAdi} iline ait)` : "";
-  let durum: "orijinal" | "sahte" | "supheeli";
-  let aciklama: string;
+  for (const s of steps) {
+    progressText.textContent   = s.text;
+    progressFill.style.width   = s.pct + '%';
+    await sleep(300);
+  }
 
-  const kritikHataVar = kural.hatalar.some(
-    (h) =>
-      h.includes("YASAK HARF") ||
-      h.includes("İl kodu geçersiz") ||
-      h.includes("Format geçersiz")
-  );
+  const pd      = extractPlateData();
+  const metrics = analyzeMetrics(pd);
+  const score   = computeTotal(metrics);
 
-  const sadeKusurlar = [
-    ...kural.hatalar,
-    ...kural.uyarilar,
-    ...(fotovardi ? gorsel.kusurlar : []),
+  displayResults(metrics, score);
+  buildTileGrid();
+
+  progressWrap.classList.remove('show');
+}
+
+function extractPlateData() {
+  const pr   = plateRegion;
+  const oc   = document.createElement('canvas');
+  const maxW = 800;
+  const sc   = Math.min(1, maxW / pr.w);
+  oc.width   = Math.max(1, Math.round(pr.w * sc));
+  oc.height  = Math.max(1, Math.round(pr.h * sc));
+  const ox   = oc.getContext('2d');
+  ox.imageSmoothingEnabled = true;
+  ox.imageSmoothingQuality = 'high';
+  ox.drawImage(originalImage, pr.x, pr.y, pr.w, pr.h, 0, 0, oc.width, oc.height);
+  return { canvas: oc, ctx: ox, imageData: ox.getImageData(0, 0, oc.width, oc.height), w: oc.width, h: oc.height };
+}
+
+function analyzeMetrics(pd) {
+  const d = pd.imageData.data;
+  const W = pd.w, H = pd.h;
+
+  /* 1. Blue TR Stripe (left 22%) */
+  const bZoneW = Math.floor(W * 0.22);
+  let blue = 0, bTotal = 0;
+  const colDens = new Float32Array(bZoneW);
+  for (let x = 0; x < bZoneW; x++) {
+    let cb = 0;
+    for (let y = 0; y < H; y++) {
+      const i = (y * W + x) * 4;
+      const hsv = rgbToHsv(d[i], d[i+1], d[i+2]);
+      if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) { blue++; cb++; }
+      bTotal++;
+    }
+    colDens[x] = cb / H;
+  }
+  let maxCD = 0;
+  for (let x = 0; x < bZoneW; x++) maxCD = Math.max(maxCD, colDens[x]);
+  const blueScore = Math.min(1, (blue / bTotal) * 1.8 + maxCD * 1.2);
+
+  /* 2. White Background (mid 22%–92%) */
+  const midS = Math.floor(W * 0.22), midE = Math.floor(W * 0.92);
+  let white = 0, midT = 0;
+  for (let x = midS; x < midE; x++)
+    for (let y = 0; y < H; y++) {
+      const i = (y * W + x) * 4;
+      if (d[i] > 170 && d[i+1] > 170 && d[i+2] > 170) white++;
+      midT++;
+    }
+  const whiteScore = Math.min(1, (white / midT) * 1.5);
+
+  /* 3. Dark Characters */
+  let dark = 0;
+  for (let x = midS; x < midE; x++)
+    for (let y = Math.floor(H * 0.1); y < Math.floor(H * 0.88); y++) {
+      const i = (y * W + x) * 4;
+      if (d[i] < 70 && d[i+1] < 70 && d[i+2] < 70) dark++;
+    }
+  const darkR = dark / (midT * 0.78);
+  const charScore = darkR < 0.05 ? darkR * 4 :
+                    darkR <= 0.50 ? 0.6 + (darkR - 0.05) * 0.8 :
+                    Math.max(0.2, 1 - (darkR - 0.50) * 2);
+
+  /* 4. Hologram (bottom 18%) */
+  const holoY  = Math.floor(H * 0.82);
+  let holoLums = [];
+  for (let x = Math.floor(W * 0.15); x < Math.floor(W * 0.95); x++)
+    for (let y = holoY; y < H; y++) {
+      const i = (y * W + x) * 4;
+      holoLums.push((d[i] + d[i+1] + d[i+2]) / 3);
+    }
+  const holoMean = holoLums.reduce((a,b)=>a+b,0) / (holoLums.length || 1);
+  const holoVar  = Math.sqrt(holoLums.reduce((a,v)=>a+Math.pow(v-holoMean,2),0) / (holoLums.length || 1));
+  const holoScore = Math.min(1, holoVar / 45);
+
+  /* 5. TŞOF Stamp (22%–42%, top 50%) */
+  const stX1 = Math.floor(W * 0.22), stX2 = Math.floor(W * 0.42);
+  const stY2 = Math.floor(H * 0.5);
+  let stLums = [];
+  for (let x = stX1; x < stX2; x++)
+    for (let y = 0; y < stY2; y++) {
+      const i = (y * W + x) * 4;
+      stLums.push((d[i] + d[i+1] + d[i+2]) / 3);
+    }
+  const stMean = stLums.reduce((a,b)=>a+b,0) / (stLums.length || 1);
+  const stVar  = Math.sqrt(stLums.reduce((a,v)=>a+Math.pow(v-stMean,2),0) / (stLums.length || 1));
+  const stampScore = Math.min(1, stVar / 38);
+
+  return [
+    { name: 'Mavi TR Şeridi',    icon: '🟦', weight: 0.25, score: blueScore,  raw: Math.round((blue / bTotal) * 100) },
+    { name: 'Beyaz Zemin',       icon: '⬜', weight: 0.15, score: whiteScore, raw: Math.round((white / midT)  * 100) },
+    { name: 'Siyah Karakterler', icon: '🔤', weight: 0.20, score: charScore,  raw: Math.round(darkR * 100) },
+    { name: 'Hologram Şeridi',   icon: '✨', weight: 0.20, score: holoScore,  raw: Math.round(holoVar) },
+    { name: 'TŞOF Mührü',        icon: '🔵', weight: 0.20, score: stampScore, raw: Math.round(stVar) },
   ];
+}
 
-  if (kritikHataVar) {
-    durum = "sahte";
-    aciklama =
-      `✘ DOĞRULAMA SONUCU: SAHTE / GEÇERSİZ\n\n` +
-      `"${plakaTemiz}" plakası TC resmi plaka standartlarına UYMAMAKTADIR.\n\n` +
-      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
-      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
-      `Tespit edilen ihlaller:\n` +
-      kural.hatalar.map((h) => `• ${h}`).join("\n") +
-      "\n\nBu plakanın sahte veya tahrif edilmiş olma ihtimali yüksektir.";
-  } else if (nihaiBirlesik >= 80 && kural.hatalar.length === 0) {
-    durum = "orijinal";
-    aciklama =
-      `✔ DOĞRULAMA SONUCU: ORİJİNAL\n\n` +
-      `"${plakaTemiz}" plakası${ilBilgisi} TC resmi plaka standartlarına UYGUNDUR.\n\n` +
-      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
-      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
-      `İl kodu ${plakaTemiz.substring(0, 2)}${kural.ilAdi ? ` → ${kural.ilAdi}` : ""} geçerli. Harf ve rakam serisi kurallara uygun.` +
-      (kural.uyarilar.length > 0
-        ? "\n\nUyarılar:\n" + kural.uyarilar.map((u) => `• ${u}`).join("\n")
-        : "");
-  } else if (nihaiBirlesik >= 50) {
-    durum = "supheeli";
-    aciklama =
-      `⚠ DOĞRULAMA SONUCU: ŞÜPHELİ\n\n` +
-      `"${plakaTemiz}" plakasında tutarsızlıklar tespit edildi.\n\n` +
-      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
-      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
-      `Tespitler:\n` +
-      sadeKusurlar
-        .slice(0, 5)
-        .map((h) => `• ${h}`)
-        .join("\n") +
-      "\n\nDetaylı fiziksel inceleme ve resmi trafik kayıt sorgusu önerilir.";
+function computeTotal(metrics) {
+  return Math.round(metrics.reduce((sum, m) => sum + m.score * m.weight, 0) * 10) * 10;
+}
+
+/* ============================================================
+   DISPLAY RESULTS
+   ============================================================ */
+function displayResults(metrics, score) {
+  setScoreDisplay(score, true);
+
+  let colorClass, vIcon, vMsg;
+  if (score >= 70) {
+    colorClass = 'green'; vIcon = '✅'; vMsg = 'ORİJİNAL PLAKA — Tüm güvenlik özellikleri doğrulandı';
+  } else if (score >= 40) {
+    colorClass = 'yellow'; vIcon = '⚠️'; vMsg = 'KONTROL GEREKLİ — Bazı özellikler zayıf veya eksik';
   } else {
-    durum = "sahte";
-    aciklama =
-      `✘ DOĞRULAMA SONUCU: SAHTE / GEÇERSİZ\n\n` +
-      `"${plakaTemiz}" plakası kritik kurallara aykırıdır.\n\n` +
-      `Güven skoru: ${nihaiBirlesik}/100 | Kural puanı: ${kural.kuralPuan}/100\n\n` +
-      (fotovardi ? `Görsel analiz: ${gorsel.gorselAciklama}\n\n` : "") +
-      `Tespit edilen ihlaller:\n` +
-      sadeKusurlar
-        .slice(0, 6)
-        .map((h) => `• ${h}`)
-        .join("\n") +
-      "\n\nBu plakanın sahte veya tahrif edilmiş olma ihtimali yüksektir.";
+    colorClass = 'red'; vIcon = '❌'; vMsg = 'STANDART DIŞI / SAHTE — Plaka doğrulanamadı';
   }
 
-  const renkAnalizi =
-    fotovardi &&
-    (gorsel.uygunMaddeler.length > 0 || gorsel.kusurlar.length > 0)
-      ? gorsel.gorselAciklama
-      : kural.formatUyumu
-      ? "Standart Türk plakası: Beyaz zemin, mavi AB şeridi, siyah yazı bekleniyor. Fiziksel inceleme önerilir."
-      : "Renk analizi uygulanamadı — format hatası mevcut.";
+  verdictBox.className = `verdict-box show ${colorClass}`;
+  verdictIcon.textContent = vIcon;
+  verdictMsg.className   = `verdict-msg ${colorClass}`;
+  verdictMsg.textContent = vMsg;
 
-  const fontAnalizi = kural.formatUyumu
-    ? "FE-Schrift resmi Türk plaka fontu — Sahte plakalarda font farklılıkları göze çarpar."
-    : "Font analizi uygulanamadı — geçersiz format.";
-
-  return {
-    durum,
-    guvenSkor: nihaiBirlesik,
-    kuralPuaniGosterim: kural.kuralPuan,
-    formatUyumuSonuc: kural.formatUyumu && !gorsel.plakaBulunamadi,
-    aciklama,
-    renkAnalizi,
-    fontAnalizi,
-    hataListesi: tumHatalar,
-  };
+  metricsBody.innerHTML = '';
+  for (const m of metrics) {
+    const pct   = Math.round(m.score * 100);
+    const disp  = Math.round(pct / 10) * 10;
+    const mCol  = pct >= 70 ? 'green' : pct >= 40 ? 'yellow' : 'red';
+    const el    = document.createElement('div');
+    el.className = 'metric-card';
+    el.innerHTML = `
+      <div class="metric-top">
+        <div class="metric-name-wrap">${m.icon} ${m.name} <span class="metric-wt">×${Math.round(m.weight*100)}%</span></div>
+        <div class="metric-val ${mCol}">%${disp}</div>
+      </div>
+      <div class="metric-track">
+        <div class="metric-fill ${mCol}" style="width:${disp}%"></div>
+      </div>`;
+    metricsBody.appendChild(el);
+  }
 }
 
-router.post("/plaka/dogrula", async (req, res): Promise<void> => {
-  const parsed = PlakaDogrulaBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: "Geçersiz istek formatı: " + parsed.error.message });
+function setScoreDisplay(score, hasValue) {
+  if (!hasValue) {
+    scoreNum.textContent = '0';
+    scorePctSym.textContent = '%';
+    scoreStatusLabel.textContent = 'PLAKA DEĞİL';
+    scoreStatusLabel.className   = 'score-status-label red';
+    scoreSub.textContent = 'Bu görsel bir plaka içermiyor';
+    scoreArc.style.strokeDashoffset = '314';
+    scoreArc.style.stroke = 'var(--red)';
     return;
   }
+  scoreNum.textContent = String(score);
+  scorePctSym.textContent = '%';
 
-  const { imageBase64, plakaMetin: manuelMetin } = parsed.data;
-  const manuelTemiz = (manuelMetin ?? "")
-    .replace(/[\s\-\.]/g, "")
-    .toUpperCase()
-    .trim();
-
-  if (!manuelTemiz) {
-    res.status(400).json({ error: "Plaka metni girilmedi. Örnek: 34ABC1234 veya 06AB123" });
-    return;
+  let colorClass, arcColor, label;
+  if (score >= 70) {
+    colorClass = 'green'; arcColor = 'var(--green)'; label = 'ORİJİNAL PLAKA';
+  } else if (score >= 40) {
+    colorClass = 'yellow'; arcColor = 'var(--yellow)'; label = 'KONTROL GEREKLİ';
+  } else {
+    colorClass = 'red'; arcColor = 'var(--red)'; label = 'STANDART DIŞI';
   }
 
-  const fotovardi =
-    !!imageBase64 &&
-    imageBase64.length > 200 &&
-    !imageBase64.startsWith("data:text/");
-
-  const [kural, gorsel] = await Promise.all([
-    Promise.resolve(kuralAnalizEt(manuelTemiz)),
-    fotovardi
-      ? gorselAnalizYap(imageBase64, manuelTemiz)
-      : Promise.resolve<GorselAnalizSonucu>({
-          okunanMetin: manuelTemiz,
-          uygunMaddeler: [],
-          kusurlar: [],
-          gorselPuan: 0,
-          gorselAciklama:
-            "Fotoğraf yüklenmedi — yalnızca kural tabanlı doğrulama yapıldı.",
-          plakaBulunamadi: false,
-        }),
-  ]);
-
-  const tumEkHatalar: string[] = [];
-
-  if (
-    fotovardi &&
-    !gorsel.plakaBulunamadi &&
-    gorsel.okunanMetin &&
-    gorsel.okunanMetin !== manuelTemiz &&
-    gorsel.okunanMetin.length >= 4
-  ) {
-    tumEkHatalar.push(
-      `UYARI:Fotoğrafta okunan plaka "${gorsel.okunanMetin}", girilen metin "${manuelTemiz}" ile eşleşmiyor. Fotoğrafı veya metni kontrol edin.`
-    );
-  }
-
-  const sonuc = sonucBirlestir(manuelTemiz, kural, gorsel, fotovardi);
-  const tumHataListesi = [...tumEkHatalar, ...sonuc.hataListesi];
-
-  const [kayit] = await db
-    .insert(plakaDogrulamaTable)
-    .values({
-      plakaMetin: manuelTemiz,
-      durum: sonuc.durum,
-      guvenSkor: sonuc.guvenSkor,
-      aciklama: sonuc.aciklama,
-      formatUyumu: sonuc.formatUyumuSonuc,
-      renkAnalizi: sonuc.renkAnalizi,
-      fontAnalizi: sonuc.fontAnalizi,
-      hataListesi: tumHataListesi,
-      imageBase64: imageBase64.substring(0, 500),
-    })
-    .returning();
-
-  res.json(
-    PlakaDogrulaResponse.parse({
-      id: kayit.id,
-      plakaMetin: kayit.plakaMetin,
-      durum: kayit.durum,
-      guvenSkor: kayit.guvenSkor,
-      aciklama: kayit.aciklama,
-      analizDetaylari: {
-        formatUyumu: kayit.formatUyumu,
-        renkAnalizi: kayit.renkAnalizi,
-        fontAnalizi: kayit.fontAnalizi,
-        hataListesi: kayit.hataListesi as string[],
-      },
-      olusturmaTarihi: kayit.olusturmaTarihi,
-    })
-  );
-});
-
-router.get("/plaka/gecmis", async (_req, res): Promise<void> => {
-  const gecmis = await db
-    .select({
-      id: plakaDogrulamaTable.id,
-      plakaMetin: plakaDogrulamaTable.plakaMetin,
-      durum: plakaDogrulamaTable.durum,
-      guvenSkor: plakaDogrulamaTable.guvenSkor,
-      olusturmaTarihi: plakaDogrulamaTable.olusturmaTarihi,
-    })
-    .from(plakaDogrulamaTable)
-    .orderBy(desc(plakaDogrulamaTable.olusturmaTarihi))
-    .limit(50);
-
-  res.json(PlakaGecmisListeleResponse.parse(gecmis));
-});
-
-router.get("/plaka/istatistik", async (_req, res): Promise<void> => {
-  const [stats] = await db
-    .select({
-      toplamSorgu: sql<number>`count(*)::int`,
-      orijinalSayisi: sql<number>`count(*) filter (where durum = 'orijinal')::int`,
-      sahteSayisi: sql<number>`count(*) filter (where durum = 'sahte')::int`,
-      supheliSayisi: sql<number>`count(*) filter (where durum = 'supheeli')::int`,
-      ortalamGuvenSkor: sql<number>`coalesce(avg(guven_skor), 0)::numeric(5,1)::float`,
-    })
-    .from(plakaDogrulamaTable);
-
-  res.json(
-    PlakaIstatistikResponse.parse({
-      toplamSorgu: stats.toplamSorgu ?? 0,
-      orijinalSayisi: stats.orijinalSayisi ?? 0,
-      sahteSayisi: stats.sahteSayisi ?? 0,
-      supheliSayisi: stats.supheliSayisi ?? 0,
-      ortalamGuvenSkor: stats.ortalamGuvenSkor ?? 0,
-    })
-  );
-});
-
-export default router;
-          import React from "react";
-import { motion } from "framer-motion";
-import {
-  ShieldCheck,
-  ShieldAlert,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
-  Activity,
-  FileText,
-  AlertCircle,
-  CheckCheck,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { PlakaDogrulaResult } from "@workspace/api-client-react";
-import { PlakaDogrulaResultDurum } from "@workspace/api-client-react";
-
-interface ResultCardProps {
-  result: PlakaDogrulaResult;
+  scoreStatusLabel.textContent = label;
+  scoreStatusLabel.className   = `score-status-label ${colorClass}`;
+  scoreSub.textContent = 'TC Emniyet · TŞOF Standartları · KTY Yön. Md.20';
+  scoreArc.style.stroke = arcColor;
+  const offset = 314 - (314 * score / 100);
+  scoreArc.style.strokeDashoffset = String(offset);
 }
 
-const statusConfig = {
-  [PlakaDogrulaResultDurum.orijinal]: {
-    label: "ORİJİNAL",
-    colors: "bg-green-50 border-green-200 text-green-800",
-    headerColors: "bg-green-100/50 border-b-green-200",
-    icon: <ShieldCheck className="w-8 h-8 text-green-600" />,
-    progressColor: "bg-green-500",
-    scoreBg: "bg-green-100",
-    scoreText: "text-green-700",
-  },
-  [PlakaDogrulaResultDurum.sahte]: {
-    label: "SAHTE",
-    colors: "bg-red-50 border-red-200 text-red-800",
-    headerColors: "bg-red-100/50 border-b-red-200",
-    icon: <ShieldAlert className="w-8 h-8 text-red-600" />,
-    progressColor: "bg-red-500",
-    scoreBg: "bg-red-100",
-    scoreText: "text-red-700",
-  },
-  [PlakaDogrulaResultDurum.supheeli]: {
-    label: "ŞÜPHELİ",
-    colors: "bg-orange-50 border-orange-200 text-orange-800",
-    headerColors: "bg-orange-100/50 border-b-orange-200",
-    icon: <AlertTriangle className="w-8 h-8 text-orange-600" />,
-    progressColor: "bg-orange-500",
-    scoreBg: "bg-orange-100",
-    scoreText: "text-orange-700",
-  },
-};
+/* ============================================================
+   TILE GRID
+   ============================================================ */
+function buildTileGrid() {
+  if (!plateRegion || !originalImage) return;
+  tileEmpty.style.display = 'none';
+  tileGrid.style.display  = 'grid';
+  tileGrid.innerHTML      = '';
 
-function parseHataListesi(hataListesi: string[]) {
-  const uygunMaddeler: string[] = [];
-  const kusurlar: string[] = [];
-  const uyarilar: string[] = [];
+  const COLS = 10, ROWS = 10;
+  const { x: px, y: py, w: pw, h: ph } = plateRegion;
+  const tw = pw / COLS, th = ph / ROWS;
 
-  for (const madde of hataListesi) {
-    if (madde.startsWith("UYGUN:")) {
-      uygunMaddeler.push(madde.slice(6));
-    } else if (madde.startsWith("UYARI:")) {
-      uyarilar.push(madde.slice(6));
-    } else if (madde.startsWith("KUSUR:")) {
-      kusurlar.push(madde.slice(6));
-    } else {
-      kusurlar.push(madde);
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      const tx = px + col * tw, ty = py + row * th;
+      const el = document.createElement('div');
+      el.className = 'tile';
+
+      const tc = document.createElement('canvas');
+      tc.width = tc.height = 40;
+      const tCtx = tc.getContext('2d');
+      tCtx.imageSmoothingEnabled = true;
+      tCtx.imageSmoothingQuality = 'high';
+      tCtx.drawImage(originalImage, tx, ty, tw, th, 0, 0, 40, 40);
+
+      const imgData = tCtx.getImageData(0, 0, 40, 40);
+      const tScore  = quickBlueScore(imgData.data);
+      const badge   = document.createElement('div');
+      badge.className   = 'tile-badge';
+      badge.textContent = Math.round(tScore * 10) * 10 + '%';
+
+      if (tScore > 0.6)      el.style.boxShadow = 'inset 0 0 0 2px rgba(0,230,118,0.5)';
+      else if (tScore > 0.3) el.style.boxShadow = 'inset 0 0 0 1px rgba(255,214,0,0.3)';
+
+      el.appendChild(tc);
+      el.appendChild(badge);
+      el.addEventListener('click', () => openTileModal(row, col, tx, ty, tw, th));
+      tileGrid.appendChild(el);
     }
   }
-
-  return { uygunMaddeler, kusurlar, uyarilar };
 }
 
-export function ResultCard({ result }: ResultCardProps) {
-  const config = statusConfig[result.durum];
-  const { analizDetaylari } = result;
-  const { uygunMaddeler, kusurlar, uyarilar } = parseHataListesi(
-    analizDetaylari.hataListesi
-  );
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className={cn(
-        "rounded-2xl border-2 shadow-xl overflow-hidden h-full flex flex-col",
-        config.colors
-      )}
-    >
-      <div
-        className={cn(
-          "p-6 flex items-start justify-between border-b-2",
-          config.headerColors
-        )}
-      >
-        <div>
-          <h2 className="text-sm font-bold uppercase tracking-wider opacity-80 mb-1">
-            Tespit Edilen Plaka
-          </h2>
-          <p className="text-4xl font-extrabold tracking-tight font-mono">
-            {result.plakaMetin}
-          </p>
-        </div>
-        <div className="flex flex-col items-end">
-          <div className="flex items-center gap-2 mb-2">
-            {config.icon}
-            <span className="text-2xl font-black tracking-tight">
-              {config.label}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold opacity-75">
-              Güven Skoru:
-            </span>
-            <div
-              className={cn(
-                "px-3 py-1 rounded-full font-bold text-sm",
-                config.scoreBg,
-                config.scoreText
-              )}
-            >
-              %{result.guvenSkor.toFixed(1)}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6 flex-1 bg-white/60 overflow-y-auto">
-        <div className="text-base font-medium mb-6 whitespace-pre-line leading-relaxed">
-          {result.aciklama}
-        </div>
-
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-3 mb-2">
-                <FileText className="w-5 h-5 text-slate-400" />
-                <h4 className="font-semibold text-slate-700">Format Uyumu</h4>
-              </div>
-              <div className="flex items-center gap-2 mt-3">
-                {analizDetaylari.formatUyumu ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    <span className="font-medium text-slate-700">
-                      Resmi Formata Uygun
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-5 h-5 text-red-500" />
-                    <span className="font-medium text-slate-700">
-                      Format Uyumsuzluğu Tespit Edildi
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-3 mb-2">
-                <Activity className="w-5 h-5 text-slate-400" />
-                <h4 className="font-semibold text-slate-700">Renk ve Font</h4>
-              </div>
-              <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
-                  <span>
-                    <span className="font-medium">Renk:</span>{" "}
-                    {analizDetaylari.renkAnalizi}
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
-                  <span>
-                    <span className="font-medium">Font:</span>{" "}
-                    {analizDetaylari.fontAnalizi}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {uygunMaddeler.length > 0 && (
-            <div className="bg-green-50 rounded-xl p-4 border border-green-100">
-              <div className="flex items-center gap-2 mb-3">
-                <CheckCheck className="w-5 h-5 text-green-600" />
-                <h4 className="font-semibold text-green-800">
-                  Kurala Uygun Maddeler
-                </h4>
-              </div>
-              <ul className="space-y-2">
-                {uygunMaddeler.map((madde, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2 text-sm text-green-700"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-green-500" />
-                    <span>{madde}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {uyarilar.length > 0 && (
-            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
-              <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle className="w-5 h-5 text-amber-500" />
-                <h4 className="font-semibold text-amber-800">Uyarılar</h4>
-              </div>
-              <ul className="space-y-2">
-                {uyarilar.map((uyari, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2 text-sm text-amber-700"
-                  >
-                    <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 opacity-70" />
-                    <span>{uyari}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {kusurlar.length > 0 && (
-            <div className="bg-red-50/50 rounded-xl p-4 border border-red-100">
-              <div className="flex items-center gap-2 mb-3">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                <h4 className="font-semibold text-red-800">
-                  Tespit Edilen Kusurlar
-                </h4>
-              </div>
-              <ul className="space-y-2">
-                {kusurlar.map((kusur, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2 text-sm text-red-700"
-                  >
-                    <XCircle className="w-4 h-4 mt-0.5 shrink-0 opacity-70" />
-                    <span>{kusur}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="h-2 w-full bg-slate-200">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${result.guvenSkor}%` }}
-          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-          className={cn("h-full", config.progressColor)}
-        />
-      </div>
-    </motion.div>
-  );
+function quickBlueScore(d) {
+  let blue = 0, total = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const hsv = rgbToHsv(d[i], d[i+1], d[i+2]);
+    if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) blue++;
+    total++;
+  }
+  return total > 0 ? blue / total : 0;
 }
+
+function openTileModal(row, col, tx, ty, tw, th) {
+  modalTitle.textContent = `Bölge ${row * 10 + col + 1} — Satır ${row + 1}, Sütun ${col + 1}`;
+
+  const zW = 480, zH = Math.round(480 * (th / tw));
+  tileZoomCanvas.width  = zW;
+  tileZoomCanvas.height = zH;
+  const zCtx = tileZoomCanvas.getContext('2d');
+  zCtx.imageSmoothingEnabled = true;
+  zCtx.imageSmoothingQuality = 'high';
+  zCtx.drawImage(originalImage, tx, ty, tw, th, 0, 0, zW, zH);
+
+  const mc = document.createElement('canvas');
+  mc.width  = Math.max(1, Math.round(tw));
+  mc.height = Math.max(1, Math.round(th));
+  const mCtx = mc.getContext('2d');
+  mCtx.drawImage(originalImage, tx, ty, tw, th, 0, 0, mc.width, mc.height);
+  const id = mCtx.getImageData(0, 0, mc.width, mc.height).data;
+
+  let bl = 0, wh = 0, dk = 0, lumSum = 0, lumSq = 0, chroma = 0, n = 0;
+  for (let i = 0; i < id.length; i += 4) {
+    const r = id[i], g = id[i+1], b = id[i+2];
+    const hsv = rgbToHsv(r, g, b);
+    const lum = (r + g + b) / 3;
+    lumSum += lum; lumSq += lum * lum;
+    if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) bl++;
+    if (r > 170 && g > 170 && b > 170) wh++;
+    if (r < 70  && g < 70  && b < 70)  dk++;
+    chroma += Math.abs(r - lum) + Math.abs(g - lum) + Math.abs(b - lum);
+    n++;
+  }
+  const mean = n ? lumSum / n : 128;
+  const vari = n ? Math.sqrt(lumSq / n - mean * mean) : 0;
+
+  modalMetrics.innerHTML = `
+    <div class="mm-item"><div class="mm-label">MAVİ %</div><div class="mm-val">${Math.round(bl/n*100)}</div></div>
+    <div class="mm-item"><div class="mm-label">BEYAZ %</div><div class="mm-val">${Math.round(wh/n*100)}</div></div>
+    <div class="mm-item"><div class="mm-label">KARANLIK %</div><div class="mm-val">${Math.round(dk/n*100)}</div></div>
+    <div class="mm-item"><div class="mm-label">VARYANS</div><div class="mm-val">${Math.round(vari)}</div></div>
+    <div class="mm-item"><div class="mm-label">HOLOGRAM</div><div class="mm-val">${Math.min(99,Math.round(vari*1.2))}</div></div>
+    <div class="mm-item"><div class="mm-label">KROMATİK</div><div class="mm-val">${Math.round(chroma/n/3)}</div></div>
+  `;
+
+  tileModal.classList.add('show');
+}
+
+document.getElementById('modalClose').addEventListener('click', () => tileModal.classList.remove('show'));
+tileModal.addEventListener('click', e => { if (e.target === tileModal) tileModal.classList.remove('show'); });
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function rgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  let h = 0;
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  if (d !== 0) {
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [h * 360, s * 100, v * 100];
+}
+
+function hsvToRgb(h, s, v) {
+  s /= 100; v /= 100;
+  const i = Math.floor(h / 60) % 6;
+  const f = h / 60 - Math.floor(h / 60);
+  const p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+  const m = [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i];
+  return [Math.round(m[0]*255), Math.round(m[1]*255), Math.round(m[2]*255)];
+}
+
+function clamp(v) { return Math.max(0, Math.min(255, Math.round(v))); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
