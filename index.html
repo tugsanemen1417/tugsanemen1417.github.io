@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plaka Pro Security - Hologram & Güvenlik Analizi</title>
+    <title>Plaka Pro - Manuel Güvenlik Analizi</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,37 +15,32 @@
 
         :root {
             --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --security-blue: #1e40af;
-            --hologram-teal: #14b8a6;
-            --hologram-purple: #8b5cf6;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --laser-red: #dc2626;
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-800: #1e293b;
-            --gray-900: #0f172a;
+            --laser: #dc2626;
+            --zone-plate: #3b82f6;
+            --zone-hologram: #14b8a6;
+            --zone-tr: #f59e0b;
+            --zone-laser: #dc2626;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: #0f172a;
             min-height: 100vh;
-            color: var(--gray-800);
+            color: #1e293b;
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.95);
             padding: 1rem 2rem;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
+            border-bottom: 1px solid #334155;
         }
 
         .nav-container {
@@ -54,6 +49,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: white;
         }
 
         .logo {
@@ -62,1116 +58,846 @@
             gap: 0.75rem;
             font-size: 1.5rem;
             font-weight: 800;
-            color: var(--security-blue);
-            text-decoration: none;
-        }
-
-        .security-badge {
-            background: linear-gradient(135deg, var(--hologram-teal), var(--hologram-purple));
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.625rem;
-            font-weight: 700;
-            margin-left: 0.5rem;
         }
 
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 6rem 2rem 2rem;
+            padding: 5rem 1rem 2rem;
         }
 
-        .hero {
-            text-align: center;
-            padding: 2rem 0;
-            color: white;
-        }
-
-        .hero h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        /* Main Scanner Interface */
-        .scanner-container {
-            background: white;
-            border-radius: 2rem;
-            padding: 2rem;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
-        }
-
-        .scanner-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .scanner-header h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin-bottom: 0.5rem;
-        }
-
-        .scanner-header p {
-            color: var(--gray-500);
-            font-size: 0.875rem;
-        }
-
-        /* Upload & Preview Area */
-        .scan-area {
+        /* Layout */
+        .workspace {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 1rem;
+            height: calc(100vh - 6rem);
         }
 
-        .upload-section {
-            border: 3px dashed var(--gray-300);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            text-align: center;
-            background: var(--gray-50);
-            position: relative;
-            min-height: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
+        /* Left Panel - Tools */
+        .tools-panel {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 1rem;
+            color: white;
+            overflow-y: auto;
         }
 
-        .upload-section:hover {
-            border-color: var(--primary);
-            background: var(--primary-light);
+        .tool-section {
+            margin-bottom: 1.5rem;
         }
 
-        .upload-section.has-image {
-            padding: 0;
-            border-style: solid;
-            border-color: var(--success);
+        .tool-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
         }
 
-        .upload-icon {
-            font-size: 3rem;
-            color: var(--gray-400);
-            margin-bottom: 1rem;
-        }
-
-        .upload-text {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--gray-700);
-        }
-
-        .upload-subtext {
-            font-size: 0.875rem;
-            color: var(--gray-500);
-            margin-top: 0.5rem;
-        }
-
-        .preview-container {
-            position: relative;
+        .zone-btn {
             width: 100%;
-            height: 100%;
-            display: none;
+            padding: 0.875rem;
+            margin-bottom: 0.5rem;
+            border: 2px solid #334155;
+            border-radius: 0.75rem;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+            font-size: 0.875rem;
         }
 
-        .upload-section.has-image .preview-container {
+        .zone-btn:hover {
+            border-color: #475569;
+            background: #334155;
+        }
+
+        .zone-btn.active {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .zone-btn.plate { border-left: 4px solid var(--zone-plate); }
+        .zone-btn.hologram { border-left: 4px solid var(--zone-hologram); }
+        .zone-btn.tr { border-left: 4px solid var(--zone-tr); }
+        .zone-btn.laser { border-left: 4px solid var(--zone-laser); }
+
+        .zone-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .zone-btn.plate .zone-icon { background: rgba(59, 130, 246, 0.2); color: var(--zone-plate); }
+        .zone-btn.hologram .zone-icon { background: rgba(20, 184, 166, 0.2); color: var(--zone-hologram); }
+        .zone-btn.tr .zone-icon { background: rgba(245, 158, 11, 0.2); color: var(--zone-tr); }
+        .zone-btn.laser .zone-icon { background: rgba(220, 38, 38, 0.2); color: var(--zone-laser); }
+
+        /* Center - Canvas */
+        .canvas-area {
+            background: #0f172a;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-placeholder {
+            text-align: center;
+            color: #64748b;
+            padding: 3rem;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .image-container {
+            position: relative;
+            display: none;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .image-container.active {
             display: block;
         }
 
-        .upload-section.has-image .upload-content {
-            display: none;
+        .plate-image {
+            max-width: 100%;
+            max-height: calc(100vh - 8rem);
+            display: block;
+            user-select: none;
         }
 
-        .preview-image {
-            width: 100%;
-            height: 300px;
-            object-fit: contain;
-            border-radius: 1rem;
-            background: var(--gray-900);
-        }
-
-        /* Scanning Laser Effect */
-        .laser-scanner {
+        /* Zones */
+        .zone {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            display: none;
-            overflow: hidden;
-            border-radius: 1rem;
+            border: 3px solid;
+            background: rgba(0,0,0,0.3);
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            min-width: 60px;
+            min-height: 40px;
         }
 
+        .zone.plate { border-color: var(--zone-plate); }
+        .zone.hologram { border-color: var(--zone-hologram); }
+        .zone.tr { border-color: var(--zone-tr); }
+        .zone.laser { border-color: var(--zone-laser); }
+
+        .zone-header {
+            position: absolute;
+            top: -28px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .zone.plate .zone-header { background: var(--zone-plate); color: white; }
+        .zone.hologram .zone-header { background: var(--zone-hologram); color: white; }
+        .zone.tr .zone-header { background: var(--zone-tr); color: white; }
+        .zone.laser .zone-header { background: var(--zone-laser); color: white; }
+
+        .zone-close {
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .zone-close:hover {
+            opacity: 1;
+        }
+
+        /* Resize Handles */
+        .resize-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid;
+            border-radius: 50%;
+        }
+
+        .zone.plate .resize-handle { border-color: var(--zone-plate); }
+        .zone.hologram .resize-handle { border-color: var(--zone-hologram); }
+        .zone.tr .resize-handle { border-color: var(--zone-tr); }
+        .zone.laser .resize-handle { border-color: var(--zone-laser); }
+
+        .resize-nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .resize-ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .resize-sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .resize-se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+        /* Laser Scan Line */
         .laser-line {
             position: absolute;
             top: 0;
             left: 0;
-            width: 4px;
+            width: 3px;
             height: 100%;
             background: linear-gradient(180deg, 
                 transparent 0%, 
-                var(--laser-red) 20%, 
+                var(--laser) 20%, 
                 #ff6b6b 50%, 
-                var(--laser-red) 80%, 
+                var(--laser) 80%, 
                 transparent 100%
             );
-            box-shadow: 0 0 20px var(--laser-red), 0 0 40px var(--laser-red);
-            animation: laserScan 3s linear infinite;
+            box-shadow: 0 0 15px var(--laser), 0 0 30px var(--laser);
+            display: none;
+            z-index: 50;
+        }
+
+        .laser-line.active {
+            display: block;
+            animation: laserScan 2s linear;
         }
 
         @keyframes laserScan {
             0% { left: 0; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
             100% { left: 100%; opacity: 0; }
         }
 
-        .scanning .laser-scanner {
-            display: block;
-        }
-
-        /* Security Zones Overlay */
-        .security-overlay {
+        /* Scan Button on Zone */
+        .zone-scan {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            display: none;
-        }
-
-        .security-zone {
-            position: absolute;
-            border: 3px solid;
-            border-radius: 8px;
-            background: rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            animation: zonePulse 2s infinite;
-        }
-
-        @keyframes zonePulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
-        }
-
-        .zone-label {
-            background: rgba(0,0,0,0.8);
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 1rem;
+            background: var(--success);
             color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.625rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            margin-top: 0.5rem;
+            cursor: pointer;
             white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        /* Zone Colors */
-        .zone-plate { border-color: #3b82f6; }
-        .zone-hologram { border-color: #14b8a6; }
-        .zone-tr { border-color: #f59e0b; }
-        .zone-laser { border-color: #dc2626; }
-
-        /* Quick Scan Results */
-        .quick-results {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        .zone-scan:hover {
+            background: #059669;
         }
 
-        .security-item {
-            background: var(--gray-50);
+        /* Right Panel - Results */
+        .results-panel {
+            background: #1e293b;
             border-radius: 1rem;
-            padding: 1.25rem;
-            border-left: 4px solid var(--gray-300);
-            transition: all 0.3s;
+            padding: 1rem;
+            color: white;
+            overflow-y: auto;
         }
 
-        .security-item.verified {
-            border-left-color: var(--success);
-            background: #d1fae5;
+        .result-item {
+            background: #0f172a;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #334155;
         }
 
-        .security-item.suspicious {
-            border-left-color: var(--warning);
-            background: #fef3c7;
-        }
+        .result-item.success { border-left-color: var(--success); }
+        .result-item.warning { border-left-color: var(--warning); }
+        .result-item.danger { border-left-color: var(--danger); }
 
-        .security-item.fake {
-            border-left-color: var(--danger);
-            background: #fee2e2;
-        }
-
-        .security-item-header {
+        .result-header {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             margin-bottom: 0.5rem;
         }
 
-        .security-icon {
-            width: 36px;
-            height: 36px;
+        .result-icon {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-            background: var(--gray-200);
-            color: var(--gray-500);
+            font-size: 0.875rem;
+            background: #334155;
         }
 
-        .security-item.verified .security-icon {
-            background: var(--success);
-            color: white;
-        }
+        .result-item.success .result-icon { background: var(--success); }
+        .result-item.warning .result-icon { background: var(--warning); color: #1e293b; }
+        .result-item.danger .result-icon { background: var(--danger); }
 
-        .security-item.suspicious .security-icon {
-            background: var(--warning);
-            color: white;
-        }
-
-        .security-item.fake .security-icon {
-            background: var(--danger);
-            color: white;
-        }
-
-        .security-name {
-            font-weight: 700;
-            color: var(--gray-900);
+        .result-title {
+            font-weight: 600;
             font-size: 0.875rem;
         }
 
-        .security-status {
+        .result-status {
             font-size: 0.75rem;
-            color: var(--gray-500);
+            color: #64748b;
         }
 
-        /* Analysis Controls */
-        .controls {
+        .result-detail {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #334155;
+        }
+
+        /* Bottom Controls */
+        .bottom-controls {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 0.75rem;
+            background: #1e293b;
+            padding: 0.75rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
-        .btn {
-            flex: 1;
-            padding: 1rem 1.5rem;
-            border-radius: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
+        .control-btn {
+            padding: 0.75rem 1.5rem;
             border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 0.5rem;
+            font-size: 0.875rem;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--security-blue), var(--primary));
+        .control-btn.primary {
+            background: var(--primary);
             color: white;
         }
 
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+        .control-btn.secondary {
+            background: #334155;
+            color: white;
         }
 
-        .btn-primary:disabled {
-            opacity: 0.6;
+        .control-btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .btn-secondary {
-            background: var(--gray-100);
-            color: var(--gray-700);
-        }
-
-        .btn-secondary:hover {
-            background: var(--gray-200);
-        }
-
-        /* Detailed Analysis Panel */
-        .analysis-details {
+        /* Coordinates Display */
+        .coords-display {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0,0,0,0.8);
+            color: #4ade80;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.75rem;
             display: none;
-            margin-top: 2rem;
         }
 
-        .detail-section {
-            margin-bottom: 2rem;
+        .image-container.active + .coords-display {
+            display: block;
         }
 
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--gray-200);
-        }
-
-        .section-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
-        .section-icon.blue { background: #dbeafe; color: var(--security-blue); }
-        .section-icon.teal { background: #ccfbf1; color: var(--hologram-teal); }
-        .section-icon.gold { background: #fef3c7; color: var(--warning); }
-        .section-icon.red { background: #fee2e2; color: var(--laser-red); }
-
-        .section-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--gray-900);
-        }
-
-        .section-subtitle {
-            font-size: 0.875rem;
-            color: var(--gray-500);
-        }
-
-        /* Hologram Analysis */
-        .hologram-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-        }
-
-        .hologram-check {
-            background: var(--gray-50);
-            border-radius: 1rem;
-            padding: 1rem;
-            text-align: center;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .hologram-check.pass {
-            border-color: var(--success);
-            background: #d1fae5;
-        }
-
-        .hologram-check.fail {
-            border-color: var(--danger);
-            background: #fee2e2;
-        }
-
-        .check-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--gray-400);
-        }
-
-        .hologram-check.pass .check-icon {
-            color: var(--success);
-        }
-
-        .hologram-check.fail .check-icon {
-            color: var(--danger);
-        }
-
-        .check-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--gray-700);
-        }
-
-        /* TR Band Analysis */
-        .tr-analysis {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .tr-detail {
-            background: var(--gray-50);
-            border-radius: 1rem;
-            padding: 1.5rem;
-        }
-
-        .tr-detail h4 {
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .tr-visual {
-            height: 80px;
-            background: linear-gradient(90deg, #1e40af 0%, #1e40af 30%, #dc2626 30%, #dc2626 100%);
-            border-radius: 0.5rem;
-            position: relative;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tr-text {
+        /* Instructions */
+        .instructions {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background: rgba(0,0,0,0.8);
             color: white;
-            font-weight: 800;
-            font-size: 1.5rem;
-            letter-spacing: 0.1em;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            max-width: 300px;
         }
 
-        .tr-measurements {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-
-        .measure-item {
-            background: white;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+        .instructions ul {
+            margin-top: 0.5rem;
+            padding-left: 1.25rem;
             font-size: 0.75rem;
+            color: #94a3b8;
         }
 
-        .measure-label {
-            color: var(--gray-500);
+        .instructions li {
             margin-bottom: 0.25rem;
         }
 
-        .measure-value {
-            font-weight: 700;
-            color: var(--gray-900);
-        }
-
-        /* Laser Microtext */
-        .laser-detail {
-            background: var(--gray-900);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            color: white;
-        }
-
-        .microtext-display {
-            font-family: 'Courier New', monospace;
-            font-size: 0.625rem;
-            line-height: 1.4;
-            color: #4ade80;
-            background: rgba(0,0,0,0.5);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
-            overflow-x: auto;
-            white-space: pre;
-        }
-
-        /* Final Verdict */
-        .verdict-panel {
-            background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
-            border-radius: 1.5rem;
-            padding: 2rem;
-            color: white;
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        .verdict-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .verdict-title {
-            font-size: 1.875rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-
-        .verdict-desc {
-            opacity: 0.8;
-            margin-bottom: 1.5rem;
-        }
-
-        .verdict-score {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255,255,255,0.1);
-            padding: 0.75rem 1.5rem;
-            border-radius: 2rem;
-            font-weight: 700;
-        }
-
         /* Responsive */
-        @media (max-width: 1024px) {
-            .scan-area {
+        @media (max-width: 1200px) {
+            .workspace {
                 grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
             }
-            .hologram-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .tools-panel, .results-panel {
+                max-height: 200px;
             }
-            .tr-analysis {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .hero h1 {
-                font-size: 1.75rem;
-            }
-            .hologram-grid {
-                grid-template-columns: 1fr;
-            }
-            .controls {
-                flex-direction: column;
-            }
-        }
-
-        /* Loading States */
-        .scanning-indicator {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-            z-index: 10;
-        }
-
-        .scanning .scanning-indicator {
-            display: block;
-        }
-
-        .scanner-ring {
-            width: 80px;
-            height: 80px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: var(--laser-red);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Magnifier Tool */
-        .magnifier {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border: 3px solid var(--laser-red);
-            border-radius: 50%;
-            pointer-events: none;
-            display: none;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
-            z-index: 100;
-        }
-
-        .magnifier.active {
-            display: block;
-        }
-
-        .magnifier img {
-            position: absolute;
-            max-width: none;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="logo">
-                <i class="fas fa-shield-alt"></i>
-                Plaka Pro
-                <span class="security-badge">SECURITY SCAN</span>
-            </a>
-            <div>
-                <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                    <i class="fas fa-history"></i> Geçmiş
-                </button>
+            <div class="logo">
+                <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+                Plaka Pro - Manuel Analiz
+            </div>
+            <div style="font-size: 0.875rem; color: #64748b;">
+                <i class="fas fa-mouse-pointer"></i> Sürükle-bırak ile alan belirleme
             </div>
         </div>
     </nav>
 
     <div class="main-container">
-        <div class="hero">
-            <h1>🔍 Plaka Güvenlik Analizi</h1>
-            <p>Hologram, TR bandı, laser işaretleri ve tüm güvenlik özelliklerini AI ile doğrulayın</p>
+        <div class="workspace">
+            <!-- Left Tools -->
+            <div class="tools-panel">
+                <div class="tool-section">
+                    <div class="tool-title">Analiz Bölgesi Ekle</div>
+                    <button class="zone-btn plate" onclick="addZone('plate')">
+                        <div class="zone-icon"><i class="fas fa-font"></i></div>
+                        <div>
+                            <div style="font-weight: 600;">Plaka Numarası</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">Karakter tanıma</div>
+                        </div>
+                    </button>
+                    <button class="zone-btn hologram" onclick="addZone('hologram')">
+                        <div class="zone-icon"><i class="fas fa-certificate"></i></div>
+                        <div>
+                            <div style="font-weight: 600;">Hologram</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">3D efekt kontrolü</div>
+                        </div>
+                    </button>
+                    <button class="zone-btn tr" onclick="addZone('tr')">
+                        <div class="zone-icon"><i class="fas fa-flag"></i></div>
+                        <div>
+                            <div style="font-weight: 600;">TR Bandı</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">Reflektif şerit</div>
+                        </div>
+                    </button>
+                    <button class="zone-btn laser" onclick="addZone('laser')">
+                        <div class="zone-icon"><i class="fas fa-barcode"></i></div>
+                        <div>
+                            <div style="font-weight: 600;">Laser/Mikro</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">Gizli işaretler</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <div class="tool-title">Aktif Bölgeler</div>
+                    <div id="activeZones" style="font-size: 0.875rem; color: #64748b;">
+                        Henüz bölge eklenmedi...
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <div class="tool-title">Kısayollar</div>
+                    <div style="font-size: 0.75rem; color: #64748b; line-height: 1.6;">
+                        <div><strong>P</strong> - Plaka ekle</div>
+                        <div><strong>H</strong> - Hologram ekle</div>
+                        <div><strong>T</strong> - TR bandı ekle</div>
+                        <div><strong>L</strong> - Laser ekle</div>
+                        <div><strong>Del</strong> - Seçili sil</div>
+                        <div><strong>Enter</strong> - Taramayı başlat</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Canvas -->
+            <div class="canvas-area" id="canvasArea">
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                    <i class="fas fa-image" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <div style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">Plaka Fotoğrafı Yükleyin</div>
+                    <div style="font-size: 0.875rem; margin-bottom: 1rem;">Hologram ve TR bandı net görünsün</div>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleUpload(this)">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-upload"></i>
+                        Görsel Seç
+                    </button>
+                </div>
+
+                <div class="image-container" id="imageContainer">
+                    <img class="plate-image" id="plateImage" src="" alt="Plaka">
+                    <div class="laser-line" id="laserLine"></div>
+                </div>
+
+                <div class="coords-display" id="coordsDisplay">
+                    X: 0 | Y: 0 | W: 0 | H: 0
+                </div>
+
+                <div class="instructions" id="instructions" style="display: none;">
+                    <strong><i class="fas fa-info-circle"></i> Nasıl kullanılır:</strong>
+                    <ul>
+                        <li>Sol panelden bölge tipi seçin</li>
+                        <li>Görsel üzerinde sürükleyerek konumlandırın</li>
+                        <li>Köşelerden tutarak boyutlandırın</li>
+                        <li>Her bölge için "Tara" butonuna basın</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Results -->
+            <div class="results-panel">
+                <div class="tool-title" style="margin-bottom: 1rem;">Analiz Sonuçları</div>
+                
+                <div id="resultsList">
+                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                        <i class="fas fa-clipboard-list" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        <div style="font-size: 0.875rem;">Sonuçlar burada görünecek</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="scanner-container">
-            <div class="scanner-header">
-                <h2>Plaka Fotoğrafı Yükleyin</h2>
-                <p>Sistem otomatik olarak soldan sağa tarama yapacak ve güvenlik elemanlarını analiz edecektir</p>
-            </div>
-
-            <div class="scan-area">
-                <div class="upload-section" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleUpload(this)">
-                    
-                    <div class="upload-content">
-                        <i class="fas fa-id-card upload-icon"></i>
-                        <div class="upload-text">Plaka Fotoğrafı Yükleyin</div>
-                        <div class="upload-subtext">
-                            Hologram ve TR bandı net görünsün<br>
-                            Yüksek çözünürlük önerilir (Min 1080p)
-                        </div>
-                    </div>
-
-                    <div class="preview-container">
-                        <img class="preview-image" id="previewImage" src="" alt="Plaka">
-                        <div class="laser-scanner">
-                            <div class="laser-line"></div>
-                        </div>
-                        <div class="security-overlay" id="securityOverlay">
-                            <!-- Dynamic zones will be added here -->
-                        </div>
-                        <div class="scanning-indicator">
-                            <div class="scanner-ring"></div>
-                            <div>Taranıyor...</div>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-secondary" style="position: absolute; bottom: 1rem; right: 1rem; padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="event.stopPropagation(); resetUpload()">
-                        <i class="fas fa-trash"></i> Temizle
-                    </button>
-                </div>
-
-                <div class="quick-results" id="quickResults">
-                    <div class="security-item" id="itemPlate">
-                        <div class="security-item-header">
-                            <div class="security-icon"><i class="fas fa-font"></i></div>
-                            <div>
-                                <div class="security-name">Plaka Numarası</div>
-                                <div class="security-status">Bekleniyor...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="security-item" id="itemHologram">
-                        <div class="security-item-header">
-                            <div class="security-icon"><i class="fas fa-certificate"></i></div>
-                            <div>
-                                <div class="security-name">Hologram Damga</div>
-                                <div class="security-status">Bekleniyor...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="security-item" id="itemTR">
-                        <div class="security-item-header">
-                            <div class="security-icon"><i class="fas fa-flag"></i></div>
-                            <div>
-                                <div class="security-name">TR Emniyet Bandı</div>
-                                <div class="security-status">Bekleniyor...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="security-item" id="itemLaser">
-                        <div class="security-item-header">
-                            <div class="security-icon"><i class="fas fa-barcode"></i></div>
-                            <div>
-                                <div class="security-name">Laser Mikro Yazı</div>
-                                <div class="security-status">Bekleniyor...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="controls">
-                <button class="btn btn-primary" id="scanBtn" onclick="startSecurityScan()" disabled>
-                    <i class="fas fa-radar"></i>
-                    Güvenlik Taraması Başlat
-                </button>
-                <button class="btn btn-secondary" onclick="toggleMagnifier()">
-                    <i class="fas fa-search-plus"></i>
-                    Büyüteç Modu
-                </button>
-            </div>
-
-            <!-- Detailed Analysis -->
-            <div class="analysis-details" id="analysisDetails">
-                
-                <!-- Plaka Numarası Analizi -->
-                <div class="detail-section">
-                    <div class="section-header">
-                        <div class="section-icon blue"><i class="fas fa-font"></i></div>
-                        <div>
-                            <div class="section-title">Plaka Numarası Okuma</div>
-                            <div class="section-subtitle">Soldan sağa OCR analizi ve karakter doğrulama</div>
-                        </div>
-                    </div>
-                    <div style="background: var(--gray-50); padding: 1.5rem; border-radius: 1rem;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 1rem 2rem; border-radius: 0.75rem; font-family: monospace; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.1em;" id="detectedPlate">
-                                34 ABC 1234
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; color: var(--success);"><i class="fas fa-check-circle"></i> Okundu</div>
-                                <div style="font-size: 0.875rem; color: var(--gray-500);">Güven: %99.2</div>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; font-size: 0.75rem;">
-                            <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 0.5rem;">
-                                <div style="color: var(--gray-500); margin-bottom: 0.25rem;">İl Kodu</div>
-                                <div style="font-weight: 700; color: var(--gray-900);">34 (İstanbul)</div>
-                            </div>
-                            <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 0.5rem;">
-                                <div style="color: var(--gray-500); margin-bottom: 0.25rem;">Harf Grubu</div>
-                                <div style="font-weight: 700; color: var(--gray-900);">ABC (Valid)</div>
-                            </div>
-                            <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 0.5rem;">
-                                <div style="color: var(--gray-500); margin-bottom: 0.25rem;">Rakam Grubu</div>
-                                <div style="font-weight: 700; color: var(--gray-900);">1234</div>
-                            </div>
-                            <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 0.5rem;">
-                                <div style="color: var(--gray-500); margin-bottom: 0.25rem;">Format</div>
-                                <div style="font-weight: 700; color: var(--success);">Standart</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hologram Analizi -->
-                <div class="detail-section">
-                    <div class="section-header">
-                        <div class="section-icon teal"><i class="fas fa-certificate"></i></div>
-                        <div>
-                            <div class="section-title">Hologram Damga Analizi</div>
-                            <div class="section-subtitle">3D efekt, renk değişimi ve mikro detay kontrolü</div>
-                        </div>
-                    </div>
-                    <div class="hologram-grid" id="hologramChecks">
-                        <div class="hologram-check" id="check1">
-                            <div class="check-icon"><i class="fas fa-eye"></i></div>
-                            <div class="check-label">3D Derinlik Efekti</div>
-                        </div>
-                        <div class="hologram-check" id="check2">
-                            <div class="check-icon"><i class="fas fa-palette"></i></div>
-                            <div class="check-label">Renk Değişimi (Mor/Yeşil)</div>
-                        </div>
-                        <div class="hologram-check" id="check3">
-                            <div class="check-icon"><i class="fas fa-microscope"></i></div>
-                            <div class="check-label">Mikro Yazı (Türkiye)</div>
-                        </div>
-                        <div class="hologram-check" id="check4">
-                            <div class="check-icon"><i class="fas fa-fingerprint"></i></div>
-                            <div class="check-label">Dokulu Yüzey</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TR Band Analizi -->
-                <div class="detail-section">
-                    <div class="section-header">
-                        <div class="section-icon gold"><i class="fas fa-flag"></i></div>
-                        <div>
-                            <div class="section-title">TR Emniyet Bandı Analizi</div>
-                            <div class="section-subtitle">Mavi-kırmızı reflektif band ve ölçü kontrolü</div>
-                        </div>
-                    </div>
-                    <div class="tr-analysis">
-                        <div class="tr-detail">
-                            <h4><i class="fas fa-ruler-combined"></i> Görsel Analiz</h4>
-                            <div class="tr-visual">
-                                <span class="tr-text">TR</span>
-                            </div>
-                            <div style="font-size: 0.875rem; color: var(--gray-600);">
-                                Standart TR bandı: Üstte mavi (Avrupa), altta kırmızı (Türkiye) reflektif şerit
-                            </div>
-                        </div>
-                        <div class="tr-detail">
-                            <h4><i class="fas fa-ruler"></i> Ölçümler</h4>
-                            <div class="tr-measurements">
-                                <div class="measure-item">
-                                    <div class="measure-label">Band Genişliği</div>
-                                    <div class="measure-value" id="bandWidth">44.0 mm ✓</div>
-                                </div>
-                                <div class="measure-item">
-                                    <div class="measure-label">Mavi/Kırmızı Oran</div>
-                                    <div class="measure-value" id="colorRatio">30/70% ✓</div>
-                                </div>
-                                <div class="measure-item">
-                                    <div class="measure-label">Refleks Değeri</div>
-                                    <div class="measure-value" id="reflexValue">420 cd/lx/m² ✓</div>
-                                </div>
-                                <div class="measure-item">
-                                    <div class="measure-label">Yapışkan Kontrol</div>
-                                    <div class="measure-value" id="adhesiveCheck">Tamir izi yok ✓</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Laser Mikro Yazı -->
-                <div class="detail-section">
-                    <div class="section-header">
-                        <div class="section-icon red"><i class="fas fa-barcode"></i></div>
-                        <div>
-                            <div class="section-title">Laser İşaret ve Mikro Yazı</div>
-                            <div class="section-subtitle">Gizli güvenlik işaretleri ve seri numara kontrolü</div>
-                        </div>
-                    </div>
-                    <div class="laser-detail">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <div>
-                                <div style="font-weight: 700; margin-bottom: 0.25rem;">Mikro Yazı Tespiti</div>
-                                <div style="font-size: 0.875rem; opacity: 0.8;">UV ışık altında görünen gizli kodlar</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 1.5rem; font-weight: 800; color: #4ade80;">TESPİT EDİLDİ</div>
-                                <div style="font-size: 0.75rem; opacity: 0.7;">3 farklı nokta</div>
-                            </div>
-                        </div>
-                        <div class="microtext-display" id="microtextDisplay">
-PLAKA SERI: TR-2024-IST-884321
-UV KOD: 8A3F-9B2E-1C4D
-PRODUKSIYON: 03/2024
-KONTROL: PASSED
-                        </div>
-                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
-                            <div style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 0.5rem;">
-                                <i class="fas fa-info-circle"></i> Laser işaretleri plakanın orijinal üretimini doğrular
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Final Verdict -->
-                <div class="verdict-panel" id="verdictPanel">
-                    <div class="verdict-icon">
-                        <i class="fas fa-shield-check"></i>
-                    </div>
-                    <div class="verdict-title">✅ ORİJİNAL PLAKA</div>
-                    <div class="verdict-desc">
-                        Tüm güvenlik elemanları doğrulandı. Hologram, TR bandı ve laser işaretleri standartlara uygun.
-                    </div>
-                    <div class="verdict-score">
-                        <i class="fas fa-check-double"></i>
-                        Güvenlik Skoru: 98/100
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button class="btn btn-primary" onclick="downloadReport()">
-                        <i class="fas fa-file-pdf"></i>
-                        Güvenlik Raporu İndir (₺149)
-                    </button>
-                    <button class="btn btn-secondary" onclick="shareResult()">
-                        <i class="fas fa-share-alt"></i>
-                        Paylaş
-                    </button>
-                </div>
-            </div>
+        <!-- Bottom Controls -->
+        <div class="bottom-controls">
+            <button class="control-btn secondary" onclick="clearAllZones()">
+                <i class="fas fa-trash"></i>
+                Temizle
+            </button>
+            <button class="control-btn secondary" onclick="resetImage()">
+                <i class="fas fa-redo"></i>
+                Yeni Görsel
+            </button>
+            <button class="control-btn primary" id="scanAllBtn" onclick="scanAllZones()" disabled>
+                <i class="fas fa-radar"></i>
+                Tümünü Tara
+            </button>
         </div>
     </div>
 
     <script>
-        let magnifierActive = false;
+        let zones = [];
+        let currentZone = null;
+        let isDragging = false;
+        let isResizing = false;
+        let dragOffset = { x: 0, y: 0 };
+        let zoneCounter = 0;
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'p' || e.key === 'P') addZone('plate');
+            if (e.key === 'h' || e.key === 'H') addZone('hologram');
+            if (e.key === 't' || e.key === 'T') addZone('tr');
+            if (e.key === 'l' || e.key === 'L') addZone('laser');
+            if (e.key === 'Delete' && currentZone) deleteZone(currentZone);
+            if (e.key === 'Enter') scanAllZones();
+        });
 
         function handleUpload(input) {
             const file = input.files[0];
             if (!file) return;
 
-            if (file.size > 10 * 1024 * 1024) {
-                alert('Dosya boyutu 10MB\'dan küçük olmalıdır!');
-                return;
-            }
-
-            const zone = document.getElementById('uploadZone');
-            const preview = document.getElementById('previewImage');
-            
             const reader = new FileReader();
             reader.onload = (e) => {
-                preview.src = e.target.result;
-                zone.classList.add('has-image');
-                document.getElementById('scanBtn').disabled = false;
+                document.getElementById('plateImage').src = e.target.result;
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                document.getElementById('imageContainer').classList.add('active');
+                document.getElementById('instructions').style.display = 'block';
             };
             reader.readAsDataURL(file);
         }
 
-        function resetUpload() {
-            document.getElementById('fileInput').value = '';
-            document.getElementById('uploadZone').classList.remove('has-image');
-            document.getElementById('previewImage').src = '';
-            document.getElementById('scanBtn').disabled = true;
-            document.getElementById('analysisDetails').style.display = 'none';
+        function addZone(type) {
+            const container = document.getElementById('imageContainer');
+            if (!container.classList.contains('active')) {
+                alert('Önce plaka fotoğrafı yükleyin!');
+                return;
+            }
+
+            zoneCounter++;
+            const zoneId = `zone-${zoneCounter}`;
             
-            // Reset items
-            document.querySelectorAll('.security-item').forEach(item => {
-                item.className = 'security-item';
-                item.querySelector('.security-status').textContent = 'Bekleniyor...';
+            const zoneNames = {
+                plate: 'PLAKA NO',
+                hologram: 'HOLOGRAM',
+                tr: 'TR BANDI',
+                laser: 'LASER'
+            };
+
+            const zone = document.createElement('div');
+            zone.className = `zone ${type}`;
+            zone.id = zoneId;
+            zone.style.left = '20%';
+            zone.style.top = '20%';
+            zone.style.width = '200px';
+            zone.style.height = '100px';
+            
+            zone.innerHTML = `
+                <div class="zone-header">
+                    <span>${zoneNames[type]}</span>
+                    <i class="fas fa-times zone-close" onclick="deleteZone('${zoneId}')"></i>
+                </div>
+                <div class="resize-handle resize-nw" data-handle="nw"></div>
+                <div class="resize-handle resize-ne" data-handle="ne"></div>
+                <div class="resize-handle resize-sw" data-handle="sw"></div>
+                <div class="resize-handle resize-se" data-handle="se"></div>
+                <button class="zone-scan" onclick="scanZone('${zoneId}', '${type}')">
+                    <i class="fas fa-search"></i> Tara
+                </button>
+            `;
+
+            container.appendChild(zone);
+            zones.push({ id: zoneId, type: type, element: zone });
+            
+            setupZoneEvents(zone);
+            updateActiveZonesList();
+            selectZone(zoneId);
+            
+            // Enable scan all button
+            document.getElementById('scanAllBtn').disabled = false;
+        }
+
+        function setupZoneEvents(zone) {
+            const header = zone.querySelector('.zone-header');
+            const handles = zone.querySelectorAll('.resize-handle');
+
+            // Drag
+            header.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('zone-close')) return;
+                
+                isDragging = true;
+                currentZone = zone.id;
+                selectZone(zone.id);
+                
+                const rect = zone.getBoundingClientRect();
+                const parent = zone.offsetParent.getBoundingClientRect();
+                
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+                
+                e.preventDefault();
+            });
+
+            // Resize
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    currentZone = zone.id;
+                    selectZone(zone.id);
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
             });
         }
 
-        async function startSecurityScan() {
-            const zone = document.getElementById('uploadZone');
-            const btn = document.getElementById('scanBtn');
-            const overlay = document.getElementById('securityOverlay');
+        // Global mouse events
+        document.addEventListener('mousemove', (e) => {
+            if (!currentZone) return;
             
-            zone.classList.add('scanning');
+            const zone = document.getElementById(currentZone);
+            const parent = zone.offsetParent;
+            const parentRect = parent.getBoundingClientRect();
+
+            if (isDragging) {
+                let newLeft = e.clientX - parentRect.left - dragOffset.x;
+                let newTop = e.clientY - parentRect.top - dragOffset.y;
+                
+                // Bounds
+                newLeft = Math.max(0, Math.min(newLeft, parentRect.width - zone.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, parentRect.height - zone.offsetHeight));
+                
+                zone.style.left = newLeft + 'px';
+                zone.style.top = newTop + 'px';
+                
+                updateCoords(zone);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            isResizing = false;
+        });
+
+        function selectZone(zoneId) {
+            // Deselect all
+            document.querySelectorAll('.zone').forEach(z => {
+                z.style.zIndex = 10;
+                z.style.boxShadow = 'none';
+            });
+            
+            // Select current
+            const zone = document.getElementById(zoneId);
+            if (zone) {
+                zone.style.zIndex = 100;
+                zone.style.boxShadow = '0 0 20px rgba(255,255,255,0.3)';
+                currentZone = zoneId;
+            }
+        }
+
+        function deleteZone(zoneId) {
+            const zone = document.getElementById(zoneId);
+            if (zone) zone.remove();
+            
+            zones = zones.filter(z => z.id !== zoneId);
+            updateActiveZonesList();
+            
+            if (zones.length === 0) {
+                document.getElementById('scanAllBtn').disabled = true;
+            }
+        }
+
+        function clearAllZones() {
+            zones.forEach(z => {
+                const el = document.getElementById(z.id);
+                if (el) el.remove();
+            });
+            zones = [];
+            updateActiveZonesList();
+            document.getElementById('scanAllBtn').disabled = true;
+        }
+
+        function resetImage() {
+            clearAllZones();
+            document.getElementById('imageContainer').classList.remove('active');
+            document.getElementById('uploadPlaceholder').style.display = 'flex';
+            document.getElementById('plateImage').src = '';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function updateActiveZonesList() {
+            const container = document.getElementById('activeZones');
+            if (zones.length === 0) {
+                container.innerHTML = 'Henüz bölge eklenmedi...';
+                return;
+            }
+            
+            container.innerHTML = zones.map(z => `
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; padding: 0.5rem; background: #0f172a; border-radius: 0.5rem; cursor: pointer;" onclick="selectZone('${z.id}')">
+                    <i class="fas fa-square" style="color: var(--zone-${z.type})"></i>
+                    <span style="font-size: 0.75rem; text-transform: uppercase;">${z.type}</span>
+                    <span style="margin-left: auto; font-size: 0.625rem; color: #64748b;">#${z.id.split('-')[1]}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateCoords(zone) {
+            const display = document.getElementById('coordsDisplay');
+            display.textContent = `X: ${parseInt(zone.style.left)} | Y: ${parseInt(zone.style.top)} | W: ${parseInt(zone.style.width)} | H: ${parseInt(zone.style.height)}`;
+        }
+
+        async function scanZone(zoneId, type) {
+            const zone = document.getElementById(zoneId);
+            const laser = document.getElementById('laserLine');
+            
+            // Position laser at zone start
+            laser.style.left = zone.style.left;
+            laser.style.width = zone.style.width;
+            laser.classList.add('active');
+            
+            // Disable button
+            const btn = zone.querySelector('.zone-scan');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Taranıyor...';
-
-            // Clear previous zones
-            overlay.innerHTML = '';
-            overlay.style.display = 'block';
-
-            // Simulate left-to-right scanning with zone detection
-            const zones = [
-                { id: 'zone-plate', name: 'Plaka No', class: 'zone-plate', top: '30%', left: '5%', width: '60%', height: '40%', delay: 500 },
-                { id: 'zone-hologram', name: 'Hologram', class: 'zone-hologram', top: '10%', left: '70%', width: '25%', height: '30%', delay: 1500 },
-                { id: 'zone-tr', name: 'TR Bandı', class: 'zone-tr', top: '75%', left: '5%', width: '90%', height: '20%', delay: 2500 },
-                { id: 'zone-laser', name: 'Laser', class: 'zone-laser', top: '45%', left: '75%', width: '20%', height: '25%', delay: 3500 }
-            ];
-
-            for (let zone of zones) {
-                await sleep(zone.delay);
-                
-                // Add zone marker
-                const marker = document.createElement('div');
-                marker.className = `security-zone ${zone.class}`;
-                marker.style.top = zone.top;
-                marker.style.left = zone.left;
-                marker.style.width = zone.width;
-                marker.style.height = zone.height;
-                marker.innerHTML = `<div class="zone-label">${zone.name}</div>`;
-                overlay.appendChild(marker);
-
-                // Update corresponding item
-                updateSecurityItem(zone.id.replace('zone-', 'item'), 'verified');
-            }
-
-            await sleep(1000);
-            zone.classList.remove('scanning');
-            btn.innerHTML = '<i class="fas fa-check"></i> Tarama Tamamlandı';
+            
+            await sleep(2000);
+            
+            laser.classList.remove('active');
+            btn.innerHTML = '<i class="fas fa-check"></i> Tamamlandı';
             btn.style.background = 'var(--success)';
             
-            showDetailedResults();
+            addResult(type, zoneId);
+        }
+
+        async function scanAllZones() {
+            for (let zone of zones) {
+                await scanZone(zone.id, zone.type);
+                await sleep(500);
+            }
         }
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        function updateSecurityItem(itemId, status) {
-            const item = document.getElementById(itemId);
-            const statusText = item.querySelector('.security-status');
+        function addResult(type, zoneId) {
+            const resultsList = document.getElementById('resultsList');
+            const zone = zones.find(z => z.id === zoneId);
             
-            item.className = `security-item ${status}`;
-            
-            const messages = {
-                verified: { text: 'Doğrulandı ✓', icon: 'fa-check' },
-                suspicious: { text: 'Şüpheli ⚠', icon: 'fa-exclamation' },
-                fake: { text: 'Sahte ✗', icon: 'fa-times' }
+            const results = {
+                plate: {
+                    icon: 'fa-font',
+                    title: 'Plaka Numarası',
+                    status: 'Doğrulandı',
+                    detail: '34 ABC 1234 | İl: 34 (İstanbul) | Format: Standart',
+                    class: 'success'
+                },
+                hologram: {
+                    icon: 'fa-certificate',
+                    title: 'Hologram Analizi',
+                    status: 'Orijinal',
+                    detail: '3D efekt: Var | Renk değişimi: Mor/Yeşil | Mikro yazı: Tespit edildi',
+                    class: 'success'
+                },
+                tr: {
+                    icon: 'fa-flag',
+                    title: 'TR Bandı',
+                    status: 'Standartlara Uygun',
+                    detail: 'Genişlik: 44mm | Refleks: 420 cd/lx/m² | Yapışkan: Orijinal',
+                    class: 'success'
+                },
+                laser: {
+                    icon: 'fa-barcode',
+                    title: 'Laser İşaret',
+                    status: 'Tespit Edildi',
+                    detail: 'UV kod: 8A3F-9B2E | Seri: TR-2024-884321 | Üretim: 03/2024',
+                    class: 'success'
+                }
             };
             
-            statusText.textContent = messages[status].text;
-        }
-
-        function showDetailedResults() {
-            document.getElementById('analysisDetails').style.display = 'block';
-            document.getElementById('analysisDetails').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // Animate hologram checks
-            setTimeout(() => {
-                document.querySelectorAll('.hologram-check').forEach((check, index) => {
-                    setTimeout(() => {
-                        check.classList.add('pass');
-                        check.querySelector('.check-icon').innerHTML = '<i class="fas fa-check-circle"></i>';
-                    }, index * 200);
-                });
-            }, 500);
-        }
-
-        function toggleMagnifier() {
-            magnifierActive = !magnifierActive;
-            const preview = document.querySelector('.preview-container');
+            const r = results[type];
             
-            if (magnifierActive) {
-                preview.style.cursor = 'none';
-                preview.addEventListener('mousemove', moveMagnifier);
-                preview.addEventListener('mouseleave', hideMagnifier);
-            } else {
-                preview.style.cursor = 'default';
-                preview.removeEventListener('mousemove', moveMagnifier);
-                preview.removeEventListener('mouseleave', hideMagnifier);
-                hideMagnifier();
-            }
-        }
-
-        function moveMagnifier(e) {
-            // Simplified magnifier logic
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // In real implementation, show magnified portion
-        }
-
-        function hideMagnifier() {
-            // Hide magnifier element
-        }
-
-        function downloadReport() {
-            alert('Güvenlik raporu PDF olarak hazırlanıyor...\n\nRapor içeriği:\n- Plaka güvenlik analizi\n- Hologram doğrulama\n- TR bandı ölçümleri\n- Laser mikro yazı tespiti\n- Dijital imza ve QR kod\n\nFiyat: ₺149');
-        }
-
-        function shareResult() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Plaka Güvenlik Analizi',
-                    text: 'Plaka 34 ABC 1234 - ORİJİNAL doğrulandı. Güvenlik skoru: 98/100',
-                    url: window.location.href
-                });
-            } else {
-                alert('Sonuç panoya kopyalandı!');
-            }
-        }
-
-        // Simulate fake detection for demo
-        function simulateFake() {
-            document.getElementById('verdictPanel').innerHTML = `
-                <div class="verdict-icon" style="color: var(--danger);">
-                    <i class="fas fa-times-circle"></i>
+            const item = document.createElement('div');
+            item.className = `result-item ${r.class}`;
+            item.innerHTML = `
+                <div class="result-header">
+                    <div class="result-icon"><i class="fas ${r.icon}"></i></div>
+                    <div>
+                        <div class="result-title">${r.title}</div>
+                        <div class="result-status">${r.status}</div>
+                    </div>
                 </div>
-                <div class="verdict-title" style="color: var(--danger);">⚠️ SAHTE PLAKA TESPİTİ</div>
-                <div class="verdict-desc">
-                    Hologram 3D efekti yapay görünüyor. TR bandı ölçüleri standart dışı. Laser işaretleri tespit edilemedi.
-                </div>
-                <div class="verdict-score" style="background: rgba(239,68,68,0.2);">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Güvenlik Skoru: 23/100
-                </div>
+                <div class="result-detail">${r.detail}</div>
             `;
             
-            // Update checks to fail
-            document.querySelectorAll('.hologram-check').forEach((check, i) => {
-                if (i > 1) {
-                    check.classList.remove('pass');
-                    check.classList.add('fail');
-                    check.querySelector('.check-icon').innerHTML = '<i class="fas fa-times-circle"></i>';
-                }
-            });
+            // Remove empty state if exists
+            if (resultsList.querySelector('.fa-clipboard-list')) {
+                resultsList.innerHTML = '';
+            }
+            
+            resultsList.insertBefore(item, resultsList.firstChild);
         }
     </script>
 </body>
