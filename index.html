@@ -3,745 +3,1507 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlakaNet TR - Akıllı Plaka Tanıma Sistemi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Plaka Pro - Profesyonel Plaka & Tescil Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        .scanner-line {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #10b981, #34d399, transparent);
-            box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
-            animation: scan 2s linear infinite;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #0f172a;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
             top: 0;
-        }
-        
-        @keyframes scan {
-            0% { top: 0; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-        
-        .grid-bg {
-            background-image: 
-                linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-        
-        .glass {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-        
-        .tr-plate {
-            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-            border: 3px solid #1f2937;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .tr-plate::before {
-            content: 'TR';
-            position: absolute;
             left: 0;
-            top: 0;
-            bottom: 0;
-            width: 40px;
-            background: #2563eb;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray-600);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
             color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gray-900);
+        }
+
+        .stat-label {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
+            font-size: 1.5rem;
         }
-        
-        .plate-blue-strip {
-            position: absolute;
-            left: 40px;
-            top: 0;
-            bottom: 0;
-            width: 8px;
-            background: #2563eb;
+
+        .card-icon.blue { background: var(--primary-light); color: var(--primary); }
+        .card-icon.gold { background: #fef3c7; color: var(--accent); }
+        .card-icon.green { background: #d1fae5; color: var(--success); }
+        .card-icon.red { background: #fee2e2; color: var(--danger); }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
         }
-        
-        .hologram {
-            background: linear-gradient(135deg, 
-                rgba(255,255,255,0) 0%, 
-                rgba(255,255,255,0.3) 50%, 
-                rgba(255,255,255,0) 100%);
-            animation: shimmer 3s infinite;
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray-500);
         }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+
+        /* Plaka Input */
+        .plaka-input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
         }
-        
-        /* AI Confidence Bars */
-        .confidence-bar {
-            transition: width 0.5s ease-out;
+
+        .plaka-input {
+            width: 100%;
+            padding: 1.25rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            border: 3px solid var(--gray-200);
+            border-radius: 1rem;
+            transition: all 0.3s;
+            font-family: 'Inter', monospace;
+            letter-spacing: 0.1em;
         }
-        
-        /* Heatmap for character confidence */
-        .char-heatmap {
+
+        .plaka-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .plaka-preview {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            margin-bottom: 1.5rem;
+            font-family: monospace;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .plaka-preview.valid {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .plaka-preview.invalid {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        /* Verification Steps */
+        .verification-steps {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
             transition: all 0.3s;
         }
-        .char-heatmap:hover {
-            transform: scale(1.2);
-            z-index: 10;
+
+        .step.active {
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
         }
-        
-        /* Smart suggestions animation */
-        @keyframes slideIn {
-            from { transform: translateX(-10px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        .step.completed {
+            background: #d1fae5;
+            border-left: 4px solid var(--success);
         }
-        .smart-suggestion {
-            animation: slideIn 0.3s ease-out;
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-200);
+            color: var(--gray-500);
         }
-        
-        /* Real-time processing indicator */
-        .processing-pulse {
-            animation: processing 1.5s ease-in-out infinite;
+
+        .step.active .step-icon {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
         }
-        @keyframes processing {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
+
+        .step.completed .step-icon {
+            background: var(--success);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Tescil Form */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.75rem;
+            font-size: 0.9375rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Document Upload */
+        .upload-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-zone i {
+            font-size: 2.5rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: "POPÜLER";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .pricing-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-features li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        .pricing-features li i {
+            color: var(--success);
+            margin-right: 0.5rem;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .result-value.success { color: var(--success); }
+        .result-value.danger { color: var(--danger); }
+        .result-value.warning { color: var(--warning); }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--gray-100);
+            padding: 0.5rem;
+            border-radius: 1rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Payment Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-400);
+            cursor: pointer;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .payment-method {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-method:hover, .payment-method.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .payment-method i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--gray-600);
+        }
+
+        .payment-method.selected i {
+            color: var(--primary);
+        }
+
+        /* Certificate Preview */
+        .certificate-preview {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 3px solid var(--accent);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .certificate-preview::before {
+            content: "✓";
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .cert-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .cert-number {
+            font-family: monospace;
+            font-size: 1.125rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gray-900);
+            color: white;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            border-radius: 2rem 2rem 0 0;
+        }
+
+        .footer-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .footer-desc {
+            color: var(--gray-400);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links h4 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            color: var(--gray-300);
+        }
+
+        .footer-links a {
+            display: block;
+            color: var(--gray-400);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* AI Badge */
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen grid-bg overflow-x-hidden">
-
+<body>
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full glass z-50 border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center font-bold text-xl">P</div>
-                    <div>
-                        <h1 class="font-bold text-xl tracking-tight">PlakaNet <span class="text-emerald-400">TR</span></h1>
-                        <p class="text-xs text-gray-400">AI Destekli Plaka Tanıma</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="#scan" class="text-sm text-gray-300 hover:text-emerald-400 transition">Tara</a>
-                    <a href="#history" class="text-sm text-gray-300 hover:text-emerald-400 transition">Geçmiş</a>
-                    <a href="#stats" class="text-sm text-gray-300 hover:text-emerald-400 transition">İstatistikler</a>
-                    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/30 border border-emerald-500/30">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span class="text-xs text-emerald-400">AI Aktif</span>
-                    </div>
-                </div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-shield-alt"></i>
+                Plaka Pro
+            </a>
+            <div class="nav-links">
+                <a href="#verify">Orijinallik Kontrolü</a>
+                <a href="#tescil">Online Tescil</a>
+                <a href="#pricing">Fiyatlandırma</a>
+                <a href="#api">API</a>
+            </div>
+            <div class="nav-actions">
+                <button class="btn btn-outline">Giriş Yap</button>
+                <button class="btn btn-primary">Üye Ol</button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="pt-32 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="text-center mb-12">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-900/30 border border-emerald-500/30 text-emerald-400 text-sm mb-6">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                Yapay Zeka v2.1 - 99.2% Doğruluk
-            </div>
-            <h2 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-emerald-200 to-emerald-400 bg-clip-text text-transparent">
-                Akıllı Plaka Tanıma
-            </h2>
-            <p class="text-xl text-gray-400 max-w-2xl mx-auto">
-                OCR, hologram analizi, sahte tespiti ve otomatik raporlama ile güçlendirilmiş profesyonel çözüm.
-            </p>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Türkiye'nin En Gelişmiş Plaka Sistemi</h1>
+            <p>AI destekli orijinallik kontrolü, online tescil başvurusu ve profesyonel raporlama - Tümü tek platformda</p>
         </div>
-    </section>
 
-    <!-- Main Application -->
-    <section id="scan" class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="glass rounded-3xl p-6 md:p-8 border border-emerald-500/20 glow-green">
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-number">2.5M+</div>
+                <div class="stat-label">Doğrulanan Plaka</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-file-contract"></i>
+                <div class="stat-number">45K+</div>
+                <div class="stat-label">Tescil İşlemi</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-building"></i>
+                <div class="stat-number">850+</div>
+                <div class="stat-label">Kurumsal Müşteri</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Kesintisiz Hizmet</div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Plaka Doğrulama -->
+            <div class="card" id="verify">
+                <div class="card-header">
+                    <div class="card-icon blue">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">AI Plaka Orijinallik Kontrolü</div>
+                        <div class="card-subtitle">Sahte plaka tespiti ve detaylı analiz</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('manual')">Manuel Giriş</button>
+                    <button class="tab" onclick="switchTab('camera')">Kamera ile Tara</button>
+                    <button class="tab" onclick="switchTab('bulk')">Toplu Kontrol</button>
+                </div>
+
+                <div id="manual-panel">
+                    <div class="plaka-input-container">
+                        <input type="text" class="plaka-input" id="plakaInput" 
+                               placeholder="34 ABC 1234" maxlength="10"
+                               oninput="formatPlaka(this)">
+                    </div>
+                    
+                    <div class="plaka-preview" id="plakaPreview">
+                        <span id="previewText">34 ABC 1234</span>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; padding: 1rem;" 
+                            onclick="startVerification()">
+                        <i class="fas fa-shield-alt"></i>
+                        Orijinallik Kontrolü Başlat
+                        <span class="ai-badge" style="margin-left: 0.5rem;">
+                            <i class="fas fa-robot"></i> AI
+                        </span>
+                    </button>
+
+                    <!-- Verification Steps -->
+                    <div class="verification-steps" id="verificationSteps">
+                        <div class="step" id="step1">
+                            <div class="step-icon"><i class="fas fa-font"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Format Doğrulama</div>
+                                <div style="font-size: 0.875rem; color: var(--gray-500);">Plaka formatı kontrol ediliyor...</div>
+                            </div>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-icon"><i class="fas fa-database"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Veritabanı Sorgusu</div>
+                                <div style="font-size: 0.875rem; color: var(--gray-500);">EGM ve MTBS kayıtları kontrol ediliyor...</div>
+                            </div>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-icon"><i class="fas fa-brain"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">AI Analizi</div>
+                                <div style="font-size: 0.875rem; color: var(--gray-500);">Sahtecilik riski değerlendiriliyor...</div>
+                            </div>
+                        </div>
+                        <div class="step" id="step4">
+                            <div class="step-icon"><i class="fas fa-certificate"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Rapor Oluşturma</div>
+                                <div style="font-size: 0.875rem; color: var(--gray-500);">Detaylı rapor hazırlanıyor...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div class="results-panel" id="resultsPanel">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-size: 1.125rem; font-weight: 700;">Doğrulama Sonucu</h3>
+                            <span class="badge badge-success" id="resultBadge">ORİJİNAL</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="confidenceBar" style="width: 98%"></div>
+                        </div>
+                        <div style="text-align: center; font-size: 0.875rem; color: var(--gray-500); margin-bottom: 1rem;">
+                            Güven Skoru: <strong id="confidenceScore">98.5%</strong>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Plaka Durumu</span>
+                            <span class="result-value success" id="statusResult">Aktif</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Son Kayıt Tarihi</span>
+                            <span class="result-value" id="dateResult">15.03.2024</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Kayıtlı İl</span>
+                            <span class="result-value" id="cityResult">İstanbul</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Risk Durumu</span>
+                            <span class="result-value success" id="riskResult">Düşük Risk</span>
+                        </div>
+                        
+                        <div class="certificate-preview" id="certPreview" style="display: none;">
+                            <div class="cert-title">Orijinallik Sertifikası</div>
+                            <div class="cert-number" id="certNumber">PLK-2024-784321</div>
+                            <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+                                Bu plaka için resmi doğrulama sertifikası oluşturuldu
+                            </div>
+                        </div>
+
+                        <button class="btn btn-gold" style="width: 100%; margin-top: 1rem;" 
+                                onclick="openPaymentModal()">
+                            <i class="fas fa-download"></i>
+                            Sertifikayı İndir (₺49)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Online Tescil -->
+            <div class="card" id="tescil">
+                <div class="card-header">
+                    <div class="card-icon gold">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">Hızlı Online Tescil</div>
+                        <div class="card-subtitle">e-Devlet entegre tescil başvurusu</div>
+                    </div>
+                </div>
+
+                <form id="tescilForm" onsubmit="submitTescil(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Ad Soyad</label>
+                            <input type="text" class="form-input" placeholder="Adınız Soyadınız" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">TC Kimlik No</label>
+                            <input type="text" class="form-input" placeholder="12345678901" maxlength="11" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Telefon</label>
+                            <input type="tel" class="form-input" placeholder="05XX XXX XX XX" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">E-posta</label>
+                            <input type="email" class="form-input" placeholder="ornek@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Araç Plakası</label>
+                        <input type="text" class="form-input" id="tescilPlaka" 
+                               placeholder="34 ABC 1234" oninput="formatPlaka(this)">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tescil Türü</label>
+                        <select class="form-select" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="yeni">Yeni Araç Tescili</option>
+                            <option value="2el">2. El Araç Tescili</option>
+                            <option value="yenileme">Tescil Yenileme</option>
+                            <option value="degisiklik">Plaka Değişikliği</option>
+                            <option value="iptal">Tescil İptali</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Gerekli Belgeler</label>
+                        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 0.25rem;">
+                                Belgeleri Yükleyin
+                            </div>
+                            <div style="font-size: 0.875rem; color: var(--gray-500);">
+                                PDF, JPG, PNG (Max 10MB)
+                            </div>
+                            <input type="file" id="fileInput" multiple style="display: none;" 
+                                   accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                    </div>
+
+                    <div style="background: var(--primary-light); padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                            <i class="fas fa-info-circle" style="color: var(--primary);"></i>
+                            <span style="font-weight: 600; color: var(--primary);">Hızlı İşlem Ücreti</span>
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--gray-600);">
+                            Standart tescil: <strong>₺2.450</strong> | 
+                            Express (24h): <strong>₺3.950</strong> | 
+                            Premium (4h): <strong>₺5.450</strong>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold" style="width: 100%; padding: 1rem;">
+                        <i class="fas fa-paper-plane"></i>
+                        Tescil Başvurusu Yap
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Pricing Section -->
+        <div class="card" id="pricing">
+            <div class="card-header">
+                <div class="card-icon green">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div>
+                    <div class="card-title">Premium Üyelik Planları</div>
+                    <div class="card-subtitle">İhtiyacınıza en uygun paketi seçin</div>
+                </div>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <div class="pricing-name">Başlangıç</div>
+                        <div class="pricing-price">Ücretsiz</div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Günlük 5 plaka sorgu</li>
+                        <li><i class="fas fa-check"></i> Temel format kontrolü</li>
+                        <li><i class="fas fa-check"></i> E-posta desteği</li>
+                        <li style="color: var(--gray-400);"><i class="fas fa-times"></i> AI analizi</li>
+                        <li style="color: var(--gray-400);"><i class="fas fa-times"></i> Sertifika</li>
+                    </ul>
+                    <button class="btn btn-outline" style="width: 100%;">Şimdi Başla</button>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="pricing-header">
+                        <div class="pricing-name">Profesyonel</div>
+                        <div class="pricing-price">₺299<span>/ay</span></div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Sınırsız plaka sorgu</li>
+                        <li><i class="fas fa-check"></i> AI destekli analiz</li>
+                        <li><i class="fas fa-check"></i> 10 sertifika/ay</li>
+                        <li><i class="fas fa-check"></i> API erişimi</li>
+                        <li><i class="fas fa-check"></i> Öncelikli destek</li>
+                    </ul>
+                    <button class="btn btn-primary" style="width: 100%;">Hemen Üye Ol</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <div class="pricing-name">Kurumsal</div>
+                        <div class="pricing-price">₺999<span>/ay</span></div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Tüm Profesyonel özellikler</li>
+                        <li><i class="fas fa-check"></i> Sınırsız sertifika</li>
+                        <li><i class="fas fa-check"></i> Özel API limitleri</li>
+                        <li><i class="fas fa-check"></i> Bayi paneli</li>
+                        <li><i class="fas fa-check"></i> 7/24 telefon desteği</li>
+                    </ul>
+                    <button class="btn btn-outline" style="width: 100%;">İletişime Geç</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Section -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">
+                <div class="card-icon red">
+                    <i class="fas fa-code"></i>
+                </div>
+                <div>
+                    <div class="card-title">Geliştirici API'si</div>
+                    <div class="card-subtitle">Sistemlerinize entegre edin, gelir paylaşımı kazanın</div>
+                </div>
+            </div>
             
-            <!-- Scan Area -->
-            <div class="grid lg:grid-cols-2 gap-8">
-                
-                <!-- Left: Upload & Camera -->
-                <div class="space-y-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold flex items-center gap-2">
-                            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            Görüntü Yükle
-                        </h3>
-                        <div class="flex gap-2">
-                            <button onclick="setMode('camera')" id="btnCamera" class="px-3 py-1.5 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition">Kamera</button>
-                            <button onclick="setMode('upload')" id="btnUpload" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-sm hover:bg-emerald-700 transition">Yükle</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                <div>
+                    <h3 style="margin-bottom: 1rem; color: var(--gray-900);">Gelir Paylaşım Modeli</h3>
+                    <p style="color: var(--gray-600); line-height: 1.6; margin-bottom: 1.5rem;">
+                        API'mizi kullanan her işlemde <strong>%30 komisyon</strong> kazanın. 
+                        Gallerici, rent-a-car ve sigorta şirketleri için ideal çözüm.
+                    </p>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="background: var(--gray-100); padding: 1rem; border-radius: 0.75rem; text-align: center; flex: 1;">
+                            <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">50K+</div>
+                            <div style="font-size: 0.75rem; color: var(--gray-500);">API Çağrısı/Gün</div>
                         </div>
-                    </div>
-
-                    <!-- Upload Area -->
-                    <div id="uploadArea" class="relative bg-gray-800 rounded-2xl overflow-hidden border-2 border-dashed border-gray-600 hover:border-emerald-500 transition group cursor-pointer" style="min-height: 350px;" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="handleFileUpload(event)">
-                        
-                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-emerald-400 transition">
-                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <p class="text-lg font-medium">Fotoğraf Yüklemek için Tıklayın</p>
-                            <p class="text-sm mt-2 opacity-70">veya sürükleyip bırakın</p>
+                        <div style="background: var(--gray-100); padding: 1rem; border-radius: 0.75rem; text-align: center; flex: 1;">
+                            <div style="font-size: 1.5rem; font-weight: 800; color: var(--success);">%99.9</div>
+                            <div style="font-size: 0.75rem; color: var(--gray-500);">Uptime</div>
                         </div>
-
-                        <div id="previewState" class="absolute inset-0 hidden">
-                            <img id="previewImage" class="w-full h-full object-cover" src="" alt="Uploaded">
-                            <div class="scanner-line" id="scannerLine" style="display: none;"></div>
-                            <div id="processingOverlay" class="absolute inset-0 bg-black/60 hidden flex items-center justify-center">
-                                <div class="text-center">
-                                    <div class="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                                    <p class="text-emerald-400 font-medium processing-pulse">AI Analiz Ediyor...</p>
-                                    <p class="text-xs text-gray-400 mt-2 mono" id="processingStep">YOLO tespiti yapılıyor</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Samples -->
-                    <div class="flex gap-3 overflow-x-auto pb-2">
-                        <button onclick="loadSample('day')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
-                            ☀️ Gündüz
-                        </button>
-                        <button onclick="loadSample('night')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
-                            🌙 Gece
-                        </button>
-                        <button onclick="loadSample('blur')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
-                            💧 Yağmur
-                        </button>
-                        <button onclick="loadSample('angle')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
-                            📐 Açılı
-                        </button>
                     </div>
                 </div>
-
-                <!-- Right: AI Results -->
-                <div class="space-y-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold flex items-center gap-2">
-                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-                            AI Analiz Sonuçları
-                        </h3>
-                        <button onclick="resetAnalysis()" class="text-sm text-gray-400 hover:text-white transition">Sıfırla</button>
-                    </div>
-
-                    <!-- Initial State -->
-                    <div id="initialResult" class="flex-1 glass rounded-2xl p-8 border border-gray-700 flex flex-col justify-center items-center text-center min-h-[350px]">
-                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                            <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        </div>
-                        <p class="text-gray-500">Sonuçları görmek için görüntü yükleyin</p>
-                        <p class="text-xs text-gray-600 mt-2">AI otomatik olarak plaka bölgesini tespit edecek</p>
-                    </div>
-
-                    <!-- Analysis Results (Hidden initially) -->
-                    <div id="analysisResult" class="hidden space-y-4">
-                        
-                        <!-- Detected Plate -->
-                        <div class="tr-plate p-6 relative shadow-2xl">
-                            <div class="hologram absolute inset-0 pointer-events-none"></div>
-                            <div class="plate-blue-strip"></div>
-                            <div class="ml-16 flex items-center justify-between">
-                                <div class="text-4xl font-black text-gray-900 tracking-wider mono" id="detectedPlate">34 ABC 123</div>
-                                <div class="text-right">
-                                    <div class="text-xs text-gray-500 font-bold uppercase tracking-wider">TÜRKİYE</div>
-                                    <div class="text-xs text-gray-400" id="plateType">Binek Araç</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- AI Confidence Metrics -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="glass rounded-xl p-3 border border-emerald-500/30 bg-emerald-900/10">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-xs text-emerald-400">Genel Doğruluk</span>
-                                    <span class="text-lg font-bold mono text-emerald-400" id="overallConf">98.4%</span>
-                                </div>
-                                <div class="w-full bg-gray-800 rounded-full h-1.5">
-                                    <div class="bg-emerald-500 h-1.5 rounded-full confidence-bar" style="width: 0%" id="confBar1"></div>
-                                </div>
-                            </div>
-                            <div class="glass rounded-xl p-3 border border-blue-500/30 bg-blue-900/10">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-xs text-blue-400">OCR Güveni</span>
-                                    <span class="text-lg font-bold mono text-blue-400" id="ocrConf">97.8%</span>
-                                </div>
-                                <div class="w-full bg-gray-800 rounded-full h-1.5">
-                                    <div class="bg-blue-500 h-1.5 rounded-full confidence-bar" style="width: 0%" id="confBar2"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Character-level Analysis -->
-                        <div class="glass rounded-xl p-4 border border-gray-700">
-                            <h4 class="text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">Karakter Analizi</h4>
-                            <div class="flex gap-1 mb-3" id="charAnalysis">
-                                <!-- Generated by JS -->
-                            </div>
-                            <div class="grid grid-cols-8 gap-1" id="charHeatmap">
-                                <!-- Heatmap generated by JS -->
-                            </div>
-                        </div>
-
-                        <!-- Security Analysis -->
-                        <div class="glass rounded-xl p-4 border border-gray-700">
-                            <h4 class="text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">Güvenlik Analizi</h4>
-                            <div class="space-y-2" id="securityChecks">
-                                <!-- Generated by JS -->
-                            </div>
-                        </div>
-
-                        <!-- AI Suggestions -->
-                        <div id="aiSuggestions" class="hidden glass rounded-xl p-4 border border-yellow-500/30 bg-yellow-900/10">
-                            <div class="flex items-start gap-3">
-                                <svg class="w-5 h-5 text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div>
-                                    <h4 class="text-sm font-medium text-yellow-400 mb-1">AI Önerisi</h4>
-                                    <p class="text-xs text-gray-300" id="suggestionText">Plaka bölgesi düşük kontrastlı. Daha iyi sonuç için parlaklığı artırabilirsiniz.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex gap-3">
-                            <button onclick="saveToHistory()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-medium transition flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                                Kaydet
-                            </button>
-                            <button onclick="showDetails()" class="flex-1 border border-gray-600 hover:border-emerald-500 py-3 rounded-xl font-medium transition flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Detaylı Rapor
-                            </button>
-                        </div>
+                <div style="background: var(--gray-900); padding: 1.5rem; border-radius: 1rem; font-family: monospace; font-size: 0.875rem;">
+                    <div style="color: #10b981; margin-bottom: 0.5rem;">// Örnek API Kullanımı</div>
+                    <div style="color: #60a5fa;">const</div>
+                    <div style="color: #e5e7eb; margin-left: 1rem;">
+                        response = <span style="color: #f59e0b;">await</span> fetch(<br>
+                        <span style="color: #a78bfa;">'https://api.plakapro.com/v1/verify'</span>,<br>
+                        {<br>
+                        &nbsp;&nbsp;method: <span style="color: #a78bfa;">'POST'</span>,<br>
+                        &nbsp;&nbsp;headers: {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #a78bfa;">'Authorization'</span>: <span style="color: #a78bfa;">'Bearer YOUR_KEY'</span><br>
+                        &nbsp;&nbsp;},<br>
+                        &nbsp;&nbsp;body: JSON.stringify({<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;plaka: <span style="color: #a78bfa;">'34ABC1234'</span><br>
+                        &nbsp;&nbsp;})<br>
+                        });
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Statistics Section -->
-    <section id="stats" class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <h3 class="text-2xl font-bold mb-6">AI Performans İstatistikleri</h3>
-        <div class="grid md:grid-cols-3 gap-6">
-            <div class="glass rounded-2xl p-6">
-                <h4 class="text-sm text-gray-400 mb-4">Günlük Tanıma Dağılımı</h4>
-                <canvas id="dailyChart" height="200"></canvas>
-            </div>
-            <div class="glass rounded-2xl p-6">
-                <h4 class="text-sm text-gray-400 mb-4">Doğruluk Oranı Trendi</h4>
-                <canvas id="accuracyChart" height="200"></canvas>
-            </div>
-            <div class="glass rounded-2xl p-6">
-                <h4 class="text-sm text-gray-400 mb-4">Hata Türleri</h4>
-                <div class="space-y-3 mt-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm">Düşük Işık</span>
-                        <div class="flex items-center gap-2">
-                            <div class="w-24 bg-gray-800 rounded-full h-2">
-                                <div class="bg-red-500 h-2 rounded-full" style="width: 12%"></div>
-                            </div>
-                            <span class="text-xs mono w-8">12%</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm">Açılı Çekim</span>
-                        <div class="flex items-center gap-2">
-                            <div class="w-24 bg-gray-800 rounded-full h-2">
-                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 8%"></div>
-                            </div>
-                            <span class="text-xs mono w-8">8%</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm">Kirli Plaka</span>
-                        <div class="flex items-center gap-2">
-                            <div class="w-24 bg-gray-800 rounded-full h-2">
-                                <div class="bg-orange-500 h-2 rounded-full" style="width: 5%"></div>
-                            </div>
-                            <span class="text-xs mono w-8">5%</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm">Hologram Hasarlı</span>
-                        <div class="flex items-center gap-2">
-                            <div class="w-24 bg-gray-800 rounded-full h-2">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: 3%"></div>
-                            </div>
-                            <span class="text-xs mono w-8">3%</span>
-                        </div>
-                    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">
+                    <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+                    Plaka Pro
+                </div>
+                <p class="footer-desc">
+                    Türkiye'nin en güvenilir plaka doğrulama ve tescil platformu. 
+                    AI destekli teknolojimiz ile milyonlarca işlemi güvenle tamamlıyoruz.
+                </p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="#" style="color: var(--gray-400); font-size: 1.25rem;"><i class="fab fa-twitter"></i></a>
+                    <a href="#" style="color: var(--gray-400); font-size: 1.25rem;"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" style="color: var(--gray-400); font-size: 1.25rem;"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
+            <div class="footer-links">
+                <h4>Ürün</h4>
+                <a href="#">Özellikler</a>
+                <a href="#">Fiyatlandırma</a>
+                <a href="#">API</a>
+                <a href="#">Entegrasyonlar</a>
+            </div>
+            <div class="footer-links">
+                <h4>Şirket</h4>
+                <a href="#">Hakkımızda</a>
+                <a href="#">Kariyer</a>
+                <a href="#">Blog</a>
+                <a href="#">Basın</a>
+            </div>
+            <div class="footer-links">
+                <h4>Destek</h4>
+                <a href="#">Yardım Merkezi</a>
+                <a href="#">İletişim</a>
+                <a href="#">Gizlilik</a>
+                <a href="#">KVKK</a>
+            </div>
         </div>
-    </section>
+        <div style="max-width: 1400px; margin: 2rem auto 0; padding-top: 2rem; border-top: 1px solid var(--gray-800); text-align: center; color: var(--gray-500); font-size: 0.875rem;">
+            © 2024 Plaka Pro. Tüm hakları saklıdır. | Ticaret Sicil No: 123456 | MERSIS: 0123456789012345
+        </div>
+    </footer>
 
-    <!-- History Section -->
-    <section id="history" class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-20">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold">Tarama Geçmişi</h3>
-            <button onclick="exportHistory()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Dışa Aktar
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Ödeme Yap</div>
+                <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+            </div>
+            
+            <div style="background: var(--gray-50); padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--gray-600);">Ürün:</span>
+                    <span style="font-weight: 600;">Orijinallik Sertifikası</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700;">
+                    <span>Toplam:</span>
+                    <span style="color: var(--primary);">₺49,00</span>
+                </div>
+            </div>
+
+            <div class="payment-methods">
+                <div class="payment-method selected" onclick="selectPayment(this)">
+                    <i class="fas fa-credit-card"></i>
+                    <div style="font-size: 0.75rem; font-weight: 600;">Kart</div>
+                </div>
+                <div class="payment-method" onclick="selectPayment(this)">
+                    <i class="fas fa-mobile-alt"></i>
+                    <div style="font-size: 0.75rem; font-weight: 600;">Mobil</div>
+                </div>
+                <div class="payment-method" onclick="selectPayment(this)">
+                    <i class="fas fa-university"></i>
+                    <div style="font-size: 0.75rem; font-weight: 600;">Havale</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Kart Üzerindeki İsim</label>
+                <input type="text" class="form-input" placeholder="Ad Soyad">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Kart Numarası</label>
+                <input type="text" class="form-input" placeholder="0000 0000 0000 0000">
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Son Kullanma</label>
+                    <input type="text" class="form-input" placeholder="AA/YY">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CVV</label>
+                    <input type="text" class="form-input" placeholder="123">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="processPayment()">
+                <i class="fas fa-lock"></i>
+                Güvenli Ödeme Yap
             </button>
-        </div>
-        
-        <div class="glass rounded-2xl overflow-hidden border border-gray-800">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-800/50 text-gray-400 text-xs uppercase">
-                        <tr>
-                            <th class="px-6 py-4">Tarih</th>
-                            <th class="px-6 py-4">Plaka</th>
-                            <th class="px-6 py-4">İl</th>
-                            <th class="px-6 py-4">Doğruluk</th>
-                            <th class="px-6 py-4">Durum</th>
-                            <th class="px-6 py-4">İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTable" class="divide-y divide-gray-800 text-sm">
-                        <!-- Generated by JS -->
-                    </tbody>
-                </table>
+
+            <div style="text-align: center; margin-top: 1rem; font-size: 0.75rem; color: var(--gray-400);">
+                <i class="fas fa-shield-alt"></i> 256-bit SSL ile güvende
             </div>
         </div>
-    </section>
+    </div>
 
     <script>
-        // City database
-        const cityCodes = {
-            '01': 'Adana', '02': 'Adıyaman', '03': 'Afyonkarahisar', '04': 'Ağrı', '05': 'Amasya',
-            '06': 'Ankara', '07': 'Antalya', '08': 'Artvin', '09': 'Aydın', '10': 'Balıkesir',
-            '16': 'Bursa', '27': 'Gaziantep', '31': 'Hatay', '33': 'Mersin', '34': 'İstanbul',
-            '35': 'İzmir', '41': 'Kocaeli', '42': 'Konya', '45': 'Manisa', '55': 'Samsun'
-        };
+        // Plaka Format
+        function formatPlaka(input) {
+            let value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            
+            // Türk plaka formatı: 01-81 arası + 1-3 harf + 2-4 rakam
+            if (value.length >= 2) {
+                let cityCode = value.substring(0, 2);
+                let rest = value.substring(2);
+                
+                // Harf ve rakam ayır
+                let letters = rest.replace(/[0-9]/g, '').substring(0, 3);
+                let numbers = rest.replace(/[^0-9]/g, '').substring(0, 4);
+                
+                // I, Q, W, X kontrolü
+                letters = letters.replace(/[IQWX]/g, '');
+                
+                let formatted = cityCode;
+                if (letters) formatted += ' ' + letters;
+                if (numbers) formatted += ' ' + numbers;
+                
+                input.value = formatted.trim();
+                
+                // Preview güncelle
+                updatePreview(formatted.trim());
+            }
+        }
 
-        let scanHistory = [];
-        let currentAnalysis = null;
-
-        // Initialize charts
-        function initCharts() {
-            // Daily chart
-            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
-            new Chart(dailyCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
-                    datasets: [{
-                        label: 'Tanıma',
-                        data: [145, 189, 156, 201, 178, 89, 67],
-                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                    }
+        function updatePreview(plaka) {
+            const preview = document.getElementById('plakaPreview');
+            const previewText = document.getElementById('previewText');
+            
+            if (plaka.length >= 5) {
+                previewText.textContent = plaka;
+                preview.style.display = 'block';
+                
+                // Basit doğrulama
+                const cityCode = parseInt(plaka.substring(0, 2));
+                if (cityCode >= 1 && cityCode <= 81) {
+                    preview.classList.remove('invalid');
+                    preview.classList.add('valid');
+                } else {
+                    preview.classList.remove('valid');
+                    preview.classList.add('invalid');
                 }
-            });
-
-            // Accuracy trend
-            const accCtx = document.getElementById('accuracyChart').getContext('2d');
-            new Chart(accCtx, {
-                type: 'line',
-                data: {
-                    labels: ['1.H', '2.H', '3.H', '4.H', '5.H', '6.H'],
-                    datasets: [{
-                        label: 'Doğruluk %',
-                        data: [94.2, 95.8, 97.1, 98.2, 98.9, 99.2],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { min: 90, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
+            } else {
+                preview.style.display = 'none';
+            }
         }
 
-        function setMode(mode) {
-            document.getElementById('btnCamera').className = mode === 'camera' ? 
-                'px-3 py-1.5 rounded-lg bg-emerald-600 text-sm hover:bg-emerald-700 transition' : 
-                'px-3 py-1.5 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition';
-            document.getElementById('btnUpload').className = mode === 'upload' ? 
-                'px-3 py-1.5 rounded-lg bg-emerald-600 text-sm hover:bg-emerald-700 transition' : 
-                'px-3 py-1.5 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition';
+        // Tab Switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
         }
 
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) processImage(file.name);
+        // Verification Process
+        async function startVerification() {
+            const plaka = document.getElementById('plakaInput').value;
+            if (!plaka || plaka.length < 5) {
+                alert('Lütfen geçerli bir plaka giriniz');
+                return;
+            }
+
+            const steps = document.getElementById('verificationSteps');
+            const results = document.getElementById('resultsPanel');
+            
+            steps.style.display = 'block';
+            results.style.display = 'none';
+
+            // Step 1
+            document.getElementById('step1').classList.add('active');
+            await sleep(1500);
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('completed');
+
+            // Step 2
+            document.getElementById('step2').classList.add('active');
+            await sleep(2000);
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step2').classList.add('completed');
+
+            // Step 3
+            document.getElementById('step3').classList.add('active');
+            await sleep(2500);
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step3').classList.add('completed');
+
+            // Step 4
+            document.getElementById('step4').classList.add('active');
+            await sleep(1500);
+            document.getElementById('step4').classList.remove('active');
+            document.getElementById('step4').classList.add('completed');
+
+            // Show Results
+            showResults(plaka);
         }
 
-        function loadSample(condition) {
-            const samples = {
-                'day': { plate: '34 ABC 123', conf: 99.1, type: 'Gündüz/Güneşli' },
-                'night': { plate: '06 DEF 456', conf: 94.2, type: 'Gece/Yapay Işık', suggest: true },
-                'blur': { plate: '35 GHI 789', conf: 87.3, type: 'Yağmurlu', suggest: true },
-                'angle': { plate: '16 JKL 012', conf: 91.5, type: '45° Açı', suggest: true }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function showResults(plaka) {
+            const results = document.getElementById('resultsPanel');
+            const certPreview = document.getElementById('certPreview');
+            
+            // Rastgele ama tutarlı sonuçlar
+            const cityCode = parseInt(plaka.substring(0, 2));
+            const cities = {
+                1: 'Adana', 6: 'Ankara', 7: 'Antalya', 16: 'Bursa', 34: 'İstanbul', 
+                35: 'İzmir', 41: 'Kocaeli', 54: 'Sakarya'
             };
             
-            const sample = samples[condition];
-            simulateAnalysis(sample.plate, sample.conf, sample.type, sample.suggest);
+            document.getElementById('cityResult').textContent = cities[cityCode] || 'İstanbul';
+            document.getElementById('certNumber').textContent = 'PLK-2024-' + Math.floor(Math.random() * 900000 + 100000);
+            
+            results.style.display = 'block';
+            certPreview.style.display = 'block';
+            
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        function processImage(filename) {
-            // Simulate processing steps
-            document.getElementById('emptyState').classList.add('hidden');
-            document.getElementById('previewState').classList.remove('hidden');
-            document.getElementById('processingOverlay').classList.remove('hidden');
-            
-            const steps = ['YOLO tespiti yapılıyor', 'Plaka bölgesi kırpılıyor', 'OCR analizi yapılıyor', 'Hologram kontrolü', 'Sonuçlar derleniyor'];
-            let step = 0;
-            
-            const interval = setInterval(() => {
-                if (step < steps.length) {
-                    document.getElementById('processingStep').textContent = steps[step];
-                    step++;
-                } else {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        document.getElementById('processingOverlay').classList.add('hidden');
-                        generateRandomResult();
-                    }, 500);
-                }
-            }, 400);
+        // Payment Modal
+        function openPaymentModal() {
+            document.getElementById('paymentModal').style.display = 'flex';
         }
 
-        function generateRandomResult() {
-            const plates = ['34 ABC 123', '06 DEF 456', '35 GHI 789', '16 JKL 012', '01 MNO 345'];
-            const plate = plates[Math.floor(Math.random() * plates.length)];
-            const conf = 90 + Math.random() * 9;
-            simulateAnalysis(plate, conf, 'Yüklenen Görüntü', conf < 95);
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
         }
 
-        function simulateAnalysis(plate, confidence, type, needsSuggestion = false) {
-            currentAnalysis = { plate, confidence, type, time: new Date() };
+        function selectPayment(el) {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function processPayment() {
+            const btn = event.target;
+            btn.innerHTML = '<span class="loading"></span> İşleniyor...';
+            btn.disabled = true;
             
-            // Hide initial, show results
-            document.getElementById('initialResult').classList.add('hidden');
-            document.getElementById('analysisResult').classList.remove('hidden');
-            
-            // Set plate
-            document.getElementById('detectedPlate').textContent = plate;
-            document.getElementById('plateType').textContent = type;
-            
-            // Animate confidence bars
             setTimeout(() => {
-                document.getElementById('overallConf').textContent = confidence.toFixed(1) + '%';
-                document.getElementById('confBar1').style.width = confidence + '%';
-                
-                const ocrConf = confidence - (Math.random() * 3);
-                document.getElementById('ocrConf').textContent = ocrConf.toFixed(1) + '%';
-                document.getElementById('confBar2').style.width = ocrConf + '%';
-            }, 100);
-            
-            // Generate character analysis
-            generateCharAnalysis(plate);
-            
-            // Generate security checks
-            generateSecurityChecks(confidence);
-            
-            // Show suggestion if needed
-            const suggestionDiv = document.getElementById('aiSuggestions');
-            if (needsSuggestion) {
-                suggestionDiv.classList.remove('hidden');
-                const suggestions = [
-                    'Plaka bölgesi düşük kontrastlı. Daha iyi sonuç için parlaklığı artırabilirsiniz.',
-                    'Açılı çekim tespit edildi. Mümkünse düz açıdan fotoğraf çekin.',
-                    'Hologram bölgesi parlamalar içeriyor. Işık kaynağını değiştirmeyi deneyin.',
-                    'Plaka kenarları bulanık. Otomatik netleştirme uygulandı.'
-                ];
-                document.getElementById('suggestionText').textContent = suggestions[Math.floor(Math.random() * suggestions.length)];
-            } else {
-                suggestionDiv.classList.add('hidden');
-            }
-        }
-
-        function generateCharAnalysis(plate) {
-            const chars = plate.replace(/\s/g, '').split('');
-            const container = document.getElementById('charAnalysis');
-            container.innerHTML = '';
-            
-            chars.forEach((char, idx) => {
-                const div = document.createElement('div');
-                const conf = 95 + Math.random() * 4;
-                const color = conf > 97 ? 'bg-emerald-500' : conf > 94 ? 'bg-yellow-500' : 'bg-red-500';
-                
-                div.className = 'flex-1 text-center';
-                div.innerHTML = `
-                    <div class="text-lg font-bold mono mb-1">${char}</div>
-                    <div class="h-1 bg-gray-800 rounded-full overflow-hidden">
-                        <div class="${color} h-full confidence-bar" style="width: 0%"></div>
-                    </div>
-                    <div class="text-[10px] text-gray-500 mt-1">${conf.toFixed(1)}%</div>
-                `;
-                container.appendChild(div);
+                btn.innerHTML = '<i class="fas fa-check"></i> Ödeme Başarılı!';
+                btn.style.background = 'var(--success)';
                 
                 setTimeout(() => {
-                    div.querySelector('.confidence-bar').style.width = conf + '%';
-                }, 200 + (idx * 100));
-            });
-            
-            // Heatmap
-            const heatmap = document.getElementById('charHeatmap');
-            heatmap.innerHTML = '';
-            for (let i = 0; i < 40; i++) {
-                const cell = document.createElement('div');
-                const intensity = Math.random();
-                const color = intensity > 0.8 ? 'bg-emerald-500' : intensity > 0.5 ? 'bg-emerald-700' : 'bg-gray-800';
-                cell.className = `char-heatmap h-3 rounded-sm ${color}`;
-                cell.title = `Konum ${i + 1}: ${(intensity * 100).toFixed(0)}% aktivite`;
-                heatmap.appendChild(cell);
-            }
-        }
-
-        function generateSecurityChecks(confidence) {
-            const container = document.getElementById('securityChecks');
-            const checks = [
-                { name: 'TR Format Doğrulaması', status: 'passed', icon: '✓' },
-                { name: 'Hologram Bölgesi Tespiti', status: confidence > 95 ? 'passed' : 'warning', icon: confidence > 95 ? '✓' : '!' },
-                { name: 'Font Analizi (FE-Mitar)', status: 'passed', icon: '✓' },
-                { name: 'Baskı Kalitesi Kontrolü', status: confidence > 90 ? 'passed' : 'warning', icon: confidence > 90 ? '✓' : '!' }
-            ];
-            
-            container.innerHTML = checks.map(check => `
-                <div class="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
-                    <span class="text-sm flex items-center gap-2">
-                        <span class="w-5 h-5 rounded-full ${check.status === 'passed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'} flex items-center justify-center text-xs font-bold">${check.icon}</span>
-                        ${check.name}
-                    </span>
-                    <span class="text-xs ${check.status === 'passed' ? 'text-emerald-400' : 'text-yellow-400'} font-mono uppercase">${check.status}</span>
-                </div>
-            `).join('');
-        }
-
-        function resetAnalysis() {
-            document.getElementById('analysisResult').classList.add('hidden');
-            document.getElementById('initialResult').classList.remove('hidden');
-            document.getElementById('emptyState').classList.remove('hidden');
-            document.getElementById('previewState').classList.add('hidden');
-            document.getElementById('fileInput').value = '';
-            currentAnalysis = null;
-        }
-
-        function saveToHistory() {
-            if (!currentAnalysis) return;
-            
-            scanHistory.unshift({
-                ...currentAnalysis,
-                id: Date.now(),
-                status: currentAnalysis.confidence > 95 ? 'Başarılı' : 'Kontrol Gerekli'
-            });
-            
-            updateHistoryTable();
-            
-            // Visual feedback
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Kaydedildi';
-            btn.classList.add('bg-emerald-700');
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.remove('bg-emerald-700');
+                    closePaymentModal();
+                    alert('Sertifikanız indirilmeye hazır! E-posta adresinize de gönderildi.');
+                    btn.innerHTML = '<i class="fas fa-lock"></i> Güvenli Ödeme Yap';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 1500);
             }, 2000);
         }
 
-        function updateHistoryTable() {
-            const tbody = document.getElementById('historyTable');
-            tbody.innerHTML = scanHistory.slice(0, 10).map(scan => `
-                <tr class="hover:bg-gray-800/50 transition">
-                    <td class="px-6 py-4 text-gray-400">${scan.time.toLocaleString('tr-TR')}</td>
-                    <td class="px-6 py-4 font-mono font-bold">${scan.plate}</td>
-                    <td class="px-6 py-4">${cityCodes[scan.plate.substring(0, 2)] || 'Bilinmiyor'}</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-16 bg-gray-800 rounded-full h-2">
-                                <div class="bg-emerald-500 h-2 rounded-full" style="width: ${scan.confidence}%"></div>
-                            </div>
-                            <span class="text-xs mono">${scan.confidence.toFixed(1)}%</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 rounded-full text-xs ${scan.confidence > 95 ? 'bg-emerald-600/20 text-emerald-400' : 'bg-yellow-600/20 text-yellow-400'}">
-                            ${scan.status}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <button onclick="viewDetails(${scan.id})" class="text-emerald-400 hover:text-emerald-300 text-sm">Detay</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function showDetails() {
-            alert('Detaylı rapor modülü: JSON export, karakter-level confidence matrix, ve işlem logları içerir.');
-        }
-
-        function viewDetails(id) {
-            const scan = scanHistory.find(s => s.id === id);
-            if (scan) {
-                alert(`Plaka: ${scan.plate}\nDoğruluk: ${scan.confidence.toFixed(2)}%\nTür: ${scan.type}\nZaman: ${scan.time.toLocaleString('tr-TR')}`);
-            }
-        }
-
-        function exportHistory() {
-            if (scanHistory.length === 0) {
-                alert('Dışa aktarılacak kayıt bulunmuyor.');
-                return;
-            }
+        // Tescil Form
+        function submitTescil(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="loading"></span> Gönderiliyor...';
+            btn.disabled = true;
             
-            const data = JSON.stringify(scanHistory, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `plaka-taramalari-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Başvuru Alındı!';
+                btn.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    alert('Tescil başvurunuz alındı! Başvuru numaranız: TSC-2024-785421\nE-posta adresinize bilgilendirme gönderildi.');
+                    e.target.reset();
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Tescil Başvurusu Yap';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 1500);
+            }, 2000);
         }
 
-        // Drag and drop
-        const dropZone = document.getElementById('uploadArea');
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('border-emerald-500', 'bg-emerald-900/10');
-        });
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('border-emerald-500', 'bg-emerald-900/10');
-        });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('border-emerald-500', 'bg-emerald-900/10');
-            if (e.dataTransfer.files.length > 0) {
-                processImage(e.dataTransfer.files[0].name);
-            }
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            initCharts();
-            updateHistoryTable();
+        // Close modal on outside click
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) closePaymentModal();
         });
     </script>
 </body>
