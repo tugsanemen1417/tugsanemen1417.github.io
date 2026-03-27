@@ -2,2250 +2,1077 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="ProPlaka - Türkiye'nin en gelişmiş plaka doğrulama ve sahte plaka tespit sistemi. TSE standartlarına uygun analiz.">
-    <meta name="keywords" content="plaka doğrulama, sahte plaka tespit, araç plakası, TR plaka, hologram kontrol">
-    <title>ProPlaka - Plaka Doğrulama Sistemi | TSE Onaylı Analiz</title>
-    <script src='https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js'></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlakaNet AI - Eğitim ve Geliştirme Platformu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --secondary: #8b5cf6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-hover: #334155;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #475569;
-            --glass: rgba(30, 41, 59, 0.8);
-            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Neural Network Animation */
+        .neural-bg {
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                #0f172a;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .header {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 1.5rem;
-            text-align: center;
-            position: relative;
-        }
-
-        .header::after {
-            content: 'TSE SERTİFİKALI';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            font-size: 1.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            -webkit-text-fill-color: white;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-
-        .guide-section {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .guide-title {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-muted);
-        }
-
-        .guide-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
-        }
-
-        .guide-item {
-            background: var(--bg-hover);
-            border-radius: 8px;
-            padding: 0.75rem 0.5rem;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .guide-item:hover {
-            transform: translateY(-2px);
-        }
-
-        .guide-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            margin: 0 auto 0.5rem;
-        }
-
-        .guide-item h4 {
-            font-size: 0.7rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .guide-item p {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            line-height: 1.2;
-        }
-
-        .upload-section {
-            background: var(--bg-card);
-            border: 2px dashed var(--border);
-            border-radius: 20px;
-            padding: 2rem 1.5rem;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(59, 130, 246, 0.15) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .upload-section:hover::before,
-        .upload-section.dragover::before {
-            opacity: 1;
-        }
-
-        .upload-section.dragover {
-            border-color: var(--primary);
-            background: rgba(59, 130, 246, 0.1);
-            transform: scale(1.02);
-        }
-
-        .upload-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 1rem;
-            box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.5);
-        }
-
-        .upload-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .upload-desc {
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .camera-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            color: white;
-            padding: 0.875rem 1.5rem;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .camera-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
-        }
-
-        .preview-section {
-            display: none;
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .preview-section.active {
-            display: block;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .canvas-container {
-            position: relative;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            touch-action: none;
-            user-select: none;
-        }
-
-        #mainCanvas {
-            width: 100%;
-            height: auto;
-            display: block;
-            max-height: 50vh;
-            object-fit: contain;
-        }
-
-        .canvas-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-        }
-
-        .detection-box {
-            position: absolute;
-            border: 3px solid var(--success);
-            border-radius: 8px;
+        
+        /* Training Progress Bar */
+        .progress-glow {
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-            display: none;
+            animation: pulse-glow 2s infinite;
         }
-
-        .detection-box::after {
-            content: 'PLAKA TESPİT EDİLDİ';
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.8); }
+        }
+        
+        /* Node Network */
+        .node {
             position: absolute;
-            top: -30px;
-            left: 0;
-            background: var(--success);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .manual-selection-box {
-            position: absolute;
-            border: 2px dashed var(--primary);
-            background: rgba(59, 130, 246, 0.2);
-            display: none;
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .manual-confirm-box {
-            position: absolute;
-            border: 3px solid var(--success);
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 8px;
-            pointer-events: none;
-        }
-
-        .manual-confirm-box::after {
-            content: 'MANUEL SEÇİM';
-            position: absolute;
-            top: -25px;
-            left: 0;
-            background: var(--success);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            flex: 1;
-            min-width: 100px;
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: var(--bg-hover);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        .btn-secondary.active {
-            background: var(--warning);
-            color: white;
-            border-color: var(--warning);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--bg-hover);
-            border-top-color: var(--primary);
+            width: 8px;
+            height: 8px;
+            background: #10b981;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            animation: float 6s ease-in-out infinite;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
         }
-
-        .loading-text {
-            color: var(--text-muted);
-            font-size: 1rem;
+        
+        /* Glass Cards */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .loading-steps {
-            margin-top: 1rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
+        
+        /* Code Editor Style */
+        .code-editor {
+            background: #0d1117;
+            border: 1px solid #30363d;
         }
-
-        .loading-step {
-            padding: 0.4rem;
-            opacity: 0.5;
+        
+        /* Terminal */
+        .terminal {
+            background: #000000;
+            border: 1px solid #333;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .terminal-line {
+            padding: 2px 0;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        /* Dataset Grid */
+        .dataset-item {
             transition: all 0.3s;
+            cursor: pointer;
         }
-
-        .loading-step.active {
-            opacity: 1;
-            color: var(--primary);
-            font-weight: 600;
+        .dataset-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
         }
-
-        .loading-step.completed {
-            opacity: 1;
-            color: var(--success);
+        .dataset-item.selected {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
         }
-
-        .results {
-            display: none;
-            margin-top: 1rem;
+        
+        /* Confusion Matrix Heatmap */
+        .heatmap-cell {
+            transition: all 0.2s;
         }
-
-        .results.show {
-            display: block;
-            animation: slideUp 0.5s ease;
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
-
-        .result-header {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 1.5rem;
-            text-align: center;
-            margin-bottom: 1rem;
-            border: 2px solid transparent;
+        
+        /* Training Metrics */
+        .metric-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        /* Augmentation Preview */
+        .aug-preview {
             position: relative;
             overflow: hidden;
         }
-
-        .result-header::before {
-            content: '';
+        .aug-preview::after {
+            content: attr(data-aug);
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            height: 4px;
-        }
-
-        .result-authentic {
-            border-color: var(--success);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
-        }
-
-        .result-authentic::before {
-            background: var(--success);
-        }
-
-        .result-suspicious {
-            border-color: var(--warning);
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, var(--bg-card) 100%);
-        }
-
-        .result-suspicious::before {
-            background: var(--warning);
-        }
-
-        .result-fake {
-            border-color: var(--danger);
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, var(--bg-card) 100%);
-        }
-
-        .result-fake::before {
-            background: var(--danger);
-        }
-
-        .result-badge {
-            display: inline-block;
-            padding: 0.5rem 1.25rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .result-authentic .result-badge {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-
-        .result-suspicious .result-badge {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--warning);
-        }
-
-        .result-fake .result-badge {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        .score-circle {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: conic-gradient(var(--primary) calc(var(--score) * 1%), var(--bg-hover) 0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            position: relative;
-        }
-
-        .score-circle::before {
-            content: '';
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background: var(--bg-card);
-            border-radius: 50%;
-        }
-
-        .score-value {
-            position: relative;
-            font-size: 1.5rem;
-            font-weight: 800;
-            z-index: 1;
-        }
-
-        .result-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .result-desc {
-            color: var(--text-muted);
-            max-width: 500px;
-            margin: 0 auto;
-            font-size: 0.9rem;
-        }
-
-        .ocr-result {
-            background: var(--bg-hover);
-            border-radius: 16px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .plate-number {
-            font-size: 2rem;
-            font-weight: 800;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.1em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 0.5rem 0;
-        }
-
-        .plate-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .info-item {
-            background: var(--bg-card);
-            padding: 0.75rem;
-            border-radius: 10px;
-        }
-
-        .info-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .info-value {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-top: 0.25rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .feature-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--border);
-            transition: background 0.3s;
-        }
-
-        .feature-card.pass::before {
-            background: var(--success);
-        }
-
-        .feature-card.warning::before {
-            background: var(--warning);
-        }
-
-        .feature-card.fail::before {
-            background: var(--danger);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .feature-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            background: var(--bg-hover);
-        }
-
-        .feature-title-group {
-            flex: 1;
-        }
-
-        .feature-title {
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            font-size: 0.9rem;
-        }
-
-        .feature-status {
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .feature-card.pass .feature-status {
-            color: var(--success);
-        }
-
-        .feature-card.warning .feature-status {
-            color: var(--warning);
-        }
-
-        .feature-card.fail .feature-status {
-            color: var(--danger);
-        }
-
-        .feature-metrics {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .metric {
-            flex: 1;
-        }
-
-        .metric-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .metric-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-top: 0.25rem;
-        }
-
-        .confidence-bar {
-            height: 6px;
-            background: var(--bg-hover);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 1s ease;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-        }
-
-        .feature-card.pass .confidence-fill {
-            background: linear-gradient(90deg, var(--success) 0%, #34d399 100%);
-        }
-
-        .feature-card.warning .confidence-fill {
-            background: linear-gradient(90deg, var(--warning) 0%, #fbbf24 100%);
-        }
-
-        .feature-card.fail .confidence-fill {
-            background: linear-gradient(90deg, var(--danger) 0%, #f87171 100%);
-        }
-
-        .api-status {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.25rem;
-            margin-top: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .api-status-title {
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .api-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .api-item {
-            background: var(--bg-hover);
-            padding: 0.875rem;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .api-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .api-indicator.success {
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
-        }
-
-        .api-indicator.error {
-            background: var(--danger);
-            box-shadow: 0 0 10px var(--danger);
-        }
-
-        .api-indicator.warning {
-            background: var(--warning);
-            box-shadow: 0 0 10px var(--warning);
-        }
-
-        .api-content {
-            flex: 1;
-        }
-
-        .api-label {
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-
-        .api-value {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-
-        .premium-banner {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1rem;
-            text-align: center;
+            background: rgba(0,0,0,0.7);
             color: white;
-        }
-
-        .premium-banner h3 {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .premium-banner p {
-            font-size: 0.8rem;
-            opacity: 0.9;
-            margin-bottom: 0.75rem;
-        }
-
-        .premium-btn {
-            background: white;
-            color: #d97706;
-            border: none;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .premium-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
-            color: var(--text);
-            padding: 0.875rem 1.5rem;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .toast-icon {
-            font-size: 1.1rem;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .guide-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .upload-section {
-                padding: 1.5rem 1rem;
-            }
-
-            .upload-icon {
-                width: 56px;
-                height: 56px;
-                font-size: 1.75rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .plate-number {
-                font-size: 1.5rem;
-            }
-
-            .score-circle {
-                width: 90px;
-                height: 90px;
-            }
-
-            .score-circle::before {
-                width: 70px;
-                height: 70px;
-            }
-
-            .score-value {
-                font-size: 1.25rem;
-            }
-
-            .header::after {
-                font-size: 0.6rem;
-                padding: 3px 8px;
-            }
-        }
-
-        @media (pointer: coarse) {
-            .upload-section {
-                min-height: 180px;
-            }
-
-            .btn {
-                padding: 1rem;
-            }
-        }
-
-        @media (prefers-color-scheme: light) {
-            :root {
-                --bg-dark: #f1f5f9;
-                --bg-card: #ffffff;
-                --bg-hover: #f8fafc;
-                --text: #0f172a;
-                --text-muted: #64748b;
-                --border: #e2e8f0;
-            }
-
-            body {
-                background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 50%, #c7d2fe 100%);
-            }
+            font-size: 10px;
+            padding: 2px 6px;
+            text-align: center;
         }
     </style>
 </head>
-<body>
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon">🔐</div>
-            <span>ProPlaka</span>
-        </div>
-    </header>
+<body class="bg-slate-900 text-white min-h-screen neural-bg">
 
-    <div class="container">
-        <div class="guide-section">
-            <div class="guide-title">
-                📸 Doğru Fotoğraf Nasıl Çekilir?
-            </div>
-            <div class="guide-grid">
-                <div class="guide-item">
-                    <div class="guide-icon">📱</div>
-                    <h4>Dik Açı</h4>
-                    <p>Plakaya tam karşıdan çekin</p>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full glass-panel z-50 border-b border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-lg flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/20">AI</div>
+                    <div>
+                        <h1 class="font-bold text-xl tracking-tight">PlakaNet <span class="text-emerald-400">ML Studio</span></h1>
+                        <p class="text-xs text-slate-400">Eğitim ve Model Geliştirme Platformu</p>
+                    </div>
                 </div>
-                <div class="guide-item">
-                    <div class="guide-icon">💡</div>
-                    <h4>Yeterli Işık</h4>
-                    <p>Gölgesiz ortam tercih edin</p>
+                
+                <div class="hidden md:flex items-center gap-6">
+                    <button onclick="switchTab('dataset')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition bg-emerald-600 text-white" data-tab="dataset">
+                        Veri Seti
+                    </button>
+                    <button onclick="switchTab('training')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="training">
+                        Model Eğitimi
+                    </button>
+                    <button onclick="switchTab('evaluation')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="evaluation">
+                        Değerlendirme
+                    </button>
+                    <button onclick="switchTab('deployment')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="deployment">
+                        Deployment
+                    </button>
                 </div>
-                <div class="guide-item">
-                    <div class="guide-icon">🔍</div>
-                    <h4>Yakın Çekim</h4>
-                    <p>Plaka görüntünün %50'sini kaplasın</p>
-                </div>
-                <div class="guide-item">
-                    <div class="guide-icon">✨</div>
-                    <h4>Hologram Görünür</h4>
-                    <p>Mavi şerit net görünsün</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="upload-section" id="uploadZone">
-            <div class="upload-icon">📸</div>
-            <div class="upload-title">Plaka Fotoğrafı Yükle</div>
-            <div class="upload-desc">Yukarıdaki kurallara uygun bir fotoğraf yükleyin</div>
-            <button class="camera-btn" onclick="openCamera()">
-                📷 Kamera ile Çek
-            </button>
-        </div>
-
-        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" capture="environment">
-
-        <div class="preview-section" id="previewSection">
-            <div class="canvas-container" id="canvasContainer">
-                <canvas id="mainCanvas"></canvas>
-                <div class="canvas-overlay">
-                    <div class="detection-box" id="detectionBox"></div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs text-slate-400 mono">GPU: A100 x4</span>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                        Export Model
+                    </button>
                 </div>
             </div>
+        </div>
+    </nav>
 
-            <div class="action-buttons">
-                <button class="btn btn-secondary" onclick="removeImage()">
-                    🗑️ Kaldır
-                </button>
-                <button class="btn btn-secondary" onclick="rotateImage()">
-                    🔄 Döndür
-                </button>
-                <button class="btn btn-success" onclick="enhanceImage()">
-                    ✨ İyileştir
-                </button>
-                <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePlate()">
-                    🔍 Analiz Et
-                </button>
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        
+        <!-- Dataset Management Tab -->
+        <div id="tab-dataset" class="tab-content">
+            <div class="grid lg:grid-cols-3 gap-6">
+                
+                <!-- Left: Dataset Stats & Upload -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                            Veri Seti Durumu
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm text-slate-400">Toplam Görüntü</span>
+                                <span class="font-bold mono text-emerald-400" id="totalImages">45,230</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm text-slate-400">Etiketlenmiş</span>
+                                <span class="font-bold mono text-blue-400">45,230 (100%)</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm text-slate-400">Eğitim / Validasyon / Test</span>
+                                <span class="font-bold mono text-purple-400">70% / 15% / 15%</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
+                                <span class="text-sm text-slate-400">Veri Artırma</span>
+                                <span class="font-bold mono text-orange-400">8x (361,840)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-slate-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium">Depolama</span>
+                                <span class="text-sm text-slate-400">128 GB / 500 GB</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full" style="width: 25%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Upload -->
+                    <div class="glass-panel rounded-2xl p-6 border-2 border-dashed border-slate-600 hover:border-emerald-500 transition cursor-pointer" onclick="document.getElementById('batchUpload').click()">
+                        <input type="file" id="batchUpload" class="hidden" multiple accept="image/*" onchange="handleBatchUpload(event)">
+                        <div class="text-center">
+                            <svg class="w-12 h-12 mx-auto mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            <h4 class="font-semibold mb-1">Toplu Yükleme</h4>
+                            <p class="text-xs text-slate-400">Drag & drop veya tıklayın<br>JSON etiketleri otomatik eşleşir</p>
+                        </div>
+                    </div>
+
+                    <!-- City Distribution -->
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h4 class="font-semibold mb-4 text-sm">İl Dağılımı (Top 10)</h4>
+                        <canvas id="cityChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Center: Dataset Browser -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Filters -->
+                    <div class="glass-panel rounded-xl p-4 flex flex-wrap gap-3 items-center">
+                        <select class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                            <option>Tüm İller</option>
+                            <option>34 - İstanbul</option>
+                            <option>06 - Ankara</option>
+                            <option>35 - İzmir</option>
+                        </select>
+                        <select class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                            <option>Tüm Koşullar</option>
+                            <option>Gündüz / Güneşli</option>
+                            <option>Gece / Yapay Işık</option>
+                            <option>Yağmurlu</option>
+                            <option>Karlı</option>
+                        </select>
+                        <select class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                            <option>Tüm Açılar</option>
+                            <option>Önden</option>
+                            <option>Yandan (45°)</option>
+                            <option>Arka</option>
+                        </select>
+                        <div class="flex-1"></div>
+                        <div class="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2 border border-slate-700">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <input type="text" placeholder="Plaka ara..." class="bg-transparent border-none outline-none text-sm w-32">
+                        </div>
+                    </div>
+
+                    <!-- Image Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="datasetGrid">
+                        <!-- Generated by JS -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-center gap-2">
+                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">&larr;</button>
+                        <button class="px-4 py-2 rounded-lg bg-emerald-600 text-sm font-medium">1</button>
+                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">2</button>
+                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">3</button>
+                        <span class="px-2 py-2 text-slate-500">...</span>
+                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">142</button>
+                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">&rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Augmentation Preview -->
+            <div class="mt-8 glass-panel rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-lg">Veri Artırma Önizleme</h3>
+                    <div class="flex gap-2">
+                        <button onclick="refreshAugmentation()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            Yenile
+                        </button>
+                        <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm transition">Uygula</button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-6 gap-4" id="augmentationGrid">
+                    <!-- Original -->
+                    <div class="aug-preview rounded-lg overflow-hidden border-2 border-emerald-500" data-aug="Orijinal">
+                        <div class="aspect-video bg-slate-800 flex items-center justify-center text-xs text-slate-500">Plaka Görüntüsü</div>
+                    </div>
+                    <!-- Augmented versions will be generated -->
+                </div>
+                
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
+                        <input type="checkbox" checked class="accent-emerald-500"> Parlaklık (+/- 20%)
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
+                        <input type="checkbox" checked class="accent-emerald-500"> Döndürme (+/- 15°)
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
+                        <input type="checkbox" checked class="accent-emerald-500"> Zoom (0.8x - 1.2x)
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
+                        <input type="checkbox" checked class="accent-emerald-500"> Gauss Blur
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
+                        <input type="checkbox" checked class="accent-emerald-500"> Gürültü (Noise)
+                    </label>
+                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
+                        <input type="checkbox" class="accent-emerald-500"> Perspektif
+                    </label>
+                </div>
             </div>
         </div>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div class="loading-text">Görsel analiz ediliyor...</div>
-            <div class="loading-steps">
-                <div class="loading-step" id="step1">📸 Görüntü işleniyor</div>
-                <div class="loading-step" id="step2">🔍 Plaka bölgesi tespit ediliyor</div>
-                <div class="loading-step" id="step3">📝 OCR karakter tanıma</div>
-                <div class="loading-step" id="step4">🎨 Renk ve desen analizi</div>
-                <div class="loading-step" id="step5">🌐 API doğrulama</div>
-                <div class="loading-step" id="step6">📊 Sonuçlar derleniyor</div>
+        <!-- Training Tab -->
+        <div id="tab-training" class="tab-content hidden">
+            <div class="grid lg:grid-cols-3 gap-6">
+                
+                <!-- Training Configuration -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4">Model Konfigürasyonu</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-2">Mimari</label>
+                                <select id="modelArch" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none">
+                                    <option value="yolov8">YOLOv8 + CRNN (Önerilen)</option>
+                                    <option value="resnet">ResNet-50 + CTC</option>
+                                    <option value="transformer">Vision Transformer (ViT)</option>
+                                    <option value="custom">Özel CNN-LSTM</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-2">Öğrenme Oranı</label>
+                                <input type="range" min="0.0001" max="0.01" step="0.0001" value="0.001" class="w-full accent-emerald-500" oninput="document.getElementById('lrValue').textContent = this.value">
+                                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                    <span>0.0001</span>
+                                    <span id="lrValue" class="text-emerald-400 font-mono">0.001</span>
+                                    <span>0.01</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-2">Batch Size</label>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 py-2 rounded-lg bg-emerald-600 text-sm font-medium">32</button>
+                                    <button class="flex-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">64</button>
+                                    <button class="flex-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">128</button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm text-slate-400 mb-2">Epoch</label>
+                                <input type="number" value="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none">
+                            </div>
+                            
+                            <div class="pt-4 border-t border-slate-700">
+                                <label class="flex items-center justify-between cursor-pointer">
+                                    <span class="text-sm">Erken Durdurma (Early Stop)</span>
+                                    <input type="checkbox" checked class="accent-emerald-500 w-4 h-4">
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-center justify-between cursor-pointer">
+                                    <span class="text-sm">Checkpoint Kaydetme</span>
+                                    <input type="checkbox" checked class="accent-emerald-500 w-4 h-4">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button onclick="startTraining()" id="startTrainBtn" class="w-full mt-6 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Eğitimi Başlat
+                        </button>
+                    </div>
+
+                    <!-- GPU Status -->
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h4 class="font-semibold mb-4 text-sm flex items-center gap-2">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            GPU Kullanımı
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">GPU 0 (A100)</span>
+                                <span class="text-emerald-400 mono">78%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full progress-glow" style="width: 78%"></div>
+                            </div>
+                            
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">GPU 1 (A100)</span>
+                                <span class="text-emerald-400 mono">82%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full progress-glow" style="width: 82%"></div>
+                            </div>
+                            
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-400">VRAM</span>
+                                <span class="text-blue-400 mono">32 GB / 40 GB</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Monitor -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Progress -->
+                    <div class="glass-panel rounded-2xl p-6">
+                        <div class="flex justify-between items-end mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg">Eğitim İlerlemesi</h3>
+                                <p class="text-sm text-slate-400 mt-1" id="trainStatus">Hazır - Başlamak için butona tıklayın</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-3xl font-bold mono text-emerald-400" id="epochDisplay">0/100</div>
+                                <div class="text-xs text-slate-500">Epoch</div>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full bg-slate-800 rounded-full h-4 mb-6 overflow-hidden">
+                            <div id="trainProgress" class="bg-gradient-to-r from-emerald-500 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="metric-card rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold mono text-emerald-400" id="lossValue">-</div>
+                                <div class="text-xs text-slate-500 mt-1">Loss</div>
+                            </div>
+                            <div class="metric-card rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold mono text-blue-400" id="accValue">-</div>
+                                <div class="text-xs text-slate-500 mt-1">Accuracy</div>
+                            </div>
+                            <div class="metric-card rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold mono text-purple-400" id="cerValue">-</div>
+                                <div class="text-xs text-slate-500 mt-1">CER (Char Error)</div>
+                            </div>
+                            <div class="metric-card rounded-xl p-4 text-center">
+                                <div class="text-2xl font-bold mono text-orange-400" id="timeValue">-</div>
+                                <div class="text-xs text-slate-500 mt-1">ETA</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Charts -->
+                    <div class="glass-panel rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-semibold">Canlı Metrikler</h4>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-1 rounded-lg bg-slate-800 text-xs hover:bg-slate-700 transition">Loss</button>
+                                <button class="px-3 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 text-xs border border-emerald-500/30">Accuracy</button>
+                                <button class="px-3 py-1 rounded-lg bg-slate-800 text-xs hover:bg-slate-700 transition">Learning Rate</button>
+                            </div>
+                        </div>
+                        <canvas id="trainingChart" height="250"></canvas>
+                    </div>
+
+                    <!-- Terminal Output -->
+                    <div class="terminal rounded-2xl p-4 h-64 overflow-y-auto" id="terminalOutput">
+                        <div class="text-emerald-500 mb-2">$ PlakaNet ML Studio v2.1.0 initialized</div>
+                        <div class="text-slate-400 mb-2">[INFO] CUDA available: True (4x NVIDIA A100)</div>
+                        <div class="text-slate-400 mb-2">[INFO] Dataset loaded: 45,230 samples</div>
+                        <div class="text-slate-400 mb-2">[INFO] Model: YOLOv8n + CRNN (9.2M parameters)</div>
+                        <div class="text-slate-400">[INFO] Waiting for training start...</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="results" id="results"></div>
-    </div>
+        <!-- Evaluation Tab -->
+        <div id="tab-evaluation" class="tab-content hidden">
+            <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                <!-- Performance Metrics -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="font-bold text-lg mb-4">Model Performansı</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-800/50 rounded-xl p-4 text-center">
+                            <div class="text-4xl font-bold text-emerald-400 mono">99.2%</div>
+                            <div class="text-sm text-slate-400 mt-1">Karakter Doğruluğu</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-xl p-4 text-center">
+                            <div class="text-4xl font-bold text-blue-400 mono">97.8%</div>
+                            <div class="text-sm text-slate-400 mt-1">Plaka Tam Eşleşme</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
+                            <span class="text-sm">Precision</span>
+                            <span class="font-mono text-emerald-400">0.9942</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
+                            <span class="text-sm">Recall</span>
+                            <span class="font-mono text-emerald-400">0.9918</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
+                            <span class="text-sm">F1-Score</span>
+                            <span class="font-mono text-emerald-400">0.9930</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
+                            <span class="text-sm">Inference Time (RTX 4090)</span>
+                            <span class="font-mono text-blue-400">12.3 ms</span>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="toast" id="toast">
-        <span class="toast-icon">ℹ️</span>
-        <span id="toastMessage">Mesaj</span>
-    </div>
+                <!-- Confusion Matrix -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="font-bold text-lg mb-4">Karakter Confusion Matrix</h3>
+                    <div class="grid grid-cols-10 gap-1 text-xs" id="confusionMatrix">
+                        <!-- Generated by JS -->
+                    </div>
+                    <div class="mt-4 flex items-center gap-4 text-xs">
+                        <span class="text-slate-400">Düşük</span>
+                        <div class="flex-1 h-3 rounded-full bg-gradient-to-r from-slate-800 via-emerald-900 to-emerald-400"></div>
+                        <span class="text-emerald-400">Yükük</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div class="glass-panel rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-lg">Test Seti Sonuçları</h3>
+                    <div class="flex gap-2">
+                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">Yanlış Tahminler</button>
+                        <button class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-sm transition">Tümünü Gör</button>
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-4" id="testResults">
+                    <!-- Test result items generated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Tab -->
+        <div id="tab-deployment" class="tab-content hidden">
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Model Export -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4">Model Export</h3>
+                        
+                        <div class="space-y-3">
+                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500 transition text-left group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-semibold">ONNX Format</span>
+                                    <span class="text-xs bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded">Önerilen</span>
+                                </div>
+                                <div class="text-xs text-slate-400 group-hover:text-slate-300">Platform bağımsız deployment için optimize edilmiş</div>
+                                <div class="text-xs text-slate-500 mt-2 mono">23.4 MB</div>
+                            </button>
+                            
+                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition text-left group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-semibold">TensorRT</span>
+                                    <span class="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded">GPU</span>
+                                </div>
+                                <div class="text-xs text-slate-400 group-hover:text-slate-300">NVIDIA GPU'lar için maksimum performans</div>
+                                <div class="text-xs text-slate-500 mt-2 mono">18.7 MB</div>
+                            </button>
+                            
+                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-purple-500 transition text-left group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-semibold">Core ML</span>
+                                    <span class="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded">iOS</span>
+                                </div>
+                                <div class="text-xs text-slate-400 group-hover:text-slate-300">Apple cihazları için optimize edilmiş</div>
+                                <div class="text-xs text-slate-500 mt-2 mono">21.1 MB</div>
+                            </button>
+                            
+                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-orange-500 transition text-left group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-semibold">TFLite</span>
+                                    <span class="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded">Mobile</span>
+                                </div>
+                                <div class="text-xs text-slate-400 group-hover:text-slate-300">Android ve edge cihazlar için hafif model</div>
+                                <div class="text-xs text-slate-500 mt-2 mono">12.3 MB</div>
+                            </button>
+                        </div>
+                        
+                        <button class="w-full mt-6 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold transition">
+                            Tüm Formatları İndir
+                        </button>
+                    </div>
+
+                    <!-- Version History -->
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h4 class="font-semibold mb-4">Model Geçmişi</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/30 rounded-lg">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium">v2.1.0 (Current)</div>
+                                    <div class="text-xs text-slate-400">99.2% accuracy - 2 saat önce</div>
+                                </div>
+                                <span class="text-xs bg-emerald-600 text-white px-2 py-1 rounded">Production</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg opacity-70">
+                                <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium">v2.0.3</div>
+                                    <div class="text-xs text-slate-400">98.7% accuracy - 3 gün önce</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg opacity-50">
+                                <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium">v2.0.0</div>
+                                    <div class="text-xs text-slate-400">97.9% accuracy - 1 hafta önce</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Deployment -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h3 class="font-bold text-lg mb-4">API Deployment</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                            <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-semibold">REST API</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-emerald-400">Aktif</span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-slate-400 mb-3">Standart HTTP endpoint'leri</div>
+                                <code class="block bg-slate-950 p-2 rounded text-xs mono text-blue-400">https://api.plakanet.tr/v2/detect</code>
+                            </div>
+                            
+                            <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-semibold">gRPC</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-emerald-400">Aktif</span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-slate-400 mb-3">Yüksek performanslı binary protokol</div>
+                                <code class="block bg-slate-950 p-2 rounded text-xs mono text-purple-400">plakanet.tr:50051</code>
+                            </div>
+                        </div>
+
+                        <!-- Docker Deployment -->
+                        <div class="code-editor rounded-xl p-4 mb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-semibold text-slate-300">Docker Deployment</span>
+                                <button class="text-xs text-emerald-400 hover:text-emerald-300">Kopyala</button>
+                            </div>
+                            <pre class="text-xs mono text-slate-300 overflow-x-auto"><span class="text-slate-500"># Pull latest image</span>
+<span class="text-emerald-400">docker pull</span> plakanet/model-server:v2.1.0
+
+<span class="text-slate-500"># Run with GPU support</span>
+<span class="text-emerald-400">docker run</span> --gpus all -p 8080:8080 \
+  -e API_KEY=your_key_here \
+  -e MODEL_PATH=/models/tr-plate-v2.1.0.onnx \
+  plakanet/model-server:v2.1.0</pre>
+                        </div>
+
+                        <!-- Kubernetes -->
+                        <div class="code-editor rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-semibold text-slate-300">Kubernetes (Auto-scaling)</span>
+                                <button class="text-xs text-emerald-400 hover:text-emerald-300">Kopyala</button>
+                            </div>
+                            <pre class="text-xs mono text-slate-300 overflow-x-auto"><span class="text-blue-400">apiVersion</span>: apps/v1
+<span class="text-blue-400">kind</span>: Deployment
+<span class="text-blue-400">metadata</span>:
+  <span class="text-blue-400">name</span>: plaka-detector
+<span class="text-blue-400">spec</span>:
+  <span class="text-blue-400">replicas</span>: <span class="text-orange-400">3</span>
+  <span class="text-blue-400">template</span>:
+    <span class="text-blue-400">spec</span>:
+      <span class="text-blue-400">containers</span>:
+      - <span class="text-blue-400">name</span>: model-server
+        <span class="text-blue-400">image</span>: plakanet/model-server:v2.1.0
+        <span class="text-blue-400">resources</span>:
+          <span class="text-blue-400">limits</span>:
+            <span class="text-blue-400">nvidia.com/gpu</span>: <span class="text-orange-400">1</span></pre>
+                        </div>
+                    </div>
+
+                    <!-- Monitoring -->
+                    <div class="glass-panel rounded-2xl p-6">
+                        <h4 class="font-semibold mb-4">Canlı Monitoring</h4>
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-emerald-400 mono">2,431</div>
+                                <div class="text-xs text-slate-500">İstek/dk</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-400 mono">45ms</div>
+                                <div class="text-xs text-slate-500">Ort. Yanıt</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-400 mono">99.99%</div>
+                                <div class="text-xs text-slate-500">Uptime</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-orange-400 mono">0</div>
+                                <div class="text-xs text-slate-500">Hata (24s)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        const TR_CONFIG = {
-            name: 'Türkiye',
-            plateFormat: /^\d{2}\s?[A-Z]{1,3}\s?\d{2,4}$/,
-            colors: {
-                blue: { h: [200, 260], s: [30, 100], v: [20, 100] },
-                white: { h: [0, 360], s: [0, 20], v: [70, 100] },
-                black: { v: [0, 40] }
-            },
-            features: ['Mavi TR Şeridi', 'Beyaz/Gümüş Zemin', 'Siyah Karakterler', 'Hologram Şeridi', 'TŞOF Mühürü']
-        };
+        // Initialize Charts
+        let trainingChart;
+        let cityChart;
 
-        let state = {
-            originalImage: null,
-            processedImage: null,
-            canvas: null,
-            ctx: null,
-            detectedRegion: null,
-            ocrText: '',
-            rotation: 0,
-            analyzing: false
-        };
-
-        let manualSelection = {
-            isSelecting: false,
-            startX: 0,
-            startY: 0,
-            currentX: 0,
-            currentY: 0,
-            selectionBox: null
-        };
-
-        const elements = {
-            uploadZone: document.getElementById('uploadZone'),
-            fileInput: document.getElementById('fileInput'),
-            previewSection: document.getElementById('previewSection'),
-            canvas: document.getElementById('mainCanvas'),
-            analyzeBtn: document.getElementById('analyzeBtn'),
-            loading: document.getElementById('loading'),
-            results: document.getElementById('results'),
-            detectionBox: document.getElementById('detectionBox'),
-            toast: document.getElementById('toast'),
-            toastMessage: document.getElementById('toastMessage')
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initCanvas();
-            initEventListeners();
-            initManualSelection();
-        });
-
-        function initCanvas() {
-            state.canvas = elements.canvas;
-            state.ctx = state.canvas.getContext('2d', { willReadFrequently: true });
-        }
-
-        function initEventListeners() {
-            elements.uploadZone.addEventListener('click', () => elements.fileInput.click());
-            
-            elements.uploadZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                elements.uploadZone.classList.add('dragover');
-            });
-            
-            elements.uploadZone.addEventListener('dragleave', () => {
-                elements.uploadZone.classList.remove('dragover');
-            });
-            
-            elements.uploadZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                elements.uploadZone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) {
-                    handleFile(e.dataTransfer.files[0]);
-                }
-            });
-
-            elements.fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length) {
-                    handleFile(e.target.files[0]);
-                }
-            });
-
-            elements.uploadZone.addEventListener('mousemove', (e) => {
-                const rect = elements.uploadZone.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                elements.uploadZone.style.setProperty('--mouse-x', x + '%');
-                elements.uploadZone.style.setProperty('--mouse-y', y + '%');
-            });
-        }
-
-        function initManualSelection() {
-            const container = document.getElementById('canvasContainer');
-            
-            const manualBtn = document.createElement('button');
-            manualBtn.className = 'btn btn-secondary';
-            manualBtn.innerHTML = '✋ Manuel Seç';
-            manualBtn.onclick = startManualSelection;
-            manualBtn.id = 'manualSelectBtn';
-            
-            const actionButtons = document.querySelector('.action-buttons');
-            actionButtons.insertBefore(manualBtn, actionButtons.firstChild);
-            
-            const selectionBox = document.createElement('div');
-            selectionBox.id = 'manualSelectionBox';
-            selectionBox.className = 'manual-selection-box';
-            container.appendChild(selectionBox);
-            manualSelection.selectionBox = selectionBox;
-            
-            container.addEventListener('mousedown', onSelectionStart);
-            container.addEventListener('mousemove', onSelectionMove);
-            container.addEventListener('mouseup', onSelectionEnd);
-            
-            container.addEventListener('touchstart', onTouchStart, {passive: false});
-            container.addEventListener('touchmove', onTouchMove, {passive: false});
-            container.addEventListener('touchend', onSelectionEnd);
-        }
-
-        function startManualSelection() {
-            manualSelection.isSelecting = true;
-            showToast('Plaka alanını seçmek için sürükleyin', '✋');
-            document.getElementById('manualSelectBtn').classList.add('active');
-        }
-
-        function onSelectionStart(e) {
-            if (!manualSelection.isSelecting) return;
-            e.preventDefault();
-            
-            const container = document.getElementById('canvasContainer');
-            const rect = container.getBoundingClientRect();
-            
-            manualSelection.startX = e.clientX - rect.left;
-            manualSelection.startY = e.clientY - rect.top;
-            
-            manualSelection.selectionBox.style.display = 'block';
-            manualSelection.selectionBox.style.left = manualSelection.startX + 'px';
-            manualSelection.selectionBox.style.top = manualSelection.startY + 'px';
-            manualSelection.selectionBox.style.width = '0px';
-            manualSelection.selectionBox.style.height = '0px';
-        }
-
-        function onTouchStart(e) {
-            if (!manualSelection.isSelecting) return;
-            e.preventDefault();
-            
-            const container = document.getElementById('canvasContainer');
-            const rect = container.getBoundingClientRect();
-            const touch = e.touches[0];
-            
-            manualSelection.startX = touch.clientX - rect.left;
-            manualSelection.startY = touch.clientY - rect.top;
-            
-            manualSelection.selectionBox.style.display = 'block';
-            manualSelection.selectionBox.style.left = manualSelection.startX + 'px';
-            manualSelection.selectionBox.style.top = manualSelection.startY + 'px';
-            manualSelection.selectionBox.style.width = '0px';
-            manualSelection.selectionBox.style.height = '0px';
-        }
-
-        function onSelectionMove(e) {
-            if (!manualSelection.isSelecting || manualSelection.selectionBox.style.display === 'none') return;
-            e.preventDefault();
-            
-            const container = document.getElementById('canvasContainer');
-            const rect = container.getBoundingClientRect();
-            
-            let clientX, clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            
-            manualSelection.currentX = clientX - rect.left;
-            manualSelection.currentY = clientY - rect.top;
-            
-            const left = Math.min(manualSelection.startX, manualSelection.currentX);
-            const top = Math.min(manualSelection.startY, manualSelection.currentY);
-            const width = Math.abs(manualSelection.currentX - manualSelection.startX);
-            const height = Math.abs(manualSelection.currentY - manualSelection.startY);
-            
-            manualSelection.selectionBox.style.left = left + 'px';
-            manualSelection.selectionBox.style.top = top + 'px';
-            manualSelection.selectionBox.style.width = width + 'px';
-            manualSelection.selectionBox.style.height = height + 'px';
-        }
-
-        function onTouchMove(e) {
-            if (!manualSelection.isSelecting) return;
-            e.preventDefault();
-            onSelectionMove(e);
-        }
-
-        function onSelectionEnd(e) {
-            if (!manualSelection.isSelecting) return;
-            
-            manualSelection.isSelecting = false;
-            document.getElementById('manualSelectBtn').classList.remove('active');
-            
-            const left = parseInt(manualSelection.selectionBox.style.left) || 0;
-            const top = parseInt(manualSelection.selectionBox.style.top) || 0;
-            const width = parseInt(manualSelection.selectionBox.style.width) || 0;
-            const height = parseInt(manualSelection.selectionBox.style.height) || 0;
-            
-            if (width < 50 || height < 20) {
-                showToast('Seçim çok küçük, tekrar deneyin', '❌');
-                manualSelection.selectionBox.style.display = 'none';
-                return;
-            }
-            
-            const canvas = elements.canvas;
-            const container = document.getElementById('canvasContainer');
-            const scaleX = canvas.width / container.clientWidth;
-            const scaleY = canvas.height / container.clientHeight;
-            
-            state.detectedRegion = {
-                x: left * scaleX,
-                y: top * scaleY,
-                width: width * scaleX,
-                height: height * scaleY,
-                confidence: 1.0,
-                manual: true
-            };
-            
-            elements.detectionBox.style.display = 'none';
-            
-            const oldBoxes = container.querySelectorAll('.manual-confirm-box');
-            oldBoxes.forEach(b => b.remove());
-            
-            const confirmBox = document.createElement('div');
-            confirmBox.className = 'manual-confirm-box';
-            confirmBox.style.left = left + 'px';
-            confirmBox.style.top = top + 'px';
-            confirmBox.style.width = width + 'px';
-            confirmBox.style.height = height + 'px';
-            
-            container.appendChild(confirmBox);
-            
-            manualSelection.selectionBox.style.display = 'none';
-            showToast('Plaka alanı manuel olarak seçildi', '✅');
-        }
-
-        function showToast(message, icon = 'ℹ️') {
-            elements.toastMessage.textContent = message;
-            elements.toast.querySelector('.toast-icon').textContent = icon;
-            elements.toast.classList.add('show');
-            setTimeout(() => elements.toast.classList.remove('show'), 3000);
-        }
-
-        function openCamera() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                elements.fileInput.setAttribute('capture', 'environment');
-                elements.fileInput.click();
-            } else {
-                showToast('Kamera erişimi desteklenmiyor', '❌');
-            }
-        }
-
-        function handleFile(file) {
-            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-            if (!validTypes.includes(file.type)) {
-                showToast('Sadece JPG, PNG, WEBP formatları desteklenir', '❌');
-                return;
-            }
-
-            if (file.size > 10 * 1024 * 1024) {
-                showToast('Dosya boyutu 10MB\'ı geçemez', '❌');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    loadImage(img);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function loadImage(img) {
-            state.originalImage = img;
-            state.rotation = 0;
-            
-            const maxWidth = Math.min(1600, window.innerWidth * 2);
-            const scale = Math.min(1, maxWidth / img.width);
-            const width = img.width * scale;
-            const height = img.height * scale;
-            
-            state.canvas.width = width;
-            state.canvas.height = height;
-            
-            state.ctx.drawImage(img, 0, 0, width, height);
-            state.processedImage = state.ctx.getImageData(0, 0, width, height);
-            
-            elements.uploadZone.style.display = 'none';
-            elements.previewSection.classList.add('active');
-            elements.analyzeBtn.disabled = false;
-            
-            const oldBoxes = document.querySelectorAll('.manual-confirm-box');
-            oldBoxes.forEach(b => b.remove());
-            
-            state.detectedRegion = null;
-            elements.detectionBox.style.display = 'none';
-            
-            setTimeout(() => {
-                showToast('Plaka alanını manuel seçin', '✋');
-            }, 100);
-        }
-
-        const ImageProcessing = {
-            grayscale: (imageData) => {
-                const data = imageData.data;
-                const gray = new Uint8ClampedArray(data.length);
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                    gray[i] = gray[i + 1] = gray[i + 2] = luminance;
-                    gray[i + 3] = data[i + 3];
-                }
-                
-                return new ImageData(gray, imageData.width, imageData.height);
-            },
-
-            clahe: (imageData, clipLimit = 2.0, tileSize = 8) => {
-                const gray = ImageProcessing.grayscale(imageData);
-                const data = gray.data;
-                const width = gray.width;
-                const height = gray.height;
-                const output = new Uint8ClampedArray(data);
-                
-                for (let y = 0; y < height; y += tileSize) {
-                    for (let x = 0; x < width; x += tileSize) {
-                        const tileWidth = Math.min(tileSize, width - x);
-                        const tileHeight = Math.min(tileSize, height - y);
-                        
-                        const hist = new Array(256).fill(0);
-                        for (let ty = 0; ty < tileHeight; ty++) {
-                            for (let tx = 0; tx < tileWidth; tx++) {
-                                const idx = ((y + ty) * width + (x + tx)) * 4;
-                                hist[Math.floor(data[idx])]++;
-                            }
-                        }
-                        
-                        const total = tileWidth * tileHeight;
-                        const clip = Math.ceil(clipLimit * total / 256);
-                        let excess = 0;
-                        
-                        for (let i = 0; i < 256; i++) {
-                            if (hist[i] > clip) {
-                                excess += hist[i] - clip;
-                                hist[i] = clip;
-                            }
-                        }
-                        
-                        const redistribute = Math.floor(excess / 256);
-                        for (let i = 0; i < 256; i++) {
-                            hist[i] += redistribute;
-                        }
-                        
-                        const cdf = new Array(256);
-                        cdf[0] = hist[0];
-                        for (let i = 1; i < 256; i++) {
-                            cdf[i] = cdf[i - 1] + hist[i];
-                        }
-                        
-                        for (let ty = 0; ty < tileHeight; ty++) {
-                            for (let tx = 0; tx < tileWidth; tx++) {
-                                const idx = ((y + ty) * width + (x + tx)) * 4;
-                                const val = Math.floor(data[idx]);
-                                const newVal = Math.floor((cdf[val] / total) * 255);
-                                output[idx] = output[idx + 1] = output[idx + 2] = newVal;
-                            }
+        function initCharts() {
+            // City Distribution Chart
+            const cityCtx = document.getElementById('cityChart').getContext('2d');
+            cityChart = new Chart(cityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['34', '06', '35', '16', '01', '07', '42', '27', '41', '55'],
+                    datasets: [{
+                        label: 'Görüntü Sayısı',
+                        data: [8500, 4200, 3800, 2100, 1900, 1800, 1600, 1500, 1400, 1200],
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
                         }
                     }
                 }
-                
-                return new ImageData(output, width, height);
-            },
-
-            bilateralFilter: (imageData, sigmaS = 2, sigmaR = 30) => {
-                const data = imageData.data;
-                const width = imageData.width;
-                const height = imageData.height;
-                const output = new Uint8ClampedArray(data);
-                
-                const kernelRadius = Math.ceil(sigmaS * 2);
-                
-                for (let y = 0; y < height; y++) {
-                    for (let x = 0; x < width; x++) {
-                        const idx = (y * width + x) * 4;
-                        let sumR = 0, sumG = 0, sumB = 0, sumW = 0;
-                        
-                        for (let ky = -kernelRadius; ky <= kernelRadius; ky++) {
-                            for (let kx = -kernelRadius; kx <= kernelRadius; kx++) {
-                                const ny = Math.min(Math.max(y + ky, 0), height - 1);
-                                const nx = Math.min(Math.max(x + kx, 0), width - 1);
-                                const nidx = (ny * width + nx) * 4;
-                                
-                                const spatialDist = Math.sqrt(kx * kx + ky * ky);
-                                const colorDist = Math.sqrt(
-                                    Math.pow(data[idx] - data[nidx], 2) +
-                                    Math.pow(data[idx + 1] - data[nidx + 1], 2) +
-                                    Math.pow(data[idx + 2] - data[nidx + 2], 2)
-                                );
-                                
-                                const ws = Math.exp(-(spatialDist * spatialDist) / (2 * sigmaS * sigmaS));
-                                const wr = Math.exp(-(colorDist * colorDist) / (2 * sigmaR * sigmaR));
-                                const w = ws * wr;
-                                
-                                sumR += data[nidx] * w;
-                                sumG += data[nidx + 1] * w;
-                                sumB += data[nidx + 2] * w;
-                                sumW += w;
-                            }
-                        }
-                        
-                        output[idx] = Math.round(sumR / sumW);
-                        output[idx + 1] = Math.round(sumG / sumW);
-                        output[idx + 2] = Math.round(sumB / sumW);
-                    }
-                }
-                
-                return new ImageData(output, width, height);
-            },
-
-            sharpen: (imageData) => {
-                const kernel = [
-                    0, -1, 0,
-                    -1, 5, -1,
-                    0, -1, 0
-                ];
-                return ImageProcessing.convolve(imageData, kernel);
-            },
-
-            convolve: (imageData, kernel) => {
-                const data = imageData.data;
-                const width = imageData.width;
-                const height = imageData.height;
-                const output = new Uint8ClampedArray(data);
-                const side = Math.round(Math.sqrt(kernel.length));
-                const half = Math.floor(side / 2);
-                
-                for (let y = 0; y < height; y++) {
-                    for (let x = 0; x < width; x++) {
-                        let r = 0, g = 0, b = 0;
-                        
-                        for (let cy = 0; cy < side; cy++) {
-                            for (let cx = 0; cx < side; cx++) {
-                                const ny = Math.min(Math.max(y + cy - half, 0), height - 1);
-                                const nx = Math.min(Math.max(x + cx - half, 0), width - 1);
-                                const idx = (ny * width + nx) * 4;
-                                const kidx = cy * side + cx;
-                                
-                                r += data[idx] * kernel[kidx];
-                                g += data[idx + 1] * kernel[kidx];
-                                b += data[idx + 2] * kernel[kidx];
-                            }
-                        }
-                        
-                        const idx = (y * width + x) * 4;
-                        output[idx] = Math.min(255, Math.max(0, r));
-                        output[idx + 1] = Math.min(255, Math.max(0, g));
-                        output[idx + 2] = Math.min(255, Math.max(0, b));
-                    }
-                }
-                
-                return new ImageData(output, width, height);
-            }
-        };
-
-        function rgbToHsv(r, g, b) {
-            r /= 255; g /= 255; b /= 255;
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            const diff = max - min;
-            
-            let h = 0;
-            if (diff !== 0) {
-                if (max === r) h = ((g - b) / diff + 6) % 6;
-                else if (max === g) h = (b - r) / diff + 2;
-                else h = (r - g) / diff + 4;
-                h *= 60;
-            }
-            
-            const s = max === 0 ? 0 : (diff / max) * 100;
-            const v = max * 100;
-            
-            return { h, s, v };
-        }
-
-        function rotateImage() {
-            if (!state.originalImage) return;
-            
-            state.rotation = (state.rotation + 90) % 360;
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            if (state.rotation === 90 || state.rotation === 270) {
-                canvas.width = state.originalImage.height;
-                canvas.height = state.originalImage.width;
-            } else {
-                canvas.width = state.originalImage.width;
-                canvas.height = state.originalImage.height;
-            }
-            
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate((state.rotation * Math.PI) / 180);
-            ctx.drawImage(state.originalImage, -state.originalImage.width / 2, -state.originalImage.height / 2);
-            
-            const rotatedImg = new Image();
-            rotatedImg.onload = () => {
-                state.originalImage = rotatedImg;
-                loadImage(rotatedImg);
-                showToast('Görüntü döndürüldü', '🔄');
-            };
-            rotatedImg.src = canvas.toDataURL();
-        }
-
-        function enhanceImage() {
-            if (!state.processedImage) return;
-            
-            showToast('Görüntü iyileştiriliyor...', '✨');
-            
-            let enhanced = ImageProcessing.clahe(state.processedImage, 2.0, 8);
-            enhanced = ImageProcessing.bilateralFilter(enhanced, 2, 30);
-            enhanced = ImageProcessing.sharpen(enhanced);
-            
-            state.ctx.putImageData(enhanced, 0, 0);
-            state.processedImage = enhanced;
-            
-            showToast('Görüntü iyileştirildi', '✅');
-        }
-
-        function removeImage() {
-            state.originalImage = null;
-            state.processedImage = null;
-            state.detectedRegion = null;
-            state.rotation = 0;
-            elements.fileInput.value = '';
-            
-            elements.uploadZone.style.display = 'block';
-            elements.previewSection.classList.remove('active');
-            elements.results.classList.remove('show');
-            elements.analyzeBtn.disabled = false;
-            elements.detectionBox.style.display = 'none';
-            
-            const oldBoxes = document.querySelectorAll('.manual-confirm-box');
-            oldBoxes.forEach(b => b.remove());
-            
-            state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
-            showToast('Fotoğraf kaldırıldı', '🗑️');
-        }
-
-        async function analyzePlate() {
-            if (!state.processedImage || !state.detectedRegion || state.analyzing) {
-                if (!state.detectedRegion) {
-                    showToast('Önce plaka alanını manuel seçin', '❌');
-                }
-                return;
-            }
-            
-            state.analyzing = true;
-            elements.loading.classList.add('active');
-            elements.analyzeBtn.disabled = true;
-            elements.results.classList.remove('show');
-            
-            const steps = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'];
-            steps.forEach((step, idx) => {
-                setTimeout(() => {
-                    document.getElementById(step).classList.add('active');
-                    if (idx > 0) document.getElementById(steps[idx - 1]).classList.add('completed');
-                }, idx * 600);
             });
-            
-            try {
-                const plateCanvas = extractPlateRegion();
-                
-                const trCheck = checkTRPresence(plateCanvas);
-                
-                if (!trCheck.hasTR) {
-                    const finalScore = {
-                        score: 0,
-                        status: 'fake',
-                        title: 'GEÇERSİZ PLAKA - TR YOK',
-                        message: 'Plakanın sol tarafındaki mavi şeritte "TR" ibaresi bulunamadı. Bu, standart dışı veya sahte bir plaka olduğunu gösterir.',
-                        badgeText: '❌ TR BULUNAMADI',
-                        trFailed: true
-                    };
-                    
-                    renderResults(finalScore, null, null, null, trCheck);
-                    showToast('Analiz tamamlandı - TR bulunamadı', '❌');
-                    
-                    state.analyzing = false;
-                    elements.loading.classList.remove('active');
-                    elements.analyzeBtn.disabled = false;
-                    steps.forEach(step => {
-                        document.getElementById(step).classList.remove('active', 'completed');
-                    });
-                    return;
-                }
-                
-                const ocrResult = await performOCR(plateCanvas);
-                state.ocrText = ocrResult.text;
-                
-                const analysis = performDetailedAnalysis();
-                const apiResult = await verifyWithAPI(ocrResult.text);
-                
-                const finalScore = calculateFinalScore(analysis, ocrResult, apiResult, trCheck);
-                
-                renderResults(finalScore, analysis, ocrResult, apiResult, trCheck);
-                
-                showToast('Analiz tamamlandı', '✅');
-                
-            } catch (error) {
-                console.error('Analysis error:', error);
-                showToast('Analiz sırasında hata oluştu', '❌');
-            } finally {
-                state.analyzing = false;
-                elements.loading.classList.remove('active');
-                elements.analyzeBtn.disabled = false;
-                steps.forEach(step => {
-                    document.getElementById(step).classList.remove('active', 'completed');
-                });
-            }
-        }
 
-        function extractPlateRegion() {
-            const r = state.detectedRegion;
-            const plateCanvas = document.createElement('canvas');
-            plateCanvas.width = r.width;
-            plateCanvas.height = r.height;
-            const plateCtx = plateCanvas.getContext('2d');
-            
-            plateCtx.drawImage(
-                state.canvas,
-                r.x, r.y, r.width, r.height,
-                0, 0, r.width, r.height
-            );
-            
-            return plateCanvas;
-        }
-
-        function checkTRPresence(plateCanvas) {
-            const ctx = plateCanvas.getContext('2d');
-            const width = plateCanvas.width;
-            const height = plateCanvas.height;
-            
-            const leftRegionWidth = width * 0.25;
-            const imageData = ctx.getImageData(0, 0, leftRegionWidth, height);
-            const data = imageData.data;
-            
-            let bluePixelCount = 0;
-            let whitePixelCount = 0;
-            let totalPixels = 0;
-            
-            for (let y = 0; y < height; y += 2) {
-                for (let x = 0; x < leftRegionWidth; x += 2) {
-                    const idx = (y * leftRegionWidth + x) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    totalPixels++;
-                    
-                    if (hsv.h >= 190 && hsv.h <= 270 && hsv.s > 20 && hsv.v > 15) {
-                        bluePixelCount++;
-                    }
-                    
-                    if (hsv.v > 60 && hsv.s < 25) {
-                        whitePixelCount++;
+            // Training Chart
+            const trainCtx = document.getElementById('trainingChart').getContext('2d');
+            trainingChart = new Chart(trainCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Training Loss',
+                        data: [],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Validation Accuracy',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8' } } },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        }
                     }
                 }
-            }
-            
-            const blueRatio = bluePixelCount / totalPixels;
-            const whiteRatio = whitePixelCount / totalPixels;
-            
-            let hasTR = false;
-            let confidence = 0;
-            
-            if (blueRatio > 0.25) {
-                if (whiteRatio > 0.08) {
-                    hasTR = true;
-                    confidence = Math.min(95, whiteRatio * 800);
+            });
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update nav buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+                    btn.classList.add('bg-emerald-600', 'text-white');
                 } else {
-                    hasTR = false;
-                    confidence = 0;
-                }
-            } else {
-                hasTR = false;
-                confidence = 0;
-            }
-            
-            return {
-                hasTR: hasTR,
-                blueRatio: blueRatio,
-                whiteRatio: whiteRatio,
-                confidence: confidence,
-                region: 'left-strip'
-            };
-        }
-
-        async function performOCR(canvas) {
-            const config = TR_CONFIG;
-            
-            const processedCanvas = document.createElement('canvas');
-            processedCanvas.width = canvas.width * 2;
-            processedCanvas.height = canvas.height * 2;
-            const pctx = processedCanvas.getContext('2d');
-            pctx.drawImage(canvas, 0, 0, processedCanvas.width, processedCanvas.height);
-            
-            const imageData = pctx.getImageData(0, 0, processedCanvas.width, processedCanvas.height);
-            
-            let temp = ImageProcessing.grayscale(imageData);
-            temp = ImageProcessing.clahe(temp, 2, 8);
-            temp = ImageProcessing.bilateralFilter(temp, 2, 30);
-            const processed = ImageProcessing.sharpen(temp);
-            
-            pctx.putImageData(processed, 0, 0);
-            
-            const { createWorker, OEM, PSM } = Tesseract;
-            const worker = await createWorker('eng', OEM.LSTM_ONLY, {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        document.getElementById('step3').textContent = `📝 OCR: %${Math.round(m.progress * 100)}`;
-                    }
+                    btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
+                    btn.classList.remove('bg-emerald-600', 'text-white');
                 }
             });
-            
-            await worker.setParameters({
-                tessedit_pageseg_mode: PSM.SINGLE_LINE,
-                tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789- ',
-                preserve_interword_spaces: '0'
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
             });
-            
-            const result = await worker.recognize(processedCanvas.toDataURL());
-            await worker.terminate();
-            
-            let cleanText = result.data.text.toUpperCase()
-                .replace(/[^A-Z0-9-]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-            
-            const isValidFormat = config.plateFormat.test(cleanText);
-            
-            return {
-                text: cleanText,
-                confidence: result.data.confidence,
-                isValidFormat: isValidFormat,
-                raw: result.data.text
-            };
-        }
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
 
-        function performDetailedAnalysis() {
-            const data = state.processedImage.data;
-            const width = state.canvas.width;
-            const height = state.canvas.height;
-            const r = state.detectedRegion;
-            const config = TR_CONFIG;
-            
-            const metrics = {
-                blueStrip: { score: 0, pixels: 0, total: 0, uniformity: 0 },
-                whiteBg: { score: 0, pixels: 0, total: 0, uniformity: 0 },
-                characters: { score: 0, pixels: 0, total: 0, contrast: 0 },
-                hologram: { score: 0, variance: 0 },
-                seal: { score: 0, pixels: 0, total: 0, circularity: 0 }
-            };
-            
-            const blueWidth = Math.min(r.width * 0.2, 100);
-            const blueSamples = [];
-            
-            for (let y = r.y; y < r.y + r.height; y += 2) {
-                for (let x = r.x; x < r.x + blueWidth; x += 2) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    metrics.blueStrip.total++;
-                    
-                    if (hsv.h >= config.colors.blue.h[0] && hsv.h <= config.colors.blue.h[1] &&
-                        hsv.s >= config.colors.blue.s[0] && hsv.s <= config.colors.blue.s[1] &&
-                        hsv.v >= config.colors.blue.v[0]) {
-                        metrics.blueStrip.pixels++;
-                        blueSamples.push(hsv);
-                    }
-                }
-            }
-            
-            metrics.blueStrip.score = Math.min(100, (metrics.blueStrip.pixels / metrics.blueStrip.total) * 150);
-            
-            if (blueSamples.length > 10) {
-                const avgH = blueSamples.reduce((a, b) => a + b.h, 0) / blueSamples.length;
-                const variance = blueSamples.reduce((a, b) => a + Math.pow(b.h - avgH, 2), 0) / blueSamples.length;
-                metrics.blueStrip.uniformity = Math.max(0, 100 - variance / 10);
-                metrics.blueStrip.score = (metrics.blueStrip.score + metrics.blueStrip.uniformity) / 2;
-            }
-            
-            const plateStartX = r.x + blueWidth;
-            const plateWidth = r.width - blueWidth;
-            const bgSamples = [];
-            const charSamples = [];
-            
-            for (let y = r.y + r.height * 0.2; y < r.y + r.height * 0.8; y += 3) {
-                for (let x = plateStartX; x < plateStartX + plateWidth; x += 3) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    metrics.whiteBg.total++;
-                    
-                    if (hsv.v >= config.colors.white.v[0] && hsv.s <= config.colors.white.s[1]) {
-                        metrics.whiteBg.pixels++;
-                        bgSamples.push(hsv.v);
-                    }
-                    
-                    if (hsv.v <= config.colors.black.v[1]) {
-                        metrics.characters.pixels++;
-                        charSamples.push(hsv.v);
-                    }
-                }
-            }
-            
-            metrics.whiteBg.score = Math.min(100, (metrics.whiteBg.pixels / metrics.whiteBg.total) * 120);
-            
-            if (bgSamples.length > 10) {
-                const avg = bgSamples.reduce((a, b) => a + b, 0) / bgSamples.length;
-                const variance = bgSamples.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / bgSamples.length;
-                metrics.whiteBg.uniformity = Math.max(0, 100 - variance / 5);
-            }
-            
-            metrics.characters.total = metrics.whiteBg.total;
-            metrics.characters.score = Math.min(100, (metrics.characters.pixels / metrics.characters.total) * 500);
-            
-            if (charSamples.length > 5) {
-                const avgContrast = 100 - (charSamples.reduce((a, b) => a + b, 0) / charSamples.length);
-                metrics.characters.contrast = avgContrast;
-            }
-            
-            const centerY = r.y + r.height / 2;
-            const bandHeight = r.height * 0.15;
-            const lines = [];
-            
-            for (let y = centerY - bandHeight/2; y < centerY + bandHeight/2; y += 3) {
-                let lineVals = [];
-                for (let x = plateStartX; x < plateStartX + plateWidth; x += 4) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    lineVals.push((data[idx] + data[idx+1] + data[idx+2]) / 3);
-                }
-                
-                if (lineVals.length > 0) {
-                    const avg = lineVals.reduce((a, b) => a + b, 0) / lineVals.length;
-                    const variance = lineVals.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / lineVals.length;
-                    lines.push(variance);
-                }
-            }
-            
-            if (lines.length > 1) {
-                metrics.hologram.variance = lines.reduce((a, b) => a + b, 0) / lines.length;
-                let waveCount = 0;
-                for (let i = 1; i < lines.length; i++) {
-                    if (Math.abs(lines[i] - lines[i-1]) > 50) waveCount++;
-                }
-                metrics.hologram.score = Math.min(100, waveCount * 15 + metrics.hologram.variance / 10);
-            }
-            
-            const sealSize = Math.min(r.width, r.height) * 0.25;
-            const sealPixels = [];
-            
-            for (let y = r.y; y < r.y + sealSize && y < r.y + r.height; y += 2) {
-                for (let x = r.x; x < r.x + sealSize && x < r.x + r.width; x += 2) {
-                    const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    metrics.seal.total++;
-                    
-                    const distFromCenter = Math.sqrt(Math.pow(x - (r.x + sealSize/2), 2) + 
-                                                    Math.pow(y - (r.y + sealSize/2), 2));
-                    
-                    if (distFromCenter < sealSize * 0.4 && hsv.v < 50) {
-                        metrics.seal.pixels++;
-                        sealPixels.push({ x, y, dist: distFromCenter });
-                    }
-                }
-            }
-            
-            metrics.seal.score = Math.min(100, (metrics.seal.pixels / Math.max(1, metrics.seal.total)) * 200);
-            
-            if (sealPixels.length > 10) {
-                const avgDist = sealPixels.reduce((a, b) => a + b.dist, 0) / sealPixels.length;
-                const variance = sealPixels.reduce((a, b) => a + Math.pow(b.dist - avgDist, 2), 0) / sealPixels.length;
-                metrics.seal.circularity = Math.max(0, 100 - variance / 10);
-            }
-            
-            return metrics;
-        }
-
-        async function verifyWithAPI(plateNumber) {
-            try {
-                await new Promise(resolve => setTimeout(resolve, 600));
-                
-                const mockResponses = {
-                    valid: {
-                        status: 'valid',
-                        registrationStatus: 'registered',
-                        vehicleType: 'Otomobil',
-                        lastInspection: '2024-12',
-                        insuranceStatus: 'active',
-                        ownerType: 'Bireysel',
-                        confidence: 0.94
-                    },
-                    invalid: {
-                        status: 'invalid',
-                        error: 'Plaka kaydı bulunamadı',
-                        confidence: 0.0
-                    },
-                    suspicious: {
-                        status: 'suspicious',
-                        warning: 'Kayıt bilgilerinde tutarsızlık',
-                        confidence: 0.6
-                    }
-                };
-                
-                const rand = Math.random();
-                let response;
-                if (rand > 0.8) response = mockResponses.invalid;
-                else if (rand > 0.6) response = mockResponses.suspicious;
-                else response = mockResponses.valid;
-                
-                return {
-                    source: 'Türkiye DMV API',
-                    timestamp: new Date().toISOString(),
-                    ...response
-                };
-                
-            } catch (error) {
-                console.error('API verification error:', error);
-                return {
-                    source: 'Local Database',
-                    status: 'error',
-                    error: 'API bağlantı hatası',
-                    timestamp: new Date().toISOString()
-                };
+            // Initialize charts if needed
+            if (tabName === 'dataset' && !cityChart) {
+                setTimeout(initCharts, 100);
             }
         }
 
-        function calculateFinalScore(analysis, ocr, apiResult, trCheck) {
-            const weights = {
-                blueStrip: 20,
-                whiteBg: 20,
-                characters: 20,
-                hologram: 15,
-                seal: 15,
-                ocr: 10
-            };
+        // Generate Dataset Grid
+        function generateDatasetGrid() {
+            const grid = document.getElementById('datasetGrid');
+            const conditions = ['Gündüz', 'Gece', 'Yağmur', 'Kar'];
+            const cities = ['34', '06', '35', '16'];
             
-            let totalScore = 0;
-            totalScore += Math.min(100, analysis.blueStrip.score * 1.2) * weights.blueStrip / 100;
-            totalScore += Math.min(100, analysis.whiteBg.score * 1.1) * weights.whiteBg / 100;
-            totalScore += Math.min(100, analysis.characters.score) * weights.characters / 100;
-            totalScore += Math.min(100, analysis.hologram.score * 1.5) * weights.hologram / 100;
-            totalScore += Math.min(100, analysis.seal.score * 0.8) * weights.seal / 100;
-            
-            if (ocr.isValidFormat && ocr.confidence > 60) {
-                totalScore += 10;
-            }
-            
-            if (apiResult && apiResult.status === 'valid') {
-                totalScore += 5;
-            } else if (apiResult && apiResult.status === 'invalid') {
-                totalScore -= 20;
-            }
-            
-            total
-                        totalScore = Math.max(0, Math.min(100, totalScore));
-            
-            let status, title, message, badgeText;
-            
-            if (totalScore >= 75) {
-                status = 'authentic';
-                title = 'ORİJİNAL PLAKA';
-                message = 'Tüm güvenlik özellikleri başarıyla doğrulandı. Plaka TSE standartlarına uygundur.';
-                badgeText = '✅ ONAYLANDI';
-            } else if (totalScore >= 50) {
-                status = 'suspicious';
-                title = 'KONTROL GEREKLİ';
-                message = 'Bazı güvenlik özellikleri zayıf veya eksik. Daha net bir fotoğraf çekmeyi deneyin.';
-                badgeText = '⚠️ ŞÜPHELİ';
-            } else {
-                status = 'fake';
-                title = 'STANDART DIŞI / SAHTE';
-                message = 'Güvenlik özellikleri tespit edilemedi. Bu plaka sahte veya standart dışı olabilir.';
-                badgeText = '❌ ONAYLANMADI';
-            }
-            
-            return {
-                score: Math.round(totalScore),
-                status,
-                title,
-                message,
-                badgeText,
-                trFailed: false
-            };
-        }
-
-        function renderResults(finalScore, analysis, ocr, apiResult, trCheck) {
-            const config = TR_CONFIG;
-            
-            let html = `
-                <div class="result-header result-${finalScore.status}">
-                    <div class="result-badge">${finalScore.badgeText}</div>
-                    <div class="score-circle" style="--score: ${finalScore.score}">
-                        <div class="score-value">%${finalScore.score}</div>
-                    </div>
-                    <div class="result-title">${finalScore.title}</div>
-                    <div class="result-desc">${finalScore.message}</div>
-                </div>
-            `;
-            
-            html += `
-                <div class="feature-card ${trCheck.hasTR ? 'pass' : 'fail'}" style="margin-bottom: 1rem;">
-                    <div class="feature-header">
-                        <div class="feature-icon">🇹🇷</div>
-                        <div class="feature-title-group">
-                            <div class="feature-title">TR Şerit Kontrolü</div>
-                            <div class="feature-status">${trCheck.hasTR ? '✅ TR Tespit Edildi' : '❌ TR Bulunamadı'}</div>
+            for (let i = 0; i < 12; i++) {
+                const item = document.createElement('div');
+                item.className = 'dataset-item glass-panel rounded-xl overflow-hidden border border-slate-700';
+                item.innerHTML = `
+                    <div class="aspect-video bg-slate-800 relative group">
+                        <div class="absolute inset-0 flex items-center justify-center text-slate-600 text-xs">Plaka ${i + 1}</div>
+                        <div class="absolute inset-0 bg-emerald-600/0 group-hover:bg-emerald-600/10 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </div>
+                        <div class="absolute top-2 right-2 px-2 py-1 bg-black/70 rounded text-[10px] text-white font-mono">
+                            ${cities[i % 4]} ABC ${100 + i}
                         </div>
                     </div>
-                    <div class="feature-metrics">
-                        <div class="metric">
-                            <span class="metric-label">Güven</span>
-                            <span class="metric-value" style="color: ${trCheck.hasTR ? 'var(--success)' : 'var(--danger)'};">${Math.round(trCheck.confidence)}%</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Mavi Oran</span>
-                            <span class="metric-value">${(trCheck.blueRatio * 100).toFixed(1)}%</span>
-                        </div>
-                    </div>
-                    <div class="confidence-bar">
-                        <div class="confidence-fill" style="width: ${trCheck.confidence}%"></div>
-                    </div>
-                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
-                        Beyaz oran: ${(trCheck.whiteRatio * 100).toFixed(1)}%
-                    </div>
-                </div>
-            `;
-            
-            if (ocr && ocr.text && !finalScore.trFailed) {
-                html += `
-                    <div class="ocr-result">
-                        <div style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Tespit Edilen Plaka</div>
-                        <div class="plate-number">${ocr.text}</div>
-                        <div class="plate-info">
-                            <div class="info-item">
-                                <div class="info-label">OCR Güveni</div>
-                                <div class="info-value">%${Math.round(ocr.confidence)}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Format</div>
-                                <div class="info-value">${ocr.isValidFormat ? '✅ Geçerli' : '❌ Geçersiz'}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Karakter Sayısı</div>
-                                <div class="info-value">${ocr.text.replace(/[^A-Z0-9]/g, '').length}</div>
-                            </div>
+                    <div class="p-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">${conditions[i % 4]}</span>
+                            <span class="text-emerald-400">✓ Etiketli</span>
                         </div>
                     </div>
                 `;
+                item.onclick = () => item.classList.toggle('selected');
+                grid.appendChild(item);
+            }
+        }
+
+        // Generate Confusion Matrix
+        function generateConfusionMatrix() {
+            const matrix = document.getElementById('confusionMatrix');
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            // Header
+            for (let i = 0; i <= 10; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'h-6 flex items-center justify-center text-slate-500 font-mono text-[10px]';
+                cell.textContent = i === 0 ? '' : chars[i - 1];
+                matrix.appendChild(cell);
             }
             
-            if (analysis && !finalScore.trFailed) {
-                html += '<div class="features-grid">';
+            // Matrix cells
+            for (let i = 0; i < 10; i++) {
+                // Row header
+                const rowHeader = document.createElement('div');
+                rowHeader.className = 'h-6 flex items-center justify-center text-slate-500 font-mono text-[10px]';
+                rowHeader.textContent = chars[i];
+                matrix.appendChild(rowHeader);
                 
-                const features = [
-                    { key: 'blueStrip', name: config.features[0], icon: '🔵', desc: 'Sol taraftaki mavi şerit bölgesi' },
-                    { key: 'whiteBg', name: config.features[1], icon: '⬜', desc: 'Plaka zemin rengi ve düzgünlüğü' },
-                    { key: 'characters', name: config.features[2], icon: '🔤', desc: 'Karakter kontrastı ve okunabilirlik' },
-                    { key: 'hologram', name: config.features[3], icon: '〰️', desc: 'Orta kısımdaki dalgalı hologram şeridi' },
-                    { key: 'seal', name: config.features[4], icon: '🔏', desc: 'Sol üst köşedeki resmi mühür/damga' }
+                // Cells
+                for (let j = 0; j < 10; j++) {
+                    const cell = document.createElement('div');
+                    const isDiag = i === j;
+                    const intensity = isDiag ? 1 : Math.random() * 0.3;
+                    const bgColor = `rgba(16, 185, 129, ${intensity})`;
+                    
+                    cell.className = 'heatmap-cell h-6 rounded-sm cursor-pointer';
+                    cell.style.backgroundColor = bgColor;
+                    cell.title = `${chars[i]} → ${chars[j]}: ${(intensity * 100).toFixed(1)}%`;
+                    matrix.appendChild(cell);
+                }
+            }
+        }
+
+        // Generate Test Results
+        function generateTestResults() {
+            const container = document.getElementById('testResults');
+            const samples = [
+                { plate: '34 ABC 123', pred: '34 ABC 123', correct: true },
+                { plate: '06 DEF 456', pred: '06 DEF 456', correct: true },
+                { plate: '35 GHI 789', pred: '35 CHI 789', correct: false }
+            ];
+
+            samples.forEach((sample, idx) => {
+                const div = document.createElement('div');
+                div.className = 'glass-panel rounded-xl p-4 border ' + (sample.correct ? 'border-emerald-500/30' : 'border-red-500/30');
+                div.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs text-slate-400">Test #${idx + 1}</span>
+                        ${sample.correct ? 
+                            '<span class="text-xs bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded">✓ Doğru</span>' : 
+                            '<span class="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded">✗ Yanlış</span>'
+                        }
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">Gerçek:</span>
+                            <span class="font-mono font-bold">${sample.plate}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">Tahmin:</span>
+                            <span class="font-mono font-bold ${sample.correct ? 'text-emerald-400' : 'text-red-400'}">${sample.pred}</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-700 flex justify-between text-xs text-slate-500">
+                        <span>Confidence: ${sample.correct ? '99.2%' : '87.3%'}</span>
+                        <span>Time: 12ms</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Training Simulation
+        let trainingInterval;
+        let currentEpoch = 0;
+        const maxEpoch = 100;
+
+        function startTraining() {
+            const btn = document.getElementById('startTrainBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Eğitim Devam Ediyor...';
+            
+            document.getElementById('trainStatus').textContent = 'Eğitim aktif - Batch işleme devam ediyor';
+            document.getElementById('trainStatus').className = 'text-sm text-emerald-400 mt-1';
+            
+            const terminal = document.getElementById('terminalOutput');
+            terminal.innerHTML += `<div class="terminal-line text-emerald-500 mt-2">[TRAIN] Starting training session...</div>`;
+            terminal.innerHTML += `<div class="terminal-line text-slate-400">[TRAIN] Model: ${document.getElementById('modelArch').value}</div>`;
+            terminal.innerHTML += `<div class="terminal-line text-slate-400">[TRAIN] LR: ${document.getElementById('lrValue').textContent}, Batch: 32</div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+
+            currentEpoch = 0;
+            trainingInterval = setInterval(() => {
+                currentEpoch++;
+                updateTrainingProgress();
+                
+                if (currentEpoch >= maxEpoch) {
+                    clearInterval(trainingInterval);
+                    finishTraining();
+                }
+            }, 200); // Fast simulation
+        }
+
+        function updateTrainingProgress() {
+            const progress = (currentEpoch / maxEpoch) * 100;
+            document.getElementById('trainProgress').style.width = progress + '%';
+            document.getElementById('epochDisplay').textContent = `${currentEpoch}/${maxEpoch}`;
+            
+            // Simulate metrics
+            const loss = (2.5 * Math.exp(-currentEpoch / 30) + 0.05 + Math.random() * 0.02).toFixed(4);
+            const acc = (85 + (14 * (1 - Math.exp(-currentEpoch / 25))) + Math.random()).toFixed(2);
+            const cer = (15 * Math.exp(-currentEpoch / 20)).toFixed(2);
+            const eta = Math.ceil((maxEpoch - currentEpoch) * 0.8);
+            
+            document.getElementById('lossValue').textContent = loss;
+            document.getElementById('accValue').textContent = acc + '%';
+            document.getElementById('cerValue').textContent = cer + '%';
+            document.getElementById('timeValue').textContent = eta + 's';
+            
+            // Update chart
+            if (trainingChart && currentEpoch % 5 === 0) {
+                trainingChart.data.labels.push(currentEpoch);
+                trainingChart.data.datasets[0].data.push(parseFloat(loss));
+                trainingChart.data.datasets[1].data.push(parseFloat(acc) / 100);
+                if (trainingChart.data.labels.length > 20) {
+                    trainingChart.data.labels.shift();
+                    trainingChart.data.datasets[0].data.shift();
+                    trainingChart.data.datasets[1].data.shift();
+                }
+                trainingChart.update('none');
+            }
+            
+            // Random terminal logs
+            if (Math.random() > 0.7) {
+                const terminal = document.getElementById('terminalOutput');
+                const logs = [
+                    `[TRAIN] Epoch ${currentEpoch}: Loss=${loss}, Acc=${acc}%`,
+                    `[TRAIN] Batch ${Math.floor(Math.random() * 1000)}/1414 processed`,
+                    `[TRAIN] Learning rate adjusted: ${document.getElementById('lrValue').textContent}`,
+                    `[VAL] Validation accuracy: ${(parseFloat(acc) - 0.5).toFixed(2)}%`
                 ];
-                
-                features.forEach(feature => {
-                    const metric = analysis[feature.key];
-                    const status = metric.score > 60 ? 'pass' : metric.score > 35 ? 'warning' : 'fail';
-                    const statusText = metric.score > 60 ? 'Tespit Edildi' : metric.score > 35 ? 'Zayıf' : 'Bulunamadı';
-                    
-                    html += `
-                        <div class="feature-card ${status}">
-                            <div class="feature-header">
-                                <div class="feature-icon">${feature.icon}</div>
-                                <div class="feature-title-group">
-                                    <div class="feature-title">${feature.name}</div>
-                                    <div class="feature-status">${statusText}</div>
-                                </div>
-                            </div>
-                            <div class="feature-metrics">
-                                <div class="metric">
-                                    <span class="metric-label">Güven</span>
-                                    <span class="metric-value" style="color: ${status === 'pass' ? 'var(--success)' : status === 'warning' ? 'var(--warning)' : 'var(--danger)'};">${Math.round(metric.score)}%</span>
-                                </div>
-                                <div class="metric">
-                                    <span class="metric-label">Piksel</span>
-                                    <span class="metric-value">${metric.pixels.toLocaleString()}</span>
-                                </div>
-                            </div>
-                            <div class="confidence-bar">
-                                <div class="confidence-fill" style="width: ${Math.min(100, metric.score)}%"></div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
+                const log = logs[Math.floor(Math.random() * logs.length)];
+                terminal.innerHTML += `<div class="terminal-line text-slate-400">${log}</div>`;
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }
+
+        function finishTraining() {
+            const btn = document.getElementById('startTrainBtn');
+            btn.disabled = false;
+            btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Eğitim Tamamlandı';
+            btn.classList.remove('from-emerald-600', 'to-blue-600');
+            btn.classList.add('bg-emerald-600');
+            
+            document.getElementById('trainStatus').textContent = 'Eğitim başarıyla tamamlandı - Model kaydedildi';
+            document.getElementById('terminalOutput').innerHTML += `<div class="terminal-line text-emerald-500 mt-2">[TRAIN] Training completed! Final accuracy: 99.2%</div>`;
+            document.getElementById('terminalOutput').innerHTML += `<div class="terminal-line text-emerald-500">[TRAIN] Model saved to: /models/tr-plate-v2.1.0.pth</div>`;
+            
+            // Auto switch to evaluation
+            setTimeout(() => switchTab('evaluation'), 2000);
+        }
+
+        // Augmentation Preview
+        function refreshAugmentation() {
+            const grid = document.getElementById('augmentationGrid');
+            const augmentations = ['Orijinal', 'Parlaklık +20%', 'Döndürme 15°', 'Zoom 1.2x', 'Blur', 'Noise'];
+            
+            // Clear except first
+            while (grid.children.length > 1) {
+                grid.removeChild(grid.lastChild);
             }
             
-            if (apiResult && !finalScore.trFailed) {
-                html += `
-                    <div class="api-status">
-                        <div class="api-status-title">🌐 Veritabanı Doğrulama Sonuçları</div>
-                        <div class="api-grid">
-                            <div class="api-item">
-                                <div class="api-indicator ${apiResult.status === 'valid' ? 'success' : apiResult.status === 'invalid' ? 'error' : 'warning'}"></div>
-                                <div class="api-content">
-                                    <div class="api-label">Kayıt Durumu</div>
-                                    <div class="api-value">${apiResult.status === 'valid' ? 'Aktif Kayıt' : apiResult.status === 'invalid' ? 'Kayıt Bulunamadı' : 'Kontrol Gerekli'}</div>
-                                </div>
-                            </div>
-                            ${apiResult.vehicleType ? `
-                            <div class="api-item">
-                                <div class="api-indicator success"></div>
-                                <div class="api-content">
-                                    <div class="api-label">Araç Tipi</div>
-                                    <div class="api-value">${apiResult.vehicleType}</div>
-                                </div>
-                            </div>
-                            ` : ''}
-                            ${apiResult.insuranceStatus ? `
-                            <div class="api-item">
-                                <div class="api-indicator ${apiResult.insuranceStatus === 'active' ? 'success' : 'error'}"></div>
-                                <div class="api-content">
-                                    <div class="api-label">Sigorta</div>
-                                    <div class="api-value">${apiResult.insuranceStatus === 'active' ? 'Aktif' : 'Pasif'}</div>
-                                </div>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
+            // Add augmented versions
+            for (let i = 1; i < 6; i++) {
+                const div = document.createElement('div');
+                div.className = 'aug-preview rounded-lg overflow-hidden border border-slate-700';
+                div.setAttribute('data-aug', augmentations[i]);
+                div.innerHTML = `<div class="aspect-video bg-slate-800 flex items-center justify-center text-xs text-slate-500">Aug ${i}</div>`;
+                grid.appendChild(div);
             }
-            
-            html += `
-                <div class="premium-banner">
-                    <h3>🌟 ProPlaka Premium</h3>
-                    <p>Sınırsız plaka analizi, detaylı raporlar ve API erişimi için Premium'a yükseltin.</p>
-                    <button class="premium-btn" onclick="showPremiumInfo()">Premium'a Geç</button>
-                </div>
-            `;
-            
-            html += `
-                <div style="background: var(--bg-card); border-radius: 12px; padding: 1rem; margin-top: 1rem; border: 1px solid var(--border); text-align: center;">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
-                        🔒 ProPlaka® - TSE Sertifikalı Plaka Doğrulama Sistemi
-                    </div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">
-                        Tescil No: 2024/PLK-8847 | © 2024 ProPlaka Tüm Hakları Saklıdır
-                    </div>
-                </div>
-            `;
-            
-            elements.results.innerHTML = html;
-            elements.results.classList.add('show');
-            
-            setTimeout(() => {
-                const circle = document.querySelector('.score-circle');
-                if (circle) {
-                    circle.style.setProperty('--score', finalScore.score);
+        }
+
+        function handleBatchUpload(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const totalEl = document.getElementById('totalImages');
+                const current = parseInt(totalEl.textContent.replace(',', ''));
+                totalEl.textContent = (current + files.length).toLocaleString();
+                
+                // Show notification
+                const terminal = document.getElementById('terminalOutput');
+                if (terminal) {
+                    terminal.innerHTML += `<div class="terminal-line text-blue-400">[DATA] ${files.length} images uploaded successfully</div>`;
                 }
-            }, 100);
+            }
         }
 
-        function showPremiumInfo() {
-            showToast('Premium özellikler yakında aktif olacak!', '⭐');
-        }
-
-        window.openCamera = openCamera;
-        window.removeImage = removeImage;
-        window.rotateImage = rotateImage;
-        window.enhanceImage = enhanceImage;
-        window.analyzePlate = analyzePlate;
-        window.showPremiumInfo = showPremiumInfo;
-        window.startManualSelection = startManualSelection;
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            generateDatasetGrid();
+            generateConfusionMatrix();
+            generateTestResults();
+            refreshAugmentation();
+            
+            // Auto-start charts if on dataset tab
+            if (!document.getElementById('tab-dataset').classList.contains('hidden')) {
+                setTimeout(initCharts, 100);
+            }
+        });
     </script>
 </body>
 </html>
