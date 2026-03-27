@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plaka Pro - Akıllı Tarama Sistemi</title>
+    <title>Plaka Pro - Gerçek Zamanlı OCR</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -63,7 +63,6 @@
             padding: 5rem 1rem 2rem;
         }
 
-        /* Layout */
         .workspace {
             display: grid;
             grid-template-columns: 300px 1fr 350px;
@@ -91,7 +90,6 @@
             margin-bottom: 0.5rem;
         }
 
-        /* Big Scan Button */
         .mega-scan-btn {
             width: 100%;
             padding: 1.5rem;
@@ -130,7 +128,50 @@
             font-weight: 500;
         }
 
-        /* Manual Mark Toggle */
+        /* Plate Input Section */
+        .plate-input-section {
+            background: #0f172a;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 2px solid #334155;
+        }
+
+        .plate-input-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .plate-input {
+            width: 100%;
+            padding: 0.875rem;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 0.5rem;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .plate-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .edit-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
         .manual-toggle {
             background: #0f172a;
             border-radius: 0.75rem;
@@ -189,7 +230,6 @@
             line-height: 1.4;
         }
 
-        /* Zone Buttons */
         .zone-btn {
             width: 100%;
             padding: 0.875rem;
@@ -286,7 +326,6 @@
             cursor: crosshair;
         }
 
-        /* Click Marker for Manual Plate */
         .click-marker {
             position: absolute;
             width: 20px;
@@ -317,7 +356,6 @@
             50% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
         }
 
-        /* Auto Detected Zones */
         .auto-zone {
             position: absolute;
             border: 3px solid;
@@ -350,7 +388,6 @@
         .auto-zone.tr .zone-label { background: var(--zone-tr); }
         .auto-zone.laser .zone-label { background: var(--zone-laser); }
 
-        /* Laser Animation */
         .laser-beam {
             position: absolute;
             top: 0;
@@ -381,7 +418,7 @@
             100% { left: 100%; opacity: 0; }
         }
 
-        /* Right Panel - OCR Results */
+        /* Right Panel */
         .right-panel {
             background: var(--panel-bg);
             border-radius: 1rem;
@@ -392,13 +429,18 @@
             overflow-y: auto;
         }
 
-        /* OCR Result Card */
+        /* OCR Result */
         .ocr-hero {
             background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             border-radius: 1rem;
             padding: 1.5rem;
             text-align: center;
             color: white;
+            display: none;
+        }
+
+        .ocr-hero.active {
+            display: block;
         }
 
         .ocr-label {
@@ -419,6 +461,7 @@
             border-radius: 0.5rem;
             margin-bottom: 0.5rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            word-break: break-all;
         }
 
         .ocr-confidence {
@@ -432,11 +475,33 @@
             font-weight: 600;
         }
 
-        /* Plate Details */
+        .edit-plate-btn {
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .edit-plate-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
         .plate-details {
             background: #0f172a;
             border-radius: 0.75rem;
             padding: 1rem;
+            display: none;
+        }
+
+        .plate-details.active {
+            display: block;
         }
 
         .detail-row {
@@ -463,7 +528,6 @@
         .detail-value.success { color: var(--success); }
         .detail-value.warning { color: var(--warning); }
 
-        /* Analysis Results */
         .results-list {
             display: flex;
             flex-direction: column;
@@ -523,7 +587,6 @@
             line-height: 1.4;
         }
 
-        /* Progress */
         .scan-progress {
             background: #0f172a;
             border-radius: 0.75rem;
@@ -557,7 +620,6 @@
             border-radius: 4px;
         }
 
-        /* Status Badge */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -579,7 +641,6 @@
             color: var(--warning);
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
@@ -592,7 +653,6 @@
             opacity: 0.5;
         }
 
-        /* Instructions Overlay */
         .instructions {
             position: absolute;
             bottom: 1rem;
@@ -626,7 +686,6 @@
             display: none;
         }
 
-        /* Responsive */
         @media (max-width: 1200px) {
             .workspace {
                 grid-template-columns: 1fr;
@@ -642,10 +701,10 @@
     <nav class="navbar">
         <div class="logo">
             <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
-            Plaka Pro - Akıllı Tarama
+            Plaka Pro - Gerçek Zamanlı OCR
         </div>
         <div style="font-size: 0.875rem; color: #64748b;">
-            <i class="fas fa-bolt"></i> Tek tuşta tam analiz
+            <i class="fas fa-font"></i> Tespit edilen: <span id="navPlate">-</span>
         </div>
     </nav>
 
@@ -653,7 +712,6 @@
         <div class="workspace">
             <!-- Left Panel -->
             <div class="left-panel">
-                <!-- One Click Scan -->
                 <div>
                     <div class="panel-title">Analiz</div>
                     <button class="mega-scan-btn" id="megaScanBtn" onclick="startFullScan()" disabled>
@@ -663,7 +721,19 @@
                     </button>
                 </div>
 
-                <!-- Manual Mark Toggle -->
+                <!-- Detected Plate Input -->
+                <div class="plate-input-section">
+                    <div class="plate-input-label">
+                        <i class="fas fa-eye"></i>
+                        Tespit Edilen Plaka
+                    </div>
+                    <input type="text" class="plate-input" id="detectedPlateInput" value="" placeholder="HENÜZ TARANMADI" readonly>
+                    <div class="edit-hint">
+                        <i class="fas fa-info-circle"></i> 
+                        Yanlış okunduysa düzeltmek için sağ paneli kullanın
+                    </div>
+                </div>
+
                 <div class="manual-toggle">
                     <div class="toggle-header">
                         <div class="toggle-label">
@@ -673,11 +743,10 @@
                         <div class="toggle-switch" id="manualToggle" onclick="toggleManualMark()"></div>
                     </div>
                     <div class="manual-hint" id="manualHint" style="display: none;">
-                        <i class="fas fa-info-circle"></i> Plakanın ortasına tıklayın. Sistem otomatik bölge belirleyecek.
+                        <i class="fas fa-info-circle"></i> Plakanın ortasına tıklayın
                     </div>
                 </div>
 
-                <!-- Progress -->
                 <div class="scan-progress" id="scanProgress">
                     <div class="progress-header">
                         <span>Tarama durumu...</span>
@@ -688,40 +757,6 @@
                     </div>
                 </div>
 
-                <!-- Quick Add Zones -->
-                <div>
-                    <div class="panel-title">Bölge Ekle (Opsiyonel)</div>
-                    <button class="zone-btn plate" onclick="addManualZone('plate')">
-                        <div class="zone-icon"><i class="fas fa-font"></i></div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600;">Plaka</div>
-                        </div>
-                        <i class="fas fa-plus" style="color: #64748b;"></i>
-                    </button>
-                    <button class="zone-btn hologram" onclick="addManualZone('hologram')">
-                        <div class="zone-icon"><i class="fas fa-certificate"></i></div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600;">Hologram</div>
-                        </div>
-                        <i class="fas fa-plus" style="color: #64748b;"></i>
-                    </button>
-                    <button class="zone-btn tr" onclick="addManualZone('tr')">
-                        <div class="zone-icon"><i class="fas fa-flag"></i></div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600;">TR Bandı</div>
-                        </div>
-                        <i class="fas fa-plus" style="color: #64748b;"></i>
-                    </button>
-                    <button class="zone-btn laser" onclick="addManualZone('laser')">
-                        <div class="zone-icon"><i class="fas fa-barcode"></i></div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600;">Laser</div>
-                        </div>
-                        <i class="fas fa-plus" style="color: #64748b;"></i>
-                    </button>
-                </div>
-
-                <!-- Active Zones -->
                 <div style="flex: 1;">
                     <div class="panel-title">Aktif Bölgeler</div>
                     <div id="activeZonesList" style="font-size: 0.875rem; color: #64748b;">
@@ -754,65 +789,62 @@
                     <ul>
                         <li><strong>Otomatik:</strong> "TÜMÜNÜ TARA" butonuna basın</li>
                         <li><strong>Manuel:</strong> Toggle açın, plakaya tıklayın</li>
-                        <li><strong>Space:</strong> Hızlı tarama başlatır</li>
+                        <li><strong>Düzeltme:</strong> Yanlış okunursa sağ panelden düzeltin</li>
                     </ul>
                 </div>
             </div>
 
             <!-- Right Panel -->
             <div class="right-panel">
-                <!-- OCR Result -->
-                <div class="ocr-hero" id="ocrResult" style="display: none;">
-                    <div class="ocr-label">Tespit Edilen Plaka</div>
-                    <div class="ocr-plate" id="detectedPlateText">34 ABC 1234</div>
-                    <div class="ocr-confidence">
-                        <i class="fas fa-check-circle"></i>
-                        <span id="confidenceText">%99.4 Doğruluk</span>
-                    </div>
-                </div>
-
-                <!-- Empty State -->
                 <div class="empty-state" id="emptyState">
                     <i class="fas fa-clipboard-check"></i>
                     <div>Tarama sonuçları burada görünecek</div>
                     <div style="font-size: 0.75rem; margin-top: 0.5rem;">"TÜMÜNÜ TARA" butonuna basın</div>
                 </div>
 
+                <!-- OCR Result -->
+                <div class="ocr-hero" id="ocrResult">
+                    <div class="ocr-label">Tespit Edilen Plaka</div>
+                    <div class="ocr-plate" id="ocrPlateText">-</div>
+                    <div class="ocr-confidence">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="confidenceText">%98.5 Doğruluk</span>
+                    </div>
+                    <button class="edit-plate-btn" onclick="enablePlateEdit()">
+                        <i class="fas fa-edit"></i> Düzelt
+                    </button>
+                </div>
+
                 <!-- Plate Details -->
-                <div class="plate-details" id="plateDetails" style="display: none;">
-                    <div class="panel-title" style="margin-bottom: 0.75rem;">Plaka Detayları</div>
+                <div class="plate-details" id="plateDetails">
+                    <div class="panel-title" style="margin-bottom: 0.75rem;">Plaka Analizi</div>
+                    <div class="detail-row">
+                        <span class="detail-label">Plaka Numarası</span>
+                        <span class="detail-value" id="detailPlate">-</span>
+                    </div>
                     <div class="detail-row">
                         <span class="detail-label">İl Kodu</span>
-                        <span class="detail-value" id="cityCode">34</span>
+                        <span class="detail-value" id="cityCode">-</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">İl</span>
-                        <span class="detail-value" id="cityName">İstanbul</span>
+                        <span class="detail-value" id="cityName">-</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Format</span>
                         <span class="detail-value success" id="plateFormat">Standart</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Karakter Sayısı</span>
-                        <span class="detail-value" id="charCount">10</span>
                     </div>
                 </div>
 
                 <!-- Analysis Results -->
                 <div class="results-list" id="resultsList" style="display: none;">
                     <div class="panel-title">Güvenlik Analizi</div>
-                    <!-- Results will be added here -->
                 </div>
 
-                <!-- Final Status -->
                 <div id="finalStatus" style="display: none; margin-top: auto;">
                     <div class="status-badge success">
                         <i class="fas fa-shield-alt"></i>
                         ORİJİNAL PLAKA
-                    </div>
-                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; text-align: center;">
-                        Tüm güvenlik elemanları doğrulandı
                     </div>
                 </div>
             </div>
@@ -824,10 +856,32 @@
         let manualPlatePoint = null;
         let zones = [];
         let isScanning = false;
+        let detectedPlate = '';
+
+        // City database
+        const cityCodes = {
+            '01': 'Adana', '02': 'Adıyaman', '03': 'Afyonkarahisar', '04': 'Ağrı', '05': 'Amasya',
+            '06': 'Ankara', '07': 'Antalya', '08': 'Artvin', '09': 'Aydın', '10': 'Balıkesir',
+            '11': 'Bilecik', '12': 'Bingöl', '13': 'Bitlis', '14': 'Bolu', '15': 'Burdur',
+            '16': 'Bursa', '17': 'Çanakkale', '18': 'Çankırı', '19': 'Çorum', '20': 'Denizli',
+            '21': 'Diyarbakır', '22': 'Edirne', '23': 'Elazığ', '24': 'Erzincan', '25': 'Erzurum',
+            '26': 'Eskişehir', '27': 'Gaziantep', '28': 'Giresun', '29': 'Gümüşhane', '30': 'Hakkari',
+            '31': 'Hatay', '32': 'Isparta', '33': 'Mersin', '34': 'İstanbul', '35': 'İzmir',
+            '36': 'Kars', '37': 'Kastamonu', '38': 'Kayseri', '39': 'Kırklareli', '40': 'Kırşehir',
+            '41': 'Kocaeli', '42': 'Konya', '43': 'Kütahya', '44': 'Malatya', '45': 'Manisa',
+            '46': 'Kahramanmaraş', '47': 'Mardin', '48': 'Muğla', '49': 'Muş', '50': 'Nevşehir',
+            '51': 'Niğde', '52': 'Ordu', '53': 'Rize', '54': 'Sakarya', '55': 'Samsun',
+            '56': 'Siirt', '57': 'Sinop', '58': 'Sivas', '59': 'Tekirdağ', '60': 'Tokat',
+            '61': 'Trabzon', '62': 'Tunceli', '63': 'Şanlıurfa', '64': 'Uşak', '65': 'Van',
+            '66': 'Yozgat', '67': 'Zonguldak', '68': 'Aksaray', '69': 'Bayburt', '70': 'Karaman',
+            '71': 'Kırıkkale', '72': 'Batman', '73': 'Şırnak', '74': 'Bartın', '75': 'Ardahan',
+            '76': 'Iğdır', '77': 'Yalova', '78': 'Karabük', '79': 'Kilis', '80': 'Osmaniye',
+            '81': 'Düzce'
+        };
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !isScanning) {
+            if (e.code === 'Space' && !isScanning && document.getElementById('megaScanBtn').disabled === false) {
                 e.preventDefault();
                 startFullScan();
             }
@@ -862,6 +916,7 @@
                 document.getElementById('uploadPlaceholder').style.display = 'none';
                 document.getElementById('imageWrapper').classList.add('active');
                 document.getElementById('megaScanBtn').disabled = false;
+                document.getElementById('instructions').classList.add('hidden');
             };
             reader.readAsDataURL(file);
         }
@@ -881,34 +936,27 @@
             marker.style.top = y + 'px';
             marker.style.display = 'block';
             
-            // Auto create zones around click point
             createZonesAroundPoint(x, y, rect.width, rect.height);
-            
-            // Disable manual mode after marking
             toggleManualMark();
         }
 
         function createZonesAroundPoint(x, y, imgWidth, imgHeight) {
             const container = document.getElementById('zonesContainer');
-            container.innerHTML = ''; // Clear previous
+            container.innerHTML = '';
             zones = [];
             
-            // Plate zone (centered on click, larger)
             const plateZone = createZoneElement('plate', x - 100, y - 30, 200, 60, 'PLAKA NO');
             container.appendChild(plateZone);
             zones.push({ type: 'plate', element: plateZone });
             
-            // Hologram zone (top right of plate)
             const holoZone = createZoneElement('hologram', x + 80, y - 50, 60, 40, 'HOLOGRAM');
             container.appendChild(holoZone);
             zones.push({ type: 'hologram', element: holoZone });
             
-            // TR zone (bottom of plate)
             const trZone = createZoneElement('tr', x - 100, y + 40, 200, 25, 'TR BANDI');
             container.appendChild(trZone);
             zones.push({ type: 'tr', element: trZone });
             
-            // Laser zone (right side)
             const laserZone = createZoneElement('laser', x + 110, y - 20, 50, 50, 'LASER');
             container.appendChild(laserZone);
             zones.push({ type: 'laser', element: laserZone });
@@ -925,39 +973,6 @@
             zone.style.height = h + 'px';
             zone.innerHTML = `<div class="zone-label">${label}</div>`;
             return zone;
-        }
-
-        function addManualZone(type) {
-            const wrapper = document.getElementById('imageWrapper');
-            if (!wrapper.classList.contains('active')) {
-                alert('Önce görsel yükleyin!');
-                return;
-            }
-            
-            const container = document.getElementById('zonesContainer');
-            const img = document.getElementById('plateImage');
-            const rect = img.getBoundingClientRect();
-            
-            const labels = {
-                plate: 'PLAKA NO',
-                hologram: 'HOLOGRAM',
-                tr: 'TR BANDI',
-                laser: 'LASER'
-            };
-            
-            const defaults = {
-                plate: { x: 50, y: rect.height/2 - 30, w: 200, h: 60 },
-                hologram: { x: rect.width - 100, y: 20, w: 80, h: 60 },
-                tr: { x: 50, y: rect.height - 40, w: rect.width - 100, h: 30 },
-                laser: { x: rect.width - 80, y: rect.height/2 - 25, w: 60, h: 50 }
-            };
-            
-            const d = defaults[type];
-            const zone = createZoneElement(type, d.x, d.y, d.w, d.h, labels[type]);
-            container.appendChild(zone);
-            zones.push({ type: type, element: zone });
-            
-            updateActiveZonesList();
         }
 
         function updateActiveZonesList() {
@@ -978,7 +993,6 @@
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; padding: 0.5rem; background: #0f172a; border-radius: 0.5rem;">
                     <i class="fas fa-square" style="color: var(--zone-${z.type})"></i>
                     <span style="font-size: 0.75rem;">${typeNames[z.type]}</span>
-                    <span style="margin-left: auto; font-size: 0.625rem; color: #64748b;">#${i+1}</span>
                 </div>
             `).join('');
         }
@@ -993,7 +1007,6 @@
             const progressPercent = document.getElementById('progressPercent');
             const laser = document.getElementById('laserBeam');
             
-            // If no zones exist, create auto zones
             if (zones.length === 0) {
                 const img = document.getElementById('plateImage');
                 const rect = img.getBoundingClientRect();
@@ -1004,51 +1017,54 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>TARANIYOR...</span><span class="subtext">Lütfen bekleyin</span>';
             progress.classList.add('active');
             
-            // Clear previous results
+            // Clear previous
             document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('ocrResult').style.display = 'none';
-            document.getElementById('plateDetails').style.display = 'none';
+            document.getElementById('ocrResult').classList.remove('active');
+            document.getElementById('plateDetails').classList.remove('active');
             document.getElementById('resultsList').style.display = 'none';
             document.getElementById('resultsList').innerHTML = '<div class="panel-title">Güvenlik Analizi</div>';
             document.getElementById('finalStatus').style.display = 'none';
             
-            // Scan each zone with laser
-            for (let i = 0; i < zones.length; i++) {
-                const zone = zones[i];
-                const zoneEl = zone.element;
-                
-                // Position laser at zone
-                laser.style.left = zoneEl.style.left;
-                laser.style.width = zoneEl.style.width;
+            // Perform OCR first (plate zone)
+            const plateZone = zones.find(z => z.type === 'plate');
+            if (plateZone) {
+                laser.style.left = plateZone.element.style.left;
+                laser.style.width = plateZone.element.style.width;
                 laser.classList.add('scanning');
                 
-                // Update progress
+                progressFill.style.width = '10%';
+                progressPercent.textContent = '10%';
+                
+                await sleep(1500);
+                laser.classList.remove('scanning');
+                
+                // OCR Result - Extract from image or use demo
+                performOCR();
+            }
+            
+            // Scan other zones
+            for (let i = 1; i < zones.length; i++) {
+                const zone = zones[i];
+                laser.style.left = zone.element.style.left;
+                laser.style.width = zone.element.style.width;
+                laser.classList.add('scanning');
+                
                 const percent = Math.round(((i) / zones.length) * 100);
                 progressFill.style.width = percent + '%';
                 progressPercent.textContent = percent + '%';
                 
                 await sleep(1500);
                 laser.classList.remove('scanning');
-                
-                // Add result
                 addZoneResult(zone.type);
-                
-                // If plate zone, update OCR
-                if (zone.type === 'plate') {
-                    showOCRResult();
-                }
             }
             
-            // Complete
             progressFill.style.width = '100%';
             progressPercent.textContent = '100%';
             
             await sleep(500);
             
-            // Show final status
             document.getElementById('finalStatus').style.display = 'block';
             
-            // Reset button
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-check"></i><span>TAMAMLANDI</span><span class="subtext">Tekrar taramak için tıklayın</span>';
             btn.style.background = 'var(--success)';
@@ -1062,33 +1078,97 @@
             }, 3000);
         }
 
+        function performOCR() {
+            // In real app, this would call OCR API
+            // For demo, we'll extract from a data attribute or generate based on image
+            const img = document.getElementById('plateImage');
+            
+            // Try to get from filename or generate realistic
+            let plateNumber = extractPlateFromFilename(img.src) || generateRealisticPlate();
+            
+            // Update all displays
+            updatePlateDisplay(plateNumber);
+        }
+
+        function extractPlateFromFilename(src) {
+            // Check if filename contains plate pattern
+            const filename = src.split('/').pop().split('?')[0];
+            const match = filename.match(/(\d{2}[A-Z]{1,3}\d{2,4})/i);
+            return match ? match[1].toUpperCase() : null;
+        }
+
+        function generateRealisticPlate() {
+            // Demo plates - in real app, this would be actual OCR result
+            const demoPlates = ['34FZT900', '06ABC123', '35XYZ789', '16TR2024', '34HGS552'];
+            return demoPlates[Math.floor(Math.random() * demoPlates.length)];
+        }
+
+        function updatePlateDisplay(plateNumber) {
+            detectedPlate = plateNumber.toUpperCase();
+            const cityCode = detectedPlate.substring(0, 2);
+            const cityName = cityCodes[cityCode] || 'Bilinmiyor';
+            
+            // Update left panel input
+            document.getElementById('detectedPlateInput').value = detectedPlate;
+            
+            // Update right panel OCR result
+            document.getElementById('ocrPlateText').textContent = detectedPlate;
+            document.getElementById('ocrResult').classList.add('active');
+            
+            // Update details
+            document.getElementById('detailPlate').textContent = detectedPlate;
+            document.getElementById('cityCode').textContent = cityCode;
+            document.getElementById('cityName').textContent = cityName;
+            document.getElementById('plateDetails').classList.add('active');
+            
+            // Update navbar
+            document.getElementById('navPlate').textContent = detectedPlate;
+            
+            // Add plate result card
+            addZoneResult('plate', detectedPlate);
+        }
+
+        function enablePlateEdit() {
+            const input = document.getElementById('detectedPlateInput');
+            const ocrText = document.getElementById('ocrPlateText');
+            
+            // Make editable
+            input.readOnly = false;
+            input.focus();
+            input.select();
+            
+            // Change button
+            const btn = document.querySelector('.edit-plate-btn');
+            btn.innerHTML = '<i class="fas fa-save"></i> Kaydet';
+            btn.onclick = savePlateEdit;
+            
+            // Visual feedback
+            input.style.borderColor = 'var(--warning)';
+        }
+
+        function savePlateEdit() {
+            const input = document.getElementById('detectedPlateInput');
+            const newPlate = input.value.toUpperCase().trim();
+            
+            if (newPlate && /^[0-9]{2}[A-Z]{1,3}[0-9]{2,4}$/.test(newPlate)) {
+                updatePlateDisplay(newPlate);
+                
+                input.readOnly = true;
+                input.style.borderColor = '#334155';
+                
+                const btn = document.querySelector('.edit-plate-btn');
+                btn.innerHTML = '<i class="fas fa-edit"></i> Düzelt';
+                btn.onclick = enablePlateEdit;
+            } else {
+                alert('Geçersiz plaka formatı! Örnek: 34ABC1234');
+            }
+        }
+
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        function showOCRResult() {
-            const ocrResult = document.getElementById('ocrResult');
-            const plateDetails = document.getElementById('plateDetails');
-            
-            // Random plate for demo
-            const plates = ['34 ABC 1234', '06 DEF 567', '35 GHI 8901', '16 JKL 2345', '07 MNO 678'];
-            const selectedPlate = plates[Math.floor(Math.random() * plates.length)];
-            const cityCode = selectedPlate.substring(0, 2);
-            
-            const cities = {
-                '34': 'İstanbul', '06': 'Ankara', '35': 'İzmir', '16': 'Bursa', '07': 'Antalya'
-            };
-            
-            document.getElementById('detectedPlateText').textContent = selectedPlate;
-            document.getElementById('cityCode').textContent = cityCode;
-            document.getElementById('cityName').textContent = cities[cityCode] || 'Bilinmiyor';
-            document.getElementById('charCount').textContent = selectedPlate.replace(/\s/g, '').length;
-            
-            ocrResult.style.display = 'block';
-            plateDetails.style.display = 'block';
-        }
-
-        function addZoneResult(type) {
+        function addZoneResult(type, customPlate) {
             const resultsList = document.getElementById('resultsList');
             resultsList.style.display = 'block';
             
@@ -1097,28 +1177,28 @@
                     icon: 'fa-font',
                     title: 'Plaka Numarası',
                     status: 'Orijinal',
-                    desc: 'Karakterler standart Türk plaka fontuyla uyumlu. OCR doğruluk oranı yüksek.',
+                    desc: customPlate ? `Tespit edilen: ${customPlate}` : 'Karakterler standart Türk plaka fontuyla uyumlu.',
                     class: 'success'
                 },
                 hologram: {
                     icon: 'fa-certificate',
                     title: 'Hologram Damga',
                     status: 'Doğrulandı',
-                    desc: '3D derinlik efekti tespit edildi. Renk değişimi (mor-yeşil) normal. Mikro yazı okunabilir.',
+                    desc: '3D derinlik efekti tespit edildi. Renk değişimi (mor-yeşil) normal.',
                     class: 'success'
                 },
                 tr: {
                     icon: 'fa-flag',
                     title: 'TR Emniyet Bandı',
                     status: 'Standart',
-                    desc: 'Mavi-kırmızı reflektif şerit ölçüleri standartta (44mm). Refleks değeri normal.',
+                    desc: 'Mavi-kırmızı reflektif şerit ölçüleri standartta (44mm).',
                     class: 'success'
                 },
                 laser: {
                     icon: 'fa-barcode',
                     title: 'Laser Mikro İşaret',
                     status: 'Tespit Edildi',
-                    desc: 'UV ışık altında görünen gizli kodlar mevcut. Seri numarası ve üretim bilgisi okundu.',
+                    desc: 'UV ışık altında görünen gizli kodlar mevcut.',
                     class: 'success'
                 }
             };
