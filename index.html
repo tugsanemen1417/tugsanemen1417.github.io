@@ -3,750 +3,443 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlakaNet AI - Eğitim ve Geliştirme Platformu</title>
+    <title>PlakaNet TR - Akıllı Plaka Tanıma Sistemi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Neural Network Animation */
-        .neural-bg {
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-                #0f172a;
-        }
-        
-        /* Training Progress Bar */
-        .progress-glow {
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-            animation: pulse-glow 2s infinite;
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
-            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.8); }
-        }
-        
-        /* Node Network */
-        .node {
+        .scanner-line {
             position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #10b981, #34d399, transparent);
+            box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
+            animation: scan 2s linear infinite;
+            top: 0;
         }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
         
-        /* Glass Cards */
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Code Editor Style */
-        .code-editor {
-            background: #0d1117;
-            border: 1px solid #30363d;
-        }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
         
-        /* Terminal */
-        .terminal {
-            background: #000000;
-            border: 1px solid #333;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .terminal-line {
-            padding: 2px 0;
-            opacity: 0;
-            animation: fadeIn 0.3s forwards;
-        }
-        
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-        
-        /* Dataset Grid */
-        .dataset-item {
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        .dataset-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
-        }
-        .dataset-item.selected {
-            border-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
-        }
-        
-        /* Confusion Matrix Heatmap */
-        .heatmap-cell {
-            transition: all 0.2s;
-        }
-        .heatmap-cell:hover {
-            transform: scale(1.1);
-            z-index: 10;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        
-        /* Training Metrics */
-        .metric-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        
-        /* Augmentation Preview */
-        .aug-preview {
+        .tr-plate {
+            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+            border: 3px solid #1f2937;
+            border-radius: 8px;
             position: relative;
             overflow: hidden;
         }
-        .aug-preview::after {
-            content: attr(data-aug);
+        
+        .tr-plate::before {
+            content: 'TR';
             position: absolute;
-            bottom: 0;
             left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.7);
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: #2563eb;
             color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .plate-blue-strip {
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: #2563eb;
+        }
+        
+        .hologram {
+            background: linear-gradient(135deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.3) 50%, 
+                rgba(255,255,255,0) 100%);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* AI Confidence Bars */
+        .confidence-bar {
+            transition: width 0.5s ease-out;
+        }
+        
+        /* Heatmap for character confidence */
+        .char-heatmap {
+            transition: all 0.3s;
+        }
+        .char-heatmap:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+        
+        /* Smart suggestions animation */
+        @keyframes slideIn {
+            from { transform: translateX(-10px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .smart-suggestion {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        /* Real-time processing indicator */
+        .processing-pulse {
+            animation: processing 1.5s ease-in-out infinite;
+        }
+        @keyframes processing {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen neural-bg">
+<body class="bg-gray-900 text-white min-h-screen grid-bg overflow-x-hidden">
 
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full glass-panel z-50 border-b border-slate-700">
+    <nav class="fixed top-0 w-full glass z-50 border-b border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-lg flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/20">AI</div>
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center font-bold text-xl">P</div>
                     <div>
-                        <h1 class="font-bold text-xl tracking-tight">PlakaNet <span class="text-emerald-400">ML Studio</span></h1>
-                        <p class="text-xs text-slate-400">Eğitim ve Model Geliştirme Platformu</p>
+                        <h1 class="font-bold text-xl tracking-tight">PlakaNet <span class="text-emerald-400">TR</span></h1>
+                        <p class="text-xs text-gray-400">AI Destekli Plaka Tanıma</p>
                     </div>
                 </div>
-                
                 <div class="hidden md:flex items-center gap-6">
-                    <button onclick="switchTab('dataset')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition bg-emerald-600 text-white" data-tab="dataset">
-                        Veri Seti
-                    </button>
-                    <button onclick="switchTab('training')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="training">
-                        Model Eğitimi
-                    </button>
-                    <button onclick="switchTab('evaluation')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="evaluation">
-                        Değerlendirme
-                    </button>
-                    <button onclick="switchTab('deployment')" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-slate-300 hover:text-white hover:bg-slate-800" data-tab="deployment">
-                        Deployment
-                    </button>
-                </div>
-                
-                <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
+                    <a href="#scan" class="text-sm text-gray-300 hover:text-emerald-400 transition">Tara</a>
+                    <a href="#history" class="text-sm text-gray-300 hover:text-emerald-400 transition">Geçmiş</a>
+                    <a href="#stats" class="text-sm text-gray-300 hover:text-emerald-400 transition">İstatistikler</a>
+                    <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/30 border border-emerald-500/30">
                         <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span class="text-xs text-slate-400 mono">GPU: A100 x4</span>
+                        <span class="text-xs text-emerald-400">AI Aktif</span>
                     </div>
-                    <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition">
-                        Export Model
-                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        
-        <!-- Dataset Management Tab -->
-        <div id="tab-dataset" class="tab-content">
-            <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Hero Section -->
+    <section class="pt-32 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-900/30 border border-emerald-500/30 text-emerald-400 text-sm mb-6">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                Yapay Zeka v2.1 - 99.2% Doğruluk
+            </div>
+            <h2 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-emerald-200 to-emerald-400 bg-clip-text text-transparent">
+                Akıllı Plaka Tanıma
+            </h2>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                OCR, hologram analizi, sahte tespiti ve otomatik raporlama ile güçlendirilmiş profesyonel çözüm.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Application -->
+    <section id="scan" class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="glass rounded-3xl p-6 md:p-8 border border-emerald-500/20 glow-green">
+            
+            <!-- Scan Area -->
+            <div class="grid lg:grid-cols-2 gap-8">
                 
-                <!-- Left: Dataset Stats & Upload -->
-                <div class="lg:col-span-1 space-y-6">
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
-                            Veri Seti Durumu
+                <!-- Left: Upload & Camera -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold flex items-center gap-2">
+                            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Görüntü Yükle
                         </h3>
-                        
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                                <span class="text-sm text-slate-400">Toplam Görüntü</span>
-                                <span class="font-bold mono text-emerald-400" id="totalImages">45,230</span>
-                            </div>
-                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                                <span class="text-sm text-slate-400">Etiketlenmiş</span>
-                                <span class="font-bold mono text-blue-400">45,230 (100%)</span>
-                            </div>
-                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                                <span class="text-sm text-slate-400">Eğitim / Validasyon / Test</span>
-                                <span class="font-bold mono text-purple-400">70% / 15% / 15%</span>
-                            </div>
-                            <div class="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg">
-                                <span class="text-sm text-slate-400">Veri Artırma</span>
-                                <span class="font-bold mono text-orange-400">8x (361,840)</span>
-                            </div>
+                        <div class="flex gap-2">
+                            <button onclick="setMode('camera')" id="btnCamera" class="px-3 py-1.5 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition">Kamera</button>
+                            <button onclick="setMode('upload')" id="btnUpload" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-sm hover:bg-emerald-700 transition">Yükle</button>
                         </div>
+                    </div>
+
+                    <!-- Upload Area -->
+                    <div id="uploadArea" class="relative bg-gray-800 rounded-2xl overflow-hidden border-2 border-dashed border-gray-600 hover:border-emerald-500 transition group cursor-pointer" style="min-height: 350px;" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="handleFileUpload(event)">
                         
-                        <div class="mt-6 pt-6 border-t border-slate-700">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium">Depolama</span>
-                                <span class="text-sm text-slate-400">128 GB / 500 GB</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full" style="width: 25%"></div>
+                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-emerald-400 transition">
+                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            <p class="text-lg font-medium">Fotoğraf Yüklemek için Tıklayın</p>
+                            <p class="text-sm mt-2 opacity-70">veya sürükleyip bırakın</p>
+                        </div>
+
+                        <div id="previewState" class="absolute inset-0 hidden">
+                            <img id="previewImage" class="w-full h-full object-cover" src="" alt="Uploaded">
+                            <div class="scanner-line" id="scannerLine" style="display: none;"></div>
+                            <div id="processingOverlay" class="absolute inset-0 bg-black/60 hidden flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                                    <p class="text-emerald-400 font-medium processing-pulse">AI Analiz Ediyor...</p>
+                                    <p class="text-xs text-gray-400 mt-2 mono" id="processingStep">YOLO tespiti yapılıyor</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quick Upload -->
-                    <div class="glass-panel rounded-2xl p-6 border-2 border-dashed border-slate-600 hover:border-emerald-500 transition cursor-pointer" onclick="document.getElementById('batchUpload').click()">
-                        <input type="file" id="batchUpload" class="hidden" multiple accept="image/*" onchange="handleBatchUpload(event)">
-                        <div class="text-center">
-                            <svg class="w-12 h-12 mx-auto mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <h4 class="font-semibold mb-1">Toplu Yükleme</h4>
-                            <p class="text-xs text-slate-400">Drag & drop veya tıklayın<br>JSON etiketleri otomatik eşleşir</p>
-                        </div>
-                    </div>
-
-                    <!-- City Distribution -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h4 class="font-semibold mb-4 text-sm">İl Dağılımı (Top 10)</h4>
-                        <canvas id="cityChart" height="200"></canvas>
+                    <!-- Quick Samples -->
+                    <div class="flex gap-3 overflow-x-auto pb-2">
+                        <button onclick="loadSample('day')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
+                            ☀️ Gündüz
+                        </button>
+                        <button onclick="loadSample('night')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
+                            🌙 Gece
+                        </button>
+                        <button onclick="loadSample('blur')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
+                            💧 Yağmur
+                        </button>
+                        <button onclick="loadSample('angle')" class="flex-shrink-0 px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-500 transition text-sm">
+                            📐 Açılı
+                        </button>
                     </div>
                 </div>
 
-                <!-- Center: Dataset Browser -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Filters -->
-                    <div class="glass-panel rounded-xl p-4 flex flex-wrap gap-3 items-center">
-                        <select class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
-                            <option>Tüm İller</option>
-                            <option>34 - İstanbul</option>
-                            <option>06 - Ankara</option>
-                            <option>35 - İzmir</option>
-                        </select>
-                        <select class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
-                            <option>Tüm Koşullar</option>
-                            <option>Gündüz / Güneşli</option>
-                            <option>Gece / Yapay Işık</option>
-                            <option>Yağmurlu</option>
-                            <option>Karlı</option>
-                        </select>
-                        <select class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
-                            <option>Tüm Açılar</option>
-                            <option>Önden</option>
-                            <option>Yandan (45°)</option>
-                            <option>Arka</option>
-                        </select>
-                        <div class="flex-1"></div>
-                        <div class="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2 border border-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            <input type="text" placeholder="Plaka ara..." class="bg-transparent border-none outline-none text-sm w-32">
-                        </div>
+                <!-- Right: AI Results -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold flex items-center gap-2">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            AI Analiz Sonuçları
+                        </h3>
+                        <button onclick="resetAnalysis()" class="text-sm text-gray-400 hover:text-white transition">Sıfırla</button>
                     </div>
 
-                    <!-- Image Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="datasetGrid">
+                    <!-- Initial State -->
+                    <div id="initialResult" class="flex-1 glass rounded-2xl p-8 border border-gray-700 flex flex-col justify-center items-center text-center min-h-[350px]">
+                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <p class="text-gray-500">Sonuçları görmek için görüntü yükleyin</p>
+                        <p class="text-xs text-gray-600 mt-2">AI otomatik olarak plaka bölgesini tespit edecek</p>
+                    </div>
+
+                    <!-- Analysis Results (Hidden initially) -->
+                    <div id="analysisResult" class="hidden space-y-4">
+                        
+                        <!-- Detected Plate -->
+                        <div class="tr-plate p-6 relative shadow-2xl">
+                            <div class="hologram absolute inset-0 pointer-events-none"></div>
+                            <div class="plate-blue-strip"></div>
+                            <div class="ml-16 flex items-center justify-between">
+                                <div class="text-4xl font-black text-gray-900 tracking-wider mono" id="detectedPlate">34 ABC 123</div>
+                                <div class="text-right">
+                                    <div class="text-xs text-gray-500 font-bold uppercase tracking-wider">TÜRKİYE</div>
+                                    <div class="text-xs text-gray-400" id="plateType">Binek Araç</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Confidence Metrics -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="glass rounded-xl p-3 border border-emerald-500/30 bg-emerald-900/10">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-emerald-400">Genel Doğruluk</span>
+                                    <span class="text-lg font-bold mono text-emerald-400" id="overallConf">98.4%</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-1.5">
+                                    <div class="bg-emerald-500 h-1.5 rounded-full confidence-bar" style="width: 0%" id="confBar1"></div>
+                                </div>
+                            </div>
+                            <div class="glass rounded-xl p-3 border border-blue-500/30 bg-blue-900/10">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-blue-400">OCR Güveni</span>
+                                    <span class="text-lg font-bold mono text-blue-400" id="ocrConf">97.8%</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-1.5">
+                                    <div class="bg-blue-500 h-1.5 rounded-full confidence-bar" style="width: 0%" id="confBar2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Character-level Analysis -->
+                        <div class="glass rounded-xl p-4 border border-gray-700">
+                            <h4 class="text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">Karakter Analizi</h4>
+                            <div class="flex gap-1 mb-3" id="charAnalysis">
+                                <!-- Generated by JS -->
+                            </div>
+                            <div class="grid grid-cols-8 gap-1" id="charHeatmap">
+                                <!-- Heatmap generated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Security Analysis -->
+                        <div class="glass rounded-xl p-4 border border-gray-700">
+                            <h4 class="text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">Güvenlik Analizi</h4>
+                            <div class="space-y-2" id="securityChecks">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- AI Suggestions -->
+                        <div id="aiSuggestions" class="hidden glass rounded-xl p-4 border border-yellow-500/30 bg-yellow-900/10">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div>
+                                    <h4 class="text-sm font-medium text-yellow-400 mb-1">AI Önerisi</h4>
+                                    <p class="text-xs text-gray-300" id="suggestionText">Plaka bölgesi düşük kontrastlı. Daha iyi sonuç için parlaklığı artırabilirsiniz.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-3">
+                            <button onclick="saveToHistory()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-medium transition flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                Kaydet
+                            </button>
+                            <button onclick="showDetails()" class="flex-1 border border-gray-600 hover:border-emerald-500 py-3 rounded-xl font-medium transition flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                Detaylı Rapor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section id="stats" class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <h3 class="text-2xl font-bold mb-6">AI Performans İstatistikleri</h3>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass rounded-2xl p-6">
+                <h4 class="text-sm text-gray-400 mb-4">Günlük Tanıma Dağılımı</h4>
+                <canvas id="dailyChart" height="200"></canvas>
+            </div>
+            <div class="glass rounded-2xl p-6">
+                <h4 class="text-sm text-gray-400 mb-4">Doğruluk Oranı Trendi</h4>
+                <canvas id="accuracyChart" height="200"></canvas>
+            </div>
+            <div class="glass rounded-2xl p-6">
+                <h4 class="text-sm text-gray-400 mb-4">Hata Türleri</h4>
+                <div class="space-y-3 mt-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Düşük Işık</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-gray-800 rounded-full h-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 12%"></div>
+                            </div>
+                            <span class="text-xs mono w-8">12%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Açılı Çekim</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-gray-800 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 8%"></div>
+                            </div>
+                            <span class="text-xs mono w-8">8%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Kirli Plaka</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-gray-800 rounded-full h-2">
+                                <div class="bg-orange-500 h-2 rounded-full" style="width: 5%"></div>
+                            </div>
+                            <span class="text-xs mono w-8">5%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Hologram Hasarlı</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-gray-800 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 3%"></div>
+                            </div>
+                            <span class="text-xs mono w-8">3%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- History Section -->
+    <section id="history" class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-20">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Tarama Geçmişi</h3>
+            <button onclick="exportHistory()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Dışa Aktar
+            </button>
+        </div>
+        
+        <div class="glass rounded-2xl overflow-hidden border border-gray-800">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-800/50 text-gray-400 text-xs uppercase">
+                        <tr>
+                            <th class="px-6 py-4">Tarih</th>
+                            <th class="px-6 py-4">Plaka</th>
+                            <th class="px-6 py-4">İl</th>
+                            <th class="px-6 py-4">Doğruluk</th>
+                            <th class="px-6 py-4">Durum</th>
+                            <th class="px-6 py-4">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable" class="divide-y divide-gray-800 text-sm">
                         <!-- Generated by JS -->
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="flex justify-center gap-2">
-                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">&larr;</button>
-                        <button class="px-4 py-2 rounded-lg bg-emerald-600 text-sm font-medium">1</button>
-                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">2</button>
-                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">3</button>
-                        <span class="px-2 py-2 text-slate-500">...</span>
-                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">142</button>
-                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">&rarr;</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Data Augmentation Preview -->
-            <div class="mt-8 glass-panel rounded-2xl p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold text-lg">Veri Artırma Önizleme</h3>
-                    <div class="flex gap-2">
-                        <button onclick="refreshAugmentation()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            Yenile
-                        </button>
-                        <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm transition">Uygula</button>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-6 gap-4" id="augmentationGrid">
-                    <!-- Original -->
-                    <div class="aug-preview rounded-lg overflow-hidden border-2 border-emerald-500" data-aug="Orijinal">
-                        <div class="aspect-video bg-slate-800 flex items-center justify-center text-xs text-slate-500">Plaka Görüntüsü</div>
-                    </div>
-                    <!-- Augmented versions will be generated -->
-                </div>
-                
-                <div class="mt-4 flex flex-wrap gap-2">
-                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
-                        <input type="checkbox" checked class="accent-emerald-500"> Parlaklık (+/- 20%)
-                    </label>
-                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
-                        <input type="checkbox" checked class="accent-emerald-500"> Döndürme (+/- 15°)
-                    </label>
-                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
-                        <input type="checkbox" checked class="accent-emerald-500"> Zoom (0.8x - 1.2x)
-                    </label>
-                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
-                        <input type="checkbox" checked class="accent-emerald-500"> Gauss Blur
-                    </label>
-                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
-                        <input type="checkbox" checked class="accent-emerald-500"> Gürültü (Noise)
-                    </label>
-                    <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs cursor-pointer hover:border-emerald-500 transition">
-                        <input type="checkbox" class="accent-emerald-500"> Perspektif
-                    </label>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- Training Tab -->
-        <div id="tab-training" class="tab-content hidden">
-            <div class="grid lg:grid-cols-3 gap-6">
-                
-                <!-- Training Configuration -->
-                <div class="lg:col-span-1 space-y-6">
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4">Model Konfigürasyonu</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm text-slate-400 mb-2">Mimari</label>
-                                <select id="modelArch" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none">
-                                    <option value="yolov8">YOLOv8 + CRNN (Önerilen)</option>
-                                    <option value="resnet">ResNet-50 + CTC</option>
-                                    <option value="transformer">Vision Transformer (ViT)</option>
-                                    <option value="custom">Özel CNN-LSTM</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm text-slate-400 mb-2">Öğrenme Oranı</label>
-                                <input type="range" min="0.0001" max="0.01" step="0.0001" value="0.001" class="w-full accent-emerald-500" oninput="document.getElementById('lrValue').textContent = this.value">
-                                <div class="flex justify-between text-xs text-slate-500 mt-1">
-                                    <span>0.0001</span>
-                                    <span id="lrValue" class="text-emerald-400 font-mono">0.001</span>
-                                    <span>0.01</span>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm text-slate-400 mb-2">Batch Size</label>
-                                <div class="flex gap-2">
-                                    <button class="flex-1 py-2 rounded-lg bg-emerald-600 text-sm font-medium">32</button>
-                                    <button class="flex-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">64</button>
-                                    <button class="flex-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">128</button>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm text-slate-400 mb-2">Epoch</label>
-                                <input type="number" value="100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none">
-                            </div>
-                            
-                            <div class="pt-4 border-t border-slate-700">
-                                <label class="flex items-center justify-between cursor-pointer">
-                                    <span class="text-sm">Erken Durdurma (Early Stop)</span>
-                                    <input type="checkbox" checked class="accent-emerald-500 w-4 h-4">
-                                </label>
-                            </div>
-                            
-                            <div>
-                                <label class="flex items-center justify-between cursor-pointer">
-                                    <span class="text-sm">Checkpoint Kaydetme</span>
-                                    <input type="checkbox" checked class="accent-emerald-500 w-4 h-4">
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <button onclick="startTraining()" id="startTrainBtn" class="w-full mt-6 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Eğitimi Başlat
-                        </button>
-                    </div>
-
-                    <!-- GPU Status -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h4 class="font-semibold mb-4 text-sm flex items-center gap-2">
-                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                            GPU Kullanımı
-                        </h4>
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-slate-400">GPU 0 (A100)</span>
-                                <span class="text-emerald-400 mono">78%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-emerald-500 h-2 rounded-full progress-glow" style="width: 78%"></div>
-                            </div>
-                            
-                            <div class="flex justify-between text-sm">
-                                <span class="text-slate-400">GPU 1 (A100)</span>
-                                <span class="text-emerald-400 mono">82%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-emerald-500 h-2 rounded-full progress-glow" style="width: 82%"></div>
-                            </div>
-                            
-                            <div class="flex justify-between text-sm">
-                                <span class="text-slate-400">VRAM</span>
-                                <span class="text-blue-400 mono">32 GB / 40 GB</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-2">
-                                <div class="bg-blue-500 h-2 rounded-full" style="width: 80%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Training Monitor -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Progress -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <div class="flex justify-between items-end mb-4">
-                            <div>
-                                <h3 class="font-bold text-lg">Eğitim İlerlemesi</h3>
-                                <p class="text-sm text-slate-400 mt-1" id="trainStatus">Hazır - Başlamak için butona tıklayın</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-3xl font-bold mono text-emerald-400" id="epochDisplay">0/100</div>
-                                <div class="text-xs text-slate-500">Epoch</div>
-                            </div>
-                        </div>
-                        
-                        <div class="w-full bg-slate-800 rounded-full h-4 mb-6 overflow-hidden">
-                            <div id="trainProgress" class="bg-gradient-to-r from-emerald-500 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                        
-                        <div class="grid grid-cols-4 gap-4">
-                            <div class="metric-card rounded-xl p-4 text-center">
-                                <div class="text-2xl font-bold mono text-emerald-400" id="lossValue">-</div>
-                                <div class="text-xs text-slate-500 mt-1">Loss</div>
-                            </div>
-                            <div class="metric-card rounded-xl p-4 text-center">
-                                <div class="text-2xl font-bold mono text-blue-400" id="accValue">-</div>
-                                <div class="text-xs text-slate-500 mt-1">Accuracy</div>
-                            </div>
-                            <div class="metric-card rounded-xl p-4 text-center">
-                                <div class="text-2xl font-bold mono text-purple-400" id="cerValue">-</div>
-                                <div class="text-xs text-slate-500 mt-1">CER (Char Error)</div>
-                            </div>
-                            <div class="metric-card rounded-xl p-4 text-center">
-                                <div class="text-2xl font-bold mono text-orange-400" id="timeValue">-</div>
-                                <div class="text-xs text-slate-500 mt-1">ETA</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Real-time Charts -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-semibold">Canlı Metrikler</h4>
-                            <div class="flex gap-2">
-                                <button class="px-3 py-1 rounded-lg bg-slate-800 text-xs hover:bg-slate-700 transition">Loss</button>
-                                <button class="px-3 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 text-xs border border-emerald-500/30">Accuracy</button>
-                                <button class="px-3 py-1 rounded-lg bg-slate-800 text-xs hover:bg-slate-700 transition">Learning Rate</button>
-                            </div>
-                        </div>
-                        <canvas id="trainingChart" height="250"></canvas>
-                    </div>
-
-                    <!-- Terminal Output -->
-                    <div class="terminal rounded-2xl p-4 h-64 overflow-y-auto" id="terminalOutput">
-                        <div class="text-emerald-500 mb-2">$ PlakaNet ML Studio v2.1.0 initialized</div>
-                        <div class="text-slate-400 mb-2">[INFO] CUDA available: True (4x NVIDIA A100)</div>
-                        <div class="text-slate-400 mb-2">[INFO] Dataset loaded: 45,230 samples</div>
-                        <div class="text-slate-400 mb-2">[INFO] Model: YOLOv8n + CRNN (9.2M parameters)</div>
-                        <div class="text-slate-400">[INFO] Waiting for training start...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Evaluation Tab -->
-        <div id="tab-evaluation" class="tab-content hidden">
-            <div class="grid lg:grid-cols-2 gap-6 mb-6">
-                <!-- Performance Metrics -->
-                <div class="glass-panel rounded-2xl p-6">
-                    <h3 class="font-bold text-lg mb-4">Model Performansı</h3>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-slate-800/50 rounded-xl p-4 text-center">
-                            <div class="text-4xl font-bold text-emerald-400 mono">99.2%</div>
-                            <div class="text-sm text-slate-400 mt-1">Karakter Doğruluğu</div>
-                        </div>
-                        <div class="bg-slate-800/50 rounded-xl p-4 text-center">
-                            <div class="text-4xl font-bold text-blue-400 mono">97.8%</div>
-                            <div class="text-sm text-slate-400 mt-1">Plaka Tam Eşleşme</div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
-                            <span class="text-sm">Precision</span>
-                            <span class="font-mono text-emerald-400">0.9942</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
-                            <span class="text-sm">Recall</span>
-                            <span class="font-mono text-emerald-400">0.9918</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
-                            <span class="text-sm">F1-Score</span>
-                            <span class="font-mono text-emerald-400">0.9930</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-slate-800/30 rounded-lg">
-                            <span class="text-sm">Inference Time (RTX 4090)</span>
-                            <span class="font-mono text-blue-400">12.3 ms</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Confusion Matrix -->
-                <div class="glass-panel rounded-2xl p-6">
-                    <h3 class="font-bold text-lg mb-4">Karakter Confusion Matrix</h3>
-                    <div class="grid grid-cols-10 gap-1 text-xs" id="confusionMatrix">
-                        <!-- Generated by JS -->
-                    </div>
-                    <div class="mt-4 flex items-center gap-4 text-xs">
-                        <span class="text-slate-400">Düşük</span>
-                        <div class="flex-1 h-3 rounded-full bg-gradient-to-r from-slate-800 via-emerald-900 to-emerald-400"></div>
-                        <span class="text-emerald-400">Yükük</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Test Results -->
-            <div class="glass-panel rounded-2xl p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold text-lg">Test Seti Sonuçları</h3>
-                    <div class="flex gap-2">
-                        <button class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm transition">Yanlış Tahminler</button>
-                        <button class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-sm transition">Tümünü Gör</button>
-                    </div>
-                </div>
-                
-                <div class="grid md:grid-cols-3 gap-4" id="testResults">
-                    <!-- Test result items generated by JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Deployment Tab -->
-        <div id="tab-deployment" class="tab-content hidden">
-            <div class="grid lg:grid-cols-3 gap-6">
-                <!-- Model Export -->
-                <div class="lg:col-span-1 space-y-6">
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4">Model Export</h3>
-                        
-                        <div class="space-y-3">
-                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500 transition text-left group">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-semibold">ONNX Format</span>
-                                    <span class="text-xs bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded">Önerilen</span>
-                                </div>
-                                <div class="text-xs text-slate-400 group-hover:text-slate-300">Platform bağımsız deployment için optimize edilmiş</div>
-                                <div class="text-xs text-slate-500 mt-2 mono">23.4 MB</div>
-                            </button>
-                            
-                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition text-left group">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-semibold">TensorRT</span>
-                                    <span class="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded">GPU</span>
-                                </div>
-                                <div class="text-xs text-slate-400 group-hover:text-slate-300">NVIDIA GPU'lar için maksimum performans</div>
-                                <div class="text-xs text-slate-500 mt-2 mono">18.7 MB</div>
-                            </button>
-                            
-                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-purple-500 transition text-left group">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-semibold">Core ML</span>
-                                    <span class="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded">iOS</span>
-                                </div>
-                                <div class="text-xs text-slate-400 group-hover:text-slate-300">Apple cihazları için optimize edilmiş</div>
-                                <div class="text-xs text-slate-500 mt-2 mono">21.1 MB</div>
-                            </button>
-                            
-                            <button class="w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-orange-500 transition text-left group">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-semibold">TFLite</span>
-                                    <span class="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded">Mobile</span>
-                                </div>
-                                <div class="text-xs text-slate-400 group-hover:text-slate-300">Android ve edge cihazlar için hafif model</div>
-                                <div class="text-xs text-slate-500 mt-2 mono">12.3 MB</div>
-                            </button>
-                        </div>
-                        
-                        <button class="w-full mt-6 bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-semibold transition">
-                            Tüm Formatları İndir
-                        </button>
-                    </div>
-
-                    <!-- Version History -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h4 class="font-semibold mb-4">Model Geçmişi</h4>
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-3 p-3 bg-emerald-900/20 border border-emerald-500/30 rounded-lg">
-                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-medium">v2.1.0 (Current)</div>
-                                    <div class="text-xs text-slate-400">99.2% accuracy - 2 saat önce</div>
-                                </div>
-                                <span class="text-xs bg-emerald-600 text-white px-2 py-1 rounded">Production</span>
-                            </div>
-                            <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg opacity-70">
-                                <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-medium">v2.0.3</div>
-                                    <div class="text-xs text-slate-400">98.7% accuracy - 3 gün önce</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg opacity-50">
-                                <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-medium">v2.0.0</div>
-                                    <div class="text-xs text-slate-400">97.9% accuracy - 1 hafta önce</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- API Deployment -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h3 class="font-bold text-lg mb-4">API Deployment</h3>
-                        
-                        <div class="grid md:grid-cols-2 gap-4 mb-6">
-                            <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                                <div class="flex items-center justify-between mb-3">
-                                    <span class="font-semibold">REST API</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-emerald-400">Aktif</span>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-slate-400 mb-3">Standart HTTP endpoint'leri</div>
-                                <code class="block bg-slate-950 p-2 rounded text-xs mono text-blue-400">https://api.plakanet.tr/v2/detect</code>
-                            </div>
-                            
-                            <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                                <div class="flex items-center justify-between mb-3">
-                                    <span class="font-semibold">gRPC</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-emerald-400">Aktif</span>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-slate-400 mb-3">Yüksek performanslı binary protokol</div>
-                                <code class="block bg-slate-950 p-2 rounded text-xs mono text-purple-400">plakanet.tr:50051</code>
-                            </div>
-                        </div>
-
-                        <!-- Docker Deployment -->
-                        <div class="code-editor rounded-xl p-4 mb-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-sm font-semibold text-slate-300">Docker Deployment</span>
-                                <button class="text-xs text-emerald-400 hover:text-emerald-300">Kopyala</button>
-                            </div>
-                            <pre class="text-xs mono text-slate-300 overflow-x-auto"><span class="text-slate-500"># Pull latest image</span>
-<span class="text-emerald-400">docker pull</span> plakanet/model-server:v2.1.0
-
-<span class="text-slate-500"># Run with GPU support</span>
-<span class="text-emerald-400">docker run</span> --gpus all -p 8080:8080 \
-  -e API_KEY=your_key_here \
-  -e MODEL_PATH=/models/tr-plate-v2.1.0.onnx \
-  plakanet/model-server:v2.1.0</pre>
-                        </div>
-
-                        <!-- Kubernetes -->
-                        <div class="code-editor rounded-xl p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-sm font-semibold text-slate-300">Kubernetes (Auto-scaling)</span>
-                                <button class="text-xs text-emerald-400 hover:text-emerald-300">Kopyala</button>
-                            </div>
-                            <pre class="text-xs mono text-slate-300 overflow-x-auto"><span class="text-blue-400">apiVersion</span>: apps/v1
-<span class="text-blue-400">kind</span>: Deployment
-<span class="text-blue-400">metadata</span>:
-  <span class="text-blue-400">name</span>: plaka-detector
-<span class="text-blue-400">spec</span>:
-  <span class="text-blue-400">replicas</span>: <span class="text-orange-400">3</span>
-  <span class="text-blue-400">template</span>:
-    <span class="text-blue-400">spec</span>:
-      <span class="text-blue-400">containers</span>:
-      - <span class="text-blue-400">name</span>: model-server
-        <span class="text-blue-400">image</span>: plakanet/model-server:v2.1.0
-        <span class="text-blue-400">resources</span>:
-          <span class="text-blue-400">limits</span>:
-            <span class="text-blue-400">nvidia.com/gpu</span>: <span class="text-orange-400">1</span></pre>
-                        </div>
-                    </div>
-
-                    <!-- Monitoring -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <h4 class="font-semibold mb-4">Canlı Monitoring</h4>
-                        <div class="grid grid-cols-4 gap-4">
-                            <div class="text-center">
-                                <div class="text-2xl font-bold text-emerald-400 mono">2,431</div>
-                                <div class="text-xs text-slate-500">İstek/dk</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold text-blue-400 mono">45ms</div>
-                                <div class="text-xs text-slate-500">Ort. Yanıt</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold text-purple-400 mono">99.99%</div>
-                                <div class="text-xs text-slate-500">Uptime</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-2xl font-bold text-orange-400 mono">0</div>
-                                <div class="text-xs text-slate-500">Hata (24s)</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
+    </section>
 
     <script>
-        // Initialize Charts
-        let trainingChart;
-        let cityChart;
+        // City database
+        const cityCodes = {
+            '01': 'Adana', '02': 'Adıyaman', '03': 'Afyonkarahisar', '04': 'Ağrı', '05': 'Amasya',
+            '06': 'Ankara', '07': 'Antalya', '08': 'Artvin', '09': 'Aydın', '10': 'Balıkesir',
+            '16': 'Bursa', '27': 'Gaziantep', '31': 'Hatay', '33': 'Mersin', '34': 'İstanbul',
+            '35': 'İzmir', '41': 'Kocaeli', '42': 'Konya', '45': 'Manisa', '55': 'Samsun'
+        };
 
+        let scanHistory = [];
+        let currentAnalysis = null;
+
+        // Initialize charts
         function initCharts() {
-            // City Distribution Chart
-            const cityCtx = document.getElementById('cityChart').getContext('2d');
-            cityChart = new Chart(cityCtx, {
+            // Daily chart
+            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+            new Chart(dailyCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['34', '06', '35', '16', '01', '07', '42', '27', '41', '55'],
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
                     datasets: [{
-                        label: 'Görüntü Sayısı',
-                        data: [8500, 4200, 3800, 2100, 1900, 1800, 1600, 1500, 1400, 1200],
+                        label: 'Tanıma',
+                        data: [145, 189, 156, 201, 178, 89, 67],
                         backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                        borderColor: 'rgba(16, 185, 129, 1)',
-                        borderWidth: 1
+                        borderRadius: 4
                     }]
                 },
                 options: {
@@ -754,324 +447,301 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#94a3b8', font: { size: 10 } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#94a3b8', font: { size: 10 } }
-                        }
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
                     }
                 }
             });
 
-            // Training Chart
-            const trainCtx = document.getElementById('trainingChart').getContext('2d');
-            trainingChart = new Chart(trainCtx, {
+            // Accuracy trend
+            const accCtx = document.getElementById('accuracyChart').getContext('2d');
+            new Chart(accCtx, {
                 type: 'line',
                 data: {
-                    labels: [],
+                    labels: ['1.H', '2.H', '3.H', '4.H', '5.H', '6.H'],
                     datasets: [{
-                        label: 'Training Loss',
-                        data: [],
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.4
-                    }, {
-                        label: 'Validation Accuracy',
-                        data: [],
+                        label: 'Doğruluk %',
+                        data: [94.2, 95.8, 97.1, 98.2, 98.9, 99.2],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
                         tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94a3b8' } } },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        x: {
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#94a3b8' }
-                        }
+                        y: { min: 90, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
                     }
                 }
             });
         }
 
-        // Tab Switching
-        function switchTab(tabName) {
-            // Update nav buttons
-            document.querySelectorAll('.nav-tab').forEach(btn => {
-                if (btn.dataset.tab === tabName) {
-                    btn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
-                    btn.classList.add('bg-emerald-600', 'text-white');
+        function setMode(mode) {
+            document.getElementById('btnCamera').className = mode === 'camera' ? 
+                'px-3 py-1.5 rounded-lg bg-emerald-600 text-sm hover:bg-emerald-700 transition' : 
+                'px-3 py-1.5 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition';
+            document.getElementById('btnUpload').className = mode === 'upload' ? 
+                'px-3 py-1.5 rounded-lg bg-emerald-600 text-sm hover:bg-emerald-700 transition' : 
+                'px-3 py-1.5 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition';
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) processImage(file.name);
+        }
+
+        function loadSample(condition) {
+            const samples = {
+                'day': { plate: '34 ABC 123', conf: 99.1, type: 'Gündüz/Güneşli' },
+                'night': { plate: '06 DEF 456', conf: 94.2, type: 'Gece/Yapay Işık', suggest: true },
+                'blur': { plate: '35 GHI 789', conf: 87.3, type: 'Yağmurlu', suggest: true },
+                'angle': { plate: '16 JKL 012', conf: 91.5, type: '45° Açı', suggest: true }
+            };
+            
+            const sample = samples[condition];
+            simulateAnalysis(sample.plate, sample.conf, sample.type, sample.suggest);
+        }
+
+        function processImage(filename) {
+            // Simulate processing steps
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('previewState').classList.remove('hidden');
+            document.getElementById('processingOverlay').classList.remove('hidden');
+            
+            const steps = ['YOLO tespiti yapılıyor', 'Plaka bölgesi kırpılıyor', 'OCR analizi yapılıyor', 'Hologram kontrolü', 'Sonuçlar derleniyor'];
+            let step = 0;
+            
+            const interval = setInterval(() => {
+                if (step < steps.length) {
+                    document.getElementById('processingStep').textContent = steps[step];
+                    step++;
                 } else {
-                    btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-800');
-                    btn.classList.remove('bg-emerald-600', 'text-white');
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('processingOverlay').classList.add('hidden');
+                        generateRandomResult();
+                    }, 500);
                 }
-            });
-
-            // Update content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
-
-            // Initialize charts if needed
-            if (tabName === 'dataset' && !cityChart) {
-                setTimeout(initCharts, 100);
-            }
+            }, 400);
         }
 
-        // Generate Dataset Grid
-        function generateDatasetGrid() {
-            const grid = document.getElementById('datasetGrid');
-            const conditions = ['Gündüz', 'Gece', 'Yağmur', 'Kar'];
-            const cities = ['34', '06', '35', '16'];
-            
-            for (let i = 0; i < 12; i++) {
-                const item = document.createElement('div');
-                item.className = 'dataset-item glass-panel rounded-xl overflow-hidden border border-slate-700';
-                item.innerHTML = `
-                    <div class="aspect-video bg-slate-800 relative group">
-                        <div class="absolute inset-0 flex items-center justify-center text-slate-600 text-xs">Plaka ${i + 1}</div>
-                        <div class="absolute inset-0 bg-emerald-600/0 group-hover:bg-emerald-600/10 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                        </div>
-                        <div class="absolute top-2 right-2 px-2 py-1 bg-black/70 rounded text-[10px] text-white font-mono">
-                            ${cities[i % 4]} ABC ${100 + i}
-                        </div>
-                    </div>
-                    <div class="p-3">
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-400">${conditions[i % 4]}</span>
-                            <span class="text-emerald-400">✓ Etiketli</span>
-                        </div>
-                    </div>
-                `;
-                item.onclick = () => item.classList.toggle('selected');
-                grid.appendChild(item);
-            }
+        function generateRandomResult() {
+            const plates = ['34 ABC 123', '06 DEF 456', '35 GHI 789', '16 JKL 012', '01 MNO 345'];
+            const plate = plates[Math.floor(Math.random() * plates.length)];
+            const conf = 90 + Math.random() * 9;
+            simulateAnalysis(plate, conf, 'Yüklenen Görüntü', conf < 95);
         }
 
-        // Generate Confusion Matrix
-        function generateConfusionMatrix() {
-            const matrix = document.getElementById('confusionMatrix');
-            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        function simulateAnalysis(plate, confidence, type, needsSuggestion = false) {
+            currentAnalysis = { plate, confidence, type, time: new Date() };
             
-            // Header
-            for (let i = 0; i <= 10; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'h-6 flex items-center justify-center text-slate-500 font-mono text-[10px]';
-                cell.textContent = i === 0 ? '' : chars[i - 1];
-                matrix.appendChild(cell);
-            }
+            // Hide initial, show results
+            document.getElementById('initialResult').classList.add('hidden');
+            document.getElementById('analysisResult').classList.remove('hidden');
             
-            // Matrix cells
-            for (let i = 0; i < 10; i++) {
-                // Row header
-                const rowHeader = document.createElement('div');
-                rowHeader.className = 'h-6 flex items-center justify-center text-slate-500 font-mono text-[10px]';
-                rowHeader.textContent = chars[i];
-                matrix.appendChild(rowHeader);
+            // Set plate
+            document.getElementById('detectedPlate').textContent = plate;
+            document.getElementById('plateType').textContent = type;
+            
+            // Animate confidence bars
+            setTimeout(() => {
+                document.getElementById('overallConf').textContent = confidence.toFixed(1) + '%';
+                document.getElementById('confBar1').style.width = confidence + '%';
                 
-                // Cells
-                for (let j = 0; j < 10; j++) {
-                    const cell = document.createElement('div');
-                    const isDiag = i === j;
-                    const intensity = isDiag ? 1 : Math.random() * 0.3;
-                    const bgColor = `rgba(16, 185, 129, ${intensity})`;
-                    
-                    cell.className = 'heatmap-cell h-6 rounded-sm cursor-pointer';
-                    cell.style.backgroundColor = bgColor;
-                    cell.title = `${chars[i]} → ${chars[j]}: ${(intensity * 100).toFixed(1)}%`;
-                    matrix.appendChild(cell);
-                }
+                const ocrConf = confidence - (Math.random() * 3);
+                document.getElementById('ocrConf').textContent = ocrConf.toFixed(1) + '%';
+                document.getElementById('confBar2').style.width = ocrConf + '%';
+            }, 100);
+            
+            // Generate character analysis
+            generateCharAnalysis(plate);
+            
+            // Generate security checks
+            generateSecurityChecks(confidence);
+            
+            // Show suggestion if needed
+            const suggestionDiv = document.getElementById('aiSuggestions');
+            if (needsSuggestion) {
+                suggestionDiv.classList.remove('hidden');
+                const suggestions = [
+                    'Plaka bölgesi düşük kontrastlı. Daha iyi sonuç için parlaklığı artırabilirsiniz.',
+                    'Açılı çekim tespit edildi. Mümkünse düz açıdan fotoğraf çekin.',
+                    'Hologram bölgesi parlamalar içeriyor. Işık kaynağını değiştirmeyi deneyin.',
+                    'Plaka kenarları bulanık. Otomatik netleştirme uygulandı.'
+                ];
+                document.getElementById('suggestionText').textContent = suggestions[Math.floor(Math.random() * suggestions.length)];
+            } else {
+                suggestionDiv.classList.add('hidden');
             }
         }
 
-        // Generate Test Results
-        function generateTestResults() {
-            const container = document.getElementById('testResults');
-            const samples = [
-                { plate: '34 ABC 123', pred: '34 ABC 123', correct: true },
-                { plate: '06 DEF 456', pred: '06 DEF 456', correct: true },
-                { plate: '35 GHI 789', pred: '35 CHI 789', correct: false }
-            ];
-
-            samples.forEach((sample, idx) => {
+        function generateCharAnalysis(plate) {
+            const chars = plate.replace(/\s/g, '').split('');
+            const container = document.getElementById('charAnalysis');
+            container.innerHTML = '';
+            
+            chars.forEach((char, idx) => {
                 const div = document.createElement('div');
-                div.className = 'glass-panel rounded-xl p-4 border ' + (sample.correct ? 'border-emerald-500/30' : 'border-red-500/30');
+                const conf = 95 + Math.random() * 4;
+                const color = conf > 97 ? 'bg-emerald-500' : conf > 94 ? 'bg-yellow-500' : 'bg-red-500';
+                
+                div.className = 'flex-1 text-center';
                 div.innerHTML = `
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs text-slate-400">Test #${idx + 1}</span>
-                        ${sample.correct ? 
-                            '<span class="text-xs bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded">✓ Doğru</span>' : 
-                            '<span class="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded">✗ Yanlış</span>'
-                        }
+                    <div class="text-lg font-bold mono mb-1">${char}</div>
+                    <div class="h-1 bg-gray-800 rounded-full overflow-hidden">
+                        <div class="${color} h-full confidence-bar" style="width: 0%"></div>
                     </div>
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-slate-400">Gerçek:</span>
-                            <span class="font-mono font-bold">${sample.plate}</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-slate-400">Tahmin:</span>
-                            <span class="font-mono font-bold ${sample.correct ? 'text-emerald-400' : 'text-red-400'}">${sample.pred}</span>
-                        </div>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-700 flex justify-between text-xs text-slate-500">
-                        <span>Confidence: ${sample.correct ? '99.2%' : '87.3%'}</span>
-                        <span>Time: 12ms</span>
-                    </div>
+                    <div class="text-[10px] text-gray-500 mt-1">${conf.toFixed(1)}%</div>
                 `;
                 container.appendChild(div);
+                
+                setTimeout(() => {
+                    div.querySelector('.confidence-bar').style.width = conf + '%';
+                }, 200 + (idx * 100));
             });
-        }
-
-        // Training Simulation
-        let trainingInterval;
-        let currentEpoch = 0;
-        const maxEpoch = 100;
-
-        function startTraining() {
-            const btn = document.getElementById('startTrainBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Eğitim Devam Ediyor...';
             
-            document.getElementById('trainStatus').textContent = 'Eğitim aktif - Batch işleme devam ediyor';
-            document.getElementById('trainStatus').className = 'text-sm text-emerald-400 mt-1';
-            
-            const terminal = document.getElementById('terminalOutput');
-            terminal.innerHTML += `<div class="terminal-line text-emerald-500 mt-2">[TRAIN] Starting training session...</div>`;
-            terminal.innerHTML += `<div class="terminal-line text-slate-400">[TRAIN] Model: ${document.getElementById('modelArch').value}</div>`;
-            terminal.innerHTML += `<div class="terminal-line text-slate-400">[TRAIN] LR: ${document.getElementById('lrValue').textContent}, Batch: 32</div>`;
-            terminal.scrollTop = terminal.scrollHeight;
-
-            currentEpoch = 0;
-            trainingInterval = setInterval(() => {
-                currentEpoch++;
-                updateTrainingProgress();
-                
-                if (currentEpoch >= maxEpoch) {
-                    clearInterval(trainingInterval);
-                    finishTraining();
-                }
-            }, 200); // Fast simulation
-        }
-
-        function updateTrainingProgress() {
-            const progress = (currentEpoch / maxEpoch) * 100;
-            document.getElementById('trainProgress').style.width = progress + '%';
-            document.getElementById('epochDisplay').textContent = `${currentEpoch}/${maxEpoch}`;
-            
-            // Simulate metrics
-            const loss = (2.5 * Math.exp(-currentEpoch / 30) + 0.05 + Math.random() * 0.02).toFixed(4);
-            const acc = (85 + (14 * (1 - Math.exp(-currentEpoch / 25))) + Math.random()).toFixed(2);
-            const cer = (15 * Math.exp(-currentEpoch / 20)).toFixed(2);
-            const eta = Math.ceil((maxEpoch - currentEpoch) * 0.8);
-            
-            document.getElementById('lossValue').textContent = loss;
-            document.getElementById('accValue').textContent = acc + '%';
-            document.getElementById('cerValue').textContent = cer + '%';
-            document.getElementById('timeValue').textContent = eta + 's';
-            
-            // Update chart
-            if (trainingChart && currentEpoch % 5 === 0) {
-                trainingChart.data.labels.push(currentEpoch);
-                trainingChart.data.datasets[0].data.push(parseFloat(loss));
-                trainingChart.data.datasets[1].data.push(parseFloat(acc) / 100);
-                if (trainingChart.data.labels.length > 20) {
-                    trainingChart.data.labels.shift();
-                    trainingChart.data.datasets[0].data.shift();
-                    trainingChart.data.datasets[1].data.shift();
-                }
-                trainingChart.update('none');
-            }
-            
-            // Random terminal logs
-            if (Math.random() > 0.7) {
-                const terminal = document.getElementById('terminalOutput');
-                const logs = [
-                    `[TRAIN] Epoch ${currentEpoch}: Loss=${loss}, Acc=${acc}%`,
-                    `[TRAIN] Batch ${Math.floor(Math.random() * 1000)}/1414 processed`,
-                    `[TRAIN] Learning rate adjusted: ${document.getElementById('lrValue').textContent}`,
-                    `[VAL] Validation accuracy: ${(parseFloat(acc) - 0.5).toFixed(2)}%`
-                ];
-                const log = logs[Math.floor(Math.random() * logs.length)];
-                terminal.innerHTML += `<div class="terminal-line text-slate-400">${log}</div>`;
-                terminal.scrollTop = terminal.scrollHeight;
+            // Heatmap
+            const heatmap = document.getElementById('charHeatmap');
+            heatmap.innerHTML = '';
+            for (let i = 0; i < 40; i++) {
+                const cell = document.createElement('div');
+                const intensity = Math.random();
+                const color = intensity > 0.8 ? 'bg-emerald-500' : intensity > 0.5 ? 'bg-emerald-700' : 'bg-gray-800';
+                cell.className = `char-heatmap h-3 rounded-sm ${color}`;
+                cell.title = `Konum ${i + 1}: ${(intensity * 100).toFixed(0)}% aktivite`;
+                heatmap.appendChild(cell);
             }
         }
 
-        function finishTraining() {
-            const btn = document.getElementById('startTrainBtn');
-            btn.disabled = false;
-            btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Eğitim Tamamlandı';
-            btn.classList.remove('from-emerald-600', 'to-blue-600');
-            btn.classList.add('bg-emerald-600');
+        function generateSecurityChecks(confidence) {
+            const container = document.getElementById('securityChecks');
+            const checks = [
+                { name: 'TR Format Doğrulaması', status: 'passed', icon: '✓' },
+                { name: 'Hologram Bölgesi Tespiti', status: confidence > 95 ? 'passed' : 'warning', icon: confidence > 95 ? '✓' : '!' },
+                { name: 'Font Analizi (FE-Mitar)', status: 'passed', icon: '✓' },
+                { name: 'Baskı Kalitesi Kontrolü', status: confidence > 90 ? 'passed' : 'warning', icon: confidence > 90 ? '✓' : '!' }
+            ];
             
-            document.getElementById('trainStatus').textContent = 'Eğitim başarıyla tamamlandı - Model kaydedildi';
-            document.getElementById('terminalOutput').innerHTML += `<div class="terminal-line text-emerald-500 mt-2">[TRAIN] Training completed! Final accuracy: 99.2%</div>`;
-            document.getElementById('terminalOutput').innerHTML += `<div class="terminal-line text-emerald-500">[TRAIN] Model saved to: /models/tr-plate-v2.1.0.pth</div>`;
-            
-            // Auto switch to evaluation
-            setTimeout(() => switchTab('evaluation'), 2000);
+            container.innerHTML = checks.map(check => `
+                <div class="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
+                    <span class="text-sm flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full ${check.status === 'passed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'} flex items-center justify-center text-xs font-bold">${check.icon}</span>
+                        ${check.name}
+                    </span>
+                    <span class="text-xs ${check.status === 'passed' ? 'text-emerald-400' : 'text-yellow-400'} font-mono uppercase">${check.status}</span>
+                </div>
+            `).join('');
         }
 
-        // Augmentation Preview
-        function refreshAugmentation() {
-            const grid = document.getElementById('augmentationGrid');
-            const augmentations = ['Orijinal', 'Parlaklık +20%', 'Döndürme 15°', 'Zoom 1.2x', 'Blur', 'Noise'];
+        function resetAnalysis() {
+            document.getElementById('analysisResult').classList.add('hidden');
+            document.getElementById('initialResult').classList.remove('hidden');
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('previewState').classList.add('hidden');
+            document.getElementById('fileInput').value = '';
+            currentAnalysis = null;
+        }
+
+        function saveToHistory() {
+            if (!currentAnalysis) return;
             
-            // Clear except first
-            while (grid.children.length > 1) {
-                grid.removeChild(grid.lastChild);
-            }
+            scanHistory.unshift({
+                ...currentAnalysis,
+                id: Date.now(),
+                status: currentAnalysis.confidence > 95 ? 'Başarılı' : 'Kontrol Gerekli'
+            });
             
-            // Add augmented versions
-            for (let i = 1; i < 6; i++) {
-                const div = document.createElement('div');
-                div.className = 'aug-preview rounded-lg overflow-hidden border border-slate-700';
-                div.setAttribute('data-aug', augmentations[i]);
-                div.innerHTML = `<div class="aspect-video bg-slate-800 flex items-center justify-center text-xs text-slate-500">Aug ${i}</div>`;
-                grid.appendChild(div);
+            updateHistoryTable();
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Kaydedildi';
+            btn.classList.add('bg-emerald-700');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-emerald-700');
+            }, 2000);
+        }
+
+        function updateHistoryTable() {
+            const tbody = document.getElementById('historyTable');
+            tbody.innerHTML = scanHistory.slice(0, 10).map(scan => `
+                <tr class="hover:bg-gray-800/50 transition">
+                    <td class="px-6 py-4 text-gray-400">${scan.time.toLocaleString('tr-TR')}</td>
+                    <td class="px-6 py-4 font-mono font-bold">${scan.plate}</td>
+                    <td class="px-6 py-4">${cityCodes[scan.plate.substring(0, 2)] || 'Bilinmiyor'}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-16 bg-gray-800 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full" style="width: ${scan.confidence}%"></div>
+                            </div>
+                            <span class="text-xs mono">${scan.confidence.toFixed(1)}%</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs ${scan.confidence > 95 ? 'bg-emerald-600/20 text-emerald-400' : 'bg-yellow-600/20 text-yellow-400'}">
+                            ${scan.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="viewDetails(${scan.id})" class="text-emerald-400 hover:text-emerald-300 text-sm">Detay</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showDetails() {
+            alert('Detaylı rapor modülü: JSON export, karakter-level confidence matrix, ve işlem logları içerir.');
+        }
+
+        function viewDetails(id) {
+            const scan = scanHistory.find(s => s.id === id);
+            if (scan) {
+                alert(`Plaka: ${scan.plate}\nDoğruluk: ${scan.confidence.toFixed(2)}%\nTür: ${scan.type}\nZaman: ${scan.time.toLocaleString('tr-TR')}`);
             }
         }
 
-        function handleBatchUpload(event) {
-            const files = event.target.files;
-            if (files.length > 0) {
-                const totalEl = document.getElementById('totalImages');
-                const current = parseInt(totalEl.textContent.replace(',', ''));
-                totalEl.textContent = (current + files.length).toLocaleString();
-                
-                // Show notification
-                const terminal = document.getElementById('terminalOutput');
-                if (terminal) {
-                    terminal.innerHTML += `<div class="terminal-line text-blue-400">[DATA] ${files.length} images uploaded successfully</div>`;
-                }
+        function exportHistory() {
+            if (scanHistory.length === 0) {
+                alert('Dışa aktarılacak kayıt bulunmuyor.');
+                return;
             }
+            
+            const data = JSON.stringify(scanHistory, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `plaka-taramalari-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
         }
+
+        // Drag and drop
+        const dropZone = document.getElementById('uploadArea');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-emerald-500', 'bg-emerald-900/10');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-emerald-500', 'bg-emerald-900/10');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-emerald-500', 'bg-emerald-900/10');
+            if (e.dataTransfer.files.length > 0) {
+                processImage(e.dataTransfer.files[0].name);
+            }
+        });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            generateDatasetGrid();
-            generateConfusionMatrix();
-            generateTestResults();
-            refreshAugmentation();
-            
-            // Auto-start charts if on dataset tab
-            if (!document.getElementById('tab-dataset').classList.contains('hidden')) {
-                setTimeout(initCharts, 100);
-            }
+            initCharts();
+            updateHistoryTable();
         });
     </script>
 </body>
