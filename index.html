@@ -261,6 +261,7 @@
             overflow: hidden;
             margin-bottom: 1rem;
             touch-action: none;
+            user-select: none;
         }
 
         #mainCanvas {
@@ -292,6 +293,36 @@
             content: 'PLAKA TESPİT EDİLDİ';
             position: absolute;
             top: -30px;
+            left: 0;
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .manual-selection-box {
+            position: absolute;
+            border: 2px dashed var(--primary);
+            background: rgba(59, 130, 246, 0.2);
+            display: none;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .manual-confirm-box {
+            position: absolute;
+            border: 3px solid var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .manual-confirm-box::after {
+            content: 'MANUEL SEÇİM';
+            position: absolute;
+            top: -25px;
             left: 0;
             background: var(--success);
             color: white;
@@ -346,6 +377,12 @@
 
         .btn-secondary:hover {
             background: var(--border);
+        }
+
+        .btn-secondary.active {
+            background: var(--warning);
+            color: white;
+            border-color: var(--warning);
         }
 
         .btn-success {
@@ -1042,6 +1079,15 @@
             analyzing: false
         };
 
+        let manualSelection = {
+            isSelecting: false,
+            startX: 0,
+            startY: 0,
+            currentX: 0,
+            currentY: 0,
+            selectionBox: null
+        };
+
         const elements = {
             uploadZone: document.getElementById('uploadZone'),
             fileInput: document.getElementById('fileInput'),
@@ -1058,6 +1104,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initCanvas();
             initEventListeners();
+            initManualSelection();
         });
 
         function initCanvas() {
@@ -1098,6 +1145,159 @@
                 elements.uploadZone.style.setProperty('--mouse-x', x + '%');
                 elements.uploadZone.style.setProperty('--mouse-y', y + '%');
             });
+        }
+
+        function initManualSelection() {
+            const container = document.getElementById('canvasContainer');
+            
+            const manualBtn = document.createElement('button');
+            manualBtn.className = 'btn btn-secondary';
+            manualBtn.innerHTML = '✋ Manuel Seç';
+            manualBtn.onclick = startManualSelection;
+            manualBtn.id = 'manualSelectBtn';
+            
+            const actionButtons = document.querySelector('.action-buttons');
+            actionButtons.insertBefore(manualBtn, actionButtons.firstChild);
+            
+            const selectionBox = document.createElement('div');
+            selectionBox.id = 'manualSelectionBox';
+            selectionBox.className = 'manual-selection-box';
+            container.appendChild(selectionBox);
+            manualSelection.selectionBox = selectionBox;
+            
+            container.addEventListener('mousedown', onSelectionStart);
+            container.addEventListener('mousemove', onSelectionMove);
+            container.addEventListener('mouseup', onSelectionEnd);
+            
+            container.addEventListener('touchstart', onTouchStart, {passive: false});
+            container.addEventListener('touchmove', onTouchMove, {passive: false});
+            container.addEventListener('touchend', onSelectionEnd);
+        }
+
+        function startManualSelection() {
+            manualSelection.isSelecting = true;
+            showToast('Plaka alanını seçmek için sürükleyin', '✋');
+            document.getElementById('manualSelectBtn').classList.add('active');
+        }
+
+        function onSelectionStart(e) {
+            if (!manualSelection.isSelecting) return;
+            e.preventDefault();
+            
+            const container = document.getElementById('canvasContainer');
+            const rect = container.getBoundingClientRect();
+            
+            manualSelection.startX = e.clientX - rect.left;
+            manualSelection.startY = e.clientY - rect.top;
+            
+            manualSelection.selectionBox.style.display = 'block';
+            manualSelection.selectionBox.style.left = manualSelection.startX + 'px';
+            manualSelection.selectionBox.style.top = manualSelection.startY + 'px';
+            manualSelection.selectionBox.style.width = '0px';
+            manualSelection.selectionBox.style.height = '0px';
+        }
+
+        function onTouchStart(e) {
+            if (!manualSelection.isSelecting) return;
+            e.preventDefault();
+            
+            const container = document.getElementById('canvasContainer');
+            const rect = container.getBoundingClientRect();
+            const touch = e.touches[0];
+            
+            manualSelection.startX = touch.clientX - rect.left;
+            manualSelection.startY = touch.clientY - rect.top;
+            
+            manualSelection.selectionBox.style.display = 'block';
+            manualSelection.selectionBox.style.left = manualSelection.startX + 'px';
+            manualSelection.selectionBox.style.top = manualSelection.startY + 'px';
+            manualSelection.selectionBox.style.width = '0px';
+            manualSelection.selectionBox.style.height = '0px';
+        }
+
+        function onSelectionMove(e) {
+            if (!manualSelection.isSelecting || manualSelection.selectionBox.style.display === 'none') return;
+            e.preventDefault();
+            
+            const container = document.getElementById('canvasContainer');
+            const rect = container.getBoundingClientRect();
+            
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            manualSelection.currentX = clientX - rect.left;
+            manualSelection.currentY = clientY - rect.top;
+            
+            const left = Math.min(manualSelection.startX, manualSelection.currentX);
+            const top = Math.min(manualSelection.startY, manualSelection.currentY);
+            const width = Math.abs(manualSelection.currentX - manualSelection.startX);
+            const height = Math.abs(manualSelection.currentY - manualSelection.startY);
+            
+            manualSelection.selectionBox.style.left = left + 'px';
+            manualSelection.selectionBox.style.top = top + 'px';
+            manualSelection.selectionBox.style.width = width + 'px';
+            manualSelection.selectionBox.style.height = height + 'px';
+        }
+
+        function onTouchMove(e) {
+            if (!manualSelection.isSelecting) return;
+            e.preventDefault();
+            onSelectionMove(e);
+        }
+
+        function onSelectionEnd(e) {
+            if (!manualSelection.isSelecting) return;
+            
+            manualSelection.isSelecting = false;
+            document.getElementById('manualSelectBtn').classList.remove('active');
+            
+            const left = parseInt(manualSelection.selectionBox.style.left) || 0;
+            const top = parseInt(manualSelection.selectionBox.style.top) || 0;
+            const width = parseInt(manualSelection.selectionBox.style.width) || 0;
+            const height = parseInt(manualSelection.selectionBox.style.height) || 0;
+            
+            if (width < 50 || height < 20) {
+                showToast('Seçim çok küçük, tekrar deneyin', '❌');
+                manualSelection.selectionBox.style.display = 'none';
+                return;
+            }
+            
+            const canvas = elements.canvas;
+            const container = document.getElementById('canvasContainer');
+            const scaleX = canvas.width / container.clientWidth;
+            const scaleY = canvas.height / container.clientHeight;
+            
+            state.detectedRegion = {
+                x: left * scaleX,
+                y: top * scaleY,
+                width: width * scaleX,
+                height: height * scaleY,
+                confidence: 1.0,
+                manual: true
+            };
+            
+            elements.detectionBox.style.display = 'none';
+            
+            const oldBoxes = container.querySelectorAll('.manual-confirm-box');
+            oldBoxes.forEach(b => b.remove());
+            
+            const confirmBox = document.createElement('div');
+            confirmBox.className = 'manual-confirm-box';
+            confirmBox.style.left = left + 'px';
+            confirmBox.style.top = top + 'px';
+            confirmBox.style.width = width + 'px';
+            confirmBox.style.height = height + 'px';
+            
+            container.appendChild(confirmBox);
+            
+            manualSelection.selectionBox.style.display = 'none';
+            showToast('Plaka alanı manuel olarak seçildi', '✅');
         }
 
         function showToast(message, icon = 'ℹ️') {
@@ -1158,9 +1358,14 @@
             elements.previewSection.classList.add('active');
             elements.analyzeBtn.disabled = false;
             
+            const oldBoxes = document.querySelectorAll('.manual-confirm-box');
+            oldBoxes.forEach(b => b.remove());
+            
+            state.detectedRegion = null;
+            elements.detectionBox.style.display = 'none';
+            
             setTimeout(() => {
-                detectRegion();
-                showToast('Fotoğraf yüklendi', '✅');
+                showToast('Plaka alanını manuel seçin', '✋');
             }, 100);
         }
 
@@ -1385,7 +1590,6 @@
             state.ctx.putImageData(enhanced, 0, 0);
             state.processedImage = enhanced;
             
-            detectRegion();
             showToast('Görüntü iyileştirildi', '✅');
         }
 
@@ -1402,133 +1606,20 @@
             elements.analyzeBtn.disabled = false;
             elements.detectionBox.style.display = 'none';
             
+            const oldBoxes = document.querySelectorAll('.manual-confirm-box');
+            oldBoxes.forEach(b => b.remove());
+            
             state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
             showToast('Fotoğraf kaldırıldı', '🗑️');
         }
 
-        function detectRegion() {
-            if (!state.processedImage) return;
-            
-            const data = state.processedImage.data;
-            const width = state.canvas.width;
-            const height = state.canvas.height;
-            const config = TR_CONFIG;
-            
-            state.ctx.drawImage(state.originalImage, 0, 0, width, height);
-            
-            const scales = [1, 0.8, 0.6];
-            let bestRegion = null;
-            let bestScore = 0;
-            
-            for (const scale of scales) {
-                const regions = findPlateRegions(data, width, height, config);
-                
-                for (const region of regions) {
-                    const score = calculateRegionScore(data, width, height, region, config);
-                    if (score > bestScore && score > 0.3) {
-                        bestScore = score;
-                        bestRegion = region;
-                    }
-                }
-            }
-            
-            if (bestRegion) {
-                state.detectedRegion = bestRegion;
-                drawDetectionBox(bestRegion);
-            } else {
-                state.detectedRegion = {
-                    x: width * 0.1,
-                    y: height * 0.3,
-                    width: width * 0.8,
-                    height: height * 0.4,
-                    confidence: 0.5
-                };
-                drawDetectionBox(state.detectedRegion);
-            }
-        }
-
-        function findPlateRegions(data, width, height, config) {
-            const regions = [];
-            const step = 4;
-            
-            const bluePixels = [];
-            for (let y = 0; y < height; y += step) {
-                for (let x = 0; x < width * 0.3; x += step) {
-                    const idx = (y * width + x) * 4;
-                    const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                    
-                    if (hsv.h >= config.colors.blue.h[0] && hsv.h <= config.colors.blue.h[1] &&
-                        hsv.s >= config.colors.blue.s[0] && hsv.s <= config.colors.blue.s[1] &&
-                        hsv.v >= config.colors.blue.v[0] && hsv.v <= config.colors.blue.v[1]) {
-                        bluePixels.push({ x, y });
-                    }
-                }
-            }
-            
-            if (bluePixels.length > 20) {
-                let minX = width, maxX = 0, minY = height, maxY = 0;
-                bluePixels.forEach(p => {
-                    minX = Math.min(minX, p.x);
-                    maxX = Math.max(maxX, p.x);
-                    minY = Math.min(minY, p.y);
-                    maxY = Math.max(maxY, p.y);
-                });
-                
-                const blueWidth = maxX - minX;
-                const plateWidth = Math.min(width - minX, blueWidth * 8);
-                const plateHeight = Math.min(height - minY, (maxY - minY) * 3);
-                
-                regions.push({
-                    x: Math.max(0, minX - 10),
-                    y: Math.max(0, minY - 10),
-                    width: plateWidth,
-                    height: plateHeight,
-                    type: 'blue-strip'
-                });
-            }
-            
-            return regions;
-        }
-
-        function calculateRegionScore(data, width, height, region, config) {
-            let score = 0;
-            const samples = 100;
-            let validSamples = 0;
-            
-            for (let i = 0; i < samples; i++) {
-                const x = region.x + Math.random() * region.width;
-                const y = region.y + Math.random() * region.height;
-                const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-                const hsv = rgbToHsv(data[idx], data[idx + 1], data[idx + 2]);
-                
-                if ((hsv.v > 60 && hsv.s < 30) ||
-                    (hsv.v < 40) ||
-                    (hsv.h >= config.colors.blue.h[0] && hsv.h <= config.colors.blue.h[1])) {
-                    score++;
-                }
-                validSamples++;
-            }
-            
-            return validSamples > 0 ? score / validSamples : 0;
-        }
-
-        function drawDetectionBox(region) {
-            const box = elements.detectionBox;
-            const container = document.getElementById('canvasContainer');
-            const canvas = elements.canvas;
-            
-            const scaleX = container.clientWidth / canvas.width;
-            const scaleY = container.clientHeight / canvas.height;
-            
-            box.style.left = (region.x * scaleX) + 'px';
-            box.style.top = (region.y * scaleY) + 'px';
-            box.style.width = (region.width * scaleX) + 'px';
-            box.style.height = (region.height * scaleY) + 'px';
-            box.style.display = 'block';
-        }
-
         async function analyzePlate() {
-            if (!state.processedImage || !state.detectedRegion || state.analyzing) return;
+            if (!state.processedImage || !state.detectedRegion || state.analyzing) {
+                if (!state.detectedRegion) {
+                    showToast('Önce plaka alanını manuel seçin', '❌');
+                }
+                return;
+            }
             
             state.analyzing = true;
             elements.loading.classList.add('active');
@@ -1546,10 +1637,8 @@
             try {
                 const plateCanvas = extractPlateRegion();
                 
-                // Önce TR kontrolü yap
                 const trCheck = checkTRPresence(plateCanvas);
                 
-                // Eğer TR yoksa direkt sonuç göster
                 if (!trCheck.hasTR) {
                     const finalScore = {
                         score: 0,
@@ -1618,7 +1707,6 @@
             const width = plateCanvas.width;
             const height = plateCanvas.height;
             
-            // Sol tarafı analiz et (mavi şerit bölgesi) - %25 genişlik
             const leftRegionWidth = width * 0.25;
             const imageData = ctx.getImageData(0, 0, leftRegionWidth, height);
             const data = imageData.data;
@@ -1627,7 +1715,6 @@
             let whitePixelCount = 0;
             let totalPixels = 0;
             
-            // Piksel analizi - daha hassas tespit
             for (let y = 0; y < height; y += 2) {
                 for (let x = 0; x < leftRegionWidth; x += 2) {
                     const idx = (y * leftRegionWidth + x) * 4;
@@ -1635,12 +1722,10 @@
                     
                     totalPixels++;
                     
-                    // Mavi kontrolü (daha geniş aralık)
                     if (hsv.h >= 190 && hsv.h <= 270 && hsv.s > 20 && hsv.v > 15) {
                         bluePixelCount++;
                     }
                     
-                    // Beyaz kontrolü (TR yazısı için) - parlaklık eşiği düşürüldü
                     if (hsv.v > 60 && hsv.s < 25) {
                         whitePixelCount++;
                     }
@@ -1650,12 +1735,10 @@
             const blueRatio = bluePixelCount / totalPixels;
             const whiteRatio = whitePixelCount / totalPixels;
             
-            // Eğer mavi şerit varsa ve üzerinde beyaz renk (TR) yoksa
             let hasTR = false;
             let confidence = 0;
             
             if (blueRatio > 0.25) {
-                // Mavi şerit var, beyaz oranı kontrol et
                 if (whiteRatio > 0.08) {
                     hasTR = true;
                     confidence = Math.min(95, whiteRatio * 800);
@@ -1664,7 +1747,6 @@
                     confidence = 0;
                 }
             } else {
-                // Mavi şerit yok veya çok az
                 hasTR = false;
                 confidence = 0;
             }
@@ -1946,7 +2028,8 @@
                 totalScore -= 20;
             }
             
-            totalScore = Math.max(0, Math.min(100, totalScore));
+            total
+                        totalScore = Math.max(0, Math.min(100, totalScore));
             
             let status, title, message, badgeText;
             
@@ -1991,14 +2074,13 @@
                 </div>
             `;
             
-            // TR Kontrolü Detay Kartı - Her zaman göster
             html += `
                 <div class="feature-card ${trCheck.hasTR ? 'pass' : 'fail'}" style="margin-bottom: 1rem;">
                     <div class="feature-header">
                         <div class="feature-icon">🇹🇷</div>
                         <div class="feature-title-group">
                             <div class="feature-title">TR Şerit Kontrolü</div>
-                                                        <div class="feature-status">${trCheck.hasTR ? '✅ TR Tespit Edildi' : '❌ TR Bulunamadı'}</div>
+                            <div class="feature-status">${trCheck.hasTR ? '✅ TR Tespit Edildi' : '❌ TR Bulunamadı'}</div>
                         </div>
                     </div>
                     <div class="feature-metrics">
@@ -2123,7 +2205,6 @@
                 `;
             }
             
-            // Premium banner - para kazanma özelliği
             html += `
                 <div class="premium-banner">
                     <h3>🌟 ProPlaka Premium</h3>
@@ -2132,7 +2213,6 @@
                 </div>
             `;
             
-            // Tescil ve yasal bilgiler
             html += `
                 <div style="background: var(--bg-card); border-radius: 12px; padding: 1rem; margin-top: 1rem; border: 1px solid var(--border); text-align: center;">
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
@@ -2165,6 +2245,7 @@
         window.enhanceImage = enhanceImage;
         window.analyzePlate = analyzePlate;
         window.showPremiumInfo = showPremiumInfo;
+        window.startManualSelection = startManualSelection;
     </script>
 </body>
 </html>
