@@ -37,7 +37,6 @@
     overflow-x: hidden;
   }
 
-  /* Animated background grid */
   body::before {
     content: '';
     position: fixed;
@@ -327,19 +326,17 @@
   .log-msg { color: var(--text); line-height: 1.5; }
 
   /* METRIC BARS */
-  .metric-bar-wrap {
-    margin-bottom: 10px;
-  }
+  .metric-bar-wrap { margin-bottom: 8px; }
 
   .metric-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
 
   .metric-name {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--muted);
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
@@ -347,14 +344,14 @@
   }
 
   .metric-value {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--amber);
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
   }
 
   .metric-bar {
-    height: 5px;
+    height: 4px;
     background: var(--border);
     border-radius: 3px;
     overflow: hidden;
@@ -516,102 +513,172 @@
     margin-top: 2px;
   }
 
-  /* APK RULES PANEL */
+  /* ─── APK RULES PANEL — COMPACT ─── */
   .rules-panel {
     background: var(--bg2);
     border: 1px solid var(--border2);
     border-radius: 14px;
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
+  /* Collapsible toggle */
+  .rules-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: block;
   }
 
   .rules-header {
-    padding: 16px 20px;
+    padding: 12px 18px;
     background: linear-gradient(135deg, #ff3a3a12, #ff3a3a05);
     border-bottom: 1px solid #ff3a3a30;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
 
   .rules-header h3 {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
+    font-size: 16px;
     letter-spacing: 3px;
     color: var(--red);
   }
 
-  .rules-header p {
-    font-size: 12px;
-    color: var(--muted);
+  .rules-header-right {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rules-header p {
+    font-size: 11px;
+    color: var(--muted);
     font-family: 'JetBrains Mono', monospace;
   }
 
+  .rules-chevron {
+    font-size: 12px;
+    color: var(--muted);
+    transition: transform 0.3s ease;
+    display: inline-block;
+  }
+
+  .rules-chevron.open { transform: rotate(180deg); }
+
+  .rules-body {
+    display: none;
+  }
+
+  .rules-body.open {
+    display: block;
+  }
+
+  /* Compact 4-column grid */
   .rules-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0;
   }
 
   .rule-item {
-    padding: 16px 20px;
+    padding: 10px 12px;
     border-bottom: 1px solid var(--border);
     border-right: 1px solid var(--border);
     display: flex;
-    gap: 14px;
+    gap: 8px;
     align-items: flex-start;
     transition: background 0.2s;
   }
 
   .rule-item:hover { background: var(--bg3); }
-
-  .rule-item:nth-child(even) { border-right: none; }
+  .rule-item:nth-child(4n) { border-right: none; }
 
   .rule-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
     background: var(--red-dim);
     border: 1px solid #ff3a3a40;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 9px;
     color: var(--red);
     font-weight: 700;
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
   .rule-content h4 {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 3px;
-    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+    letter-spacing: 0.2px;
+    line-height: 1.3;
   }
 
   .rule-content p {
-    font-size: 12.5px;
+    font-size: 10.5px;
     color: var(--muted);
-    line-height: 1.5;
+    line-height: 1.4;
+    display: none; /* hidden in compact mode */
   }
 
   .rule-threshold {
-    margin-top: 6px;
+    margin-top: 4px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     background: var(--amber-dim);
     border: 1px solid #f0a50030;
-    border-radius: 5px;
-    padding: 2px 8px;
+    border-radius: 4px;
+    padding: 1px 6px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-size: 9px;
     color: var(--amber);
+    line-height: 1.4;
+  }
+
+  .apk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--red-dim);
+    border: 1px solid #ff3a3a40;
+    color: var(--red);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
+  }
+
+  .orig-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--green-dim);
+    border: 1px solid #00e87a40;
+    color: var(--green);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
   }
 
   /* CANVAS */
@@ -649,41 +716,6 @@
     width: 0%;
     transition: width 0.4s ease;
     border-radius: 2px;
-  }
-
-  /* APK MARKER BADGE */
-  .apk-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--red-dim);
-    border: 1px solid #ff3a3a40;
-    color: var(--red);
-    padding: 3px 10px;
-    border-radius: 5px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-left: 8px;
-  }
-
-  .orig-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--green-dim);
-    border: 1px solid #00e87a40;
-    color: var(--green);
-    padding: 3px 10px;
-    border-radius: 5px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-left: 8px;
   }
 
   /* FINDINGS */
@@ -724,9 +756,10 @@
 
   @media (max-width: 768px) {
     .main-grid { grid-template-columns: 1fr; }
-    .rules-grid { grid-template-columns: 1fr; }
+    .rules-grid { grid-template-columns: repeat(2, 1fr); }
     .detail-grid { grid-template-columns: repeat(2, 1fr); }
     .rule-item { border-right: none; }
+    .rule-item:nth-child(2n) { border-right: none; }
   }
 </style>
 </head>
@@ -747,127 +780,7 @@
     </div>
   </header>
 
-  <!-- APK RULES PANEL -->
-  <div class="rules-panel">
-    <div class="rules-header">
-      <span style="font-size:20px;">🚨</span>
-      <h3>APK PLAKA TESPİT KURALLARI</h3>
-      <p>12 AKTİF KURAL — ADLİ ANALİZ MODELİ</p>
-    </div>
-    <div class="rules-grid">
-
-      <div class="rule-item">
-        <div class="rule-num">R1</div>
-        <div class="rule-content">
-          <h4>Kontrast Derinliği <span class="apk-badge">⚠ APK KRİTER</span></h4>
-          <p>APK plakalar genellikle düşük kaliteli baskı nedeniyle siyah-beyaz kontrast farkı düşüktür. Gerçek plakalarda alüminyum yansıması nedeniyle kontrast keskindir.</p>
-          <div class="rule-threshold">📐 Eşik: Kontrast Skoru ≥ 65 → Orijinal</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R2</div>
-        <div class="rule-content">
-          <h4>Kenar Keskinliği (Sobel) <span class="apk-badge">⚠ APK KRİTER</span></h4>
-          <p>APK plakalarda harf kenarları bulanık veya pürüzlüdür. Orijinal emaye/alüminyum baskılarda Sobel gradyanı yüksektir.</p>
-          <div class="rule-threshold">📐 Eşik: Sobel ≥ 18 → Keskin Kenar</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R3</div>
-        <div class="rule-content">
-          <h4>Laplacian Varyansı (Netlik)</h4>
-          <p>Fotoğraf netliğini ölçer. Orijinal plaka fotoğrafları dahi belirli bir netlik eşiğinin üzerinde olmalıdır. APK tespitinde ikincil destek sağlar.</p>
-          <div class="rule-threshold">📐 Eşik: Varyans ≥ 80 → Net</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R4</div>
-        <div class="rule-content">
-          <h4>Plaka Zemin Rengi <span class="apk-badge">⚠ APK KRİTER</span></h4>
-          <p>Türk plakası standardına göre zemin beyaz (#ffffff yakını) veya sarı-beyaz arası. APK plakalarda renk sapması yaygındır. RGB değerleri analiz edilir.</p>
-          <div class="rule-threshold">📐 Eşik: Beyaz piksel oranı ≥ %20</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R5</div>
-        <div class="rule-content">
-          <h4>Siyah Metin Yoğunluğu <span class="apk-badge">⚠ APK KRİTER</span></h4>
-          <p>Plaka karakterlerinin rengi siyah-lacivert olmalıdır. APK baskılarda mürekkep solukluğu nedeniyle siyah piksel oranı normalin altına düşer.</p>
-          <div class="rule-threshold">📐 Eşik: Koyu piksel oranı ≥ %3</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R6</div>
-        <div class="rule-content">
-          <h4>Baskı Doku Homojenliği <span class="apk-badge">⚠ APK KRİTER</span></h4>
-          <p>APK baskılarda düzensiz doku dağılımı (mürekkep sızması, dot matrix artifaktları) görülür. Standart sapma analizi ile tespit edilir.</p>
-          <div class="rule-threshold">📐 Eşik: Std. Sapma 30–90 arası → Normal</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R7</div>
-        <div class="rule-content">
-          <h4>En/Boy Oranı (Format)</h4>
-          <p>Türk plaka standardı: 52cm × 11cm → Oran ≈ 4.7. APK plakalarda boyut sapmaları nadiren oluşur ama format bütünüyle değerlendirilir.</p>
-          <div class="rule-threshold">📐 Eşik: Oran 3.0 – 7.0 arası → Standart</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R8</div>
-        <div class="rule-content">
-          <h4>Görüntü Entropy (Bilgi Yoğunluğu) <span class="orig-badge">✓ ORİJİNAL</span></h4>
-          <p>Orijinal plakalarda metalik yüzey ve baskı kalitesi nedeniyle Shannon entropy değeri dengeli bir aralıktadır. Çok düşük = sahte baskı.</p>
-          <div class="rule-threshold">📐 Eşik: Entropy 3.5 – 7.5 arası → Dengeli</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R9</div>
-        <div class="rule-content">
-          <h4>Histogram Dağılım Dengesi <span class="apk-badge">⚠ APK KRİTER</span></h4>
-          <p>APK baskılarda piksel yığılma (patlama) oluşur — ya çok koyu ya çok açık piksel bölgeleri dominanttır. Bimodal dağılım APK işareti.</p>
-          <div class="rule-threshold">📐 Eşik: Dominant bin oranı ≤ %40</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R10</div>
-        <div class="rule-content">
-          <h4>Metalik Yansıma Gradyanı <span class="orig-badge">✓ ORİJİNAL</span></h4>
-          <p>Orijinal alüminyum plakalar kameraya bağlı olarak hafif yansıma gradyanı oluşturur. APK kağıt/plastik baskılarda bu gradyan yoktur veya yapay görünür.</p>
-          <div class="rule-threshold">📐 Eşik: Gradyan sapması ≤ 45</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R11</div>
-        <div class="rule-content">
-          <h4>Kenar Bant Analizi <span class="apk-badge">⚠ APK KRİTER</span></h4>
-          <p>Türk plakaları çevresi siyah kenarlıklıdır. APK plakalarda kenar bantı ya yoktur ya da renk tutarsızlığı gösterir.</p>
-          <div class="rule-threshold">📐 Eşik: Kenar koyu piksel ≥ %15</div>
-        </div>
-      </div>
-
-      <div class="rule-item">
-        <div class="rule-num">R12</div>
-        <div class="rule-content">
-          <h4>Toplam Ağırlıklı Güven Skoru</h4>
-          <p>R1-R11 kuralları ağırlıklı olarak birleştirilir. APK kriterleri 3×, destekleyici kriterler 1× ağırlık alır. Final skor ≥70 → Orijinal.</p>
-          <div class="rule-threshold">📐 ≥70 Orijinal | 40–69 Kuşkulu | &lt;40 APK</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MAIN GRID -->
+  <!-- ① MAIN GRID: UPLOAD + LOG (EN ÜSTTE) -->
   <div class="main-grid">
 
     <!-- LEFT: UPLOAD -->
@@ -919,449 +832,219 @@
 
   </div>
 
-  <!-- RESULT CARD -->
-  <div class="result-card" id="resultCard">
-    <!-- filled by JS -->
+  <!-- ② RESULT CARD -->
+  <div class="result-card" id="resultCard"></div>
+
+  <!-- ③ APK RULES PANEL — COMPACT + COLLAPSIBLE (EN ALTTA) -->
+  <div class="rules-panel">
+    <button class="rules-toggle" onclick="toggleRules()" id="rulesToggleBtn">
+      <div class="rules-header">
+        <span style="font-size:16px;">🚨</span>
+        <h3>APK PLAKA TESPİT KURALLARI</h3>
+        <div class="rules-header-right">
+          <p>12 AKTİF KURAL</p>
+          <span class="rules-chevron" id="rulesChevron">▼</span>
+        </div>
+      </div>
+    </button>
+    <div class="rules-body" id="rulesBody">
+      <div class="rules-grid">
+
+        <div class="rule-item">
+          <div class="rule-num">R1</div>
+          <div class="rule-content">
+            <h4>Kontrast Derinliği <span class="apk-badge">APK</span></h4>
+            <div class="rule-threshold">≥ 65 → Orijinal</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R2</div>
+          <div class="rule-content">
+            <h4>Kenar Keskinliği <span class="apk-badge">APK</span></h4>
+            <div class="rule-threshold">Sobel ≥ 18</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R3</div>
+          <div class="rule-content">
+            <h4>Laplacian Netlik</h4>
+            <div class="rule-threshold">Varyans ≥ 80</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R4</div>
+          <div class="rule-content">
+            <h4>Zemin Rengi <span class="apk-badge">APK</span></h4>
+            <div class="rule-threshold">Beyaz ≥ %20</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R5</div>
+          <div class="rule-content">
+            <h4>Siyah Metin <span class="apk-badge">APK</span></h4>
+            <div class="rule-threshold">Koyu ≥ %3</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R6</div>
+          <div class="rule-content">
+            <h4>Doku Homojenliği <span class="apk-badge">APK</span></h4>
+            <div class="rule-threshold">Std. 30–90</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R7</div>
+          <div class="rule-content">
+            <h4>En/Boy Oranı</h4>
+            <div class="rule-threshold">3.0 – 7.0</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R8</div>
+          <div class="rule-content">
+            <h4>Görüntü Entropy <span class="orig-badge">ORJ</span></h4>
+            <div class="rule-threshold">3.5 – 7.5 bit</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R9</div>
+          <div class="rule-content">
+            <h4>Histogram Dengesi <span class="apk-badge">APK</span></h4>
+            <div class="rule-threshold">Dom. ≤ %40</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R10</div>
+          <div class="rule-content">
+            <h4>Metalik Gradyan <span class="orig-badge">ORJ</span></h4>
+            <div class="rule-threshold">Sap. ≤ 45</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R11</div>
+          <div class="rule-content">
+            <h4>Kenar Bant <span class="apk-badge">APK</span></h4>
+            <div class="rule-threshold">Koyu ≥ %15</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R12</div>
+          <div class="rule-content">
+            <h4>Ağırlıklı Güven</h4>
+            <div class="rule-threshold">≥70 Ori | &lt;40 APK</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
 </div>
 
 <script>
-let imageData = null;
-let logCount = 0;
-let analysisResults = {};
+// Configuration
+const CONFIG = {
+  maxFileSize: 20 * 1024 * 1024, // 20MB
+  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+  thresholds: {
+    contrast: 65,
+    sobel: 18,
+    laplacian: 80,
+    whiteRatio: 0.20,
+    darkRatio: 0.03,
+    texture: { min: 30, max: 90 },
+    ratio: { min: 3.0, max: 7.0 },
+    entropy: { min: 3.5, max: 7.5 },
+    histogram: 0.40,
+    metallic: 45,
+    border: 0.15
+  },
+  weights: {
+    contrast: { w: 3, apk: true },
+    sobel: { w: 3, apk: true },
+    laplacian: { w: 1, apk: false },
+    white: { w: 3, apk: true },
+    dark: { w: 3, apk: true },
+    texture: { w: 2, apk: true },
+    ratio: { w: 1, apk: false },
+    entropy: { w: 2, apk: true },
+    histogram: { w: 3, apk: true },
+    metallic: { w: 1, apk: false },
+    border: { w: 3, apk: true }
+  }
+};
 
-// FILE UPLOAD
-document.getElementById('fileInput').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  handleFile(file);
-});
+// State
+const state = {
+  imageData: null,
+  logCount: 0,
+  isAnalyzing: false
+};
 
-const zone = document.getElementById('uploadZone');
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-zone.addEventListener('drop', e => {
-  e.preventDefault();
-  zone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) handleFile(file);
-});
+// DOM Elements
+const elements = {
+  fileInput: document.getElementById('fileInput'),
+  uploadZone: document.getElementById('uploadZone'),
+  previewImg: document.getElementById('previewImg'),
+  uploadIcon: document.getElementById('uploadIcon'),
+  uploadTitle: document.getElementById('uploadTitle'),
+  uploadSub: document.getElementById('uploadSub'),
+  analyzeBtn: document.getElementById('analyzeBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  logArea: document.getElementById('logArea'),
+  logCount: document.getElementById('logCount'),
+  progressBar: document.getElementById('progressBar'),
+  progressFill: document.getElementById('progressFill'),
+  metricsSection: document.getElementById('metricsSection'),
+  metricBars: document.getElementById('metricBars'),
+  resultCard: document.getElementById('resultCard'),
+  canvas: document.getElementById('canvas')
+};
 
-function handleFile(file) {
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = document.getElementById('previewImg');
-    img.src = ev.target.result;
-    img.style.display = 'block';
-    document.getElementById('uploadIcon').style.display = 'none';
-    document.getElementById('uploadTitle').style.display = 'none';
-    document.getElementById('uploadSub').style.display = 'none';
-    zone.classList.add('has-image');
-    document.getElementById('analyzeBtn').disabled = false;
-    document.getElementById('resetBtn').style.display = 'inline-flex';
-    imageData = ev.target.result;
-    document.getElementById('logArea').innerHTML = `
-      <div style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px;padding:14px;text-align:center;">
-        ✅ Görüntü yüklendi: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)<br>
-        <span style="color:var(--muted);margin-top:4px;display:block">▶ ANALİZİ BAŞLAT butonuna basın</span>
-      </div>`;
-    logCount = 0;
-    document.getElementById('logCount').textContent = '0 KAYIT';
-    document.getElementById('resultCard').className = 'result-card';
-    document.getElementById('metricsSection').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-function resetAll() {
-  imageData = null;
-  logCount = 0;
-  document.getElementById('fileInput').value = '';
-  document.getElementById('previewImg').style.display = 'none';
-  document.getElementById('previewImg').src = '';
-  document.getElementById('uploadIcon').style.display = 'block';
-  document.getElementById('uploadTitle').style.display = 'block';
-  document.getElementById('uploadSub').style.display = 'block';
-  zone.classList.remove('has-image');
-  document.getElementById('analyzeBtn').disabled = true;
-  document.getElementById('resetBtn').style.display = 'none';
-  document.getElementById('logArea').innerHTML = `<div style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:20px;text-align:center;opacity:0.5;">Analiz başladığında kayıtlar burada görünecek...</div>`;
-  document.getElementById('logCount').textContent = '0 KAYIT';
-  document.getElementById('resultCard').className = 'result-card';
-  document.getElementById('metricsSection').style.display = 'none';
-  document.getElementById('progressBar').style.display = 'none';
-  document.getElementById('progressFill').style.width = '0%';
-  document.getElementById('metricBars').innerHTML = '';
-}
-
-function addLog(tag, msg) {
+// Utility Functions
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const formatTime = () => {
   const now = new Date();
-  const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}.${now.getMilliseconds().toString().padStart(3,'0').slice(0,2)}`;
-  const area = document.getElementById('logArea');
-  if (logCount === 0) area.innerHTML = '';
-  logCount++;
-  document.getElementById('logCount').textContent = `${logCount} KAYIT`;
+  return `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}.${now.getMilliseconds().toString().padStart(3,'0').slice(0,2)}`;
+};
+
+// Logger
+function addLog(tag, msg) {
+  const area = elements.logArea;
+  if (state.logCount === 0) area.innerHTML = '';
+  
+  state.logCount++;
+  elements.logCount.textContent = `${state.logCount} KAYIT`;
+  
   const entry = document.createElement('div');
   entry.className = 'log-entry';
-  entry.innerHTML = `<span class="log-time">${time}</span><span class="log-tag ${tag}">${tag.toUpperCase()}</span><span class="log-msg">${msg}</span>`;
+  entry.innerHTML = `
+    <span class="log-time">${formatTime()}</span>
+    <span class="log-tag ${tag}">${tag.toUpperCase()}</span>
+    <span class="log-msg">${msg}</span>
+  `;
+  
   area.appendChild(entry);
   area.scrollTop = area.scrollHeight;
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+// Progress Bar
 function setProgress(pct) {
-  document.getElementById('progressFill').style.width = pct + '%';
+  elements.progressFill.style.width = `${pct}%`;
 }
 
-// ─── CORE ANALYSIS ───────────────────────────────────────────
-async function startAnalysis() {
-  if (!imageData) return;
-  const btn = document.getElementById('analyzeBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ ANALİZ EDİLİYOR...';
-  document.getElementById('progressBar').style.display = 'block';
-  document.getElementById('resultCard').className = 'result-card';
-  document.getElementById('metricsSection').style.display = 'block';
-  document.getElementById('metricBars').innerHTML = '';
-  logCount = 0;
-
-  addLog('info', '🔬 Forensik analiz motoru başlatılıyor...');
-  await sleep(300);
-  addLog('info', '📐 Görüntü canvas\'a çiziliyor...');
-
-  const img = new Image();
-  img.src = imageData;
-
-  await new Promise((resolve, reject) => {
-    img.onload = resolve;
-    img.onerror = reject;
-  });
-
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  ctx.drawImage(img, 0, 0);
-
-  addLog('info', `📏 Boyut: ${img.naturalWidth}×${img.naturalHeight} piksel`);
-  setProgress(8);
-  await sleep(200);
-
-  const fullData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const px = fullData.data;
-  const W = canvas.width, H = canvas.height;
-  const total = W * H;
-
-  addLog('scan', '⚙️ Piksel matrisi okunuyor...');
-  await sleep(250);
-  setProgress(15);
-
-  // ── R1: CONTRAST ──────────────────────────────────────────
-  addLog('scan', '[R1] Kontrast Derinliği Analizi başlıyor...');
-  await sleep(180);
-
-  let minL = 255, maxL = 0, sumL = 0;
-  const lum = new Float32Array(total);
-
-  for (let i = 0; i < total; i++) {
-    const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
-    const l = 0.299*r + 0.587*g + 0.114*b;
-    lum[i] = l;
-    sumL += l;
-    if (l < minL) minL = l;
-    if (l > maxL) maxL = l;
-  }
-  const avgL = sumL / total;
-  const contrastRange = maxL - minL;
-  const contrastScore = Math.min(100, (contrastRange / 255) * 110);
-
-  addLog(contrastScore >= 65 ? 'pass' : 'fail',
-    `[R1] Kontrast Aralığı: ${minL.toFixed(0)}–${maxL.toFixed(0)} | Skor: <strong>${contrastScore.toFixed(1)}</strong>/100 ${contrastScore >= 65 ? '✅ Eşik geçildi' : '❌ Düşük kontrast — APK işareti'}`);
-  addMetricBar('R1 Kontrast', contrastScore, 100, contrastScore >= 65 ? 'green' : 'red');
-  setProgress(25);
-  await sleep(200);
-
-  // ── R2: SOBEL SHARPNESS ───────────────────────────────────
-  addLog('scan', '[R2] Sobel Kenar Tespiti başlıyor...');
-  await sleep(180);
-
-  let sobelSum = 0;
-  let sobelCount = 0;
-  for (let y = 1; y < H-1; y++) {
-    for (let x = 1; x < W-1; x++) {
-      const gx = -lum[(y-1)*W+(x-1)] - 2*lum[y*W+(x-1)] - lum[(y+1)*W+(x-1)]
-               + lum[(y-1)*W+(x+1)] + 2*lum[y*W+(x+1)] + lum[(y+1)*W+(x+1)];
-      const gy = -lum[(y-1)*W+(x-1)] - 2*lum[(y-1)*W+x] - lum[(y-1)*W+(x+1)]
-               + lum[(y+1)*W+(x-1)] + 2*lum[(y+1)*W+x] + lum[(y+1)*W+(x+1)];
-      sobelSum += Math.sqrt(gx*gx + gy*gy);
-      sobelCount++;
-    }
-  }
-  const sobelAvg = sobelSum / sobelCount;
-  const sobelScore = Math.min(100, (sobelAvg / 50) * 100);
-
-  addLog(sobelAvg >= 18 ? 'pass' : 'fail',
-    `[R2] Sobel Ortalama Gradyan: <strong>${sobelAvg.toFixed(2)}</strong> | Skor: <strong>${sobelScore.toFixed(1)}</strong>/100 ${sobelAvg >= 18 ? '✅ Keskin kenar' : '❌ Bulanık kenar — APK işareti'}`);
-  addMetricBar('R2 Sobel Kenar', sobelScore, 100, sobelAvg >= 18 ? 'green' : 'red');
-  setProgress(35);
-  await sleep(200);
-
-  // ── R3: LAPLACIAN ─────────────────────────────────────────
-  addLog('scan', '[R3] Laplacian Varyans Netlik Analizi...');
-  await sleep(150);
-
-  let lapSum = 0;
-  for (let y = 1; y < H-1; y++) {
-    for (let x = 1; x < W-1; x++) {
-      const lap = -lum[(y-1)*W+x] - lum[y*W+(x-1)] + 4*lum[y*W+x] - lum[y*W+(x+1)] - lum[(y+1)*W+x];
-      lapSum += lap * lap;
-    }
-  }
-  const lapVar = lapSum / total;
-  const lapScore = Math.min(100, (lapVar / 3000) * 100);
-
-  addLog(lapVar >= 80 ? 'pass' : 'fail',
-    `[R3] Laplacian Varyans: <strong>${lapVar.toFixed(1)}</strong> | Skor: <strong>${lapScore.toFixed(1)}</strong>/100 ${lapVar >= 80 ? '✅ Görüntü net' : '⚠️ Görüntü bulanık — netlik düşük'}`);
-  addMetricBar('R3 Laplacian Netlik', lapScore, 100, lapVar >= 80 ? 'green' : 'warn');
-  setProgress(45);
-  await sleep(200);
-
-  // ── R4: WHITE BACKGROUND ──────────────────────────────────
-  addLog('scan', '[R4] Plaka Zemin Renk Analizi (R4) başlıyor...');
-  await sleep(150);
-
-  let whitePx = 0;
-  for (let i = 0; i < total; i++) {
-    const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
-    if (r > 180 && g > 180 && b > 150) whitePx++;
-  }
-  const whiteRatio = whitePx / total;
-  const whiteScore = Math.min(100, (whiteRatio / 0.25) * 100);
-
-  addLog(whiteRatio >= 0.20 ? 'pass' : 'fail',
-    `[R4] Beyaz/Açık Piksel Oranı: <strong>${(whiteRatio*100).toFixed(1)}%</strong> | Skor: <strong>${whiteScore.toFixed(1)}</strong>/100 ${whiteRatio >= 0.20 ? '✅ Zemin rengi uyumlu' : '❌ Zemin rengi sapması — APK işareti'}`);
-  addMetricBar('R4 Zemin Rengi', whiteScore, 100, whiteRatio >= 0.20 ? 'green' : 'red');
-  setProgress(53);
-  await sleep(200);
-
-  // ── R5: BLACK TEXT ────────────────────────────────────────
-  addLog('scan', '[R5] Siyah Metin Yoğunluğu Analizi...');
-  await sleep(150);
-
-  let darkPx = 0;
-  for (let i = 0; i < total; i++) {
-    const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
-    if (r < 60 && g < 60 && b < 80) darkPx++;
-  }
-  const darkRatio = darkPx / total;
-  const darkScore = Math.min(100, (darkRatio / 0.08) * 100);
-
-  addLog(darkRatio >= 0.03 ? 'pass' : 'fail',
-    `[R5] Siyah Piksel Oranı: <strong>${(darkRatio*100).toFixed(2)}%</strong> | Skor: <strong>${darkScore.toFixed(1)}</strong>/100 ${darkRatio >= 0.03 ? '✅ Yeterli metin koyuluğu' : '❌ Metin soluk — APK işareti'}`);
-  addMetricBar('R5 Siyah Metin', darkScore, 100, darkRatio >= 0.03 ? 'green' : 'red');
-  setProgress(60);
-  await sleep(200);
-
-  // ── R6: TEXTURE HOMOGENEITY ───────────────────────────────
-  addLog('scan', '[R6] Baskı Doku Standart Sapması...');
-  await sleep(150);
-
-  let varSum = 0;
-  for (let i = 0; i < total; i++) varSum += (lum[i] - avgL) ** 2;
-  const stdDev = Math.sqrt(varSum / total);
-  const texScore = (stdDev >= 30 && stdDev <= 90) ? Math.min(100, 100 - Math.abs(stdDev - 60) * 1.2) : Math.max(0, 50 - Math.abs(stdDev - 60) * 0.8);
-
-  addLog((stdDev >= 30 && stdDev <= 90) ? 'pass' : 'warn',
-    `[R6] Doku Std. Sapması: <strong>${stdDev.toFixed(2)}</strong> | Skor: <strong>${texScore.toFixed(1)}</strong>/100 ${(stdDev >= 30 && stdDev <= 90) ? '✅ Homojen baskı dokusu' : '⚠️ Doku sapması — şüpheli baskı'}`);
-  addMetricBar('R6 Doku Dağılımı', texScore, 100, (stdDev >= 30 && stdDev <= 90) ? 'green' : 'warn');
-  setProgress(67);
-  await sleep(200);
-
-  // ── R7: ASPECT RATIO ─────────────────────────────────────
-  addLog('scan', '[R7] En/Boy Formatı Kontrol Ediliyor...');
-  await sleep(120);
-
-  const ratio = W / H;
-  const ratioScore = (ratio >= 3.0 && ratio <= 7.0) ? Math.min(100, 100 - Math.abs(ratio - 4.7) * 18) : 20;
-
-  addLog((ratio >= 3.0 && ratio <= 7.0) ? 'pass' : 'warn',
-    `[R7] Görüntü Oranı: <strong>${ratio.toFixed(2)}</strong> (Standart ≈4.7) | Skor: <strong>${ratioScore.toFixed(1)}</strong>/100 ${(ratio >= 3.0 && ratio <= 7.0) ? '✅ Format uyumlu' : '⚠️ Format sapması'}`);
-  addMetricBar('R7 Format Oranı', ratioScore, 100, (ratio >= 3.0 && ratio <= 7.0) ? 'cyan' : 'warn');
-  setProgress(73);
-  await sleep(200);
-
-  // ── R8: ENTROPY ───────────────────────────────────────────
-  addLog('scan', '[R8] Shannon Entropy Hesaplanıyor...');
-  await sleep(150);
-
-  const hist = new Float32Array(256).fill(0);
-  for (let i = 0; i < total; i++) hist[Math.floor(lum[i])]++;
-  let entropy = 0;
-  for (let i = 0; i < 256; i++) {
-    if (hist[i] > 0) { const p = hist[i]/total; entropy -= p * Math.log2(p); }
-  }
-  const entropyScore = (entropy >= 3.5 && entropy <= 7.5) ? Math.min(100, 100 - Math.abs(entropy - 5.5) * 12) : 20;
-
-  addLog((entropy >= 3.5 && entropy <= 7.5) ? 'pass' : 'fail',
-    `[R8] Shannon Entropy: <strong>${entropy.toFixed(3)} bit</strong> | Skor: <strong>${entropyScore.toFixed(1)}</strong>/100 ${(entropy >= 3.5 && entropy <= 7.5) ? '✅ Dengeli bilgi yoğunluğu' : '❌ Entropy sapması — APK işareti'}`);
-  addMetricBar('R8 Entropy', entropyScore, 100, (entropy >= 3.5 && entropy <= 7.5) ? 'green' : 'red');
-  setProgress(80);
-  await sleep(200);
-
-  // ── R9: HISTOGRAM DOMINANCE ───────────────────────────────
-  addLog('scan', '[R9] Histogram Dağılım Dengesi...');
-  await sleep(150);
-
-  const maxBin = Math.max(...hist);
-  const dominance = maxBin / total;
-  const histScore = Math.min(100, Math.max(0, (1 - dominance/0.4) * 100));
-
-  addLog(dominance <= 0.40 ? 'pass' : 'fail',
-    `[R9] Dominant Bin Oranı: <strong>${(dominance*100).toFixed(1)}%</strong> | Skor: <strong>${histScore.toFixed(1)}</strong>/100 ${dominance <= 0.40 ? '✅ Dengeli dağılım' : '❌ Piksel yığılması — APK baskı işareti'}`);
-  addMetricBar('R9 Histogram Dengesi', histScore, 100, dominance <= 0.40 ? 'green' : 'red');
-  setProgress(86);
-  await sleep(200);
-
-  // ── R10: METALLIC GRADIENT ────────────────────────────────
-  addLog('scan', '[R10] Metalik Yansıma Gradyanı Analizi...');
-  await sleep(150);
-
-  const sampleRows = [Math.floor(H*0.2), Math.floor(H*0.5), Math.floor(H*0.8)];
-  const rowAvgs = sampleRows.map(row => {
-    let s = 0;
-    for (let x = 0; x < W; x++) s += lum[row*W+x];
-    return s / W;
-  });
-  const gradSpread = Math.max(...rowAvgs) - Math.min(...rowAvgs);
-  const metalScore = gradSpread <= 45 ? Math.min(100, (1 - gradSpread/45) * 100 + 40) : Math.max(20, 80 - gradSpread);
-
-  addLog(gradSpread <= 45 ? 'pass' : 'warn',
-    `[R10] Metalik Gradyan Sapması: <strong>${gradSpread.toFixed(1)}</strong> | Skor: <strong>${metalScore.toFixed(1)}</strong>/100 ${gradSpread <= 45 ? '✅ Doğal metalik gradyan' : '⚠️ Yapay yansıma — şüpheli'}`);
-  addMetricBar('R10 Metalik Gradyan', metalScore, 100, gradSpread <= 45 ? 'green' : 'warn');
-  setProgress(92);
-  await sleep(200);
-
-  // ── R11: BORDER BAND ──────────────────────────────────────
-  addLog('scan', '[R11] Kenar Bant Siyah Çerçeve Analizi...');
-  await sleep(150);
-
-  let borderDark = 0, borderTotal = 0;
-  const bW = Math.floor(W * 0.04);
-  const bH = Math.floor(H * 0.08);
-
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < bW; x++) {
-      const i = y*W+x;
-      if (lum[i] < 80) borderDark++;
-      borderTotal++;
-    }
-    for (let x = W-bW; x < W; x++) {
-      const i = y*W+x;
-      if (lum[i] < 80) borderDark++;
-      borderTotal++;
-    }
-  }
-  for (let x = 0; x < W; x++) {
-    for (let y = 0; y < bH; y++) {
-      if (lum[y*W+x] < 80) borderDark++;
-      borderTotal++;
-    }
-    for (let y = H-bH; y < H; y++) {
-      if (lum[y*W+x] < 80) borderDark++;
-      borderTotal++;
-    }
-  }
-  const borderRatio = borderDark / borderTotal;
-  const borderScore = Math.min(100, (borderRatio / 0.15) * 100);
-
-  addLog(borderRatio >= 0.15 ? 'pass' : 'fail',
-    `[R11] Kenar Koyu Piksel: <strong>${(borderRatio*100).toFixed(1)}%</strong> | Skor: <strong>${borderScore.toFixed(1)}</strong>/100 ${borderRatio >= 0.15 ? '✅ Siyah kenar bant mevcut' : '❌ Kenar bant eksik — APK işareti'}`);
-  addMetricBar('R11 Kenar Bant', borderScore, 100, borderRatio >= 0.15 ? 'green' : 'red');
-  setProgress(97);
-  await sleep(250);
-
-  // ── R12: WEIGHTED FINAL SCORE ─────────────────────────────
-  addLog('scan', '[R12] Ağırlıklı Güven Skoru Hesaplanıyor...');
-  await sleep(200);
-
-  // APK kriterleri 3× ağırlık, destekleyici 1×
-  const weights = {
-    contrast:  { score: contrastScore,  w: 3, apk: true  },
-    sobel:     { score: sobelScore,     w: 3, apk: true  },
-    laplacian: { score: lapScore,       w: 1, apk: false },
-    white:     { score: whiteScore,     w: 3, apk: true  },
-    dark:      { score: darkScore,      w: 3, apk: true  },
-    texture:   { score: texScore,       w: 2, apk: true  },
-    ratio:     { score: ratioScore,     w: 1, apk: false },
-    entropy:   { score: entropyScore,   w: 2, apk: true  },
-    histogram: { score: histScore,      w: 3, apk: true  },
-    metallic:  { score: metalScore,     w: 1, apk: false },
-    border:    { score: borderScore,    w: 3, apk: true  },
-  };
-
-  let weightedSum = 0, totalWeight = 0;
-  for (const [, v] of Object.entries(weights)) {
-    weightedSum += v.score * v.w;
-    totalWeight += v.w;
-  }
-  const finalScore = weightedSum / totalWeight;
-
-  addLog('info', `[R12] APK-Ağırlıklı Toplam: <strong>${finalScore.toFixed(1)}/100</strong>`);
-  setProgress(100);
-  await sleep(300);
-
-  // Determine verdict
-  let verdict, verClass, verIcon, verDesc;
-  const failedAPK = Object.entries(weights).filter(([, v]) => v.apk && v.score < 55).length;
-  const critFails = [weights.contrast, weights.dark, weights.histogram, weights.border].filter(v => v.score < 50).length;
-
-  if (finalScore >= 70 && critFails === 0) {
-    verdict = 'ORİJİNAL PLAKA';
-    verClass = 'original';
-    verIcon = '✅';
-    verDesc = `${failedAPK} APK kriteri başarısız. Güven skoru yüksek.`;
-  } else if (finalScore < 40 || critFails >= 2) {
-    verdict = 'APK / SAHİF PLAKA';
-    verClass = 'fake';
-    verIcon = '🚨';
-    verDesc = `${critFails} kritik APK kriteri başarısız. Güven skoru düşük.`;
-  } else {
-    verdict = 'KUŞKULU PLAKA';
-    verClass = 'suspicious';
-    verIcon = '⚠️';
-    verDesc = `${failedAPK} APK kriteri başarısız. Manuel inceleme gerekli.`;
-  }
-
-  addLog(verClass === 'original' ? 'pass' : verClass === 'fake' ? 'fail' : 'warn',
-    `🎯 KARAR: <strong>${verdict}</strong> — Skor: ${finalScore.toFixed(1)}`);
-
-  // Collect findings
-  const findings = [];
-  if (contrastScore < 65) findings.push({ type:'fail', icon:'🔴', text:'<strong>Düşük Kontrast (R1)</strong>', sub:'APK baskılarda siyah-beyaz ayrımı zayıf olur' });
-  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Kontrast Güçlü (R1)</strong>', sub:`Aralık: ${minL.toFixed(0)}–${maxL.toFixed(0)}` });
-
-  if (sobelAvg < 18) findings.push({ type:'fail', icon:'🔴', text:'<strong>Kenar Bulanık (R2)</strong>', sub:'APK plakalarda harf kenarları pürüzlü/bulanıktır' });
-  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Keskin Kenar Tespiti (R2)</strong>', sub:`Sobel: ${sobelAvg.toFixed(1)}` });
-
-  if (whiteRatio < 0.20) findings.push({ type:'fail', icon:'🔴', text:'<strong>Zemin Rengi Sapması (R4)</strong>', sub:'APK plakalarda beyaz zemin bozulmuş olabilir' });
-  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Zemin Rengi Uyumlu (R4)</strong>', sub:`Beyaz oran: ${(whiteRatio*100).toFixed(1)}%` });
-
-  if (darkRatio < 0.03) findings.push({ type:'fail', icon:'🔴', text:'<strong>Metin Rengi Soluk (R5)</strong>', sub:'APK baskıda mürekkep kalitesi düşük olabilir' });
-  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Metin Koyuluğu Yeterli (R5)</strong>', sub:`Siyah oran: ${(darkRatio*100).toFixed(2)}%` });
-
-  if (dominance > 0.40) findings.push({ type:'fail', icon:'🔴', text:'<strong>Histogram Yığılması (R9)</strong>', sub:'APK baskılarda piksel dağılımı dengesiz olur' });
-  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Dengeli Piksel Dağılımı (R9)</strong>', sub:`Dominant bin: ${(dominance*100).toFixed(1)}%` });
-
-  if (borderRatio < 0.15) findings.push({ type:'fail', icon:'🔴', text:'<strong>Kenar Bant Eksik (R11)</strong>', sub:'Türk plakasında siyah çerçeve şarttır' });
-  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Kenar Bant Mevcut (R11)</strong>', sub:`Kenar koyu oran: ${(borderRatio*100).toFixed(1)}%` });
-
-  displayResult(verdict, verClass, verIcon, verDesc, finalScore, findings, img.naturalWidth, img.naturalHeight, failedAPK, critFails);
-
-  btn.disabled = false;
-  btn.textContent = '🔬 ANALİZİ BAŞLAT';
-}
-
+// Metric Bar
 function addMetricBar(name, val, max, color) {
   const pct = Math.min(100, (val/max)*100).toFixed(1);
   const div = document.createElement('div');
@@ -1373,18 +1056,537 @@ function addMetricBar(name, val, max, color) {
     </div>
     <div class="metric-bar">
       <div class="metric-fill ${color}" style="width:0%" data-target="${pct}"></div>
-    </div>`;
-  document.getElementById('metricBars').appendChild(div);
-  setTimeout(() => {
-    div.querySelector('.metric-fill').style.width = pct + '%';
-  }, 50);
+    </div>
+  `;
+  
+  elements.metricBars.appendChild(div);
+  requestAnimationFrame(() => {
+    div.querySelector('.metric-fill').style.width = `${pct}%`;
+  });
+}
+
+// File Upload Handler
+function handleFile(file) {
+  if (!CONFIG.acceptedTypes.includes(file.type)) {
+    addLog('fail', `❌ Desteklenmeyen format: ${file.type}`);
+    return;
+  }
+  
+  if (file.size > CONFIG.maxFileSize) {
+    addLog('fail', `❌ Dosya çok büyük: ${(file.size/1024/1024).toFixed(1)}MB`);
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    elements.previewImg.src = ev.target.result;
+    elements.previewImg.style.display = 'block';
+    elements.uploadIcon.style.display = 'none';
+    elements.uploadTitle.style.display = 'none';
+    elements.uploadSub.style.display = 'none';
+    elements.uploadZone.classList.add('has-image');
+    elements.analyzeBtn.disabled = false;
+    elements.resetBtn.style.display = 'inline-flex';
+    state.imageData = ev.target.result;
+    
+    elements.logArea.innerHTML = `
+      <div style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px;padding:14px;text-align:center;">
+        ✅ Görüntü yüklendi: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)<br>
+        <span style="color:var(--muted);margin-top:4px;display:block">▶ ANALİZİ BAŞLAT butonuna basın</span>
+      </div>
+    `;
+    state.logCount = 0;
+    elements.logCount.textContent = '0 KAYIT';
+    elements.resultCard.className = 'result-card';
+    elements.metricsSection.style.display = 'none';
+  };
+  
+  reader.onerror = () => addLog('fail', '❌ Dosya okuma hatası');
+  reader.readAsDataURL(file);
+}
+
+// Reset
+function resetAll() {
+  state.imageData = null;
+  state.logCount = 0;
+  state.isAnalyzing = false;
+  
+  elements.fileInput.value = '';
+  elements.previewImg.style.display = 'none';
+  elements.previewImg.src = '';
+  elements.uploadIcon.style.display = 'block';
+  elements.uploadTitle.style.display = 'block';
+  elements.uploadSub.style.display = 'block';
+  elements.uploadZone.classList.remove('has-image');
+  elements.analyzeBtn.disabled = true;
+  elements.analyzeBtn.textContent = '🔬 ANALİZİ BAŞLAT';
+  elements.resetBtn.style.display = 'none';
+  elements.logArea.innerHTML = `
+    <div style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:20px;text-align:center;opacity:0.5;">
+      Analiz başladığında kayıtlar burada görünecek...
+    </div>
+  `;
+  elements.logCount.textContent = '0 KAYIT';
+  elements.resultCard.className = 'result-card';
+  elements.metricsSection.style.display = 'none';
+  elements.progressBar.style.display = 'none';
+  elements.progressFill.style.width = '0%';
+  elements.metricBars.innerHTML = '';
+}
+
+// Image Analysis Functions
+class PlateAnalyzer {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d', { willReadFrequently: true });
+    this.width = 0;
+    this.height = 0;
+    this.lum = null;
+    this.total = 0;
+  }
+
+  async loadImage(src) {
+    const img = new Image();
+    img.src = src;
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+    
+    this.width = img.naturalWidth;
+    this.height = img.naturalHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    this.ctx.drawImage(img, 0, 0);
+    this.total = this.width * this.height;
+    
+    return { width: this.width, height: this.height };
+  }
+
+  extractLuminance() {
+    const imageData = this.ctx.getImageData(0, 0, this.width, this.height);
+    const px = imageData.data;
+    this.lum = new Float32Array(this.total);
+    
+    let minL = 255, maxL = 0, sumL = 0;
+    
+    for (let i = 0; i < this.total; i++) {
+      const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
+      const l = 0.299*r + 0.587*g + 0.114*b;
+      this.lum[i] = l;
+      sumL += l;
+      if (l < minL) minL = l;
+      if (l > maxL) maxL = l;
+    }
+    
+    return { minL, maxL, avgL: sumL / this.total, px };
+  }
+
+  calculateContrast(minL, maxL) {
+    const range = maxL - minL;
+    const score = Math.min(100, (range / 255) * 110);
+    return { score, range, passed: score >= CONFIG.thresholds.contrast };
+  }
+
+  calculateSobel() {
+    const { width: W, height: H, lum } = this;
+    let sum = 0, count = 0;
+    
+    for (let y = 1; y < H-1; y++) {
+      for (let x = 1; x < W-1; x++) {
+        const idx = y*W+x;
+        const gx = -lum[idx-W-1] - 2*lum[idx-1] - lum[idx+W-1] + lum[idx-W+1] + 2*lum[idx+1] + lum[idx+W+1];
+        const gy = -lum[idx-W-1] - 2*lum[idx-W] - lum[idx-W+1] + lum[idx+W-1] + 2*lum[idx+W] + lum[idx+W+1];
+        sum += Math.sqrt(gx*gx + gy*gy);
+        count++;
+      }
+    }
+    
+    const avg = sum / count;
+    const score = Math.min(100, (avg / 50) * 100);
+    return { score, avg, passed: avg >= CONFIG.thresholds.sobel };
+  }
+
+  calculateLaplacian() {
+    const { width: W, height: H, lum, total } = this;
+    let sum = 0;
+    
+    for (let y = 1; y < H-1; y++) {
+      for (let x = 1; x < W-1; x++) {
+        const idx = y*W+x;
+        const lap = -lum[idx-W] - lum[idx-1] + 4*lum[idx] - lum[idx+1] - lum[idx+W];
+        sum += lap * lap;
+      }
+    }
+    
+    const variance = sum / total;
+    const score = Math.min(100, (variance / 3000) * 100);
+    return { score, variance, passed: variance >= CONFIG.thresholds.laplacian };
+  }
+
+  calculateColorRatios(px) {
+    let whitePx = 0, darkPx = 0;
+    
+    for (let i = 0; i < this.total; i++) {
+      const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
+      if (r > 180 && g > 180 && b > 150) whitePx++;
+      if (r < 60 && g < 60 && b < 80) darkPx++;
+    }
+    
+    const whiteRatio = whitePx / this.total;
+    const darkRatio = darkPx / this.total;
+    
+    return {
+      white: {
+        ratio: whiteRatio,
+        score: Math.min(100, (whiteRatio / 0.25) * 100),
+        passed: whiteRatio >= CONFIG.thresholds.whiteRatio
+      },
+      dark: {
+        ratio: darkRatio,
+        score: Math.min(100, (darkRatio / 0.08) * 100),
+        passed: darkRatio >= CONFIG.thresholds.darkRatio
+      }
+    };
+  }
+
+  calculateTexture(avgL) {
+    let sum = 0;
+    for (const l of this.lum) {
+      sum += (l - avgL) ** 2;
+    }
+    
+    const stdDev = Math.sqrt(sum / this.total);
+    const { min, max } = CONFIG.thresholds.texture;
+    const passed = stdDev >= min && stdDev <= max;
+    const score = passed ? 
+      Math.min(100, 100 - Math.abs(stdDev - 60) * 1.2) : 
+      Math.max(0, 50 - Math.abs(stdDev - 60) * 0.8);
+    
+    return { score, stdDev, passed };
+  }
+
+  calculateHistogram() {
+    const hist = new Float32Array(256).fill(0);
+    for (const l of this.lum) {
+      hist[Math.floor(l)]++;
+    }
+    
+    const maxBin = Math.max(...hist);
+    const dominance = maxBin / this.total;
+    const score = Math.min(100, Math.max(0, (1 - dominance/0.4) * 100));
+    
+    return { score, dominance, passed: dominance <= CONFIG.thresholds.histogram, hist };
+  }
+
+  calculateEntropy(hist) {
+    let entropy = 0;
+    for (let i = 0; i < 256; i++) {
+      if (hist[i] > 0) {
+        const p = hist[i]/this.total;
+        entropy -= p * Math.log2(p);
+      }
+    }
+    
+    const { min, max } = CONFIG.thresholds.entropy;
+    const passed = entropy >= min && entropy <= max;
+    const score = passed ? 
+      Math.min(100, 100 - Math.abs(entropy - 5.5) * 12) : 
+      20;
+    
+    return { score, entropy, passed };
+  }
+
+  calculateMetallic() {
+    const { width: W, height: H, lum } = this;
+    const sampleRows = [
+      Math.floor(H*0.2), 
+      Math.floor(H*0.5), 
+      Math.floor(H*0.8)
+    ];
+    
+    const rowAvgs = sampleRows.map(row => {
+      let sum = 0;
+      for (let x = 0; x < W; x++) sum += lum[row*W+x];
+      return sum/W;
+    });
+    
+    const spread = Math.max(...rowAvgs) - Math.min(...rowAvgs);
+    const passed = spread <= CONFIG.thresholds.metallic;
+    const score = passed ? 
+      Math.min(100, (1 - spread/45)*100+40) : 
+      Math.max(20, 80 - spread);
+    
+    return { score, spread, passed };
+  }
+
+  calculateBorder() {
+    const { width: W, height: H, lum } = this;
+    const bW = Math.floor(W * 0.04), bH = Math.floor(H * 0.08);
+    let dark = 0, total = 0;
+    
+    // Vertical borders
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < bW; x++) {
+        if (lum[y*W+x] < 80) dark++;
+        total++;
+      }
+      for (let x = W-bW; x < W; x++) {
+        if (lum[y*W+x] < 80) dark++;
+        total++;
+      }
+    }
+    
+    // Horizontal borders
+    for (let x = 0; x < W; x++) {
+      for (let y = 0; y < bH; y++) {
+        if (lum[y*W+x] < 80) dark++;
+        total++;
+      }
+      for (let y = H-bH; y < H; y++) {
+        if (lum[y*W+x] < 80) dark++;
+        total++;
+      }
+    }
+    
+    const ratio = dark / total;
+    const score = Math.min(100, (ratio / 0.15) * 100);
+    return { score, ratio, passed: ratio >= CONFIG.thresholds.border };
+  }
+}
+
+// Main Analysis
+async function startAnalysis() {
+  if (!state.imageData || state.isAnalyzing) return;
+  
+  state.isAnalyzing = true;
+  const btn = elements.analyzeBtn;
+  btn.disabled = true;
+  btn.textContent = '⏳ ANALİZ EDİLİYOR...';
+  elements.progressBar.style.display = 'block';
+  elements.resultCard.className = 'result-card';
+  elements.metricsSection.style.display = 'block';
+  elements.metricBars.innerHTML = '';
+  state.logCount = 0;
+
+  try {
+    addLog('info', '🔬 Forensik analiz motoru başlatılıyor...');
+    await sleep(300);
+    
+    const analyzer = new PlateAnalyzer(elements.canvas);
+    
+    addLog('info', '📐 Görüntü canvas\'a çiziliyor...');
+    const { width, height } = await analyzer.loadImage(state.imageData);
+    addLog('info', `📏 Boyut: ${width}×${height} piksel`);
+    setProgress(8);
+    await sleep(200);
+
+    addLog('scan', '⚙️ Piksel matrisi okunuyor...');
+    const { minL, maxL, avgL, px } = analyzer.extractLuminance();
+    await sleep(250);
+    setProgress(15);
+
+    // R1: Contrast
+    addLog('scan', '[R1] Kontrast Derinliği Analizi başlıyor...');
+    await sleep(180);
+    const r1 = analyzer.calculateContrast(minL, maxL);
+    addLog(r1.passed ? 'pass' : 'fail', 
+      `[R1] Kontrast: ${minL.toFixed(0)}–${maxL.toFixed(0)} | Skor: <strong>${r1.score.toFixed(1)}</strong>/100 ${r1.passed ? '✅ Geçti' : '❌ APK işareti'}`);
+    addMetricBar('R1 Kontrast', r1.score, 100, r1.passed ? 'green' : 'red');
+    setProgress(25);
+    await sleep(200);
+
+    // R2: Sobel
+    addLog('scan', '[R2] Sobel Kenar Tespiti...');
+    await sleep(180);
+    const r2 = analyzer.calculateSobel();
+    addLog(r2.passed ? 'pass' : 'fail', 
+      `[R2] Sobel: <strong>${r2.avg.toFixed(2)}</strong> | Skor: <strong>${r2.score.toFixed(1)}</strong>/100 ${r2.passed ? '✅ Keskin' : '❌ Bulanık — APK'}`);
+    addMetricBar('R2 Sobel', r2.score, 100, r2.passed ? 'green' : 'red');
+    setProgress(35);
+    await sleep(200);
+
+    // R3: Laplacian
+    addLog('scan', '[R3] Laplacian Varyans...');
+    await sleep(150);
+    const r3 = analyzer.calculateLaplacian();
+    addLog(r3.passed ? 'pass' : 'fail', 
+      `[R3] Laplacian: <strong>${r3.variance.toFixed(1)}</strong> | Skor: <strong>${r3.score.toFixed(1)}</strong>/100 ${r3.passed ? '✅ Net' : '⚠️ Bulanık'}`);
+    addMetricBar('R3 Netlik', r3.score, 100, r3.passed ? 'green' : 'warn');
+    setProgress(45);
+    await sleep(200);
+
+    // R4 & R5: Color Ratios
+    addLog('scan', '[R4] Zemin Renk Analizi...');
+    await sleep(150);
+    const colors = analyzer.calculateColorRatios(px);
+    addLog(colors.white.passed ? 'pass' : 'fail', 
+      `[R4] Beyaz oran: <strong>${(colors.white.ratio*100).toFixed(1)}%</strong> | Skor: <strong>${colors.white.score.toFixed(1)}</strong>/100 ${colors.white.passed ? '✅ Uyumlu' : '❌ Sapma — APK'}`);
+    addMetricBar('R4 Zemin', colors.white.score, 100, colors.white.passed ? 'green' : 'red');
+    setProgress(53);
+    await sleep(200);
+
+    addLog('scan', '[R5] Siyah Metin Yoğunluğu...');
+    await sleep(150);
+    addLog(colors.dark.passed ? 'pass' : 'fail', 
+      `[R5] Siyah oran: <strong>${(colors.dark.ratio*100).toFixed(2)}%</strong> | Skor: <strong>${colors.dark.score.toFixed(1)}</strong>/100 ${colors.dark.passed ? '✅ Yeterli' : '❌ Soluk — APK'}`);
+    addMetricBar('R5 Siyah Metin', colors.dark.score, 100, colors.dark.passed ? 'green' : 'red');
+    setProgress(60);
+    await sleep(200);
+
+    // R6: Texture
+    addLog('scan', '[R6] Doku Std. Sapması...');
+    await sleep(150);
+    const r6 = analyzer.calculateTexture(avgL);
+    addLog(r6.passed ? 'pass' : 'warn', 
+      `[R6] Std. Sapma: <strong>${r6.stdDev.toFixed(2)}</strong> | Skor: <strong>${r6.score.toFixed(1)}</strong>/100 ${r6.passed ? '✅ Homojen' : '⚠️ Sapma'}`);
+    addMetricBar('R6 Doku', r6.score, 100, r6.passed ? 'green' : 'warn');
+    setProgress(67);
+    await sleep(200);
+
+    // R7: Aspect Ratio
+    addLog('scan', '[R7] En/Boy Formatı...');
+    await sleep(120);
+    const ratio = width / height;
+    const { min: rMin, max: rMax } = CONFIG.thresholds.ratio;
+    const r7Passed = ratio >= rMin && ratio <= rMax;
+    const r7Score = r7Passed ? Math.min(100, 100 - Math.abs(ratio - 4.7) * 18) : 20;
+    addLog(r7Passed ? 'pass' : 'warn', 
+      `[R7] Oran: <strong>${ratio.toFixed(2)}</strong> | Skor: <strong>${r7Score.toFixed(1)}</strong>/100 ${r7Passed ? '✅ Uyumlu' : '⚠️ Sapma'}`);
+    addMetricBar('R7 Format', r7Score, 100, r7Passed ? 'cyan' : 'warn');
+    setProgress(73);
+    await sleep(200);
+
+    // R8 & R9: Histogram & Entropy
+    addLog('scan', '[R8] Shannon Entropy...');
+    await sleep(150);
+    const r9 = analyzer.calculateHistogram();
+    const r8 = analyzer.calculateEntropy(r9.hist);
+    addLog(r8.passed ? 'pass' : 'fail', 
+      `[R8] Entropy: <strong>${r8.entropy.toFixed(3)} bit</strong> | Skor: <strong>${r8.score.toFixed(1)}</strong>/100 ${r8.passed ? '✅ Dengeli' : '❌ Sapma — APK'}`);
+    addMetricBar('R8 Entropy', r8.score, 100, r8.passed ? 'green' : 'red');
+    setProgress(80);
+    await sleep(200);
+
+    addLog('scan', '[R9] Histogram Dengesi...');
+    await sleep(150);
+    addLog(r9.passed ? 'pass' : 'fail', 
+      `[R9] Dominant: <strong>${(r9.dominance*100).toFixed(1)}%</strong> | Skor: <strong>${r9.score.toFixed(1)}</strong>/100 ${r9.passed ? '✅ Dengeli' : '❌ Yığılma — APK'}`);
+    addMetricBar('R9 Histogram', r9.score, 100, r9.passed ? 'green' : 'red');
+    setProgress(86);
+    await sleep(200);
+
+    // R10: Metallic
+    addLog('scan', '[R10] Metalik Gradyan...');
+    await sleep(150);
+    const r10 = analyzer.calculateMetallic();
+    addLog(r10.passed ? 'pass' : 'warn', 
+      `[R10] Gradyan Sapması: <strong>${r10.spread.toFixed(1)}</strong> | Skor: <strong>${r10.score.toFixed(1)}</strong>/100 ${r10.passed ? '✅ Doğal' : '⚠️ Yapay'}`);
+    addMetricBar('R10 Metalik', r10.score, 100, r10.passed ? 'green' : 'warn');
+    setProgress(92);
+    await sleep(200);
+
+    // R11: Border
+    addLog('scan', '[R11] Kenar Bant Analizi...');
+    await sleep(150);
+    const r11 = analyzer.calculateBorder();
+    addLog(r11.passed ? 'pass' : 'fail', 
+      `[R11] Kenar Koyu: <strong>${(r11.ratio*100).toFixed(1)}%</strong> | Skor: <strong>${r11.score.toFixed(1)}</strong>/100 ${r11.passed ? '✅ Bant mevcut' : '❌ Bant eksik — APK'}`);
+    addMetricBar('R11 Kenar Bant', r11.score, 100, r11.passed ? 'green' : 'red');
+    setProgress(97);
+    await sleep(250);
+
+    // R12: Weighted Score
+    addLog('scan', '[R12] Ağırlıklı Güven Skoru...');
+    await sleep(200);
+    
+    const weights = {
+      contrast: { score: r1.score, ...CONFIG.weights.contrast },
+      sobel: { score: r2.score, ...CONFIG.weights.sobel },
+      laplacian: { score: r3.score, ...CONFIG.weights.laplacian },
+      white: { score: colors.white.score, ...CONFIG.weights.white },
+      dark: { score: colors.dark.score, ...CONFIG.weights.dark },
+      texture: { score: r6.score, ...CONFIG.weights.texture },
+      ratio: { score: r7Score, ...CONFIG.weights.ratio },
+      entropy: { score: r8.score, ...CONFIG.weights.entropy },
+      histogram: { score: r9.score, ...CONFIG.weights.histogram },
+      metallic: { score: r10.score, ...CONFIG.weights.metallic },
+      border: { score: r11.score, ...CONFIG.weights.border }
+    };
+    
+    let weightedSum = 0, totalWeight = 0;
+    for (const v of Object.values(weights)) {
+      weightedSum += v.score * v.w;
+      totalWeight += v.w;
+    }
+    const finalScore = weightedSum / totalWeight;
+    addLog('info', `[R12] APK-Ağırlıklı Toplam: <strong>${finalScore.toFixed(1)}/100</strong>`);
+    setProgress(100);
+    await sleep(300);
+
+    // Determine Verdict
+    const failedAPK = Object.values(weights).filter(v => v.apk && v.score < 55).length;
+    const critFails = [weights.contrast, weights.dark, weights.histogram, weights.border]
+      .filter(v => v.score < 50).length;
+
+    let verdict, verClass, verIcon, verDesc;
+    if (finalScore >= 70 && critFails === 0) {
+      verdict = 'ORİJİNAL PLAKA';
+      verClass = 'original';
+      verIcon = '✅';
+      verDesc = `${failedAPK} APK kriteri başarısız. Güven skoru yüksek.`;
+    } else if (finalScore < 40 || critFails >= 2) {
+      verdict = 'APK / SAHTE PLAKA';
+      verClass = 'fake';
+      verIcon = '🚨';
+      verDesc = `${critFails} kritik APK kriteri başarısız. Güven skoru düşük.`;
+    } else {
+      verdict = 'KUŞKULU PLAKA';
+      verClass = 'suspicious';
+      verIcon = '⚠️';
+      verDesc = `${failedAPK} APK kriteri başarısız. Manuel inceleme gerekli.`;
+    }
+
+    addLog(verClass === 'original' ? 'pass' : verClass === 'fake' ? 'fail' : 'warn',
+      `🎯 KARAR: <strong>${verdict}</strong> — Skor: ${finalScore.toFixed(1)}`);
+
+    // Generate Findings
+    const findings = [
+      r1.passed 
+        ? { type: 'pass', icon: '🟢', text: 'Kontrast Güçlü (R1)', sub: `Aralık: ${minL.toFixed(0)}–${maxL.toFixed(0)}` }
+        : { type: 'fail', icon: '🔴', text: 'Düşük Kontrast (R1)', sub: 'APK baskılarda siyah-beyaz ayrımı zayıf olur' },
+      r2.passed
+        ? { type: 'pass', icon: '🟢', text: 'Keskin Kenar (R2)', sub: `Sobel: ${r2.avg.toFixed(1)}` }
+        : { type: 'fail', icon: '🔴', text: 'Kenar Bulanık (R2)', sub: 'APK plakalarda harf kenarları pürüzlü/bulanıktır' },
+      colors.white.passed
+        ? { type: 'pass', icon: '🟢', text: 'Zemin Uyumlu (R4)', sub: `Beyaz: ${(colors.white.ratio*100).toFixed(1)}%` }
+        : { type: 'fail', icon: '🔴', text: 'Zemin Rengi Sapması (R4)', sub: 'APK plakalarda beyaz zemin bozulmuş olabilir' },
+      colors.dark.passed
+        ? { type: 'pass', icon: '🟢', text: 'Metin Koyuluğu Yeterli (R5)', sub: `Siyah: ${(colors.dark.ratio*100).toFixed(2)}%` }
+        : { type: 'fail', icon: '🔴', text: 'Metin Soluk (R5)', sub: 'APK baskıda mürekkep kalitesi düşük olabilir' },
+      r9.passed
+        ? { type: 'pass', icon: '🟢', text: 'Dengeli Dağılım (R9)', sub: `Dom. bin: ${(r9.dominance*100).toFixed(1)}%` }
+        : { type: 'fail', icon: '🔴', text: 'Histogram Yığılması (R9)', sub: 'APK baskılarda piksel dağılımı dengesiz olur' },
+      r11.passed
+        ? { type: 'pass', icon: '🟢', text: 'Kenar Bant Mevcut (R11)', sub: `Koyu kenar: ${(r11.ratio*100).toFixed(1)}%` }
+        : { type: 'fail', icon: '🔴', text: 'Kenar Bant Eksik (R11)', sub: 'Türk plakasında siyah çerçeve şarttır' }
+    ];
+
+    displayResult(verdict, verClass, verIcon, verDesc, finalScore, findings, width, height, failedAPK, critFails);
+
+  } catch (error) {
+    addLog('fail', `❌ Analiz hatası: ${error.message}`);
+    console.error(error);
+  } finally {
+    state.isAnalyzing = false;
+    btn.disabled = false;
+    btn.textContent = '🔬 ANALİZİ BAŞLAT';
+  }
 }
 
 function displayResult(verdict, verClass, icon, desc, score, findings, w, h, failedAPK, critFails) {
-  const card = document.getElementById('resultCard');
-  const r = Math.round(score / 100 * 226);
+  const card = elements.resultCard;
   const circ = 2 * Math.PI * 37;
-  const offset = circ - (score/100)*circ;
   const strokeColor = verClass === 'original' ? '#00e87a' : verClass === 'fake' ? '#ff3a3a' : '#ff9900';
   const textColor = verClass === 'original' ? 'green' : verClass === 'fake' ? 'red' : 'orange';
 
@@ -1392,10 +1594,11 @@ function displayResult(verdict, verClass, icon, desc, score, findings, w, h, fai
     <div class="finding-item ${f.type}">
       <span class="finding-icon">${f.icon}</span>
       <div class="finding-text">
-        <strong>${f.text.replace(/<strong>|<\/strong>/g,'')}</strong><br>
+        <strong>${f.text}</strong><br>
         <span>${f.sub}</span>
       </div>
-    </div>`).join('');
+    </div>
+  `).join('');
 
   card.innerHTML = `
     <div class="result-banner ${verClass}">
@@ -1435,7 +1638,7 @@ function displayResult(verdict, verClass, icon, desc, score, findings, w, h, fai
       </div>
       <div class="detail-cell">
         <div class="detail-cell-label">APK Tetik</div>
-        <div class="detail-cell-value" style="color:${critFails >= 2 ? 'var(--red)' : 'var(--green)' }">${failedAPK}/9</div>
+        <div class="detail-cell-value" style="color:${critFails >= 2 ? 'var(--red)' : 'var(--green)'}">${failedAPK}/9</div>
         <div class="detail-cell-sub">kural başarısız</div>
       </div>
       <div class="detail-cell">
@@ -1461,14 +1664,44 @@ function displayResult(verdict, verClass, icon, desc, score, findings, w, h, fai
   `;
 
   card.className = 'result-card visible';
-
   setTimeout(() => {
     const arc = document.getElementById('scoreArc');
     if (arc) arc.style.strokeDashoffset = circ - (score/100)*circ;
   }, 100);
-
+  
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+
+// Rules Toggle
+function toggleRules() {
+  const body = document.getElementById('rulesBody');
+  const chevron = document.getElementById('rulesChevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+// Event Listeners
+elements.fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) handleFile(file);
+});
+
+elements.uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  elements.uploadZone.classList.add('drag-over');
+});
+
+elements.uploadZone.addEventListener('dragleave', () => {
+  elements.uploadZone.classList.remove('drag-over');
+});
+
+elements.uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  elements.uploadZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file?.type.startsWith('image/')) handleFile(file);
+});
+</script>
 </script>
 </body>
 </html>
