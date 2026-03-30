@@ -3,2104 +3,1472 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Türk Plaka Doğrulama Sistemi</title>
+<title>Plaka Forensik Analiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans:wght@300;400;600&display=swap');
-
   :root {
-    --bg: #07090f;
-    --surface: #0e1117;
-    --surface2: #151a24;
-    --surface3: #1c2333;
-    --border: #1a2035;
-    --border2: #222d44;
-    --accent: #1a6fff;
-    --accent2: #0d4fd4;
-    --accent-glow: rgba(26,111,255,0.18);
-    --green: #00e676;
-    --green-dim: rgba(0,230,118,0.12);
-    --yellow: #ffd600;
-    --yellow-dim: rgba(255,214,0,0.12);
-    --red: #ff1744;
-    --red-dim: rgba(255,23,68,0.12);
-    --text: #dde4f0;
-    --text2: #7a8699;
-    --text3: #3d4a60;
-    --cyan: #00e5ff;
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --bg3: #161b22;
+    --bg4: #1c2333;
+    --amber: #f0a500;
+    --amber2: #ffcc44;
+    --amber-dim: #f0a50022;
+    --red: #ff3a3a;
+    --red-dim: #ff3a3a18;
+    --green: #00e87a;
+    --green-dim: #00e87a18;
+    --cyan: #00d4ff;
+    --cyan-dim: #00d4ff15;
+    --blue: #4a8cff;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: #1e2a3a;
+    --border2: #2a3a50;
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
+    font-family: 'Rajdhani', sans-serif;
     background: var(--bg);
     color: var(--text);
-    font-family: 'Noto Sans', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    background-image:
-      linear-gradient(rgba(26,111,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(26,111,255,0.025) 1px, transparent 1px);
-    background-size: 48px 48px;
   }
 
-  /* ─── SCANLINE OVERLAY ─── */
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.04) 2px,
-      rgba(0,0,0,0.04) 4px
-    );
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, #f0a50008 0%, transparent 70%);
     pointer-events: none;
-    z-index: 9999;
+    z-index: 0;
   }
 
-  /* ─── HEADER ─── */
-  .header {
-    background: linear-gradient(135deg, rgba(10,14,26,0.98) 0%, rgba(12,18,36,0.98) 100%);
-    border-bottom: 1px solid var(--border2);
-    padding: 0 32px;
-    height: 62px;
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* HEADER */
+  header {
+    padding: 32px 0 28px;
     display: flex;
     align-items: center;
     gap: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 200;
-    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border2);
+    margin-bottom: 36px;
   }
 
-  .header::before {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0.4;
-  }
-
-  .header-logo {
-    width: 40px; height: 40px;
-    background: linear-gradient(135deg, #1a6fff 0%, #0830aa 100%);
+  .header-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber);
     border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    box-shadow: 0 0 20px rgba(26,111,255,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
-    flex-shrink: 0;
-    position: relative;
-  }
-
-  .header-logo::after {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 11px;
-    border: 1px solid rgba(26,111,255,0.5);
-  }
-
-  .header-info { flex: 1; }
-
-  .header-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 19px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #fff;
-    line-height: 1.1;
-  }
-
-  .header-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text2);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-
-  .header-right {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .header-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--amber);
+    line-height: 1;
+  }
+
+  .header-text p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .status-badge {
     margin-left: auto;
-  }
-
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 10px var(--green);
-    animation: pulse-dot 2s ease infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
-    50% { opacity: 0.5; box-shadow: 0 0 4px var(--green); }
-  }
-
-  .header-badge {
-    background: rgba(26,111,255,0.12);
-    border: 1px solid rgba(26,111,255,0.28);
-    color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-dim);
+    border: 1px solid var(--green);
     border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--green);
+    text-transform: uppercase;
     letter-spacing: 1px;
   }
 
-  /* ─── LAYOUT ─── */
-  .main {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 24px 20px;
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse-green 1.5s infinite;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* MAIN GRID */
+  .main-grid {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
+    margin-bottom: 20px;
   }
 
-  @media (max-width: 1100px) {
-    .main { grid-template-columns: 1fr; }
-    .right-panel { order: -1; }
-  }
-
-  /* ─── PANEL / CARD ─── */
+  /* PANEL */
   .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: var(--bg2);
+    border: 1px solid var(--border2);
     border-radius: 14px;
     overflow: hidden;
-    position: relative;
   }
 
-  .panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(26,111,255,0.3), transparent);
-    pointer-events: none;
-  }
-
-  .panel-head {
-    padding: 13px 18px;
+  .panel-header {
+    padding: 14px 18px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(255,255,255,0.015);
-    position: relative;
+    background: var(--bg3);
   }
 
-  .panel-head-icon {
-    width: 7px; height: 7px;
+  .panel-dot {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
   }
 
-  .panel-head-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text);
-  }
-
-  .panel-head-tag {
-    margin-left: auto;
+  .panel-title {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text3);
-    letter-spacing: 0.5px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
   }
 
-  /* ─── UPLOAD ZONE ─── */
+  .panel-body { padding: 18px; }
+
+  /* UPLOAD ZONE */
   .upload-zone {
-    margin: 18px;
     border: 2px dashed var(--border2);
     border-radius: 12px;
-    padding: 44px 24px;
+    padding: 40px 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.22s ease;
-    background: rgba(26,111,255,0.02);
+    transition: all 0.3s;
     position: relative;
-    overflow: hidden;
-  }
-
-  .upload-zone::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 60%, rgba(26,111,255,0.07) 0%, transparent 68%);
-    pointer-events: none;
+    background: var(--bg3);
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .upload-zone:hover {
-    border-color: rgba(26,111,255,0.6);
-    background: rgba(26,111,255,0.05);
-    transform: translateY(-1px);
+    border-color: var(--amber);
+    background: var(--amber-dim);
   }
 
-  .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(26,111,255,0.09);
+  .upload-zone.drag-over {
+    border-color: var(--cyan);
+    background: var(--cyan-dim);
     transform: scale(1.01);
   }
 
-  .upload-icon-wrap {
-    width: 62px; height: 62px;
-    margin: 0 auto 14px;
-    background: linear-gradient(135deg, rgba(26,111,255,0.15), rgba(26,111,255,0.05));
-    border: 1px solid rgba(26,111,255,0.2);
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
+  .upload-zone.has-image {
+    padding: 0;
+    border-style: solid;
+    border-color: var(--amber);
+  }
+
+  .upload-zone img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    max-height: 300px;
+  }
+
+  .upload-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.6;
   }
 
   .upload-title {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 17px; font-weight: 700;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 16px;
     color: var(--text);
+    margin-bottom: 6px;
   }
 
   .upload-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text2);
-    letter-spacing: 0.3px;
-    line-height: 1.6;
+    font-size: 13px;
+    color: var(--muted);
   }
 
   #fileInput { display: none; }
 
-  /* ─── ALERT BANNER ─── */
-  .alert-banner {
-    display: none;
-    margin: 0 18px 16px;
-    border-radius: 10px;
-    padding: 14px 16px;
-    font-family: 'Rajdhani', sans-serif;
-  }
-
-  .alert-banner.show { display: block; }
-
-  .alert-banner.info {
-    background: rgba(26,111,255,0.1);
-    border: 1px solid rgba(26,111,255,0.3);
-    color: var(--accent);
-  }
-
-  .alert-banner.error {
-    background: var(--red-dim);
-    border: 1px solid rgba(255,23,68,0.35);
-    color: var(--red);
-  }
-
-  .alert-banner.success {
-    background: var(--green-dim);
-    border: 1px solid rgba(0,230,118,0.3);
-    color: var(--green);
-  }
-
-  .alert-title {
-    font-size: 14px; font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 3px;
-  }
-
-  .alert-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    opacity: 0.75;
-  }
-
-  /* ─── CANVAS ─── */
-  .canvas-wrap {
-    margin: 0 18px 16px;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #000;
-    position: relative;
-    display: none;
-    border: 1px solid var(--border2);
-  }
-
-  .canvas-wrap.show { display: block; }
-
-  #mainCanvas {
-    display: block;
+  /* ANALYZE BTN */
+  .analyze-btn {
     width: 100%;
-    height: auto;
-    cursor: crosshair;
-  }
-
-  .canvas-overlay-tag {
-    position: absolute;
-    top: 10px; left: 10px;
-    background: rgba(0,0,0,0.8);
-    border: 1px solid rgba(26,111,255,0.35);
-    color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    letter-spacing: 0.5px;
-    display: none;
-    pointer-events: none;
-  }
-
-  .canvas-overlay-tag.show { display: block; }
-
-  .manual-pulse {
-    position: absolute;
-    bottom: 10px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.85);
-    border: 1px solid rgba(255,214,0,0.35);
-    color: var(--yellow);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 5px 14px;
-    border-radius: 20px;
-    white-space: nowrap;
-    display: none;
-    pointer-events: none;
-    animation: fadeBlink 1.5s ease infinite;
-  }
-
-  .manual-pulse.show { display: block; }
-
-  @keyframes fadeBlink {
-    0%,100% { opacity: 1; }
-    50% { opacity: 0.55; }
-  }
-
-  /* ─── PLATE PREVIEW ─── */
-  .plate-preview {
-    margin: 0 18px 16px;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid var(--border2);
-    display: none;
-  }
-
-  .plate-preview.show { display: block; }
-
-  .plate-preview-label {
-    background: rgba(0,229,255,0.07);
-    border-bottom: 1px solid var(--border);
-    padding: 6px 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--cyan);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  #platePreviewCanvas {
-    display: block;
-    width: 100%;
-    background: #000;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-
-  /* ─── DETECT INFO ─── */
-  .detect-info {
-    display: none;
-    margin: 0 18px 16px;
-    padding: 9px 14px;
-    background: rgba(0,229,255,0.05);
-    border: 1px solid rgba(0,229,255,0.18);
-    border-radius: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--cyan);
-    letter-spacing: 0.3px;
-    line-height: 1.5;
-  }
-
-  .detect-info.show { display: block; }
-
-  /* ─── CONTROLS ─── */
-  .ctrl-bar {
-    padding: 0 18px 18px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .btn {
-    padding: 8px 16px;
-    border-radius: 8px;
+    margin-top: 14px;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--amber), #e08c00);
     border: none;
+    border-radius: 10px;
+    color: #000;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
     cursor: pointer;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    transition: all 0.18s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    transition: all 0.3s;
     position: relative;
     overflow: hidden;
-    white-space: nowrap;
   }
 
-  .btn::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: rgba(255,255,255,0);
-    transition: background 0.15s;
+  .analyze-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px #f0a50040;
   }
 
-  .btn:hover::after { background: rgba(255,255,255,0.06); }
-  .btn:active { transform: scale(0.97); }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #1a6fff, #0d4fd4);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(26,111,255,0.3);
-  }
-
-  .btn-primary:hover {
-    box-shadow: 0 6px 20px rgba(26,111,255,0.45);
-    transform: translateY(-1px);
-  }
-
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border2);
-  }
-
-  .btn-secondary:hover {
-    border-color: rgba(26,111,255,0.5);
-    color: var(--accent);
-  }
-
-  .btn-secondary.active-mode {
-    background: rgba(255,214,0,0.1);
-    border-color: rgba(255,214,0,0.5);
-    color: var(--yellow);
-  }
-
-  .btn-ghost {
-    background: rgba(255,23,68,0.08);
-    color: var(--red);
-    border: 1px solid rgba(255,23,68,0.25);
-  }
-
-  .btn-ghost:hover {
-    background: rgba(255,23,68,0.14);
-    border-color: rgba(255,23,68,0.45);
-  }
-
-  .btn:disabled {
-    opacity: 0.35;
+  .analyze-btn:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
+    transform: none;
   }
 
-  /* ─── FILTERS ─── */
-  .filter-bar {
-    padding: 0 18px 16px;
-    display: none;
-    flex-wrap: wrap;
-    gap: 6px;
+  .analyze-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, #ffffff30, transparent);
+    transform: translateX(-100%);
+    transition: 0.5s;
   }
 
-  .filter-bar.show { display: flex; }
+  .analyze-btn:hover::after { transform: translateX(100%); }
 
-  .filter-chip {
-    padding: 5px 11px;
-    border-radius: 20px;
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    color: var(--text2);
+  /* LIVE LOG */
+  .log-area {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    height: 340px;
+    overflow-y: auto;
     font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+  }
+
+  .log-area::-webkit-scrollbar { width: 4px; }
+  .log-area::-webkit-scrollbar-track { background: var(--bg3); }
+  .log-area::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
+
+  .log-entry {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.3s ease;
+    align-items: flex-start;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-tag {
+    flex-shrink: 0;
+    padding: 1px 7px;
+    border-radius: 4px;
     font-size: 10px;
-    cursor: pointer;
-    transition: all 0.16s;
-    letter-spacing: 0.3px;
-  }
-
-  .filter-chip.active {
-    background: rgba(26,111,255,0.16);
-    border-color: rgba(26,111,255,0.5);
-    color: var(--accent);
-  }
-
-  .filter-chip:hover:not(.active) {
-    border-color: var(--text3);
-    color: var(--text);
-  }
-
-  /* ─── PROGRESS ─── */
-  .progress-wrap {
-    margin: 0 18px 18px;
-    display: none;
-  }
-
-  .progress-wrap.show { display: block; }
-
-  .progress-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    margin-bottom: 7px;
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  .progress-label .spinner {
-    width: 12px; height: 12px;
-    border: 2px solid rgba(26,111,255,0.2);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .progress-track {
-    background: var(--surface3);
-    border-radius: 4px;
-    height: 4px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--cyan));
-    border-radius: 4px;
-    width: 0%;
-    transition: width 0.15s ease;
-  }
-
-  /* ─── TILE GRID ─── */
-  .tile-section { padding: 0 18px 18px; }
-
-  .tile-section-label {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--text3);
+    letter-spacing: 0.5px;
+  }
+  .log-tag.info { background: var(--cyan-dim); color: var(--cyan); border: 1px solid #00d4ff30; }
+  .log-tag.warn { background: #ff990018; color: #ff9900; border: 1px solid #ff990030; }
+  .log-tag.pass { background: var(--green-dim); color: var(--green); border: 1px solid #00e87a30; }
+  .log-tag.fail { background: var(--red-dim); color: var(--red); border: 1px solid #ff3a3a30; }
+  .log-tag.scan { background: var(--amber-dim); color: var(--amber); border: 1px solid #f0a50030; }
+  .log-msg { color: var(--text); line-height: 1.5; }
+
+  /* METRIC BARS */
+  .metric-bar-wrap {
     margin-bottom: 10px;
   }
 
-  .tile-empty {
-    padding: 30px;
-    text-align: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
-    border: 1px dashed var(--border);
-    border-radius: 10px;
-  }
-
-  .tile-grid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 2px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    display: none;
-  }
-
-  .tile {
-    aspect-ratio: 1;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.13s ease, z-index 0s;
-  }
-
-  .tile:hover { transform: scale(1.12); z-index: 5; }
-
-  .tile canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    image-rendering: pixelated;
-  }
-
-  .tile-badge {
-    position: absolute;
-    bottom: 1px; right: 1px;
-    font-size: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    color: #fff;
-    background: rgba(0,0,0,0.75);
-    padding: 1px 2px;
-    border-radius: 2px;
-    line-height: 1.2;
-  }
-
-  /* ─── MODAL ─── */
-  .modal-backdrop {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.9);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(10px);
-  }
-
-  .modal-backdrop.show { display: flex; }
-
-  .modal-box {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 540px;
-    width: 92%;
-    animation: modalIn 0.18s ease;
-    position: relative;
-  }
-
-  .modal-box::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    border-radius: 16px 16px 0 0;
-  }
-
-  @keyframes modalIn {
-    from { transform: scale(0.9) translateY(8px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
-  }
-
-  .modal-header {
-    display: flex; align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .modal-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 15px; font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--text);
-  }
-
-  .modal-close {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    color: var(--text2);
-    border-radius: 8px;
-    width: 30px; height: 30px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.16s;
-  }
-
-  .modal-close:hover { border-color: var(--red); color: var(--red); }
-
-  #tileZoomCanvas {
-    display: block;
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-
-  .modal-metrics {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 14px;
-  }
-
-  .mm-item {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-  }
-
-  .mm-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: var(--text2);
-    letter-spacing: 0.5px;
-    margin-bottom: 5px;
-  }
-
-  .mm-val {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 20px; font-weight: 700;
-    color: var(--accent);
-  }
-
-  /* ─── RIGHT PANEL ─── */
-  .right-panel {
+  .metric-row {
     display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  /* ─── SCORE CARD ─── */
-  .score-display {
-    padding: 30px 24px 20px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .score-display::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 40%, rgba(26,111,255,0.09) 0%, transparent 65%);
-    pointer-events: none;
-  }
-
-  .score-ring {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 12px;
-  }
-
-  .score-ring svg {
-    width: 120px; height: 120px;
-    transform: rotate(-90deg);
-  }
-
-  .score-ring-text {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-  }
-
-  .score-num {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 36px; font-weight: 700;
-    line-height: 1;
-    color: #fff;
-  }
-
-  .score-pct-sym {
-    font-size: 18px;
-    color: var(--text2);
-  }
-
-  .score-status-label {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px; font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-  }
-
-  .score-status-label.green { color: var(--green); }
-  .score-status-label.yellow { color: var(--yellow); }
-  .score-status-label.red { color: var(--red); }
-  .score-status-label.neutral { color: var(--text3); }
-
-  .score-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text3);
-  }
-
-  /* ─── VERDICT ─── */
-  .verdict-box {
-    display: none;
-    margin: 0 16px 16px;
-    border-radius: 10px;
-    padding: 12px 16px;
-    align-items: center; gap: 12px;
-  }
-
-  .verdict-box.show { display: flex; }
-  .verdict-box.green { background: var(--green-dim); border: 1px solid rgba(0,230,118,0.22); }
-  .verdict-box.yellow { background: var(--yellow-dim); border: 1px solid rgba(255,214,0,0.22); }
-  .verdict-box.red { background: var(--red-dim); border: 1px solid rgba(255,23,68,0.22); }
-
-  .verdict-icon { font-size: 22px; flex-shrink: 0; }
-
-  .verdict-msg {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px; font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-
-  .verdict-msg.green { color: var(--green); }
-  .verdict-msg.yellow { color: var(--yellow); }
-  .verdict-msg.red { color: var(--red); }
-
-  /* ─── METRICS ─── */
-  .metrics-body {
-    padding: 0 14px 16px;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-
-  .metric-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 11px 13px;
-    transition: border-color 0.2s;
-  }
-
-  .metric-card:hover { border-color: var(--border2); }
-
-  .metric-top {
-    display: flex; align-items: center;
     justify-content: space-between;
-    margin-bottom: 7px;
+    align-items: center;
+    margin-bottom: 4px;
   }
 
-  .metric-name-wrap {
-    display: flex; align-items: center; gap: 7px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px; font-weight: 600;
-    color: var(--text);
-  }
-
-  .metric-wt {
+  .metric-name {
+    font-size: 12px;
+    color: var(--muted);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: var(--text3);
-    margin-left: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .metric-val {
+  .metric-value {
+    font-size: 12px;
+    color: var(--amber);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; font-weight: 700;
+    font-weight: 700;
   }
 
-  .metric-val.green { color: var(--green); }
-  .metric-val.yellow { color: var(--yellow); }
-  .metric-val.red { color: var(--red); }
-
-  .metric-track {
-    background: var(--bg);
+  .metric-bar {
+    height: 5px;
+    background: var(--border);
     border-radius: 3px;
-    height: 4px;
     overflow: hidden;
   }
 
   .metric-fill {
     height: 100%;
     border-radius: 3px;
-    width: 0%;
-    transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--amber);
   }
 
-  .metric-fill.green { background: linear-gradient(90deg, var(--green), #00bfa5); }
-  .metric-fill.yellow { background: linear-gradient(90deg, var(--yellow), #ff8f00); }
-  .metric-fill.red { background: linear-gradient(90deg, var(--red), #d50000); }
+  .metric-fill.green { background: var(--green); }
+  .metric-fill.red { background: var(--red); }
+  .metric-fill.cyan { background: var(--cyan); }
 
-  .metrics-empty {
-    padding: 24px;
-    text-align: center;
+  /* RESULT CARD */
+  .result-card {
+    display: none;
+    background: var(--bg2);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .result-card.visible { display: block; }
+
+  .result-banner {
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .result-banner.original {
+    background: linear-gradient(135deg, #00e87a10, #00e87a05);
+    border: 1px solid var(--green);
+  }
+
+  .result-banner.fake {
+    background: linear-gradient(135deg, #ff3a3a10, #ff3a3a05);
+    border: 1px solid var(--red);
+  }
+
+  .result-banner.suspicious {
+    background: linear-gradient(135deg, #ff990010, #ff990005);
+    border: 1px solid #ff9900;
+  }
+
+  .result-icon-big {
+    font-size: 52px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .result-info h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 3px;
+    line-height: 1;
+  }
+
+  .result-info h2.green { color: var(--green); }
+  .result-info h2.red { color: var(--red); }
+  .result-info h2.orange { color: #ff9900; }
+
+  .result-info p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 5px;
+    letter-spacing: 0.5px;
+  }
+
+  .score-circle {
+    margin-left: auto;
+    width: 90px;
+    height: 90px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .score-circle svg {
+    transform: rotate(-90deg);
+    width: 90px;
+    height: 90px;
+  }
+
+  .score-circle .track {
+    fill: none;
+    stroke: var(--border2);
+    stroke-width: 6;
+  }
+
+  .score-circle .fill {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
   }
 
-  /* ─── THRESHOLD ─── */
-  .threshold-list {
-    padding: 12px 14px 16px;
-    display: flex; flex-direction: column; gap: 6px;
+  .score-num {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
   }
 
-  .thresh-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 9px 12px;
-    border-radius: 8px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-  }
-
-  .thresh-pct {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; font-weight: 700;
-    min-width: 58px;
-  }
-
-  .thresh-desc { flex: 1; }
-
-  .thresh-label {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px; font-weight: 700;
-    margin-bottom: 2px;
-  }
-
-  .thresh-sub {
-    font-family: 'JetBrains Mono', monospace;
+  .score-label {
     font-size: 9px;
-    color: var(--text3);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
-  .thresh-item.t-green .thresh-pct,
-  .thresh-item.t-green .thresh-label { color: var(--green); }
-
-  .thresh-item.t-yellow .thresh-pct,
-  .thresh-item.t-yellow .thresh-label { color: var(--yellow); }
-
-  .thresh-item.t-red .thresh-pct,
-  .thresh-item.t-red .thresh-label { color: var(--red); }
-
-  /* ─── RULES ─── */
-  .rules-body {
-    padding: 12px 14px 16px;
-    display: flex; flex-direction: column; gap: 7px;
+  /* DETAIL GRID */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
   }
 
-  .rule-row {
-    display: flex; gap: 10px; align-items: flex-start;
-    padding: 10px 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: border-color 0.16s;
+  .detail-cell {
+    background: var(--bg2);
+    padding: 14px 16px;
+    transition: background 0.2s;
   }
 
-  .rule-row:hover { border-color: var(--border2); }
+  .detail-cell:hover { background: var(--bg3); }
 
-  .rule-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-
-  .rule-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px; font-weight: 700;
-    color: var(--text);
-    margin-bottom: 3px;
-  }
-
-  .rule-text {
+  .detail-cell-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    color: var(--text2);
-    line-height: 1.55;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
   }
 
-  /* ─── DIVIDER LINE ─── */
-  .divider {
-    height: 1px;
+  .detail-cell-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .detail-cell-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* APK RULES PANEL */
+  .rules-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .rules-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #ff3a3a12, #ff3a3a05);
+    border-bottom: 1px solid #ff3a3a30;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .rules-header h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: var(--red);
+  }
+
+  .rules-header p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+  }
+
+  .rule-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: background 0.2s;
+  }
+
+  .rule-item:hover { background: var(--bg3); }
+
+  .rule-item:nth-child(even) { border-right: none; }
+
+  .rule-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--red-dim);
+    border: 1px solid #ff3a3a40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .rule-content h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+    letter-spacing: 0.3px;
+  }
+
+  .rule-content p {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .rule-threshold {
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--amber-dim);
+    border: 1px solid #f0a50030;
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+  }
+
+  /* CANVAS */
+  canvas { display: none; }
+
+  /* RESET BTN */
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .reset-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  .progress-bar {
+    height: 3px;
     background: var(--border);
-    margin: 0 18px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 10px;
   }
 
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 600px) {
-    .header { padding: 0 14px; }
-    .main { padding: 12px; gap: 14px; }
-    .score-num { font-size: 28px; }
-    .header-title { font-size: 16px; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--cyan));
+    width: 0%;
+    transition: width 0.4s ease;
+    border-radius: 2px;
+  }
+
+  /* APK MARKER BADGE */
+  .apk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--red-dim);
+    border: 1px solid #ff3a3a40;
+    color: var(--red);
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 8px;
+  }
+
+  .orig-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--green-dim);
+    border: 1px solid #00e87a40;
+    color: var(--green);
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 8px;
+  }
+
+  /* FINDINGS */
+  .findings-section {
+    padding: 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .findings-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .finding-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 10px 12px;
+    background: var(--bg3);
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    font-size: 13px;
+  }
+
+  .finding-item.pass { border-left-color: var(--green); }
+  .finding-item.fail { border-left-color: var(--red); }
+  .finding-item.warn { border-left-color: #ff9900; }
+
+  .finding-icon { flex-shrink: 0; font-size: 14px; }
+  .finding-text { line-height: 1.5; }
+  .finding-text strong { color: var(--text); }
+  .finding-text span { color: var(--muted); font-size: 12px; }
+
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .rules-grid { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: repeat(2, 1fr); }
+    .rule-item { border-right: none; }
   }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="header-logo">🔍</div>
-  <div class="header-info">
-    <div class="header-title">PLAKA ANALİZ SİSTEMİ</div>
-    <div class="header-sub">Türkiye · TC Emniyet Standartları · TŞOF</div>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-icon">🔍</div>
+    <div class="header-text">
+      <h1>PLATE FORENSICS</h1>
+      <p>Türkiye Plaka Orijinallik Tespit Sistemi — v4.0</p>
+    </div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      SİSTEM AKTİF
+    </div>
+  </header>
+
+  <!-- APK RULES PANEL -->
+  <div class="rules-panel">
+    <div class="rules-header">
+      <span style="font-size:20px;">🚨</span>
+      <h3>APK PLAKA TESPİT KURALLARI</h3>
+      <p>12 AKTİF KURAL — ADLİ ANALİZ MODELİ</p>
+    </div>
+    <div class="rules-grid">
+
+      <div class="rule-item">
+        <div class="rule-num">R1</div>
+        <div class="rule-content">
+          <h4>Kontrast Derinliği <span class="apk-badge">⚠ APK KRİTER</span></h4>
+          <p>APK plakalar genellikle düşük kaliteli baskı nedeniyle siyah-beyaz kontrast farkı düşüktür. Gerçek plakalarda alüminyum yansıması nedeniyle kontrast keskindir.</p>
+          <div class="rule-threshold">📐 Eşik: Kontrast Skoru ≥ 65 → Orijinal</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R2</div>
+        <div class="rule-content">
+          <h4>Kenar Keskinliği (Sobel) <span class="apk-badge">⚠ APK KRİTER</span></h4>
+          <p>APK plakalarda harf kenarları bulanık veya pürüzlüdür. Orijinal emaye/alüminyum baskılarda Sobel gradyanı yüksektir.</p>
+          <div class="rule-threshold">📐 Eşik: Sobel ≥ 18 → Keskin Kenar</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R3</div>
+        <div class="rule-content">
+          <h4>Laplacian Varyansı (Netlik)</h4>
+          <p>Fotoğraf netliğini ölçer. Orijinal plaka fotoğrafları dahi belirli bir netlik eşiğinin üzerinde olmalıdır. APK tespitinde ikincil destek sağlar.</p>
+          <div class="rule-threshold">📐 Eşik: Varyans ≥ 80 → Net</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R4</div>
+        <div class="rule-content">
+          <h4>Plaka Zemin Rengi <span class="apk-badge">⚠ APK KRİTER</span></h4>
+          <p>Türk plakası standardına göre zemin beyaz (#ffffff yakını) veya sarı-beyaz arası. APK plakalarda renk sapması yaygındır. RGB değerleri analiz edilir.</p>
+          <div class="rule-threshold">📐 Eşik: Beyaz piksel oranı ≥ %20</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R5</div>
+        <div class="rule-content">
+          <h4>Siyah Metin Yoğunluğu <span class="apk-badge">⚠ APK KRİTER</span></h4>
+          <p>Plaka karakterlerinin rengi siyah-lacivert olmalıdır. APK baskılarda mürekkep solukluğu nedeniyle siyah piksel oranı normalin altına düşer.</p>
+          <div class="rule-threshold">📐 Eşik: Koyu piksel oranı ≥ %3</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R6</div>
+        <div class="rule-content">
+          <h4>Baskı Doku Homojenliği <span class="apk-badge">⚠ APK KRİTER</span></h4>
+          <p>APK baskılarda düzensiz doku dağılımı (mürekkep sızması, dot matrix artifaktları) görülür. Standart sapma analizi ile tespit edilir.</p>
+          <div class="rule-threshold">📐 Eşik: Std. Sapma 30–90 arası → Normal</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R7</div>
+        <div class="rule-content">
+          <h4>En/Boy Oranı (Format)</h4>
+          <p>Türk plaka standardı: 52cm × 11cm → Oran ≈ 4.7. APK plakalarda boyut sapmaları nadiren oluşur ama format bütünüyle değerlendirilir.</p>
+          <div class="rule-threshold">📐 Eşik: Oran 3.0 – 7.0 arası → Standart</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R8</div>
+        <div class="rule-content">
+          <h4>Görüntü Entropy (Bilgi Yoğunluğu) <span class="orig-badge">✓ ORİJİNAL</span></h4>
+          <p>Orijinal plakalarda metalik yüzey ve baskı kalitesi nedeniyle Shannon entropy değeri dengeli bir aralıktadır. Çok düşük = sahte baskı.</p>
+          <div class="rule-threshold">📐 Eşik: Entropy 3.5 – 7.5 arası → Dengeli</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R9</div>
+        <div class="rule-content">
+          <h4>Histogram Dağılım Dengesi <span class="apk-badge">⚠ APK KRİTER</span></h4>
+          <p>APK baskılarda piksel yığılma (patlama) oluşur — ya çok koyu ya çok açık piksel bölgeleri dominanttır. Bimodal dağılım APK işareti.</p>
+          <div class="rule-threshold">📐 Eşik: Dominant bin oranı ≤ %40</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R10</div>
+        <div class="rule-content">
+          <h4>Metalik Yansıma Gradyanı <span class="orig-badge">✓ ORİJİNAL</span></h4>
+          <p>Orijinal alüminyum plakalar kameraya bağlı olarak hafif yansıma gradyanı oluşturur. APK kağıt/plastik baskılarda bu gradyan yoktur veya yapay görünür.</p>
+          <div class="rule-threshold">📐 Eşik: Gradyan sapması ≤ 45</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R11</div>
+        <div class="rule-content">
+          <h4>Kenar Bant Analizi <span class="apk-badge">⚠ APK KRİTER</span></h4>
+          <p>Türk plakaları çevresi siyah kenarlıklıdır. APK plakalarda kenar bantı ya yoktur ya da renk tutarsızlığı gösterir.</p>
+          <div class="rule-threshold">📐 Eşik: Kenar koyu piksel ≥ %15</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">R12</div>
+        <div class="rule-content">
+          <h4>Toplam Ağırlıklı Güven Skoru</h4>
+          <p>R1-R11 kuralları ağırlıklı olarak birleştirilir. APK kriterleri 3×, destekleyici kriterler 1× ağırlık alır. Final skor ≥70 → Orijinal.</p>
+          <div class="rule-threshold">📐 ≥70 Orijinal | 40–69 Kuşkulu | &lt;40 APK</div>
+        </div>
+      </div>
+
+    </div>
   </div>
-  <div class="header-right">
-    <div class="status-dot"></div>
-    <div class="header-badge">v4.2 · MANUEL</div>
-  </div>
-</header>
 
-<!-- MAIN GRID -->
-<div class="main">
+  <!-- MAIN GRID -->
+  <div class="main-grid">
 
-  <!-- LEFT COL -->
-  <div>
-
-    <!-- Upload Panel -->
-    <div class="panel" style="margin-bottom:18px">
-      <div class="panel-head">
-        <div class="panel-head-icon" style="background:var(--accent);box-shadow:0 0 8px var(--accent)"></div>
-        <span class="panel-head-title">Görsel Yükle &amp; Seç</span>
-        <span class="panel-head-tag">JPG · PNG · WEBP · max 20MB</span>
+    <!-- LEFT: UPLOAD -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-dot" style="background:var(--amber)"></div>
+        <span class="panel-title">Plaka Fotoğrafı Yükle</span>
       </div>
-
-      <!-- Upload Zone -->
-      <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon-wrap">📷</div>
-        <div class="upload-title">Plaka Fotoğrafı Yükle</div>
-        <div class="upload-sub">
-          Sürükle &amp; Bırak veya tıkla<br>
-          Yüklendikten sonra fare ile plaka bölgesini seçin
+      <div class="panel-body">
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon" id="uploadIcon">📷</div>
+          <div class="upload-title" id="uploadTitle">Fotoğraf Seç veya Sürükle</div>
+          <div class="upload-sub" id="uploadSub">JPG, PNG, WEBP — Max 20MB</div>
+          <img id="previewImg" style="display:none;" />
         </div>
-      </div>
-      <input type="file" id="fileInput" accept="image/*">
-
-      <!-- Alert: Not Plate -->
-      <div class="alert-banner error" id="bannerNotPlate">
-        <div class="alert-title">⛔ BU BİR PLAKA GÖRSELİ DEĞİL</div>
-        <div class="alert-sub">Yüklenen görsel tanımlanamıyor · Analiz Skoru: %0 · Doğrulama Başarısız</div>
-      </div>
-
-      <!-- Alert: Manuel Mode -->
-      <div class="alert-banner info" id="bannerManual">
-        <div class="alert-title">✏️ MANUEL SEÇİM MODU AKTİF</div>
-        <div class="alert-sub">Fare ile plaka bölgesini sürükleyerek çizin → bırakınca analiz başlar</div>
-      </div>
-
-      <!-- Alert: Selection Done -->
-      <div class="alert-banner success" id="bannerDone">
-        <div class="alert-title" id="bannerDoneTitle">✅ BÖLGE SEÇİLDİ</div>
-        <div class="alert-sub" id="bannerDoneSub">Analiz başlatılıyor...</div>
-      </div>
-
-      <!-- Canvas -->
-      <div class="canvas-wrap" id="canvasWrap">
-        <canvas id="mainCanvas"></canvas>
-        <div class="canvas-overlay-tag" id="overlayTag">✏️ SEÇİM MODU — Plaka bölgesini sürükleyin</div>
-        <div class="manual-pulse" id="manualPulse">🖱️ Plaka bölgesini sürükleyerek seçin</div>
-      </div>
-
-      <!-- Plate Preview -->
-      <div class="plate-preview" id="platePreview">
-        <div class="plate-preview-label">
-          <span>⬜</span>
-          <span>TESPİT EDİLEN PLAKA BÖLGESİ</span>
-        </div>
-        <canvas id="platePreviewCanvas"></canvas>
-      </div>
-
-      <!-- Detection Info -->
-      <div class="detect-info" id="detectInfo"></div>
-
-      <!-- Controls -->
-      <div class="ctrl-bar">
-        <button class="btn btn-primary" id="btnUpload">
-          <span>📂</span> Fotoğraf Yükle
-        </button>
-        <button class="btn btn-secondary" id="btnManualSelect" disabled>
-          <span>✏️</span> Manuel Seçim
-        </button>
-        <button class="btn btn-ghost" id="btnReset" disabled>
-          <span>🗑️</span> Temizle
-        </button>
-      </div>
-
-      <!-- Filters -->
-      <div class="filter-bar" id="filterBar">
-        <button class="filter-chip active" data-filter="original">Orijinal</button>
-        <button class="filter-chip" data-filter="auto">Otomatik</button>
-        <button class="filter-chip" data-filter="contrast">Kontrast</button>
-        <button class="filter-chip" data-filter="sharpen">Keskinleştir</button>
-        <button class="filter-chip" data-filter="hologram">Hologram</button>
-        <button class="filter-chip" data-filter="blue">Mavi Odak</button>
-      </div>
-
-      <!-- Progress -->
-      <div class="progress-wrap" id="progressWrap">
-        <div class="progress-label">
-          <div class="spinner"></div>
-          <span id="progressText">Analiz ediliyor...</span>
-        </div>
-        <div class="progress-track">
+        <input type="file" id="fileInput" accept="image/*">
+        <div class="progress-bar" id="progressBar" style="display:none;">
           <div class="progress-fill" id="progressFill"></div>
         </div>
+        <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
+          🔬 ANALİZİ BAŞLAT
+        </button>
+        <button class="reset-btn" id="resetBtn" style="display:none;" onclick="resetAll()">↺ Yeni Analiz</button>
+        <canvas id="canvas"></canvas>
       </div>
-
     </div>
 
-    <!-- Tile Grid Panel -->
+    <!-- RIGHT: LIVE LOG -->
     <div class="panel">
-      <div class="panel-head">
-        <div class="panel-head-icon" style="background:var(--yellow);box-shadow:0 0 8px var(--yellow)"></div>
-        <span class="panel-head-title">100 Bölge Detay Taraması</span>
-        <span class="panel-head-tag">Tile'a tıkla → Zoom</span>
+      <div class="panel-header">
+        <div class="panel-dot" style="background:var(--cyan)"></div>
+        <span class="panel-title">Canlı Analiz Logu</span>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)" id="logCount">0 KAYIT</span>
       </div>
-
-      <div class="tile-section">
-        <div class="tile-empty" id="tileEmpty">Plaka bölgesi seçildikten sonra 10×10 detay taraması yapılır.</div>
-        <div class="tile-grid" id="tileGrid"></div>
+      <div class="panel-body" style="padding:12px;">
+        <div class="log-area" id="logArea">
+          <div style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:20px;text-align:center;opacity:0.5;">
+            Analiz başladığında kayıtlar burada görünecek...
+          </div>
+        </div>
+        <div id="metricsSection" style="margin-top:14px;display:none;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">
+            📊 Metrik Skorları
+          </div>
+          <div id="metricBars"></div>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <!-- RIGHT COL -->
-  <div class="right-panel">
-
-    <!-- Score Card -->
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-head-icon" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>
-        <span class="panel-head-title">Uyumluluk Skoru</span>
-      </div>
-
-      <div class="score-display">
-        <div class="score-ring">
-          <svg viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--surface3)" stroke-width="10"/>
-            <circle cx="60" cy="60" r="50" fill="none"
-              stroke="var(--accent)" stroke-width="10"
-              stroke-linecap="round"
-              stroke-dasharray="314"
-              stroke-dashoffset="314"
-              id="scoreArc"
-              style="transition: stroke-dashoffset 1.1s cubic-bezier(0.4,0,0.2,1), stroke 0.4s ease"
-            />
-          </svg>
-          <div class="score-ring-text">
-            <div class="score-num" id="scoreNum">—</div>
-            <div class="score-pct-sym" id="scorePctSym">%</div>
-          </div>
-        </div>
-        <div class="score-status-label neutral" id="scoreStatusLabel">ANALİZ BEKLENİYOR</div>
-        <div class="score-sub" id="scoreSub">Plaka fotoğrafı yükleyin ve bölge seçin</div>
-      </div>
-
-      <div class="verdict-box" id="verdictBox">
-        <div class="verdict-icon" id="verdictIcon"></div>
-        <div class="verdict-msg" id="verdictMsg"></div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="metrics-body" id="metricsBody">
-        <div class="metrics-empty">Analiz sonuçları burada görünecek.</div>
-      </div>
-    </div>
-
-    <!-- Threshold -->
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-head-icon" style="background:#9c27b0;box-shadow:0 0 8px #9c27b0"></div>
-        <span class="panel-head-title">Sınıflandırma Eşikleri</span>
-      </div>
-      <div class="threshold-list">
-        <div class="thresh-item t-green">
-          <div class="thresh-pct">%70 ↑</div>
-          <div class="thresh-desc">
-            <div class="thresh-label">✅ ORİJİNAL PLAKA</div>
-            <div class="thresh-sub">Tüm güvenlik özellikleri doğrulandı</div>
-          </div>
-        </div>
-        <div class="thresh-item t-yellow">
-          <div class="thresh-pct">%40–%69</div>
-          <div class="thresh-desc">
-            <div class="thresh-label">⚠️ KONTROL GEREKLİ</div>
-            <div class="thresh-sub">Bazı özellikler zayıf veya eksik</div>
-          </div>
-        </div>
-        <div class="thresh-item t-red">
-          <div class="thresh-pct">%39 ↓</div>
-          <div class="thresh-desc">
-            <div class="thresh-label">❌ STANDART DIŞI</div>
-            <div class="thresh-sub">Plaka sahte veya ağır hasarlı</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Rules -->
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-head-icon" style="background:var(--yellow);box-shadow:0 0 8px var(--yellow)"></div>
-        <span class="panel-head-title">Resmi Plaka Standartları</span>
-      </div>
-      <div class="rules-body">
-        <div class="rule-row">
-          <div class="rule-icon">🟦</div>
-          <div>
-            <div class="rule-name">Mavi TR Şeridi</div>
-            <div class="rule-text">Sol kenarda mavi "TR" yazısı ve Avrupa yıldızları · Emniyet Genel Müdürlüğü zorunlu kılar</div>
-          </div>
-        </div>
-        <div class="rule-row">
-          <div class="rule-icon">🔲</div>
-          <div>
-            <div class="rule-name">Beyaz Zemin + Siyah Karakter</div>
-            <div class="rule-text">Ana zemin beyaz, harfler siyah kabartmalı (1–3 mm) · KTY Yönetmeliği Madde 20</div>
-          </div>
-        </div>
-        <div class="rule-row">
-          <div class="rule-icon">✨</div>
-          <div>
-            <div class="rule-name">TŞOF Hologram Şeridi</div>
-            <div class="rule-text">Alt kısımda TŞOF güvenlik hologramı zorunlu · Sahte plakalarda bu özellik yoktur</div>
-          </div>
-        </div>
-        <div class="rule-row">
-          <div class="rule-icon">🔵</div>
-          <div>
-            <div class="rule-name">TŞOF Üretim Mührü</div>
-            <div class="rule-text">Türkiye Şoförler ve Otomobilciler Federasyonu üretim mührü tüm resmi plakalarda bulunur</div>
-          </div>
-        </div>
-        <div class="rule-row">
-          <div class="rule-icon">📐</div>
-          <div>
-            <div class="rule-name">Standart Boyut: 520×110 mm</div>
-            <div class="rule-text">En/boy oranı ≈ 4.72:1 · Otobüs/kamyon arka plakaları farklı boyut kullanabilir</div>
-          </div>
-        </div>
-        <div class="rule-row">
-          <div class="rule-icon">🔤</div>
-          <div>
-            <div class="rule-name">Standart Plaka Fontu</div>
-            <div class="rule-text">Emniyet tarafından onaylı özel plaka yazı tipi · APP plakalarda font kalın ve farklıdır</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+  <!-- RESULT CARD -->
+  <div class="result-card" id="resultCard">
+    <!-- filled by JS -->
   </div>
-</div>
 
-<!-- TILE ZOOM MODAL -->
-<div class="modal-backdrop" id="tileModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Bölge Detayı</div>
-      <button class="modal-close" id="modalClose">✕</button>
-    </div>
-    <canvas id="tileZoomCanvas"></canvas>
-    <div class="modal-metrics" id="modalMetrics"></div>
-  </div>
 </div>
 
 <script>
-/* ============================================================
-   STATE
-   ============================================================ */
-let originalImage = null;
-let plateRegion   = null;  // {x,y,w,h} in original coords
-let isManualMode  = false;
-let isDragging    = false;
-let dragStart     = { x: 0, y: 0 };
-let manualRect    = null;
-let currentFilter = 'original';
+let imageData = null;
+let logCount = 0;
+let analysisResults = {};
 
-/* ============================================================
-   DOM REFS
-   ============================================================ */
-const uploadZone         = document.getElementById('uploadZone');
-const fileInput          = document.getElementById('fileInput');
-const mainCanvas         = document.getElementById('mainCanvas');
-const ctx                = mainCanvas.getContext('2d');
-const platePreviewCanvas = document.getElementById('platePreviewCanvas');
-const pCtx               = platePreviewCanvas.getContext('2d');
-const canvasWrap         = document.getElementById('canvasWrap');
-const platePreview       = document.getElementById('platePreview');
-const detectInfo         = document.getElementById('detectInfo');
-const overlayTag         = document.getElementById('overlayTag');
-const manualPulse        = document.getElementById('manualPulse');
-const filterBar          = document.getElementById('filterBar');
-const progressWrap       = document.getElementById('progressWrap');
-const progressText       = document.getElementById('progressText');
-const progressFill       = document.getElementById('progressFill');
-const tileGrid           = document.getElementById('tileGrid');
-const tileEmpty          = document.getElementById('tileEmpty');
-const tileModal          = document.getElementById('tileModal');
-const modalTitle         = document.getElementById('modalTitle');
-const tileZoomCanvas     = document.getElementById('tileZoomCanvas');
-const modalMetrics       = document.getElementById('modalMetrics');
-const btnUpload          = document.getElementById('btnUpload');
-const btnManualSelect    = document.getElementById('btnManualSelect');
-const btnReset           = document.getElementById('btnReset');
-const scoreNum           = document.getElementById('scoreNum');
-const scorePctSym        = document.getElementById('scorePctSym');
-const scoreArc           = document.getElementById('scoreArc');
-const scoreStatusLabel   = document.getElementById('scoreStatusLabel');
-const scoreSub           = document.getElementById('scoreSub');
-const verdictBox         = document.getElementById('verdictBox');
-const verdictIcon        = document.getElementById('verdictIcon');
-const verdictMsg         = document.getElementById('verdictMsg');
-const metricsBody        = document.getElementById('metricsBody');
-const bannerNotPlate     = document.getElementById('bannerNotPlate');
-const bannerManual       = document.getElementById('bannerManual');
-const bannerDone         = document.getElementById('bannerDone');
-const bannerDoneTitle    = document.getElementById('bannerDoneTitle');
-const bannerDoneSub      = document.getElementById('bannerDoneSub');
+// FILE UPLOAD
+document.getElementById('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  handleFile(file);
+});
 
-/* ============================================================
-   UPLOAD
-   ============================================================ */
-btnUpload.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('click', () => fileInput.click());
-
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', e => {
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
   e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  zone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) handleFile(file);
 });
 
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) loadFile(fileInput.files[0]);
-  fileInput.value = '';
-});
-
-function loadFile(file) {
-  if (!file.type.startsWith('image/')) { alert('Lütfen geçerli bir görsel dosyası seçin.'); return; }
-  if (file.size > 20 * 1024 * 1024) { alert('Dosya 20MB\'den büyük olamaz.'); return; }
-
+function handleFile(file) {
   const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      originalImage = img;
-      plateRegion   = null;
-      isManualMode  = false;
-      manualRect    = null;
-
-      resetUI();
-
-      // Basic plate check
-      const check = checkIfPlate(img);
-      if (!check.isPlate) {
-        showBanner(bannerNotPlate);
-        canvasWrap.classList.add('show');
-        drawImageOnCanvas(img);
-        btnReset.disabled = false;
-        setScoreDisplay(0, false);
-        return;
-      }
-
-      // Show canvas and enable controls
-      canvasWrap.classList.add('show');
-      filterBar.classList.add('show');
-      drawImageOnCanvas(img);
-      btnManualSelect.disabled = false;
-      btnReset.disabled = false;
-
-      // Prompt user to select
-      activateManualMode();
-    };
-    img.onerror = () => alert('Görsel yüklenemedi.');
-    img.src = e.target.result;
+  reader.onload = ev => {
+    const img = document.getElementById('previewImg');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    document.getElementById('uploadIcon').style.display = 'none';
+    document.getElementById('uploadTitle').style.display = 'none';
+    document.getElementById('uploadSub').style.display = 'none';
+    zone.classList.add('has-image');
+    document.getElementById('analyzeBtn').disabled = false;
+    document.getElementById('resetBtn').style.display = 'inline-flex';
+    imageData = ev.target.result;
+    document.getElementById('logArea').innerHTML = `
+      <div style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px;padding:14px;text-align:center;">
+        ✅ Görüntü yüklendi: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)<br>
+        <span style="color:var(--muted);margin-top:4px;display:block">▶ ANALİZİ BAŞLAT butonuna basın</span>
+      </div>`;
+    logCount = 0;
+    document.getElementById('logCount').textContent = '0 KAYIT';
+    document.getElementById('resultCard').className = 'result-card';
+    document.getElementById('metricsSection').style.display = 'none';
   };
   reader.readAsDataURL(file);
 }
 
-/* ============================================================
-   RESET
-   ============================================================ */
-function resetUI() {
-  hideBanner(bannerNotPlate);
-  hideBanner(bannerManual);
-  hideBanner(bannerDone);
-  canvasWrap.classList.remove('show');
-  platePreview.classList.remove('show');
-  detectInfo.classList.remove('show');
-  overlayTag.classList.remove('show');
-  manualPulse.classList.remove('show');
-  filterBar.classList.remove('show');
-  progressWrap.classList.remove('show');
-  tileGrid.style.display = 'none';
-  tileGrid.innerHTML = '';
-  tileEmpty.style.display = 'block';
-  metricsBody.innerHTML = '<div class="metrics-empty">Analiz sonuçları burada görünecek.</div>';
-  verdictBox.className = 'verdict-box';
-  scoreNum.textContent = '—';
-  scorePctSym.textContent = '%';
-  scoreArc.style.strokeDashoffset = '314';
-  scoreArc.style.stroke = 'var(--accent)';
-  scoreStatusLabel.textContent = 'ANALİZ BEKLENİYOR';
-  scoreStatusLabel.className = 'score-status-label neutral';
-  scoreSub.textContent = 'Plaka fotoğrafı yükleyin ve bölge seçin';
-  btnManualSelect.disabled = true;
-  btnManualSelect.textContent = '✏️ Manuel Seçim';
-  btnManualSelect.classList.remove('active-mode');
-  btnReset.disabled = true;
-  currentFilter = 'original';
-  document.querySelectorAll('.filter-chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.filter === 'original');
+function resetAll() {
+  imageData = null;
+  logCount = 0;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('uploadIcon').style.display = 'block';
+  document.getElementById('uploadTitle').style.display = 'block';
+  document.getElementById('uploadSub').style.display = 'block';
+  zone.classList.remove('has-image');
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('logArea').innerHTML = `<div style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:20px;text-align:center;opacity:0.5;">Analiz başladığında kayıtlar burada görünecek...</div>`;
+  document.getElementById('logCount').textContent = '0 KAYIT';
+  document.getElementById('resultCard').className = 'result-card';
+  document.getElementById('metricsSection').style.display = 'none';
+  document.getElementById('progressBar').style.display = 'none';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('metricBars').innerHTML = '';
+}
+
+function addLog(tag, msg) {
+  const now = new Date();
+  const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}.${now.getMilliseconds().toString().padStart(3,'0').slice(0,2)}`;
+  const area = document.getElementById('logArea');
+  if (logCount === 0) area.innerHTML = '';
+  logCount++;
+  document.getElementById('logCount').textContent = `${logCount} KAYIT`;
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${time}</span><span class="log-tag ${tag}">${tag.toUpperCase()}</span><span class="log-msg">${msg}</span>`;
+  area.appendChild(entry);
+  area.scrollTop = area.scrollHeight;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// ─── CORE ANALYSIS ───────────────────────────────────────────
+async function startAnalysis() {
+  if (!imageData) return;
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ ANALİZ EDİLİYOR...';
+  document.getElementById('progressBar').style.display = 'block';
+  document.getElementById('resultCard').className = 'result-card';
+  document.getElementById('metricsSection').style.display = 'block';
+  document.getElementById('metricBars').innerHTML = '';
+  logCount = 0;
+
+  addLog('info', '🔬 Forensik analiz motoru başlatılıyor...');
+  await sleep(300);
+  addLog('info', '📐 Görüntü canvas\'a çiziliyor...');
+
+  const img = new Image();
+  img.src = imageData;
+
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
   });
-}
 
-btnReset.addEventListener('click', () => {
-  originalImage = null;
-  plateRegion   = null;
-  isManualMode  = false;
-  manualRect    = null;
-  isDragging    = false;
-  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-  pCtx.clearRect(0, 0, platePreviewCanvas.width, platePreviewCanvas.height);
-  resetUI();
-});
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  ctx.drawImage(img, 0, 0);
 
-/* ============================================================
-   BANNER HELPERS
-   ============================================================ */
-function showBanner(el) { el.classList.add('show'); }
-function hideBanner(el) { el.classList.remove('show'); }
+  addLog('info', `📏 Boyut: ${img.naturalWidth}×${img.naturalHeight} piksel`);
+  setProgress(8);
+  await sleep(200);
 
-/* ============================================================
-   BASIC PLATE CHECK (very permissive — just rejects pure non-plates)
-   ============================================================ */
-function checkIfPlate(img) {
-  const oc = document.createElement('canvas');
-  const scale = Math.min(1, 400 / img.width);
-  oc.width  = Math.max(1, Math.round(img.width  * scale));
-  oc.height = Math.max(1, Math.round(img.height * scale));
-  const ox = oc.getContext('2d');
-  ox.drawImage(img, 0, 0, oc.width, oc.height);
-  const d = ox.getImageData(0, 0, oc.width, oc.height).data;
+  const fullData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = fullData.data;
+  const W = canvas.width, H = canvas.height;
+  const total = W * H;
 
-  let blue = 0, white = 0, dark = 0, total = 0;
-  for (let i = 0; i < d.length; i += 4) {
-    const r = d[i], g = d[i+1], b = d[i+2];
-    const hsv = rgbToHsv(r, g, b);
-    total++;
-    if (hsv[0] >= 185 && hsv[0] <= 275 && hsv[1] > 10 && hsv[2] > 10) blue++;
-    if (r > 180 && g > 180 && b > 180) white++;
-    if (r < 60  && g < 60  && b < 60)  dark++;
+  addLog('scan', '⚙️ Piksel matrisi okunuyor...');
+  await sleep(250);
+  setProgress(15);
+
+  // ── R1: CONTRAST ──────────────────────────────────────────
+  addLog('scan', '[R1] Kontrast Derinliği Analizi başlıyor...');
+  await sleep(180);
+
+  let minL = 255, maxL = 0, sumL = 0;
+  const lum = new Float32Array(total);
+
+  for (let i = 0; i < total; i++) {
+    const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
+    const l = 0.299*r + 0.587*g + 0.114*b;
+    lum[i] = l;
+    sumL += l;
+    if (l < minL) minL = l;
+    if (l > maxL) maxL = l;
   }
+  const avgL = sumL / total;
+  const contrastRange = maxL - minL;
+  const contrastScore = Math.min(100, (contrastRange / 255) * 110);
 
-  const ar = img.width / img.height;
-  const notPlate =
-    (blue / total) < 0.005 &&
-    (white / total) < 0.10 &&
-    (dark  / total) < 0.05 &&
-    ar < 1.2;
+  addLog(contrastScore >= 65 ? 'pass' : 'fail',
+    `[R1] Kontrast Aralığı: ${minL.toFixed(0)}–${maxL.toFixed(0)} | Skor: <strong>${contrastScore.toFixed(1)}</strong>/100 ${contrastScore >= 65 ? '✅ Eşik geçildi' : '❌ Düşük kontrast — APK işareti'}`);
+  addMetricBar('R1 Kontrast', contrastScore, 100, contrastScore >= 65 ? 'green' : 'red');
+  setProgress(25);
+  await sleep(200);
 
-  return { isPlate: !notPlate };
-}
+  // ── R2: SOBEL SHARPNESS ───────────────────────────────────
+  addLog('scan', '[R2] Sobel Kenar Tespiti başlıyor...');
+  await sleep(180);
 
-/* ============================================================
-   MANUAL SELECTION
-   ============================================================ */
-function activateManualMode() {
-  isManualMode = true;
-  overlayTag.classList.add('show');
-  manualPulse.classList.add('show');
-  showBanner(bannerManual);
-  hideBanner(bannerDone);
-  btnManualSelect.textContent = '✏️ Seçimi İptal';
-  btnManualSelect.classList.add('active-mode');
-}
-
-function deactivateManualMode() {
-  isManualMode = false;
-  isDragging   = false;
-  manualRect   = null;
-  overlayTag.classList.remove('show');
-  manualPulse.classList.remove('show');
-  hideBanner(bannerManual);
-  btnManualSelect.textContent = '✏️ Manuel Seçim';
-  btnManualSelect.classList.remove('active-mode');
-}
-
-btnManualSelect.addEventListener('click', () => {
-  if (isManualMode) {
-    deactivateManualMode();
-    if (originalImage) drawImageOnCanvas(originalImage);
-  } else {
-    activateManualMode();
-  }
-});
-
-/* ── Mouse ── */
-mainCanvas.addEventListener('mousedown', e => {
-  if (!isManualMode) return;
-  isDragging = true;
-  const r = mainCanvas.getBoundingClientRect();
-  const scaleX = mainCanvas.width  / r.width;
-  const scaleY = mainCanvas.height / r.height;
-  dragStart = {
-    x: (e.clientX - r.left) * scaleX,
-    y: (e.clientY - r.top)  * scaleY
-  };
-  manualRect = { x: dragStart.x, y: dragStart.y, w: 0, h: 0 };
-});
-
-mainCanvas.addEventListener('mousemove', e => {
-  if (!isManualMode || !isDragging) return;
-  const r = mainCanvas.getBoundingClientRect();
-  const scaleX = mainCanvas.width  / r.width;
-  const scaleY = mainCanvas.height / r.height;
-  const mx = (e.clientX - r.left) * scaleX;
-  const my = (e.clientY - r.top)  * scaleY;
-  manualRect = {
-    x: Math.min(dragStart.x, mx),
-    y: Math.min(dragStart.y, my),
-    w: Math.abs(mx - dragStart.x),
-    h: Math.abs(my - dragStart.y)
-  };
-  drawImageOnCanvas(originalImage);
-});
-
-mainCanvas.addEventListener('mouseup', e => {
-  if (!isManualMode || !isDragging) return;
-  isDragging = false;
-  finalizeSelection();
-});
-
-/* ── Touch ── */
-mainCanvas.addEventListener('touchstart', e => {
-  if (!isManualMode) return;
-  e.preventDefault();
-  isDragging = true;
-  const t = e.touches[0];
-  const r = mainCanvas.getBoundingClientRect();
-  const scaleX = mainCanvas.width  / r.width;
-  const scaleY = mainCanvas.height / r.height;
-  dragStart = {
-    x: (t.clientX - r.left) * scaleX,
-    y: (t.clientY - r.top)  * scaleY
-  };
-  manualRect = { x: dragStart.x, y: dragStart.y, w: 0, h: 0 };
-}, { passive: false });
-
-mainCanvas.addEventListener('touchmove', e => {
-  if (!isManualMode || !isDragging) return;
-  e.preventDefault();
-  const t = e.touches[0];
-  const r = mainCanvas.getBoundingClientRect();
-  const scaleX = mainCanvas.width  / r.width;
-  const scaleY = mainCanvas.height / r.height;
-  const mx = (t.clientX - r.left) * scaleX;
-  const my = (t.clientY - r.top)  * scaleY;
-  manualRect = {
-    x: Math.min(dragStart.x, mx),
-    y: Math.min(dragStart.y, my),
-    w: Math.abs(mx - dragStart.x),
-    h: Math.abs(my - dragStart.y)
-  };
-  drawImageOnCanvas(originalImage);
-}, { passive: false });
-
-mainCanvas.addEventListener('touchend', e => {
-  if (!isManualMode || !isDragging) return;
-  isDragging = false;
-  finalizeSelection();
-});
-
-function finalizeSelection() {
-  if (!manualRect || manualRect.w < 20 || manualRect.h < 8) {
-    manualRect = null;
-    if (originalImage) drawImageOnCanvas(originalImage);
-    return;
-  }
-
-  // Convert canvas coords → original image coords
-  const sx = originalImage.width  / mainCanvas.width;
-  const sy = originalImage.height / mainCanvas.height;
-  plateRegion = {
-    x: Math.round(manualRect.x * sx),
-    y: Math.round(manualRect.y * sy),
-    w: Math.round(manualRect.w * sx),
-    h: Math.round(manualRect.h * sy)
-  };
-
-  deactivateManualMode();
-
-  bannerDoneTitle.textContent = '✅ BÖLGE SEÇİLDİ';
-  bannerDoneSub.textContent   = `Alan: ${plateRegion.w}×${plateRegion.h}px · Analiz başlatılıyor...`;
-  showBanner(bannerDone);
-
-  detectInfo.textContent = `✏️ Manuel seçim · Alan: ${plateRegion.w}×${plateRegion.h}px`;
-  detectInfo.classList.add('show');
-
-  drawImageOnCanvas(originalImage);
-  showPlatePreview();
-  runAnalysis();
-}
-
-/* ============================================================
-   CANVAS DRAWING
-   ============================================================ */
-function drawImageOnCanvas(img) {
-  const maxW  = canvasWrap.clientWidth || 700;
-  const scale = Math.min(1, maxW / img.width);
-  mainCanvas.width  = Math.round(img.width  * scale);
-  mainCanvas.height = Math.round(img.height * scale);
-
-  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-  applyFilter(img, mainCanvas, ctx, currentFilter);
-
-  // Draw confirmed plateRegion box
-  if (plateRegion && !isManualMode) {
-    const sx = mainCanvas.width  / img.width;
-    const sy = mainCanvas.height / img.height;
-    const rx = plateRegion.x * sx;
-    const ry = plateRegion.y * sy;
-    const rw = plateRegion.w * sx;
-    const rh = plateRegion.h * sy;
-
-    ctx.save();
-    ctx.shadowColor = 'var(--accent)';
-    ctx.shadowBlur  = 14;
-    ctx.strokeStyle = '#1a6fff';
-    ctx.lineWidth   = 2;
-    ctx.strokeRect(rx, ry, rw, rh);
-    ctx.restore();
-
-    // Corner ticks
-    const cLen = 14;
-    ctx.strokeStyle = '#00e5ff';
-    ctx.lineWidth   = 3;
-    [[rx, ry, 1, 1], [rx+rw, ry, -1, 1], [rx, ry+rh, 1, -1], [rx+rw, ry+rh, -1, -1]].forEach(([cx,cy,dx,dy]) => {
-      ctx.beginPath();
-      ctx.moveTo(cx, cy + dy * cLen); ctx.lineTo(cx, cy); ctx.lineTo(cx + dx * cLen, cy);
-      ctx.stroke();
-    });
-
-    // Label
-    ctx.fillStyle = 'rgba(26,111,255,0.88)';
-    ctx.fillRect(rx, ry - 20, 116, 20);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 10px JetBrains Mono, monospace';
-    ctx.fillText('🎯 PLAKA BÖLGESİ', rx + 6, ry - 6);
-  }
-
-  // Draw live drag rect
-  if (isManualMode && manualRect && manualRect.w > 0) {
-    ctx.strokeStyle = '#ffd600';
-    ctx.lineWidth   = 2;
-    ctx.setLineDash([6, 3]);
-    ctx.strokeRect(manualRect.x, manualRect.y, manualRect.w, manualRect.h);
-    ctx.setLineDash([]);
-  }
-}
-
-/* ============================================================
-   FILTERS
-   ============================================================ */
-function applyFilter(img, canvas, c, filter) {
-  c.drawImage(img, 0, 0, canvas.width, canvas.height);
-  if (filter === 'original') return;
-
-  const id = c.getImageData(0, 0, canvas.width, canvas.height);
-  const d  = id.data;
-
-  for (let i = 0; i < d.length; i += 4) {
-    let r = d[i], g = d[i+1], b = d[i+2];
-
-    if (filter === 'auto') {
-      r = sCurve(r); g = sCurve(g); b = sCurve(b);
-    } else if (filter === 'contrast') {
-      const f = 1.8;
-      r = clamp((r - 128) * f + 128);
-      g = clamp((g - 128) * f + 128);
-      b = clamp((b - 128) * f + 128);
-    } else if (filter === 'hologram') {
-      const hsv = rgbToHsv(r, g, b);
-      hsv[1] = Math.min(100, hsv[1] * 1.6);
-      const rgb2 = hsvToRgb(hsv[0], hsv[1], hsv[2]);
-      r = sCurve(rgb2[0]); g = sCurve(rgb2[1]); b = sCurve(rgb2[2]);
-    } else if (filter === 'blue') {
-      const hsv = rgbToHsv(r, g, b);
-      if (hsv[0] >= 180 && hsv[0] <= 280) {
-        hsv[1] = Math.min(100, hsv[1] * 2.2);
-        hsv[2] = Math.min(100, hsv[2] * 1.4);
-        const rgb2 = hsvToRgb(hsv[0], hsv[1], hsv[2]);
-        r = rgb2[0]; g = rgb2[1]; b = rgb2[2];
-      } else {
-        r = Math.round(r * 0.35);
-        g = Math.round(g * 0.35);
-        b = Math.round(b * 0.35);
-      }
-    }
-
-    d[i] = clamp(r); d[i+1] = clamp(g); d[i+2] = clamp(b);
-  }
-
-  if (filter === 'sharpen') {
-    applyConvolution(d, canvas.width, canvas.height, [0,-1,0,-1,5,-1,0,-1,0]);
-  }
-
-  c.putImageData(id, 0, 0);
-}
-
-function applyConvolution(d, w, h, k) {
-  const copy = new Uint8ClampedArray(d);
-  for (let y = 1; y < h - 1; y++) {
-    for (let x = 1; x < w - 1; x++) {
-      for (let c = 0; c < 3; c++) {
-        let sum = 0;
-        for (let ky = -1; ky <= 1; ky++)
-          for (let kx = -1; kx <= 1; kx++)
-            sum += copy[((y + ky) * w + (x + kx)) * 4 + c] * k[(ky+1)*3+(kx+1)];
-        d[(y * w + x) * 4 + c] = clamp(sum);
-      }
+  let sobelSum = 0;
+  let sobelCount = 0;
+  for (let y = 1; y < H-1; y++) {
+    for (let x = 1; x < W-1; x++) {
+      const gx = -lum[(y-1)*W+(x-1)] - 2*lum[y*W+(x-1)] - lum[(y+1)*W+(x-1)]
+               + lum[(y-1)*W+(x+1)] + 2*lum[y*W+(x+1)] + lum[(y+1)*W+(x+1)];
+      const gy = -lum[(y-1)*W+(x-1)] - 2*lum[(y-1)*W+x] - lum[(y-1)*W+(x+1)]
+               + lum[(y+1)*W+(x-1)] + 2*lum[(y+1)*W+x] + lum[(y+1)*W+(x+1)];
+      sobelSum += Math.sqrt(gx*gx + gy*gy);
+      sobelCount++;
     }
   }
-}
+  const sobelAvg = sobelSum / sobelCount;
+  const sobelScore = Math.min(100, (sobelAvg / 50) * 100);
 
-document.querySelectorAll('.filter-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    currentFilter = chip.dataset.filter;
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    if (originalImage) drawImageOnCanvas(originalImage);
+  addLog(sobelAvg >= 18 ? 'pass' : 'fail',
+    `[R2] Sobel Ortalama Gradyan: <strong>${sobelAvg.toFixed(2)}</strong> | Skor: <strong>${sobelScore.toFixed(1)}</strong>/100 ${sobelAvg >= 18 ? '✅ Keskin kenar' : '❌ Bulanık kenar — APK işareti'}`);
+  addMetricBar('R2 Sobel Kenar', sobelScore, 100, sobelAvg >= 18 ? 'green' : 'red');
+  setProgress(35);
+  await sleep(200);
+
+  // ── R3: LAPLACIAN ─────────────────────────────────────────
+  addLog('scan', '[R3] Laplacian Varyans Netlik Analizi...');
+  await sleep(150);
+
+  let lapSum = 0;
+  for (let y = 1; y < H-1; y++) {
+    for (let x = 1; x < W-1; x++) {
+      const lap = -lum[(y-1)*W+x] - lum[y*W+(x-1)] + 4*lum[y*W+x] - lum[y*W+(x+1)] - lum[(y+1)*W+x];
+      lapSum += lap * lap;
+    }
+  }
+  const lapVar = lapSum / total;
+  const lapScore = Math.min(100, (lapVar / 3000) * 100);
+
+  addLog(lapVar >= 80 ? 'pass' : 'fail',
+    `[R3] Laplacian Varyans: <strong>${lapVar.toFixed(1)}</strong> | Skor: <strong>${lapScore.toFixed(1)}</strong>/100 ${lapVar >= 80 ? '✅ Görüntü net' : '⚠️ Görüntü bulanık — netlik düşük'}`);
+  addMetricBar('R3 Laplacian Netlik', lapScore, 100, lapVar >= 80 ? 'green' : 'warn');
+  setProgress(45);
+  await sleep(200);
+
+  // ── R4: WHITE BACKGROUND ──────────────────────────────────
+  addLog('scan', '[R4] Plaka Zemin Renk Analizi (R4) başlıyor...');
+  await sleep(150);
+
+  let whitePx = 0;
+  for (let i = 0; i < total; i++) {
+    const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
+    if (r > 180 && g > 180 && b > 150) whitePx++;
+  }
+  const whiteRatio = whitePx / total;
+  const whiteScore = Math.min(100, (whiteRatio / 0.25) * 100);
+
+  addLog(whiteRatio >= 0.20 ? 'pass' : 'fail',
+    `[R4] Beyaz/Açık Piksel Oranı: <strong>${(whiteRatio*100).toFixed(1)}%</strong> | Skor: <strong>${whiteScore.toFixed(1)}</strong>/100 ${whiteRatio >= 0.20 ? '✅ Zemin rengi uyumlu' : '❌ Zemin rengi sapması — APK işareti'}`);
+  addMetricBar('R4 Zemin Rengi', whiteScore, 100, whiteRatio >= 0.20 ? 'green' : 'red');
+  setProgress(53);
+  await sleep(200);
+
+  // ── R5: BLACK TEXT ────────────────────────────────────────
+  addLog('scan', '[R5] Siyah Metin Yoğunluğu Analizi...');
+  await sleep(150);
+
+  let darkPx = 0;
+  for (let i = 0; i < total; i++) {
+    const r = px[i*4], g = px[i*4+1], b = px[i*4+2];
+    if (r < 60 && g < 60 && b < 80) darkPx++;
+  }
+  const darkRatio = darkPx / total;
+  const darkScore = Math.min(100, (darkRatio / 0.08) * 100);
+
+  addLog(darkRatio >= 0.03 ? 'pass' : 'fail',
+    `[R5] Siyah Piksel Oranı: <strong>${(darkRatio*100).toFixed(2)}%</strong> | Skor: <strong>${darkScore.toFixed(1)}</strong>/100 ${darkRatio >= 0.03 ? '✅ Yeterli metin koyuluğu' : '❌ Metin soluk — APK işareti'}`);
+  addMetricBar('R5 Siyah Metin', darkScore, 100, darkRatio >= 0.03 ? 'green' : 'red');
+  setProgress(60);
+  await sleep(200);
+
+  // ── R6: TEXTURE HOMOGENEITY ───────────────────────────────
+  addLog('scan', '[R6] Baskı Doku Standart Sapması...');
+  await sleep(150);
+
+  let varSum = 0;
+  for (let i = 0; i < total; i++) varSum += (lum[i] - avgL) ** 2;
+  const stdDev = Math.sqrt(varSum / total);
+  const texScore = (stdDev >= 30 && stdDev <= 90) ? Math.min(100, 100 - Math.abs(stdDev - 60) * 1.2) : Math.max(0, 50 - Math.abs(stdDev - 60) * 0.8);
+
+  addLog((stdDev >= 30 && stdDev <= 90) ? 'pass' : 'warn',
+    `[R6] Doku Std. Sapması: <strong>${stdDev.toFixed(2)}</strong> | Skor: <strong>${texScore.toFixed(1)}</strong>/100 ${(stdDev >= 30 && stdDev <= 90) ? '✅ Homojen baskı dokusu' : '⚠️ Doku sapması — şüpheli baskı'}`);
+  addMetricBar('R6 Doku Dağılımı', texScore, 100, (stdDev >= 30 && stdDev <= 90) ? 'green' : 'warn');
+  setProgress(67);
+  await sleep(200);
+
+  // ── R7: ASPECT RATIO ─────────────────────────────────────
+  addLog('scan', '[R7] En/Boy Formatı Kontrol Ediliyor...');
+  await sleep(120);
+
+  const ratio = W / H;
+  const ratioScore = (ratio >= 3.0 && ratio <= 7.0) ? Math.min(100, 100 - Math.abs(ratio - 4.7) * 18) : 20;
+
+  addLog((ratio >= 3.0 && ratio <= 7.0) ? 'pass' : 'warn',
+    `[R7] Görüntü Oranı: <strong>${ratio.toFixed(2)}</strong> (Standart ≈4.7) | Skor: <strong>${ratioScore.toFixed(1)}</strong>/100 ${(ratio >= 3.0 && ratio <= 7.0) ? '✅ Format uyumlu' : '⚠️ Format sapması'}`);
+  addMetricBar('R7 Format Oranı', ratioScore, 100, (ratio >= 3.0 && ratio <= 7.0) ? 'cyan' : 'warn');
+  setProgress(73);
+  await sleep(200);
+
+  // ── R8: ENTROPY ───────────────────────────────────────────
+  addLog('scan', '[R8] Shannon Entropy Hesaplanıyor...');
+  await sleep(150);
+
+  const hist = new Float32Array(256).fill(0);
+  for (let i = 0; i < total; i++) hist[Math.floor(lum[i])]++;
+  let entropy = 0;
+  for (let i = 0; i < 256; i++) {
+    if (hist[i] > 0) { const p = hist[i]/total; entropy -= p * Math.log2(p); }
+  }
+  const entropyScore = (entropy >= 3.5 && entropy <= 7.5) ? Math.min(100, 100 - Math.abs(entropy - 5.5) * 12) : 20;
+
+  addLog((entropy >= 3.5 && entropy <= 7.5) ? 'pass' : 'fail',
+    `[R8] Shannon Entropy: <strong>${entropy.toFixed(3)} bit</strong> | Skor: <strong>${entropyScore.toFixed(1)}</strong>/100 ${(entropy >= 3.5 && entropy <= 7.5) ? '✅ Dengeli bilgi yoğunluğu' : '❌ Entropy sapması — APK işareti'}`);
+  addMetricBar('R8 Entropy', entropyScore, 100, (entropy >= 3.5 && entropy <= 7.5) ? 'green' : 'red');
+  setProgress(80);
+  await sleep(200);
+
+  // ── R9: HISTOGRAM DOMINANCE ───────────────────────────────
+  addLog('scan', '[R9] Histogram Dağılım Dengesi...');
+  await sleep(150);
+
+  const maxBin = Math.max(...hist);
+  const dominance = maxBin / total;
+  const histScore = Math.min(100, Math.max(0, (1 - dominance/0.4) * 100));
+
+  addLog(dominance <= 0.40 ? 'pass' : 'fail',
+    `[R9] Dominant Bin Oranı: <strong>${(dominance*100).toFixed(1)}%</strong> | Skor: <strong>${histScore.toFixed(1)}</strong>/100 ${dominance <= 0.40 ? '✅ Dengeli dağılım' : '❌ Piksel yığılması — APK baskı işareti'}`);
+  addMetricBar('R9 Histogram Dengesi', histScore, 100, dominance <= 0.40 ? 'green' : 'red');
+  setProgress(86);
+  await sleep(200);
+
+  // ── R10: METALLIC GRADIENT ────────────────────────────────
+  addLog('scan', '[R10] Metalik Yansıma Gradyanı Analizi...');
+  await sleep(150);
+
+  const sampleRows = [Math.floor(H*0.2), Math.floor(H*0.5), Math.floor(H*0.8)];
+  const rowAvgs = sampleRows.map(row => {
+    let s = 0;
+    for (let x = 0; x < W; x++) s += lum[row*W+x];
+    return s / W;
   });
-});
+  const gradSpread = Math.max(...rowAvgs) - Math.min(...rowAvgs);
+  const metalScore = gradSpread <= 45 ? Math.min(100, (1 - gradSpread/45) * 100 + 40) : Math.max(20, 80 - gradSpread);
 
-/* ============================================================
-   PLATE PREVIEW
-   ============================================================ */
-function showPlatePreview() {
-  if (!plateRegion || !originalImage) return;
-  const pr      = plateRegion;
-  const maxW    = 680;
-  const scale   = Math.min(1, maxW / pr.w);
-  platePreviewCanvas.width  = Math.max(1, Math.round(pr.w * scale));
-  platePreviewCanvas.height = Math.max(1, Math.round(pr.h * scale));
-  pCtx.imageSmoothingEnabled  = true;
-  pCtx.imageSmoothingQuality  = 'high';
-  pCtx.drawImage(originalImage, pr.x, pr.y, pr.w, pr.h, 0, 0, platePreviewCanvas.width, platePreviewCanvas.height);
-  platePreview.classList.add('show');
-}
+  addLog(gradSpread <= 45 ? 'pass' : 'warn',
+    `[R10] Metalik Gradyan Sapması: <strong>${gradSpread.toFixed(1)}</strong> | Skor: <strong>${metalScore.toFixed(1)}</strong>/100 ${gradSpread <= 45 ? '✅ Doğal metalik gradyan' : '⚠️ Yapay yansıma — şüpheli'}`);
+  addMetricBar('R10 Metalik Gradyan', metalScore, 100, gradSpread <= 45 ? 'green' : 'warn');
+  setProgress(92);
+  await sleep(200);
 
-/* ============================================================
-   ANALYSIS
-   ============================================================ */
-async function runAnalysis() {
-  if (!plateRegion || !originalImage) return;
+  // ── R11: BORDER BAND ──────────────────────────────────────
+  addLog('scan', '[R11] Kenar Bant Siyah Çerçeve Analizi...');
+  await sleep(150);
 
-  progressWrap.classList.add('show');
+  let borderDark = 0, borderTotal = 0;
+  const bW = Math.floor(W * 0.04);
+  const bH = Math.floor(H * 0.08);
 
-  const steps = [
-    { text: '🟦 Mavi TR şeridi analiz ediliyor...', pct: 15 },
-    { text: '⬜ Beyaz zemin kontrol ediliyor...',   pct: 30 },
-    { text: '🔤 Karakter analizi yapılıyor...',     pct: 50 },
-    { text: '✨ Hologram şeridi taranıyor...',       pct: 70 },
-    { text: '🔵 TŞOF mührü inceleniyor...',         pct: 85 },
-    { text: '📊 Sonuçlar hesaplanıyor...',          pct: 100 },
-  ];
-
-  for (const s of steps) {
-    progressText.textContent   = s.text;
-    progressFill.style.width   = s.pct + '%';
-    await sleep(300);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < bW; x++) {
+      const i = y*W+x;
+      if (lum[i] < 80) borderDark++;
+      borderTotal++;
+    }
+    for (let x = W-bW; x < W; x++) {
+      const i = y*W+x;
+      if (lum[i] < 80) borderDark++;
+      borderTotal++;
+    }
   }
-
-  const pd      = extractPlateData();
-  const metrics = analyzeMetrics(pd);
-  const score   = computeTotal(metrics);
-
-  displayResults(metrics, score);
-  buildTileGrid();
-
-  progressWrap.classList.remove('show');
-}
-
-function extractPlateData() {
-  const pr   = plateRegion;
-  const oc   = document.createElement('canvas');
-  const maxW = 800;
-  const sc   = Math.min(1, maxW / pr.w);
-  oc.width   = Math.max(1, Math.round(pr.w * sc));
-  oc.height  = Math.max(1, Math.round(pr.h * sc));
-  const ox   = oc.getContext('2d');
-  ox.imageSmoothingEnabled = true;
-  ox.imageSmoothingQuality = 'high';
-  ox.drawImage(originalImage, pr.x, pr.y, pr.w, pr.h, 0, 0, oc.width, oc.height);
-  return { canvas: oc, ctx: ox, imageData: ox.getImageData(0, 0, oc.width, oc.height), w: oc.width, h: oc.height };
-}
-
-function analyzeMetrics(pd) {
-  const d = pd.imageData.data;
-  const W = pd.w, H = pd.h;
-
-  /* 1. Blue TR Stripe (left 22%) */
-  const bZoneW = Math.floor(W * 0.22);
-  let blue = 0, bTotal = 0;
-  const colDens = new Float32Array(bZoneW);
-  for (let x = 0; x < bZoneW; x++) {
-    let cb = 0;
-    for (let y = 0; y < H; y++) {
-      const i = (y * W + x) * 4;
-      const hsv = rgbToHsv(d[i], d[i+1], d[i+2]);
-      if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) { blue++; cb++; }
-      bTotal++;
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < bH; y++) {
+      if (lum[y*W+x] < 80) borderDark++;
+      borderTotal++;
     }
-    colDens[x] = cb / H;
+    for (let y = H-bH; y < H; y++) {
+      if (lum[y*W+x] < 80) borderDark++;
+      borderTotal++;
+    }
   }
-  let maxCD = 0;
-  for (let x = 0; x < bZoneW; x++) maxCD = Math.max(maxCD, colDens[x]);
-  const blueScore = Math.min(1, (blue / bTotal) * 1.8 + maxCD * 1.2);
+  const borderRatio = borderDark / borderTotal;
+  const borderScore = Math.min(100, (borderRatio / 0.15) * 100);
 
-  /* 2. White Background (mid 22%–92%) */
-  const midS = Math.floor(W * 0.22), midE = Math.floor(W * 0.92);
-  let white = 0, midT = 0;
-  for (let x = midS; x < midE; x++)
-    for (let y = 0; y < H; y++) {
-      const i = (y * W + x) * 4;
-      if (d[i] > 170 && d[i+1] > 170 && d[i+2] > 170) white++;
-      midT++;
-    }
-  const whiteScore = Math.min(1, (white / midT) * 1.5);
+  addLog(borderRatio >= 0.15 ? 'pass' : 'fail',
+    `[R11] Kenar Koyu Piksel: <strong>${(borderRatio*100).toFixed(1)}%</strong> | Skor: <strong>${borderScore.toFixed(1)}</strong>/100 ${borderRatio >= 0.15 ? '✅ Siyah kenar bant mevcut' : '❌ Kenar bant eksik — APK işareti'}`);
+  addMetricBar('R11 Kenar Bant', borderScore, 100, borderRatio >= 0.15 ? 'green' : 'red');
+  setProgress(97);
+  await sleep(250);
 
-  /* 3. Dark Characters */
-  let dark = 0;
-  for (let x = midS; x < midE; x++)
-    for (let y = Math.floor(H * 0.1); y < Math.floor(H * 0.88); y++) {
-      const i = (y * W + x) * 4;
-      if (d[i] < 70 && d[i+1] < 70 && d[i+2] < 70) dark++;
-    }
-  const darkR = dark / (midT * 0.78);
-  const charScore = darkR < 0.05 ? darkR * 4 :
-                    darkR <= 0.50 ? 0.6 + (darkR - 0.05) * 0.8 :
-                    Math.max(0.2, 1 - (darkR - 0.50) * 2);
+  // ── R12: WEIGHTED FINAL SCORE ─────────────────────────────
+  addLog('scan', '[R12] Ağırlıklı Güven Skoru Hesaplanıyor...');
+  await sleep(200);
 
-  /* 4. Hologram (bottom 18%) */
-  const holoY  = Math.floor(H * 0.82);
-  let holoLums = [];
-  for (let x = Math.floor(W * 0.15); x < Math.floor(W * 0.95); x++)
-    for (let y = holoY; y < H; y++) {
-      const i = (y * W + x) * 4;
-      holoLums.push((d[i] + d[i+1] + d[i+2]) / 3);
-    }
-  const holoMean = holoLums.reduce((a,b)=>a+b,0) / (holoLums.length || 1);
-  const holoVar  = Math.sqrt(holoLums.reduce((a,v)=>a+Math.pow(v-holoMean,2),0) / (holoLums.length || 1));
-  const holoScore = Math.min(1, holoVar / 45);
+  // APK kriterleri 3× ağırlık, destekleyici 1×
+  const weights = {
+    contrast:  { score: contrastScore,  w: 3, apk: true  },
+    sobel:     { score: sobelScore,     w: 3, apk: true  },
+    laplacian: { score: lapScore,       w: 1, apk: false },
+    white:     { score: whiteScore,     w: 3, apk: true  },
+    dark:      { score: darkScore,      w: 3, apk: true  },
+    texture:   { score: texScore,       w: 2, apk: true  },
+    ratio:     { score: ratioScore,     w: 1, apk: false },
+    entropy:   { score: entropyScore,   w: 2, apk: true  },
+    histogram: { score: histScore,      w: 3, apk: true  },
+    metallic:  { score: metalScore,     w: 1, apk: false },
+    border:    { score: borderScore,    w: 3, apk: true  },
+  };
 
-  /* 5. TŞOF Stamp (22%–42%, top 50%) */
-  const stX1 = Math.floor(W * 0.22), stX2 = Math.floor(W * 0.42);
-  const stY2 = Math.floor(H * 0.5);
-  let stLums = [];
-  for (let x = stX1; x < stX2; x++)
-    for (let y = 0; y < stY2; y++) {
-      const i = (y * W + x) * 4;
-      stLums.push((d[i] + d[i+1] + d[i+2]) / 3);
-    }
-  const stMean = stLums.reduce((a,b)=>a+b,0) / (stLums.length || 1);
-  const stVar  = Math.sqrt(stLums.reduce((a,v)=>a+Math.pow(v-stMean,2),0) / (stLums.length || 1));
-  const stampScore = Math.min(1, stVar / 38);
+  let weightedSum = 0, totalWeight = 0;
+  for (const [, v] of Object.entries(weights)) {
+    weightedSum += v.score * v.w;
+    totalWeight += v.w;
+  }
+  const finalScore = weightedSum / totalWeight;
 
-  return [
-    { name: 'Mavi TR Şeridi',    icon: '🟦', weight: 0.25, score: blueScore,  raw: Math.round((blue / bTotal) * 100) },
-    { name: 'Beyaz Zemin',       icon: '⬜', weight: 0.15, score: whiteScore, raw: Math.round((white / midT)  * 100) },
-    { name: 'Siyah Karakterler', icon: '🔤', weight: 0.20, score: charScore,  raw: Math.round(darkR * 100) },
-    { name: 'Hologram Şeridi',   icon: '✨', weight: 0.20, score: holoScore,  raw: Math.round(holoVar) },
-    { name: 'TŞOF Mührü',        icon: '🔵', weight: 0.20, score: stampScore, raw: Math.round(stVar) },
-  ];
-}
+  addLog('info', `[R12] APK-Ağırlıklı Toplam: <strong>${finalScore.toFixed(1)}/100</strong>`);
+  setProgress(100);
+  await sleep(300);
 
-function computeTotal(metrics) {
-  return Math.round(metrics.reduce((sum, m) => sum + m.score * m.weight, 0) * 10) * 10;
-}
+  // Determine verdict
+  let verdict, verClass, verIcon, verDesc;
+  const failedAPK = Object.entries(weights).filter(([, v]) => v.apk && v.score < 55).length;
+  const critFails = [weights.contrast, weights.dark, weights.histogram, weights.border].filter(v => v.score < 50).length;
 
-/* ============================================================
-   DISPLAY RESULTS
-   ============================================================ */
-function displayResults(metrics, score) {
-  setScoreDisplay(score, true);
-
-  let colorClass, vIcon, vMsg;
-  if (score >= 70) {
-    colorClass = 'green'; vIcon = '✅'; vMsg = 'ORİJİNAL PLAKA — Tüm güvenlik özellikleri doğrulandı';
-  } else if (score >= 40) {
-    colorClass = 'yellow'; vIcon = '⚠️'; vMsg = 'KONTROL GEREKLİ — Bazı özellikler zayıf veya eksik';
+  if (finalScore >= 70 && critFails === 0) {
+    verdict = 'ORİJİNAL PLAKA';
+    verClass = 'original';
+    verIcon = '✅';
+    verDesc = `${failedAPK} APK kriteri başarısız. Güven skoru yüksek.`;
+  } else if (finalScore < 40 || critFails >= 2) {
+    verdict = 'APK / SAHİF PLAKA';
+    verClass = 'fake';
+    verIcon = '🚨';
+    verDesc = `${critFails} kritik APK kriteri başarısız. Güven skoru düşük.`;
   } else {
-    colorClass = 'red'; vIcon = '❌'; vMsg = 'STANDART DIŞI / SAHTE — Plaka doğrulanamadı';
+    verdict = 'KUŞKULU PLAKA';
+    verClass = 'suspicious';
+    verIcon = '⚠️';
+    verDesc = `${failedAPK} APK kriteri başarısız. Manuel inceleme gerekli.`;
   }
 
-  verdictBox.className = `verdict-box show ${colorClass}`;
-  verdictIcon.textContent = vIcon;
-  verdictMsg.className   = `verdict-msg ${colorClass}`;
-  verdictMsg.textContent = vMsg;
+  addLog(verClass === 'original' ? 'pass' : verClass === 'fake' ? 'fail' : 'warn',
+    `🎯 KARAR: <strong>${verdict}</strong> — Skor: ${finalScore.toFixed(1)}`);
 
-  metricsBody.innerHTML = '';
-  for (const m of metrics) {
-    const pct   = Math.round(m.score * 100);
-    const disp  = Math.round(pct / 10) * 10;
-    const mCol  = pct >= 70 ? 'green' : pct >= 40 ? 'yellow' : 'red';
-    const el    = document.createElement('div');
-    el.className = 'metric-card';
-    el.innerHTML = `
-      <div class="metric-top">
-        <div class="metric-name-wrap">${m.icon} ${m.name} <span class="metric-wt">×${Math.round(m.weight*100)}%</span></div>
-        <div class="metric-val ${mCol}">%${disp}</div>
+  // Collect findings
+  const findings = [];
+  if (contrastScore < 65) findings.push({ type:'fail', icon:'🔴', text:'<strong>Düşük Kontrast (R1)</strong>', sub:'APK baskılarda siyah-beyaz ayrımı zayıf olur' });
+  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Kontrast Güçlü (R1)</strong>', sub:`Aralık: ${minL.toFixed(0)}–${maxL.toFixed(0)}` });
+
+  if (sobelAvg < 18) findings.push({ type:'fail', icon:'🔴', text:'<strong>Kenar Bulanık (R2)</strong>', sub:'APK plakalarda harf kenarları pürüzlü/bulanıktır' });
+  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Keskin Kenar Tespiti (R2)</strong>', sub:`Sobel: ${sobelAvg.toFixed(1)}` });
+
+  if (whiteRatio < 0.20) findings.push({ type:'fail', icon:'🔴', text:'<strong>Zemin Rengi Sapması (R4)</strong>', sub:'APK plakalarda beyaz zemin bozulmuş olabilir' });
+  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Zemin Rengi Uyumlu (R4)</strong>', sub:`Beyaz oran: ${(whiteRatio*100).toFixed(1)}%` });
+
+  if (darkRatio < 0.03) findings.push({ type:'fail', icon:'🔴', text:'<strong>Metin Rengi Soluk (R5)</strong>', sub:'APK baskıda mürekkep kalitesi düşük olabilir' });
+  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Metin Koyuluğu Yeterli (R5)</strong>', sub:`Siyah oran: ${(darkRatio*100).toFixed(2)}%` });
+
+  if (dominance > 0.40) findings.push({ type:'fail', icon:'🔴', text:'<strong>Histogram Yığılması (R9)</strong>', sub:'APK baskılarda piksel dağılımı dengesiz olur' });
+  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Dengeli Piksel Dağılımı (R9)</strong>', sub:`Dominant bin: ${(dominance*100).toFixed(1)}%` });
+
+  if (borderRatio < 0.15) findings.push({ type:'fail', icon:'🔴', text:'<strong>Kenar Bant Eksik (R11)</strong>', sub:'Türk plakasında siyah çerçeve şarttır' });
+  else findings.push({ type:'pass', icon:'🟢', text:'<strong>Kenar Bant Mevcut (R11)</strong>', sub:`Kenar koyu oran: ${(borderRatio*100).toFixed(1)}%` });
+
+  displayResult(verdict, verClass, verIcon, verDesc, finalScore, findings, img.naturalWidth, img.naturalHeight, failedAPK, critFails);
+
+  btn.disabled = false;
+  btn.textContent = '🔬 ANALİZİ BAŞLAT';
+}
+
+function addMetricBar(name, val, max, color) {
+  const pct = Math.min(100, (val/max)*100).toFixed(1);
+  const div = document.createElement('div');
+  div.className = 'metric-bar-wrap';
+  div.innerHTML = `
+    <div class="metric-row">
+      <span class="metric-name">${name}</span>
+      <span class="metric-value">${parseFloat(val).toFixed(1)}/${max}</span>
+    </div>
+    <div class="metric-bar">
+      <div class="metric-fill ${color}" style="width:0%" data-target="${pct}"></div>
+    </div>`;
+  document.getElementById('metricBars').appendChild(div);
+  setTimeout(() => {
+    div.querySelector('.metric-fill').style.width = pct + '%';
+  }, 50);
+}
+
+function displayResult(verdict, verClass, icon, desc, score, findings, w, h, failedAPK, critFails) {
+  const card = document.getElementById('resultCard');
+  const r = Math.round(score / 100 * 226);
+  const circ = 2 * Math.PI * 37;
+  const offset = circ - (score/100)*circ;
+  const strokeColor = verClass === 'original' ? '#00e87a' : verClass === 'fake' ? '#ff3a3a' : '#ff9900';
+  const textColor = verClass === 'original' ? 'green' : verClass === 'fake' ? 'red' : 'orange';
+
+  const findingsHTML = findings.map(f => `
+    <div class="finding-item ${f.type}">
+      <span class="finding-icon">${f.icon}</span>
+      <div class="finding-text">
+        <strong>${f.text.replace(/<strong>|<\/strong>/g,'')}</strong><br>
+        <span>${f.sub}</span>
       </div>
-      <div class="metric-track">
-        <div class="metric-fill ${mCol}" style="width:${disp}%"></div>
-      </div>`;
-    metricsBody.appendChild(el);
-  }
-}
+    </div>`).join('');
 
-function setScoreDisplay(score, hasValue) {
-  if (!hasValue) {
-    scoreNum.textContent = '0';
-    scorePctSym.textContent = '%';
-    scoreStatusLabel.textContent = 'PLAKA DEĞİL';
-    scoreStatusLabel.className   = 'score-status-label red';
-    scoreSub.textContent = 'Bu görsel bir plaka içermiyor';
-    scoreArc.style.strokeDashoffset = '314';
-    scoreArc.style.stroke = 'var(--red)';
-    return;
-  }
-  scoreNum.textContent = String(score);
-  scorePctSym.textContent = '%';
-
-  let colorClass, arcColor, label;
-  if (score >= 70) {
-    colorClass = 'green'; arcColor = 'var(--green)'; label = 'ORİJİNAL PLAKA';
-  } else if (score >= 40) {
-    colorClass = 'yellow'; arcColor = 'var(--yellow)'; label = 'KONTROL GEREKLİ';
-  } else {
-    colorClass = 'red'; arcColor = 'var(--red)'; label = 'STANDART DIŞI';
-  }
-
-  scoreStatusLabel.textContent = label;
-  scoreStatusLabel.className   = `score-status-label ${colorClass}`;
-  scoreSub.textContent = 'TC Emniyet · TŞOF Standartları · KTY Yön. Md.20';
-  scoreArc.style.stroke = arcColor;
-  const offset = 314 - (314 * score / 100);
-  scoreArc.style.strokeDashoffset = String(offset);
-}
-
-/* ============================================================
-   TILE GRID
-   ============================================================ */
-function buildTileGrid() {
-  if (!plateRegion || !originalImage) return;
-  tileEmpty.style.display = 'none';
-  tileGrid.style.display  = 'grid';
-  tileGrid.innerHTML      = '';
-
-  const COLS = 10, ROWS = 10;
-  const { x: px, y: py, w: pw, h: ph } = plateRegion;
-  const tw = pw / COLS, th = ph / ROWS;
-
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
-      const tx = px + col * tw, ty = py + row * th;
-      const el = document.createElement('div');
-      el.className = 'tile';
-
-      const tc = document.createElement('canvas');
-      tc.width = tc.height = 40;
-      const tCtx = tc.getContext('2d');
-      tCtx.imageSmoothingEnabled = true;
-      tCtx.imageSmoothingQuality = 'high';
-      tCtx.drawImage(originalImage, tx, ty, tw, th, 0, 0, 40, 40);
-
-      const imgData = tCtx.getImageData(0, 0, 40, 40);
-      const tScore  = quickBlueScore(imgData.data);
-      const badge   = document.createElement('div');
-      badge.className   = 'tile-badge';
-      badge.textContent = Math.round(tScore * 10) * 10 + '%';
-
-      if (tScore > 0.6)      el.style.boxShadow = 'inset 0 0 0 2px rgba(0,230,118,0.5)';
-      else if (tScore > 0.3) el.style.boxShadow = 'inset 0 0 0 1px rgba(255,214,0,0.3)';
-
-      el.appendChild(tc);
-      el.appendChild(badge);
-      el.addEventListener('click', () => openTileModal(row, col, tx, ty, tw, th));
-      tileGrid.appendChild(el);
-    }
-  }
-}
-
-function quickBlueScore(d) {
-  let blue = 0, total = 0;
-  for (let i = 0; i < d.length; i += 4) {
-    const hsv = rgbToHsv(d[i], d[i+1], d[i+2]);
-    if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) blue++;
-    total++;
-  }
-  return total > 0 ? blue / total : 0;
-}
-
-function openTileModal(row, col, tx, ty, tw, th) {
-  modalTitle.textContent = `Bölge ${row * 10 + col + 1} — Satır ${row + 1}, Sütun ${col + 1}`;
-
-  const zW = 480, zH = Math.round(480 * (th / tw));
-  tileZoomCanvas.width  = zW;
-  tileZoomCanvas.height = zH;
-  const zCtx = tileZoomCanvas.getContext('2d');
-  zCtx.imageSmoothingEnabled = true;
-  zCtx.imageSmoothingQuality = 'high';
-  zCtx.drawImage(originalImage, tx, ty, tw, th, 0, 0, zW, zH);
-
-  const mc = document.createElement('canvas');
-  mc.width  = Math.max(1, Math.round(tw));
-  mc.height = Math.max(1, Math.round(th));
-  const mCtx = mc.getContext('2d');
-  mCtx.drawImage(originalImage, tx, ty, tw, th, 0, 0, mc.width, mc.height);
-  const id = mCtx.getImageData(0, 0, mc.width, mc.height).data;
-
-  let bl = 0, wh = 0, dk = 0, lumSum = 0, lumSq = 0, chroma = 0, n = 0;
-  for (let i = 0; i < id.length; i += 4) {
-    const r = id[i], g = id[i+1], b = id[i+2];
-    const hsv = rgbToHsv(r, g, b);
-    const lum = (r + g + b) / 3;
-    lumSum += lum; lumSq += lum * lum;
-    if (hsv[0] >= 185 && hsv[0] <= 278 && hsv[1] > 8 && hsv[2] > 8) bl++;
-    if (r > 170 && g > 170 && b > 170) wh++;
-    if (r < 70  && g < 70  && b < 70)  dk++;
-    chroma += Math.abs(r - lum) + Math.abs(g - lum) + Math.abs(b - lum);
-    n++;
-  }
-  const mean = n ? lumSum / n : 128;
-  const vari = n ? Math.sqrt(lumSq / n - mean * mean) : 0;
-
-  modalMetrics.innerHTML = `
-    <div class="mm-item"><div class="mm-label">MAVİ %</div><div class="mm-val">${Math.round(bl/n*100)}</div></div>
-    <div class="mm-item"><div class="mm-label">BEYAZ %</div><div class="mm-val">${Math.round(wh/n*100)}</div></div>
-    <div class="mm-item"><div class="mm-label">KARANLIK %</div><div class="mm-val">${Math.round(dk/n*100)}</div></div>
-    <div class="mm-item"><div class="mm-label">VARYANS</div><div class="mm-val">${Math.round(vari)}</div></div>
-    <div class="mm-item"><div class="mm-label">HOLOGRAM</div><div class="mm-val">${Math.min(99,Math.round(vari*1.2))}</div></div>
-    <div class="mm-item"><div class="mm-label">KROMATİK</div><div class="mm-val">${Math.round(chroma/n/3)}</div></div>
+  card.innerHTML = `
+    <div class="result-banner ${verClass}">
+      <div class="result-icon-big">${icon}</div>
+      <div class="result-info">
+        <h2 class="${textColor}">${verdict}</h2>
+        <p>${desc}</p>
+        <p style="margin-top:8px;font-size:13px;color:${strokeColor}">
+          ${critFails} kritik başarısız | ${failedAPK} APK kriter tetiklendi
+        </p>
+      </div>
+      <div class="score-circle">
+        <svg viewBox="0 0 90 90">
+          <circle class="track" cx="45" cy="45" r="37"/>
+          <circle class="fill" cx="45" cy="45" r="37"
+            stroke="${strokeColor}"
+            stroke-dasharray="${circ}"
+            stroke-dashoffset="${circ}"
+            id="scoreArc"/>
+        </svg>
+        <div class="score-text">
+          <span class="score-num" style="color:${strokeColor}">${Math.round(score)}</span>
+          <span class="score-label">SKOR</span>
+        </div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-cell">
+        <div class="detail-cell-label">Boyut</div>
+        <div class="detail-cell-value" style="color:var(--cyan)">${w}×${h}</div>
+        <div class="detail-cell-sub">piksel</div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell-label">En/Boy</div>
+        <div class="detail-cell-value" style="color:var(--amber)">${(w/h).toFixed(2)}</div>
+        <div class="detail-cell-sub">standart ≈ 4.7</div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell-label">APK Tetik</div>
+        <div class="detail-cell-value" style="color:${critFails >= 2 ? 'var(--red)' : 'var(--green)' }">${failedAPK}/9</div>
+        <div class="detail-cell-sub">kural başarısız</div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell-label">Güven Skoru</div>
+        <div class="detail-cell-value" style="color:${strokeColor}">${score.toFixed(1)}%</div>
+        <div class="detail-cell-sub">${score >= 70 ? 'yüksek güven' : score >= 40 ? 'orta güven' : 'düşük güven'}</div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell-label">Kritik Hata</div>
+        <div class="detail-cell-value" style="color:${critFails >= 2 ? 'var(--red)' : 'var(--green)'}">${critFails}</div>
+        <div class="detail-cell-sub">kritik APK kriteri</div>
+      </div>
+      <div class="detail-cell">
+        <div class="detail-cell-label">Karar</div>
+        <div class="detail-cell-value" style="color:${strokeColor};font-size:13px;letter-spacing:0">${verdict.split(' ')[0]}</div>
+        <div class="detail-cell-sub">adli analiz</div>
+      </div>
+    </div>
+    <div class="findings-section">
+      <div class="findings-title">🔍 Detaylı Bulgular</div>
+      ${findingsHTML}
+    </div>
   `;
 
-  tileModal.classList.add('show');
+  card.className = 'result-card visible';
+
+  setTimeout(() => {
+    const arc = document.getElementById('scoreArc');
+    if (arc) arc.style.strokeDashoffset = circ - (score/100)*circ;
+  }, 100);
+
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-
-document.getElementById('modalClose').addEventListener('click', () => tileModal.classList.remove('show'));
-tileModal.addEventListener('click', e => { if (e.target === tileModal) tileModal.classList.remove('show'); });
-
-/* ============================================================
-   UTILS
-   ============================================================ */
-function rgbToHsv(r, g, b) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
-  let h = 0;
-  const s = max === 0 ? 0 : d / max;
-  const v = max;
-  if (d !== 0) {
-    switch (max) {
-      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-      case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
-    }
-  }
-  return [h * 360, s * 100, v * 100];
-}
-
-function hsvToRgb(h, s, v) {
-  s /= 100; v /= 100;
-  const i = Math.floor(h / 60) % 6;
-  const f = h / 60 - Math.floor(h / 60);
-  const p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
-  const m = [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i];
-  return [Math.round(m[0]*255), Math.round(m[1]*255), Math.round(m[2]*255)];
-}
-
-function clamp(v) { return Math.max(0, Math.min(255, Math.round(v))); }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
 </body>
 </html>
