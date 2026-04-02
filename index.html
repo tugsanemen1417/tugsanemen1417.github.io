@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plaka Forensik Analiz Pro v5.1</title>
+<title>Plaka Forensik Analiz Pro v5.2</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -21,7 +21,6 @@
     --green-dim: #00e87a12;
     --cyan: #00d4ff;
     --cyan-dim: #00d4ff10;
-    --blue: #4a8cff;
     --text: #e8ecf1;
     --muted: #5a6270;
     --border: #1e232c;
@@ -46,7 +45,6 @@
     inset: 0;
     background: 
       radial-gradient(ellipse 120% 100% at 50% 0%, #0d1320 0%, transparent 60%),
-      radial-gradient(ellipse 80% 50% at 50% 100%, #0a0f18 0%, transparent 50%),
       var(--bg);
     z-index: -3;
   }
@@ -60,15 +58,6 @@
       linear-gradient(90deg, rgba(240, 165, 0, 0.03) 1px, transparent 1px);
     background-size: 60px 60px;
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-  }
-
-  .bg-vignette {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 0%, rgba(5, 5, 8, 0.8) 100%);
-    pointer-events: none;
   }
 
   .container {
@@ -76,7 +65,7 @@
     z-index: 2;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 20px 60px;
+    padding: 20px;
   }
 
   header {
@@ -629,31 +618,19 @@
     line-height: 1.6;
   }
 
-  .debug-info {
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(255, 58, 58, 0.1);
-    border: 1px solid rgba(255, 58, 58, 0.3);
-    border-radius: 6px;
-    font-size: 11px;
-    color: var(--red);
-    font-family: 'JetBrains Mono', monospace;
-  }
-
   canvas { display: none; }
 </style>
 </head>
 <body>
 
 <div class="bg-grid"></div>
-<div class="bg-vignette"></div>
 
 <div class="container">
   <header>
     <div class="header-icon">🔍</div>
     <div class="header-text">
       <h1>PLATE FORENSICS PRO</h1>
-      <p>Gelişmiş Plaka Doğrulama & Sahtecilik Tespiti — v5.1</p>
+      <p>Gelişmiş Plaka Doğrulama & Sahtecilik Tespiti — v5.2</p>
     </div>
     <div class="status-badge">
       <div class="status-dot"></div>
@@ -726,45 +703,27 @@
 <canvas id="canvas"></canvas>
 
 <script>
-// ==================== KONFIGÜRASYON (GEVŞETİLMİŞ) ====================
+// ==================== KONFIGÜRASYON (DÜZELTİLMİŞ) ====================
 const CONFIG = {
   maxFileSize: 20 * 1024 * 1024,
   acceptedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
   
   plateDetection: {
-    minAspectRatio: 2.0,  // 3.5'ten 2.0'e düşürüldü (daha esnek)
-    maxAspectRatio: 6.0,  // 5.2'den 6.0'a çıkarıldı
-    minEdgeDensity: 0.05, // 0.15'ten 0.05'e düşürüldü
-    minRectangularity: 0.4, // 0.6'dan 0.4'e düşürüldü
-    whiteRatioMin: 0.25,  // 0.55'ten 0.25'e düşürüldü (kirli/soluk plakalar için)
-    edgeThreshold: 30     // 50'den 30'a düşürüldü (daha fazla edge yakalar)
+    minAspectRatio: 1.5,   // Motosiklet plakaları için daha düşük
+    maxAspectRatio: 7.0,   // Ticari araçlar için daha yüksek
+    minEdgeDensity: 0.001, // Çok düşük edge yoğunluğuna izin ver
+    minRectangularity: 0.3, // Daha düşük dikdörtgenlik
+    edgeThreshold: 50      // Sobel threshold - düşük değer = daha fazla edge
   },
   
   thresholds: {
-    contrast: 40,         // 65'ten 40'a düşürüldü
-    sobel: 10,           // 18'den 10'a düşürüldü
-    laplacian: 50,       // 80'den 50'ye düşürüldü
-    whiteRatio: 0.15,    // 0.20'den 0.15'e düşürüldü
-    darkRatio: 0.02,     // 0.03'ten 0.02'ye düşürüldü
-    entropy: { min: 2.0, max: 8.0 },  // 3.5-7.5'ten genişletildi
-    histogram: 0.50,     // 0.40'tan 0.50'ye çıkarıldı (daha toleranslı)
-    border: 0.10,        // 0.15'ten 0.10'a düşürüldü
-    noiseConsistency: 0.5, // 0.7'den 0.5'e düşürüldü
-  },
-  
-  weights: {
-    roiDetection: { w: 5, critical: true },
-    charGrid: { w: 4, critical: true },
-    formatCheck: { w: 4, critical: true },
-    colorSpace: { w: 4, critical: true },
-    aspectRatio: { w: 3, critical: true },
-    contrast: { w: 2, critical: false },
-    sobel: { w: 2, critical: false },
-    jpegArtefact: { w: 3, critical: false },
-    noise: { w: 3, critical: false },
-    histogram: { w: 2, critical: false },
-    copyMove: { w: 2, critical: false },
-    metadata: { w: 1, critical: false }
+    contrast: 30,
+    sobel: 5,
+    laplacian: 30,
+    entropy: { min: 1.0, max: 8.0 },
+    histogram: 0.60,
+    border: 0.05,
+    noiseConsistency: 0.3,
   }
 };
 
@@ -774,8 +733,7 @@ const state = {
   logCount: 0,
   isAnalyzing: false,
   roiData: null,
-  fileName: '',
-  failedTests: [] // Başarısız testleri kaydet
+  fileName: ''
 };
 
 // ==================== DOM ELEMENTLERİ ====================
@@ -800,13 +758,7 @@ const elements = {
   roiImg: document.getElementById('roiImg')
 };
 
-// ==================== YARDIMCI FONKSİYONLAR ====================
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-const formatTime = () => {
-  const now = new Date();
-  return `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-};
 
 function addLog(tag, msg) {
   const area = elements.logArea;
@@ -815,10 +767,13 @@ function addLog(tag, msg) {
   state.logCount++;
   elements.logCount.textContent = `${state.logCount} KAYIT`;
   
+  const now = new Date();
+  const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+  
   const entry = document.createElement('div');
   entry.className = 'log-entry';
   entry.innerHTML = `
-    <span class="log-time">${formatTime()}</span>
+    <span class="log-time">${time}</span>
     <span class="log-tag ${tag}">${tag.toUpperCase()}</span>
     <span class="log-msg">${msg}</span>
   `;
@@ -841,7 +796,7 @@ function addMetricBar(name, val, max, colorClass) {
       <span class="metric-value">${parseFloat(val).toFixed(1)}/${max}</span>
     </div>
     <div class="metric-bar">
-      <div class="metric-fill ${colorClass}" style="width:0%" data-target="${pct}"></div>
+      <div class="metric-fill ${colorClass}" style="width:0%"></div>
     </div>
   `;
   
@@ -857,13 +812,11 @@ function handleFile(file) {
   
   if (!CONFIG.acceptedTypes.includes(file.type)) {
     addLog('fail', `❌ Desteklenmeyen format: ${file.type || 'bilinmiyor'}`);
-    alert('Lütfen JPG, PNG veya WEBP formatında bir görüntü yükleyin.');
     return;
   }
   
   if (file.size > CONFIG.maxFileSize) {
     addLog('fail', `❌ Dosya çok büyük: ${(file.size/1024/1024).toFixed(1)}MB`);
-    alert('Dosya boyutu 20MB\'ı geçemez!');
     return;
   }
 
@@ -884,9 +837,8 @@ function handleFile(file) {
       state.imageData = ev.target.result;
       
       elements.logArea.innerHTML = '';
-      addLog('info', `✅ Görüntü yüklendi: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)`);
-      addLog('info', `📐 Orijinal boyut: ${img.width}×${img.height} piksel`);
-      addLog('info', `▶️ "ANALİZİ BAŞLAT" butonuna basın`);
+      addLog('info', `✅ Görüntü yüklendi: <strong>${file.name}</strong>`);
+      addLog('info', `📐 Boyut: ${img.width}×${img.height}px`);
       
       elements.metricsSection.style.display = 'none';
       elements.metricBars.innerHTML = '';
@@ -894,16 +846,7 @@ function handleFile(file) {
       elements.roiPreview.style.display = 'none';
       state.logCount = 0;
     };
-    
-    img.onerror = () => {
-      addLog('fail', '❌ Görüntü yüklenirken hata oluştu');
-    };
-    
     img.src = ev.target.result;
-  };
-  
-  reader.onerror = () => {
-    addLog('fail', '❌ Dosya okuma hatası');
   };
   
   reader.readAsDataURL(file);
@@ -915,7 +858,6 @@ function resetAll() {
   state.isAnalyzing = false;
   state.roiData = null;
   state.fileName = '';
-  state.failedTests = [];
   
   elements.fileInput.value = '';
   elements.previewImg.style.display = 'none';
@@ -931,10 +873,7 @@ function resetAll() {
   
   elements.logArea.innerHTML = `
     <div class="empty-state">
-      📋 Analiz başladığında kayıtlar burada görünecek...<br>
-      <span style="font-size: 10px; opacity: 0.7; margin-top: 8px; display: block;">
-        Sistem 15 farklı forensik kuralı uygulayacaktır
-      </span>
+      📋 Analiz başladığında kayıtlar burada görünecek...
     </div>
   `;
   
@@ -947,704 +886,362 @@ function resetAll() {
   elements.roiPreview.style.display = 'none';
 }
 
-// ==================== GÖRÜNTÜ ÖN İŞLEME ====================
-function preprocessImage(canvas, ctx) {
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-  
-  // Kontrast artırma (Histogram stretching)
-  let minL = 255, maxL = 0;
-  const lum = new Float32Array(canvas.width * canvas.height);
-  
-  for (let i = 0; i < data.length; i += 4) {
-    const l = 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2];
-    lum[i/4] = l;
-    if (l < minL) minL = l;
-    if (l > maxL) maxL = l;
-  }
-  
-  // Eğer kontrast düşükse, stretch yap
-  if (maxL - minL < 100) {
-    const range = maxL - minL;
-    for (let i = 0; i < data.length; i += 4) {
-      const factor = (lum[i/4] - minL) / range;
-      const newL = factor * 255;
-      data[i] = data[i+1] = data[i+2] = newL;
-    }
-    ctx.putImageData(imageData, 0, 0);
-    return true; // Preprocessing uygulandı
-  }
-  return false;
-}
-
-// ==================== ANALİZ MOTORU (GÜNCELLENMİŞ) ====================
-class AdvancedPlateAnalyzer {
+// ==================== ANALİZ MOTORU (TAMAMEN YENİ) ====================
+class PlateAnalyzer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d', { willReadFrequently: true });
     this.width = 0;
     this.height = 0;
-    this.lum = null;
-    this.hsv = null;
-    this.total = 0;
-    this.imageData = null;
-    this.px = null;
+    this.gray = null;
   }
 
   async loadImage(src) {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = () => {
-        this.width = img.naturalWidth;
-        this.height = img.naturalHeight;
+        // Boyutu sınırla ama oranı koru
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        const maxDim = 1200;
         
-        // Canvas boyutlarını sınırla
-        const maxDim = 1000;
-        if (this.width > maxDim || this.height > maxDim) {
-          const ratio = Math.min(maxDim / this.width, maxDim / this.height);
-          this.width = Math.floor(this.width * ratio);
-          this.height = Math.floor(this.height * ratio);
+        if (w > maxDim || h > maxDim) {
+          const ratio = Math.min(maxDim / w, maxDim / h);
+          w = Math.floor(w * ratio);
+          h = Math.floor(h * ratio);
         }
         
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
-        this.ctx.drawImage(img, 0, 0, this.width, this.height);
+        this.canvas.width = w;
+        this.canvas.height = h;
+        this.ctx.drawImage(img, 0, 0, w, h);
         
-        // Ön işleme uygula
-        const preprocessed = preprocessImage(this.canvas, this.ctx);
+        this.width = w;
+        this.height = h;
         
-        this.total = this.width * this.height;
-        this.imageData = this.ctx.getImageData(0, 0, this.width, this.height);
-        this.px = this.imageData.data;
+        // Gri tonlama ve blur uygula
+        this.preprocess();
         
-        resolve({ width: this.width, height: this.height, preprocessed });
+        resolve({ width: w, height: h });
       };
       img.onerror = reject;
       img.src = src;
     });
   }
 
-  rgbToHsv(r, g, b) {
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, v = max;
-    const d = max - min;
-    s = max === 0 ? 0 : d / max;
+  preprocess() {
+    const imgData = this.ctx.getImageData(0, 0, this.width, this.height);
+    const data = imgData.data;
+    this.gray = new Float32Array(this.width * this.height);
     
-    if (max === min) {
-      h = 0;
-    } else {
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-      h /= 6;
+    for (let i = 0; i < data.length; i += 4) {
+      const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      this.gray[i / 4] = gray;
     }
-    return { h: h * 360, s: s * 100, v: v * 100 };
   }
 
-  extractFeatures() {
-    this.lum = new Float32Array(this.total);
-    this.hsv = new Array(this.total);
-    
-    let minL = 255, maxL = 0, sumL = 0;
-    let whitePixels = 0, blackPixels = 0;
-    
-    for (let i = 0; i < this.total; i++) {
-      const r = this.px[i*4], g = this.px[i*4+1], b = this.px[i*4+2];
-      
-      const l = 0.299*r + 0.587*g + 0.114*b;
-      this.lum[i] = l;
-      sumL += l;
-      if (l < minL) minL = l;
-      if (l > maxL) maxL = l;
-      
-      const hsv = this.rgbToHsv(r, g, b);
-      this.hsv[i] = hsv;
-      
-      // Beyaz tespiti daha toleranslı (parlak ve doyumsuz)
-      if (hsv.v > 75 && hsv.s < 35) whitePixels++;
-      if (hsv.v < 25) blackPixels++;
+  // ADAPTIVE THRESHOLD - Otomatik eşik değeri
+  getAdaptiveThreshold() {
+    // Gri değerlerin histogramını çıkar
+    const hist = new Array(256).fill(0);
+    for (const val of this.gray) {
+      hist[Math.floor(val)]++;
     }
     
-    return {
-      minL, maxL, avgL: sumL / this.total,
-      whiteRatio: whitePixels / this.total,
-      blackRatio: blackPixels / this.total
-    };
-  }
-
-  detectPlateRegion() {
-    const { width: W, height: H } = this;
-    const edgeMap = new Uint8Array(this.total);
-    const visited = new Uint8Array(this.total);
+    // Otsu thresholding
+    let sum = 0;
+    for (let i = 0; i < 256; i++) sum += i * hist[i];
     
-    let edgeCount = 0;
-    const threshold = CONFIG.plateDetection.edgeThreshold;
+    let sumB = 0;
+    let wB = 0;
+    let wF = 0;
+    let maxVar = 0;
+    let threshold = 0;
+    const total = this.gray.length;
     
-    // Sobel edge detection
-    for (let y = 1; y < H-1; y++) {
-      for (let x = 1; x < W-1; x++) {
-        const idx = y*W+x;
-        const gx = -this.lum[idx-W-1] - 2*this.lum[idx-1] - this.lum[idx+W-1] + 
-                    this.lum[idx-W+1] + 2*this.lum[idx+1] + this.lum[idx+W+1];
-        const gy = -this.lum[idx-W-1] - 2*this.lum[idx-W] - this.lum[idx-W+1] + 
-                    this.lum[idx+W-1] + 2*this.lum[idx+W] + this.lum[idx+W+1];
-        const mag = Math.sqrt(gx*gx + gy*gy);
-        
-        if (mag > threshold) {
-          edgeMap[idx] = 1;
-          edgeCount++;
-        }
+    for (let t = 0; t < 256; t++) {
+      wB += hist[t];
+      if (wB === 0) continue;
+      
+      wF = total - wB;
+      if (wF === 0) break;
+      
+      sumB += t * hist[t];
+      const mB = sumB / wB;
+      const mF = (sum - sumB) / wF;
+      
+      const varBetween = wB * wF * (mB - mF) * (mB - mF);
+      
+      if (varBetween > maxVar) {
+        maxVar = varBetween;
+        threshold = t;
       }
     }
     
-    const edgeDensity = edgeCount / this.total;
-    
-    // Eğer yeterli edge yoksa, threshold'u düşür ve tekrar dene
-    if (edgeDensity < 0.02) {
-      return this.detectPlateRegionLowThreshold();
-    }
-    
-    return this.findPlateCandidates(edgeMap, edgeDensity, W, H);
+    return threshold;
   }
 
-  detectPlateRegionLowThreshold() {
-    const { width: W, height: H } = this;
-    const edgeMap = new Uint8Array(this.total);
-    let edgeCount = 0;
-    
-    // Daha düşük threshold (15)
-    for (let y = 1; y < H-1; y++) {
-      for (let x = 1; x < W-1; x++) {
-        const idx = y*W+x;
-        const gx = -this.lum[idx-W-1] - 2*this.lum[idx-1] - this.lum[idx+W-1] + 
-                    this.lum[idx-W+1] + 2*this.lum[idx+1] + this.lum[idx+W+1];
-        const gy = -this.lum[idx-W-1] - 2*this.lum[idx-W] - this.lum[idx-W+1] + 
-                    this.lum[idx+W-1] + 2*this.lum[idx+W] + this.lum[idx+W+1];
-        const mag = Math.sqrt(gx*gx + gy*gy);
-        
-        if (mag > 15) {
-          edgeMap[idx] = 1;
-          edgeCount++;
-        }
-      }
-    }
-    
-    return this.findPlateCandidates(edgeMap, edgeCount / this.total, W, H);
-  }
-
-  findPlateCandidates(edgeMap, edgeDensity, W, H) {
-    const visited = new Uint8Array(this.total);
+  // GELİŞMİŞ PLAKA TESPİTİ - Sliding Window + Aspect Ratio
+  detectPlate() {
     const candidates = [];
-    const minArea = (W * H) * 0.005; // Daha küçük alanlara izin ver
-    const maxArea = (W * H) * 0.5;
+    const threshold = this.getAdaptiveThreshold();
     
-    for (let y = 2; y < H-2; y++) {
-      for (let x = 2; x < W-2; x++) {
-        const idx = y*W+x;
-        if (edgeMap[idx] && !visited[idx]) {
-          const component = [];
-          const stack = [idx];
-          visited[idx] = 1;
-          
-          let minX = x, maxX = x, minY = y, maxY = y;
-          
-          while (stack.length > 0) {
-            const curr = stack.pop();
-            const cx = curr % W;
-            const cy = Math.floor(curr / W);
-            component.push(curr);
-            
-            minX = Math.min(minX, cx);
-            maxX = Math.max(maxX, cx);
-            minY = Math.min(minY, cy);
-            maxY = Math.max(maxY, cy);
-            
-            const neighbors = [curr-1, curr+1, curr-W, curr+W];
-            for (const n of neighbors) {
-              if (n >= 0 && n < this.total && edgeMap[n] && !visited[n]) {
-                visited[n] = 1;
-                stack.push(n);
-              }
-            }
-          }
-          
-          const area = component.length;
-          const rectWidth = maxX - minX;
-          const rectHeight = maxY - minY;
-          
-          if (rectWidth === 0 || rectHeight === 0) continue;
-          
-          const aspectRatio = rectWidth / rectHeight;
-          const rectangularity = area / (rectWidth * rectHeight);
-          
-          // Çok daha esnek koşullar
-          if (area >= minArea && area <= maxArea && 
-              aspectRatio >= CONFIG.plateDetection.minAspectRatio &&
-              aspectRatio <= CONFIG.plateDetection.maxAspectRatio &&
-              rectangularity > CONFIG.plateDetection.minRectangularity) {
-            
-            let whiteInRegion = 0, totalInRegion = 0;
-            for (let ry = minY; ry <= maxY; ry++) {
-              for (let rx = minX; rx <= maxX; rx++) {
-                const ridx = ry*W+rx;
-                totalInRegion++;
-                if (this.hsv[ridx] && this.hsv[ridx].v > 70 && this.hsv[ridx].s < 40) {
-                  whiteInRegion++;
-                }
-              }
-            }
-            const whiteRatio = totalInRegion > 0 ? whiteInRegion / totalInRegion : 0;
-            
-            // Beyaz oranı çok düşükse bile kabul et (gölge/kirli plaka)
-            candidates.push({
-              x: minX, y: minY, width: rectWidth, height: rectHeight,
-              area, aspectRatio, rectangularity, whiteRatio,
-              score: this.calculateRegionScore(aspectRatio, rectangularity, whiteRatio, edgeDensity)
-            });
-          }
-        }
-      }
+    addLog('info', `🎚️ Adaptive Threshold: ${threshold.toFixed(0)}`);
+    
+    // Binary görüntü oluştur
+    const binary = new Uint8Array(this.gray.length);
+    for (let i = 0; i < this.gray.length; i++) {
+      binary[i] = this.gray[i] < threshold ? 0 : 255;
     }
     
-    candidates.sort((a, b) => b.score - a.score);
+    // Farklı ölçeklerde dene (sliding window)
+    const scales = [0.3, 0.5, 0.7, 1.0];
+    const aspectRatios = [3.0, 4.0, 4.5, 5.0, 6.0]; // Türk plakası oranları
     
-    // Hiç aday bulunamazsa, görüntünün tamamını dene (fallback)
-    if (candidates.length === 0) {
-      const fullAspect = W / H;
-      if (fullAspect >= 2 && fullAspect <= 6) {
-        candidates.push({
-          x: Math.floor(W * 0.1),
-          y: Math.floor(H * 0.3),
-          width: Math.floor(W * 0.8),
-          height: Math.floor(H * 0.4),
-          area: W * H * 0.32,
-          aspectRatio: fullAspect,
-          rectangularity: 0.9,
-          whiteRatio: 0.3,
-          score: 0.3,
-          fallback: true
-        });
-      }
-    }
-    
-    return {
-      detected: candidates.length > 0,
-      candidates: candidates.slice(0, 5),
-      best: candidates[0] || null,
-      edgeDensity
-    };
-  }
-
-  calculateRegionScore(aspect, rect, white, edgeDen) {
-    const idealAspect = 4.5; // Türk plakası ideal oranı
-    const aspectScore = Math.max(0, 1 - Math.abs(aspect - idealAspect) / 3);
-    const rectScore = rect;
-    const whiteScore = white > 0.2 ? 1 : white * 2; // Düşük beyaz oranını tolere et
-    const edgeScore = Math.min(1, edgeDen * 10);
-    return aspectScore * 0.4 + rectScore * 0.2 + whiteScore * 0.2 + edgeScore * 0.2;
-  }
-
-  analyzeCharacterGrid(roi) {
-    if (!roi) return { valid: false, score: 0, peaks: 0, gaps: 0 };
-    
-    const { x, y, width, height } = roi;
-    const W = this.width;
-    
-    const regionWidth = Math.min(width, this.width - x);
-    const regionHeight = Math.min(height, this.height - y);
-    
-    if (regionWidth < 50 || regionHeight < 15) {
-      return { valid: false, score: 0, peaks: 0, gaps: 0 };
-    }
-    
-    const rowSums = new Array(regionHeight).fill(0);
-    const edgeThreshold = 40; // Daha düşük threshold
-    
-    for (let ry = 0; ry < regionHeight; ry++) {
-      for (let rx = 0; rx < regionWidth; rx++) {
-        const idx = (y + ry) * W + (x + rx);
-        if (idx < this.lum.length && this.lum[idx] < edgeThreshold) {
-          rowSums[ry]++;
-        }
-      }
-    }
-    
-    // Pik tespiti (karakter satırları)
-    const peaks = [];
-    let inPeak = false;
-    let peakStart = 0;
-    
-    for (let i = 0; i < rowSums.length; i++) {
-      const density = rowSums[i] / regionWidth;
-      if (density > 0.05 && !inPeak) { // Düşük threshold
-        inPeak = true;
-        peakStart = i;
-      } else if (density <= 0.03 && inPeak) {
-        inPeak = false;
-        peaks.push({ start: peakStart, end: i, height: i - peakStart });
-      }
-    }
-    
-    // Son pik
-    if (inPeak) {
-      peaks.push({ start: peakStart, end: rowSums.length, height: rowSums.length - peakStart });
-    }
-    
-    const avgPeakHeight = peaks.length > 0 ? peaks.reduce((a, p) => a + p.height, 0) / peaks.length : 0;
-    const consistentPeaks = peaks.filter(p => p.height > 5 && p.height < regionHeight * 0.8);
-    
-    // Boşluk tespiti
-    const colSums = new Array(regionWidth).fill(0);
-    for (let rx = 0; rx < regionWidth; rx++) {
-      for (let ry = 0; ry < regionHeight; ry++) {
-        const idx = (y + ry) * W + (x + rx);
-        if (idx < this.lum.length && this.lum[idx] < edgeThreshold) {
-          colSums[rx]++;
-        }
-      }
-    }
-    
-    const gaps = [];
-    let inGap = false;
-    
-    for (let i = 0; i < colSums.length; i++) {
-      const density = colSums[i] / regionHeight;
-      if (density < 0.20 && !inGap) { // Daha yüksek threshold (daha fazla boşluk)
-        inGap = true;
-      } else if (density >= 0.10 && inGap) {
-        inGap = false;
-        gaps.push(i);
-      }
-    }
-    
-    const gapScore = Math.min(1, gaps.length / 2); // En az 2 boşluk yeterli
-    const charLineScore = consistentPeaks.length >= 1 ? Math.min(1, consistentPeaks.length / 2) : 0;
-    const score = (charLineScore * 0.6 + gapScore * 0.4) * 100;
-    
-    return {
-      valid: consistentPeaks.length >= 1 || gaps.length >= 2,
-      score: score,
-      peaks: consistentPeaks.length,
-      gaps: gaps.length,
-      avgCharHeight: avgPeakHeight
-    };
-  }
-
-  analyzeColorSpace() {
-    let whiteCount = 0;
-    let blackCount = 0;
-    let reflectiveCount = 0;
-    let totalSat = 0, totalVal = 0;
-    
-    for (let i = 0; i < this.total; i++) {
-      const hsv = this.hsv[i];
-      if (!hsv) continue;
-      totalSat += hsv.s;
-      totalVal += hsv.v;
+    for (const scale of scales) {
+      const windowHeight = Math.floor(this.height * scale * 0.15);
+      if (windowHeight < 20) continue;
       
-      if (hsv.v > 70 && hsv.s < 35) whiteCount++; // Daha toleranslı beyaz
-      if (hsv.v < 30) blackCount++; // Daha toleranslı siyah
-      if (hsv.v > 90 && hsv.s < 25) reflectiveCount++;
+      for (const aspect of aspectRatios) {
+        const windowWidth = Math.floor(windowHeight * aspect);
+        if (windowWidth > this.width * 0.9) continue;
+        
+        // Görüntü üzerinde kaydır
+        for (let y = 0; y < this.height - windowHeight; y += Math.floor(windowHeight * 0.3)) {
+          for (let x = 0; x < this.width - windowWidth; x += Math.floor(windowWidth * 0.3)) {
+            const score = this.evaluateRegion(binary, x, y, windowWidth, windowHeight);
+            
+            if (score > 0.3) { // Düşük skor bile kabul edilebilir
+              candidates.push({
+                x, y, width: windowWidth, height: windowHeight,
+                aspectRatio: aspect,
+                score: score,
+                area: windowWidth * windowHeight
+              });
+            }
+          }
+        }
+      }
     }
     
-    const whiteRatio = whiteCount / this.total;
-    const blackRatio = blackCount / this.total;
-    const reflectiveRatio = reflectiveCount / this.total;
-    const avgSat = totalSat / this.total;
-    const avgVal = totalVal / this.total;
+    // Non-maximum suppression (NMS)
+    candidates.sort((a, b) => b.score - a.score);
+    const filtered = [];
+    const iouThreshold = 0.3;
     
-    // Daha esnek renk kontrolü
-    const isPlateColors = whiteRatio > 0.15 && blackRatio > 0.01 && avgSat < 40;
+    for (const cand of candidates) {
+      let overlap = false;
+      for (const sel of filtered) {
+        const iou = this.calculateIoU(cand, sel);
+        if (iou > iouThreshold) {
+          overlap = true;
+          break;
+        }
+      }
+      if (!overlap && filtered.length < 10) {
+        filtered.push(cand);
+      }
+    }
     
     return {
-      whiteRatio,
-      blackRatio,
-      reflectiveRatio,
-      avgSaturation: avgSat,
-      avgValue: avgVal,
-      isPlateColors
+      detected: filtered.length > 0,
+      candidates: filtered,
+      best: filtered[0] || null
     };
   }
 
-  validateFormat(roi) {
+  evaluateRegion(binary, x, y, w, h) {
+    let whitePixels = 0;
+    let blackPixels = 0;
+    let edgePixels = 0;
+    
+    // Basit konturları say
+    for (let iy = y; iy < y + h; iy++) {
+      for (let ix = x; ix < x + w; ix++) {
+        const idx = iy * this.width + ix;
+        if (binary[idx] === 255) {
+          whitePixels++;
+          // Kenar kontrolü (komşu siyah mı?)
+          if (ix > x && binary[idx - 1] === 0) edgePixels++;
+          if (ix < x + w - 1 && binary[idx + 1] === 0) edgePixels++;
+        } else {
+          blackPixels++;
+        }
+      }
+    }
+    
+    const total = w * h;
+    const whiteRatio = whitePixels / total;
+    const blackRatio = blackPixels / total;
+    const edgeRatio = edgePixels / total;
+    
+    // Plaka skorlama kriterleri:
+    // 1. Beyaz zemin (plaka arka planı) - ama çok katı değil
+    // 2. Siyah karakterler (plaka yazısı)
+    // 3. Kenar yoğunluğu (karakter sınırları)
+    
+    let score = 0;
+    
+    // Beyaz oranı (plaka genelde beyaz/zemin rengi)
+    if (whiteRatio > 0.3 && whiteRatio < 0.9) score += 0.4;
+    else if (whiteRatio > 0.2 && whiteRatio < 0.95) score += 0.2;
+    
+    // Siyah oranı (yazılar)
+    if (blackRatio > 0.05 && blackRatio < 0.5) score += 0.3;
+    
+    // Kenar yoğunluğu (karakterlerin kenarları)
+    if (edgeRatio > 0.01 && edgeRatio < 0.3) score += 0.3;
+    else if (edgeRatio > 0.005) score += 0.1;
+    
+    // Aspect ratio bonus
+    const aspect = w / h;
+    if (aspect > 3 && aspect < 6) score += 0.2;
+    
+    return score;
+  }
+
+  calculateIoU(a, b) {
+    const x1 = Math.max(a.x, b.x);
+    const y1 = Math.max(a.y, b.y);
+    const x2 = Math.min(a.x + a.width, b.x + b.width);
+    const y2 = Math.min(a.y + a.height, b.y + b.height);
+    
+    const intersection = Math.max(0, x2 - x1) * Math.max(0, y2 - y1);
+    const union = a.area + b.area - intersection;
+    
+    return union > 0 ? intersection / union : 0;
+  }
+
+  // Karakter analizi
+  analyzeCharacters(roi) {
     if (!roi) return { valid: false, score: 0 };
     
     const { x, y, width, height } = roi;
-    const W = this.width;
     
-    // Plakayı 3 bölgeye ayır (İl kodu, Harfler, Rakamlar)
-    const sectionWidth = width / 3;
-    const sections = [];
-    
-    for (let s = 0; s < 3; s++) {
-      const sx = Math.floor(x + s * sectionWidth);
-      let darkCount = 0;
-      let totalCount = 0;
-      
-      for (let ry = Math.floor(height * 0.2); ry < Math.floor(height * 0.8); ry++) {
-        for (let rx = 0; rx < Math.floor(sectionWidth); rx++) {
-          const idx = (y + ry) * W + (sx + rx);
-          if (idx < this.lum.length) {
-            totalCount++;
-            if (this.lum[idx] < 80) darkCount++;
-          }
+    // ROI'yi binary yap
+    const roiGray = new Float32Array(width * height);
+    for (let iy = 0; iy < height; iy++) {
+      for (let ix = 0; ix < width; ix++) {
+        const srcIdx = (y + iy) * this.width + (x + ix);
+        const dstIdx = iy * width + ix;
+        if (srcIdx < this.gray.length) {
+          roiGray[dstIdx] = this.gray[srcIdx];
         }
       }
-      
-      const density = totalCount > 0 ? darkCount / totalCount : 0;
-      sections.push({
-        section: s,
-        density,
-        hasStructure: density > 0.02 && density < 0.5 // Daha esnek aralık
-      });
     }
     
-    // En az 2 bölgede yapı olmalı
-    const validSections = sections.filter(s => s.hasStructure).length;
-    const valid = validSections >= 2;
+    // Yatay projeksiyon (karakter satırları)
+    const rowSum = new Array(height).fill(0);
+    for (let iy = 0; iy < height; iy++) {
+      for (let ix = 0; ix < width; ix++) {
+        if (roiGray[iy * width + ix] < 128) rowSum[iy]++;
+      }
+    }
+    
+    // Pik tespiti
+    let peaks = 0;
+    let inPeak = false;
+    for (let i = 0; i < height; i++) {
+      const density = rowSum[i] / width;
+      if (density > 0.1 && !inPeak) {
+        inPeak = true;
+        peaks++;
+      } else if (density < 0.05 && inPeak) {
+        inPeak = false;
+      }
+    }
+    
+    // Dikey projeksiyon (boşluklar)
+    const colSum = new Array(width).fill(0);
+    for (let ix = 0; ix < width; ix++) {
+      for (let iy = 0; iy < height; iy++) {
+        if (roiGray[iy * width + ix] < 128) colSum[ix]++;
+      }
+    }
+    
+    let gaps = 0;
+    let inGap = false;
+    for (let i = 0; i < width; i++) {
+      const density = colSum[i] / height;
+      if (density < 0.2 && !inGap) {
+        inGap = true;
+        gaps++;
+      } else if (density > 0.3 && inGap) {
+        inGap = false;
+      }
+    }
+    
+    const hasStructure = peaks >= 1 && gaps >= 2;
+    const score = Math.min(100, (peaks * 20) + (gaps * 10) + (hasStructure ? 40 : 0));
     
     return {
-      valid,
-      score: valid ? 70 + (validSections - 2) * 15 : 30 + validSections * 15,
-      sections
+      valid: hasStructure,
+      score: score,
+      peaks,
+      gaps
     };
   }
 
-  calculateVariance(arr) {
-    if (arr.length === 0) return 0;
-    const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
-    return arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / arr.length;
-  }
-
-  analyzeNoiseConsistency() {
-    const { width: W, height: H } = this;
-    const blockSize = 8;
-    const blocksX = Math.floor(W / blockSize);
-    const blocksY = Math.floor(H / blockSize);
-    const blockVariances = [];
-    
-    for (let by = 0; by < blocksY; by++) {
-      for (let bx = 0; bx < blocksX; bx++) {
-        const pixels = [];
-        for (let y = by * blockSize; y < (by + 1) * blockSize && y < H; y++) {
-          for (let x = bx * blockSize; x < (bx + 1) * blockSize && x < W; x++) {
-            const idx = y * W + x;
-            if (idx < this.lum.length) pixels.push(this.lum[idx]);
-          }
-        }
-        if (pixels.length > 0) {
-          blockVariances.push(this.calculateVariance(pixels));
-        }
-      }
-    }
-    
-    if (blockVariances.length === 0) return { consistency: 0, score: 0, passed: false };
-    
-    const noiseVariance = this.calculateVariance(blockVariances);
-    const avgVariance = blockVariances.reduce((a, b) => a + b, 0) / blockVariances.length;
-    const consistency = avgVariance / (noiseVariance + 1);
-    
+  // Basit metadata kontrolü
+  checkMetadata(data) {
     return {
-      consistency: Math.min(1, consistency),
-      score: Math.min(100, consistency * 100),
-      passed: consistency > CONFIG.thresholds.noiseConsistency
+      hasEXIF: data.includes('Exif') || data.includes('JFIF'),
+      score: data.includes('Exif') ? 80 : 50
     };
   }
 
-  detectJPEGArtefacts() {
-    const { width: W, height: H } = this;
-    const blockSize = 8;
-    
-    const horizontalBlocks = [];
-    for (let y = 0; y < H; y += blockSize) {
-      let diffSum = 0;
-      let count = 0;
-      for (let x = 0; x < W; x++) {
-        if (y > 0 && y < H - 1) {
-          const idx = y * W + x;
-          if (idx < this.lum.length && idx - W >= 0) {
-            const diff = Math.abs(this.lum[idx] - this.lum[idx - W]);
-            diffSum += diff;
-            count++;
-          }
-        }
-      }
-      horizontalBlocks.push(count > 0 ? diffSum / count : 0);
+  // Sahtecilik tespiti (basit)
+  detectTampering() {
+    // Entropy analizi
+    const hist = new Array(256).fill(0);
+    for (const val of this.gray) {
+      hist[Math.floor(val)]++;
     }
     
-    const hPeriodicity = this.detectPeriodicity(horizontalBlocks, 8);
-    const artefactScore = hPeriodicity;
-    
-    return {
-      score: artefactScore * 100,
-      hPeriodicity,
-      hasArtefacts: artefactScore > 0.7 // Daha yüksek threshold
-    };
-  }
-
-  detectPeriodicity(arr, period) {
-    if (arr.length < period * 2) return 0;
-    let correlation = 0;
-    let count = 0;
-    
-    for (let i = 0; i < arr.length - period; i++) {
-      correlation += Math.abs(arr[i] - arr[i + period]);
-      count++;
-    }
-    
-    const avgDiff = correlation / count;
-    return Math.max(0, 1 - avgDiff / 50);
-  }
-
-  detectCopyMove() {
-    const { width: W, height: H } = this;
-    const blockSize = 16;
-    const blocks = [];
-    
-    for (let y = 0; y < H - blockSize; y += 8) {
-      for (let x = 0; x < W - blockSize; x += 8) {
-        const blockData = [];
-        let valid = true;
-        for (let by = 0; by < blockSize && valid; by++) {
-          for (let bx = 0; bx < blockSize; bx++) {
-            const idx = (y + by) * W + (x + bx);
-            if (idx >= this.lum.length) {
-              valid = false;
-              break;
-            }
-            blockData.push(Math.floor(this.lum[idx] / 16));
-          }
-        }
-        if (valid) {
-          const hash = blockData.reduce((a, b, i) => a + b * ((i % 10) + 1), 0);
-          blocks.push({ x, y, hash });
-        }
-      }
-    }
-    
-    const hashMap = new Map();
-    let duplicates = 0;
-    
-    for (const block of blocks) {
-      if (hashMap.has(block.hash)) {
-        const existing = hashMap.get(block.hash);
-        const distance = Math.sqrt(Math.pow(block.x - existing.x, 2) + Math.pow(block.y - existing.y, 2));
-        if (distance > blockSize * 2) {
-          duplicates++;
-        }
-      } else {
-        hashMap.set(block.hash, block);
-      }
-    }
-    
-    const duplicationRatio = blocks.length > 0 ? duplicates / blocks.length : 0;
-    
-    return {
-      score: Math.max(0, 100 - duplicationRatio * 1000),
-      duplicationRatio,
-      hasCopyMove: duplicationRatio > 0.015 // Daha yüksek threshold
-    };
-  }
-
-  analyzeMetadata(fileData) {
-    const hasEXIF = fileData.includes('Exif') || fileData.includes('JFIF') || fileData.includes('<?xpacket');
-    return {
-      hasEXIF,
-      score: hasEXIF ? 80 : 40,
-      passed: hasEXIF
-    };
-  }
-
-  calculateContrast(minL, maxL) {
-    const range = maxL - minL;
-    const score = Math.min(100, (range / 255) * 110);
-    return { score, range, passed: score >= CONFIG.thresholds.contrast };
-  }
-
-  calculateSobel() {
-    const { width: W, height: H } = this;
-    let sum = 0, count = 0;
-    
-    for (let y = 1; y < H-1; y++) {
-      for (let x = 1; x < W-1; x++) {
-        const idx = y*W+x;
-        if (idx >= this.lum.length) continue;
-        
-        const gx = -this.lum[idx-W-1] - 2*this.lum[idx-1] - this.lum[idx+W-1] + 
-                    this.lum[idx-W+1] + 2*this.lum[idx+1] + this.lum[idx+W+1];
-        const gy = -this.lum[idx-W-1] - 2*this.lum[idx-W] - this.lum[idx-W+1] + 
-                    this.lum[idx+W-1] + 2*this.lum[idx+W] + this.lum[idx+W+1];
-        sum += Math.sqrt(gx*gx + gy*gy);
-        count++;
-      }
-    }
-    
-    const avg = count > 0 ? sum / count : 0;
-    const score = Math.min(100, (avg / 50) * 100);
-    return { score, avg, passed: avg >= CONFIG.thresholds.sobel };
-  }
-
-  calculateHistogram() {
-    const hist = new Float32Array(256).fill(0);
-    for (const l of this.lum) {
-      hist[Math.floor(l)]++;
-    }
-    
-    const maxBin = Math.max(...hist);
-    const dominance = maxBin / this.total;
-    const score = Math.min(100, Math.max(0, (1 - dominance/CONFIG.thresholds.histogram) * 100));
-    
-    return { score, dominance, passed: dominance <= CONFIG.thresholds.histogram, hist };
-  }
-
-  calculateEntropy(hist) {
     let entropy = 0;
+    const total = this.gray.length;
     for (let i = 0; i < 256; i++) {
       if (hist[i] > 0) {
-        const p = hist[i]/this.total;
+        const p = hist[i] / total;
         entropy -= p * Math.log2(p);
       }
     }
     
-    const { min, max } = CONFIG.thresholds.entropy;
-    const passed = entropy >= min && entropy <= max;
-    const score = passed ? Math.min(100, 100 - Math.abs(entropy - 5.5) * 12) : 20;
+    // Düşük entropy = tekrar eden desenler (kopyalama olabilir)
+    const isSuspicious = entropy < 3.0;
     
-    return { score, entropy, passed };
+    return {
+      entropy: entropy.toFixed(2),
+      isSuspicious,
+      score: isSuspicious ? 30 : 90
+    };
   }
 
-  getROICanvas(roi) {
-    if (!roi) return null;
+  getROIImage(roi) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = roi.width;
+    tempCanvas.height = roi.height;
+    const tempCtx = tempCanvas.getContext('2d');
     
-    const roiCanvas = document.createElement('canvas');
-    roiCanvas.width = roi.width;
-    roiCanvas.height = roi.height;
-    const roiCtx = roiCanvas.getContext('2d');
-    
-    roiCtx.drawImage(
-      this.canvas, 
+    tempCtx.drawImage(
+      this.canvas,
       roi.x, roi.y, roi.width, roi.height,
       0, 0, roi.width, roi.height
     );
     
-    roiCtx.strokeStyle = '#f0a500';
-    roiCtx.lineWidth = 3;
-    roiCtx.strokeRect(0, 0, roi.width, roi.height);
+    // Kenar çiz
+    tempCtx.strokeStyle = '#f0a500';
+    tempCtx.lineWidth = 4;
+    tempCtx.strokeRect(0, 0, roi.width, roi.height);
     
-    return roiCanvas.toDataURL('image/jpeg', 0.9);
+    return tempCanvas.toDataURL('image/jpeg', 0.9);
   }
 }
 
-// ==================== ANA ANALİZ FONKSİYONU ====================
+// ==================== ANA ANALİZ ====================
 async function startAnalysis() {
   if (!state.imageData || state.isAnalyzing) return;
   
   state.isAnalyzing = true;
-  state.failedTests = [];
   const btn = elements.analyzeBtn;
   btn.disabled = true;
   btn.innerHTML = '<span class="loading-spinner"></span> ANALİZ EDİLİYOR...';
@@ -1658,296 +1255,94 @@ async function startAnalysis() {
   elements.logArea.innerHTML = '';
 
   try {
-    addLog('info', '🔬 Gelişmiş Forensik Analiz Motoru v5.1 başlatılıyor...');
-    addLog('info', '⚙️ Parametreler: Toleranslı Mod (Düşük kontrast/kirli plakalar için optimize)');
-    await sleep(300);
+    addLog('info', '🔬 Plaka Analiz Sistemi v5.2 başlatılıyor...');
+    addLog('info', '📊 Yeni Algoritma: Adaptive Threshold + Sliding Window');
     
-    const analyzer = new AdvancedPlateAnalyzer(elements.canvas);
+    const analyzer = new PlateAnalyzer(elements.canvas);
     
-    addLog('info', '📐 Görüntü yükleniyor ve ön işleme uygulanıyor...');
-    const { width, height, preprocessed } = await analyzer.loadImage(state.imageData);
-    if (preprocessed) {
-      addLog('info', '✅ Otomatik kontrast artırma uygulandı (düşük kontrast tespit edildi)');
-    }
-    addLog('info', `📏 İşlem boyutu: ${width}×${height} piksel`);
-    setProgress(5);
-    await sleep(200);
-
-    addLog('scan', '⚙️ Renk uzayı ve parlaklık analizi...');
-    const features = analyzer.extractFeatures();
-    addLog('info', `💡 Parlaklık: ${features.minL.toFixed(0)}-${features.maxL.toFixed(0)} (Ort: ${features.avgL.toFixed(0)})`);
-    addLog('info', `🎨 Beyaz piksel: ${(features.whiteRatio*100).toFixed(1)}% | Siyah: ${(features.blackRatio*100).toFixed(1)}%`);
+    addLog('info', '📐 Görüntü yükleniyor...');
+    const { width, height } = await analyzer.loadImage(state.imageData);
+    addLog('info', `✅ İşlem boyutu: ${width}×${height}px`);
     setProgress(10);
-    await sleep(200);
-
-    addLog('scan', '[R1] Plaka bölgesi tespiti (Adaptive Edge Detection)...');
-    await sleep(400);
-    const roiResult = analyzer.detectPlateRegion();
     
-    if (!roiResult.detected || !roiResult.best) {
-      state.failedTests.push('R1-ROI Tespiti');
-      addLog('fail', '❌ [R1] KRİTİK: Plaka bölgesi bulunamadı!');
-      addLog('fail', `⚠️ Edge yoğunluğu: ${(roiResult.edgeDensity*100).toFixed(2)}% (çok düşük veya yapı yok)`);
-      addLog('info', '💡 Öneriler:');
-      addLog('info', '   1. Daha net, düzgün açılı bir fotoğraf çekin');
-      addLog('info', '   2. Plakanın tümü görünür olsun (kesinti olmasın)');
-      addLog('info', '   3. Gölge ve parlama olmamasına dikkat edin');
-      
-      displayNotPlateResult(width, height, roiResult.edgeDensity);
+    addLog('scan', '🔍 Plaka bölgesi aranıyor (Multi-Scale)...');
+    const plateResult = analyzer.detectPlate();
+    setProgress(40);
+    
+    if (!plateResult.detected) {
+      addLog('fail', '❌ Plaka bölgesi bulunamadı!');
+      addLog('info', '💡 Farklı bir açıdan veya daha yakından çekim deneyin.');
+      displayNotPlate(width, height);
       return;
     }
     
-    const bestROI = roiResult.best;
-    state.roiData = bestROI;
+    addLog('pass', `✅ ${plateResult.candidates.length} aday bölge bulundu`);
+    const best = plateResult.best;
+    addLog('info', `🎯 En iyi eşleşme: (${best.x},${best.y}) ${best.width}×${best.height}`);
+    addLog('info', `📐 Aspect Ratio: ${best.aspectRatio.toFixed(1)} | Skor: ${(best.score*100).toFixed(0)}%`);
+    addMetricBar('ROI Tespiti', best.score * 100, 100, 'green');
     
-    const roiColor = bestROI.score > 0.4 ? 'pass' : 'warn';
-    addLog(roiColor, `[R1] ROI Tespiti: ${roiResult.candidates.length} aday bölge`);
-    addLog('info', `📍 Konum: (${bestROI.x},${bestROI.y}) ${bestROI.width}×${bestROI.height}`);
-    addLog('info', `📐 Oran: ${bestROI.aspectRatio.toFixed(2)} | Dikdörtgenlik: ${(bestROI.rectangularity*100).toFixed(0)}% | Skor: ${(bestROI.score*100).toFixed(0)}%`);
-    
-    if (bestROI.fallback) {
-      addLog('warn', '⚠️ Tam görüntü analizi modu (otomatik bölge bulunamadı, tahmin yapıldı)');
-    }
-    
-    addMetricBar('R1 ROI Tespiti', bestROI.score * 100, 100, bestROI.score > 0.4 ? 'green' : 'amber');
-    setProgress(20);
-
-    // ROI önizleme
+    // ROI Göster
     try {
-      const roiDataURL = analyzer.getROICanvas(bestROI);
-      if (roiDataURL) {
-        elements.roiImg.src = roiDataURL;
-        elements.roiPreview.style.display = 'block';
-      }
-    } catch (e) {
-      addLog('warn', '⚠️ ROI önizlemesi oluşturulamadı');
-    }
-    await sleep(200);
-
-    addLog('scan', '[R2] Karakter grid analizi (OCR yapısı)...');
-    await sleep(300);
-    const charGrid = analyzer.analyzeCharacterGrid(bestROI);
-    const charColor = charGrid.valid ? 'pass' : (charGrid.score > 20 ? 'warn' : 'fail');
-    
-    if (!charGrid.valid && charGrid.score <= 20) {
-      state.failedTests.push('R2-Karakter Grid');
+      const roiData = analyzer.getROIImage(best);
+      elements.roiImg.src = roiData;
+      elements.roiPreview.style.display = 'block';
+    } catch(e) {
+      addLog('warn', '⚠️ ROI görseli oluşturulamadı');
     }
     
-    addLog(charColor, `[R2] Karakter yapısı: ${charGrid.peaks} satır | ${charGrid.gaps} boşluk | Skor: ${charGrid.score.toFixed(1)}`);
-    addMetricBar('R2 Karakter Grid', charGrid.score, 100, charColor === 'pass' ? 'green' : (charColor === 'warn' ? 'amber' : 'red'));
-    setProgress(30);
-    await sleep(200);
-
-    addLog('scan', '[R3] Format doğrulama (İl Kodu + Harf + Rakam)...');
-    await sleep(250);
-    const format = analyzer.validateFormat(bestROI);
-    const formatColor = format.valid ? 'pass' : 'warn';
-    
-    if (!format.valid) {
-      state.failedTests.push('R3-Format');
-    }
-    
-    addLog(formatColor, `[R3] Format tutarlılığı: ${format.score.toFixed(0)}/100 (Yapı: ${format.sections.filter(s => s.hasStructure).length}/3)`);
-    addMetricBar('R3 Format', format.score, 100, formatColor === 'pass' ? 'green' : 'amber');
-    setProgress(38);
-    await sleep(200);
-
-    addLog('scan', '[R4] Renk uzayı analizi (HSV - Beyaz zemin kontrolü)...');
-    await sleep(300);
-    const colorSpace = analyzer.analyzeColorSpace();
-    const colorStatus = colorSpace.isPlateColors ? 'pass' : (colorSpace.whiteRatio > 0.15 ? 'warn' : 'fail');
-    
-    if (!colorSpace.isPlateColors) {
-      state.failedTests.push('R4-Renk Profili');
-    }
-    
-    addLog(colorStatus, `[R4] Beyaz zemin: ${(colorSpace.whiteRatio*100).toFixed(1)}% | Siyah: ${(colorSpace.blackRatio*100).toFixed(2)}%`);
-    addLog(colorSpace.reflectiveRatio > 0.2 ? 'pass' : 'warn',
-      `[R4] Retroreflective: ${(colorSpace.reflectiveRatio*100).toFixed(1)}% ${colorSpace.reflectiveRatio > 0.2 ? '(✅)' : '(⚠️)'}`);
-    addMetricBar('R4 Renk Uzayı', colorSpace.isPlateColors ? 85 : (colorSpace.whiteRatio > 0.15 ? 50 : 25), 100, colorStatus === 'pass' ? 'green' : 'amber');
-    setProgress(46);
-    await sleep(200);
-
-    addLog('scan', '[R5] En/Boy oranı kontrolü (Türk Plakası: ~4.5)...');
-    await sleep(200);
-    const aspectRatio = bestROI.width / bestROI.height;
-    const aspectValid = aspectRatio >= CONFIG.plateDetection.minAspectRatio && 
-                        aspectRatio <= CONFIG.plateDetection.maxAspectRatio;
-    
-    if (!aspectValid) {
-      state.failedTests.push('R5-Aspect Ratio');
-    }
-    
-    addLog(aspectValid ? 'pass' : 'warn', 
-      `[R5] Oran: ${aspectRatio.toFixed(2)} (Hedef: ${CONFIG.plateDetection.minAspectRatio}-${CONFIG.plateDetection.maxAspectRatio})`);
-    addMetricBar('R5 Aspect Ratio', aspectValid ? 90 : 40, 100, aspectValid ? 'green' : 'amber');
-    setProgress(52);
-    await sleep(200);
-
-    addLog('scan', '[R6] Kontrast derinliği analizi...');
-    await sleep(200);
-    const r6 = analyzer.calculateContrast(features.minL, features.maxL);
-    addLog(r6.passed ? 'pass' : 'warn', 
-      `[R6] Kontrast: ${r6.range.toFixed(0)} seviye | Skor: ${r6.score.toFixed(0)}`);
-    addMetricBar('R6 Kontrast', r6.score, 100, r6.passed ? 'green' : 'amber');
-    setProgress(58);
-    await sleep(200);
-
-    addLog('scan', '[R7] Sobel kenar keskinliği tespiti...');
-    await sleep(200);
-    const r7 = analyzer.calculateSobel();
-    addLog(r7.passed ? 'pass' : 'warn', 
-      `[R7] Kenar keskinliği: ${r7.avg.toFixed(2)} | Skor: ${r7.score.toFixed(0)}`);
-    addMetricBar('R7 Kenar Keskinliği', r7.score, 100, r7.passed ? 'green' : 'amber');
-    setProgress(64);
-    await sleep(200);
-
-    addLog('scan', '[R8] JPEG artefakt (bloklama) analizi...');
-    await sleep(250);
-    const jpeg = analyzer.detectJPEGArtefacts();
-    addLog(jpeg.hasArtefacts ? 'warn' : 'pass', 
-      `[R8] JPEG Periodicity: ${jpeg.hPeriodicity.toFixed(2)} ${jpeg.hasArtefacts ? '(⚠️ Şüpheli)' : '(✅ Normal)'}`);
-    addMetricBar('R8 JPEG Artefakt', jpeg.score, 100, jpeg.hasArtefacts ? 'amber' : 'green');
-    setProgress(70);
-    await sleep(200);
-
-    addLog('scan', '[R9] Gürültü tutarlılığı (Noise analizi)...');
-    await sleep(250);
-    const noise = analyzer.analyzeNoiseConsistency();
-    addLog(noise.passed ? 'pass' : 'warn', 
-      `[R9] Tutarlılık: ${noise.consistency.toFixed(3)} | Skor: ${noise.score.toFixed(0)}`);
-    addMetricBar('R9 Gürültü', noise.score, 100, noise.passed ? 'green' : 'amber');
-    setProgress(76);
-    await sleep(200);
-
-    addLog('scan', '[R10] Histogram dengesi (Piksel dağılımı)...');
-    await sleep(200);
-    const r10 = analyzer.calculateHistogram();
-    addLog(r10.passed ? 'pass' : 'warn', 
-      `[R10] Dominant renk: ${(r10.dominance*100).toFixed(1)}% | Skor: ${r10.score.toFixed(0)}`);
-    addMetricBar('R10 Histogram', r10.score, 100, r10.passed ? 'green' : 'amber');
-    setProgress(82);
-    await sleep(200);
-
-    addLog('scan', '[R11] Metadata bütünlüğü kontrolü...');
-    await sleep(200);
-    const meta = analyzer.analyzeMetadata(state.imageData);
-    addLog(meta.hasEXIF ? 'pass' : 'warn', 
-      `[R11] EXIF verisi: ${meta.hasEXIF ? '✅ Mevcut' : '⚠️ Eksik'}`);
-    addMetricBar('R11 Metadata', meta.score, 100, meta.hasEXIF ? 'green' : 'amber');
-    setProgress(88);
-    await sleep(200);
-
-    addLog('scan', '[R12] Kopya-bölge tespiti (Copy-Move Detection)...');
-    await sleep(400);
-    const copyMove = analyzer.detectCopyMove();
-    addLog(!copyMove.hasCopyMove ? 'pass' : 'fail', 
-      `[R12] Benzer blok: ${(copyMove.duplicationRatio*100).toFixed(2)}% ${copyMove.hasCopyMove ? '🚨 (SAHTE!)' : '✅ (Temiz)'}`);
-    addMetricBar('R12 Copy-Move', copyMove.score, 100, !copyMove.hasCopyMove ? 'green' : 'red');
-    setProgress(94);
-    await sleep(200);
-
-    addLog('scan', '[R13-15] Entropy ve nihai değerlendirme...');
     await sleep(300);
     
-    const entropy = analyzer.calculateEntropy(r10.hist);
-    addLog(entropy.passed ? 'pass' : 'warn',
-      `[R14] Entropy: ${entropy.entropy.toFixed(2)} bit`);
+    addLog('scan', '📝 Karakter yapısı analizi...');
+    const charAnalysis = analyzer.analyzeCharacters(best);
+    const charTag = charAnalysis.valid ? 'pass' : 'warn';
+    addLog(charTag, `${charAnalysis.peaks} karakter satırı, ${charAnalysis.gaps} boşluk`);
+    addMetricBar('Karakter Analizi', charAnalysis.score, 100, charAnalysis.valid ? 'green' : 'amber');
+    setProgress(60);
     
-    // Kritik kontroller (daha toleranslı)
-    const criticalChecks = [
-      roiResult.detected && bestROI.score > 0.3, // 0.5'ten 0.3'e düşürüldü
-      charGrid.valid || charGrid.score > 20,     // 40'tan 20'ye düşürüldü
-      format.valid || format.score > 40,         // 50'den 40'a düşürüldü
-      colorSpace.isPlateColors || colorSpace.whiteRatio > 0.15, // 0.4'ten 0.15'e düşürüldü
-      aspectValid || aspectRatio > 2.0           // Aspect ratio daha esnek
-    ];
+    addLog('scan', '🔐 Sahtecilik kontrolü (Entropy)...');
+    const tamper = analyzer.detectTampering();
+    addLog(tamper.isSuspicious ? 'warn' : 'pass', `Entropy: ${tamper.entropy} bit`);
+    addMetricBar('Sahtecilik Skoru', tamper.score, 100, tamper.isSuspicious ? 'red' : 'green');
+    setProgress(80);
     
-    const passedCritical = criticalChecks.filter(x => x).length;
-    const criticalFail = criticalChecks.length - passedCritical;
-    
-    // Ağırlıklı skor hesaplama
-    const weights = {
-      roiDetection: { score: bestROI.score * 100, ...CONFIG.weights.roiDetection },
-      charGrid: { score: charGrid.score, ...CONFIG.weights.charGrid },
-      formatCheck: { score: format.score, ...CONFIG.weights.formatCheck },
-      colorSpace: { score: colorSpace.isPlateColors ? 85 : (colorSpace.whiteRatio > 0.15 ? 50 : 20), ...CONFIG.weights.colorSpace },
-      aspectRatio: { score: aspectValid ? 90 : (aspectRatio > 2 ? 60 : 30), ...CONFIG.weights.aspectRatio },
-      contrast: { score: r6.score, ...CONFIG.weights.contrast },
-      sobel: { score: r7.score, ...CONFIG.weights.sobel },
-      jpegArtefact: { score: jpeg.score, ...CONFIG.weights.jpegArtefact },
-      noise: { score: noise.score, ...CONFIG.weights.noise },
-      histogram: { score: r10.score, ...CONFIG.weights.histogram },
-      copyMove: { score: copyMove.score, ...CONFIG.weights.copyMove },
-      metadata: { score: meta.score, ...CONFIG.weights.metadata }
-    };
-    
-    let weightedSum = 0, totalWeight = 0;
-    for (const v of Object.values(weights)) {
-      weightedSum += v.score * v.w;
-      totalWeight += v.w;
-    }
-    
-    const finalScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
-    
-    addLog('info', `📊 Kritik testler: ${passedCritical}/${criticalChecks.length} geçildi`);
-    addLog('info', `🎯 Ağırlıklı Güven Skoru: <strong>${finalScore.toFixed(1)}/100</strong>`);
+    addLog('scan', '📄 Metadata kontrolü...');
+    const meta = analyzer.checkMetadata(state.imageData);
+    addLog(meta.hasEXIF ? 'pass' : 'warn', meta.hasEXIF ? 'EXIF verisi mevcut' : 'EXIF verisi eksik');
     setProgress(100);
-    await sleep(300);
-
-    // Karar verme (daha toleranslı)
-    let verdict, verClass, verIcon, verDesc;
     
-    if (criticalFail >= 4 || !roiResult.detected) {
-      verdict = 'PLAKA DEĞİL / GEÇERSİZ';
-      verClass = 'not-plate';
-      verIcon = '❌';
-      verDesc = `Görüntüde plaka yapısı tespit edilemedi (${criticalFail} kritik başarısız).`;
-    } else if (copyMove.hasCopyMove || finalScore < 30) { // 35'ten 30'a düşürüldü
-      verdict = 'APK / SAHTE PLAKA';
-      verClass = 'fake';
-      verIcon = '🚨';
-      verDesc = `Plaka yapısı var ancak sahtecilik izleri tespit edildi.`;
-    } else if (finalScore < 60 || criticalFail === 2) { // 65'ten 60'a düşürüldü
-      verdict = 'KUŞKULU PLAKA';
-      verClass = 'suspicious';
-      verIcon = '⚠️';
-      verDesc = `Plaka yapısı mevcut ancak ${criticalFail} kritik tutarsızlık var.`;
-    } else {
+    // Karar verme
+    let verdict, verClass, verIcon, finalScore;
+    
+    const baseScore = (best.score * 100 + charAnalysis.score + tamper.score + meta.score) / 4;
+    
+    if (charAnalysis.valid && !tamper.isSuspicious && best.score > 0.5) {
       verdict = 'ORİJİNAL PLAKA';
       verClass = 'original';
       verIcon = '✅';
-      verDesc = `Tüm kriterlere göre orijinal Türk plakası (${passedCritical}/${criticalChecks.length} test geçti).`;
+      finalScore = Math.min(98, baseScore);
+    } else if (tamper.isSuspicious) {
+      verdict = 'SAHTE/DEĞİŞTİRİLMİŞ PLAKA';
+      verClass = 'fake';
+      verIcon = '🚨';
+      finalScore = 25;
+    } else if (charAnalysis.valid) {
+      verdict = 'KUŞKULU PLAKA';
+      verClass = 'suspicious';
+      verIcon = '⚠️';
+      finalScore = Math.min(75, baseScore);
+    } else {
+      verdict = 'GEÇERSİZ/YAPILANDIRILAMADI';
+      verClass = 'not-plate';
+      verIcon = '❌';
+      finalScore = Math.min(40, baseScore);
     }
-
-    addLog(verClass === 'original' ? 'pass' : (verClass === 'fake' ? 'fail' : 'warn'),
-      `🎯 NİHAİ KARAR: <strong>${verdict}</strong> (Skor: ${finalScore.toFixed(1)})`);
-
-    const findings = generateFindings({
-      roi: roiResult,
-      charGrid,
-      format,
-      colorSpace,
-      aspectValid,
-      aspectRatio,
-      contrast: r6,
-      sobel: r7,
-      jpeg,
-      noise,
-      histogram: r10,
-      meta,
-      copyMove,
-      criticalFail,
-      passedCritical
-    });
-
-    displayResult(verdict, verClass, verIcon, verDesc, finalScore, findings, 
-      width, height, bestROI, criticalFail, passedCritical, state.failedTests);
-
+    
+    displayResult(verdict, verClass, verIcon, finalScore, best, charAnalysis, tamper, meta, width, height);
+    
   } catch (error) {
-    console.error('Analiz hatası:', error);
-    addLog('fail', `❌ Kritik hata: ${error.message}`);
-    alert('Analiz sırasında bir hata oluştu. Lütfen farklı bir görüntü deneyin.');
+    console.error(error);
+    addLog('fail', `❌ Hata: ${error.message}`);
   } finally {
     state.isAnalyzing = false;
     btn.disabled = false;
@@ -1956,87 +1351,21 @@ async function startAnalysis() {
   }
 }
 
-function generateFindings(data) {
-  const findings = [];
-  
-  findings.push(data.roi.detected && data.roi.best.score > 0.3
-    ? { type: 'pass', icon: '✓', text: 'Plaka Bölgesi Tespit Edildi (R1)', 
-        sub: `Güven: ${(data.roi.best.score*100).toFixed(0)}% | Boyut: ${data.roi.best.width}×${data.roi.best.height}px` }
-    : { type: 'fail', icon: '✕', text: 'Plaka Bölgesi Zayıf veya Yok (R1)', 
-        sub: 'Dikdörtgen plaka yapısı tespit edilemedi' }
-  );
-  
-  findings.push(data.charGrid.valid || data.charGrid.score > 20
-    ? { type: data.charGrid.valid ? 'pass' : 'warn', icon: data.charGrid.valid ? '✓' : '!', text: 'Karakter Yapısı Tespit Edildi (R2)', 
-        sub: `${data.charGrid.peaks} satır, ${data.charGrid.gaps} boşluk | Skor: ${data.charGrid.score.toFixed(0)}%` }
-    : { type: 'fail', icon: '✕', text: 'Karakter Yapısı Anomalisi (R2)', 
-        sub: 'Plaka formatına uygun karakter dağılımı bulunamadı' }
-  );
-  
-  findings.push(data.colorSpace.isPlateColors || data.colorSpace.whiteRatio > 0.15
-    ? { type: data.colorSpace.isPlateColors ? 'pass' : 'warn', icon: data.colorSpace.isPlateColors ? '✓' : '!', text: 'Renk Profili Uyumlu (R4)', 
-        sub: `Beyaz: ${(data.colorSpace.whiteRatio*100).toFixed(0)}%, Siyah: ${(data.colorSpace.blackRatio*100).toFixed(1)}%` }
-    : { type: 'fail', icon: '✕', text: 'Renk Profili Sapması (R4)', 
-        sub: 'Beyaz zemin ve siyah metin oranları standart dışı' }
-  );
-  
-  findings.push(data.aspectValid
-    ? { type: 'pass', icon: '✓', text: 'Türk Plakası Formatı (R5)', 
-        sub: `En/Boy: ${data.aspectRatio.toFixed(2)} (Standart: ~4.5)` }
-    : { type: 'warn', icon: '!', text: 'Format Orası Farklı (R5)', 
-        sub: 'Oran standart dışı ancak kabul edilebilir' }
-  );
-  
-  findings.push(!data.jpeg.hasArtefacts
-    ? { type: 'pass', icon: '✓', text: 'JPEG Yapısı Normal (R8)', 
-        sub: 'Sıkıştırma izleri doğal seviyede' }
-    : { type: 'warn', icon: '!', text: 'JPEG Sıkıştırma Şüphesi (R8)', 
-        sub: 'Düzenli blok yapısı - dikkat' }
-  );
-  
-  findings.push(!data.copyMove.hasCopyMove
-    ? { type: 'pass', icon: '✓', text: 'Kopya Bölge Tespiti Negatif (R12)', 
-        sub: 'Görüntüde kopyalanmış alan yok' }
-    : { type: 'fail', icon: '✕', text: 'KOPYA BÖLGE TESPİTİ! (R12)', 
-        sub: `Benzerlik: ${(data.copyMove.duplicationRatio*100).toFixed(1)}% - Sahtecilik şüphesi!` }
-  );
-  
-  findings.push(data.meta.hasEXIF
-    ? { type: 'pass', icon: '✓', text: 'Metadata Mevcut (R11)', 
-        sub: 'EXIF verisi mevcut' }
-    : { type: 'warn', icon: '!', text: 'Metadata Eksik (R11)', 
-        sub: 'EXIF yok - sosyal medya kaynağı olabilir' }
-  );
-  
-  return findings;
-}
-
-function displayNotPlateResult(width, height, edgeDensity) {
+function displayNotPlate(w, h) {
   const card = elements.resultCard;
   const circ = 2 * Math.PI * 37;
-  
-  const debugInfo = state.failedTests.length > 0 ? 
-    `<div class="debug-info">Başarısız Testler: ${state.failedTests.join(', ')}<br>Edge Yoğunluğu: ${(edgeDensity*100).toFixed(2)}%</div>` : '';
   
   card.innerHTML = `
     <div class="result-banner not-plate">
       <div class="result-icon-big">❌</div>
       <div class="result-info">
-        <h2 class="gray">PLAKA DEĞİL / GEÇERSİZ</h2>
-        <p>Görüntüde plaka yapısı tespit edilemedi</p>
-        <p style="margin-top:8px;font-size:13px;color:#888">
-          Kritik plaka özellikleri (dikdörtgen form, kenarlar, kontrast) yetersiz.
-        </p>
-        ${debugInfo}
+        <h2 class="gray">PLAKA BULUNAMADI</h2>
+        <p>Görüntüde plaka yapısı tespit edilemedi.</p>
       </div>
       <div class="score-circle">
         <svg viewBox="0 0 90 90">
           <circle class="track" cx="45" cy="45" r="37"/>
-          <circle class="fill" cx="45" cy="45" r="37"
-            stroke="#888"
-            stroke-dasharray="${circ}"
-            stroke-dashoffset="${circ}"
-            id="scoreArc"/>
+          <circle class="fill" cx="45" cy="45" r="37" stroke="#888" stroke-dasharray="${circ}" stroke-dashoffset="${circ}"/>
         </svg>
         <div class="score-text">
           <span class="score-num" style="color:#888">0</span>
@@ -2047,135 +1376,101 @@ function displayNotPlateResult(width, height, edgeDensity) {
     <div class="detail-grid">
       <div class="detail-cell">
         <div class="detail-cell-label">Boyut</div>
-        <div class="detail-cell-value" style="color:var(--cyan)">${width}×${height}</div>
-        <div class="detail-cell-sub">piksel</div>
+        <div class="detail-cell-value" style="color:var(--cyan)">${w}×${h}</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">Edge Yoğunluğu</div>
-        <div class="detail-cell-value" style="color:var(--red)">${(edgeDensity*100).toFixed(1)}%</div>
-        <div class="detail-cell-sub">çok düşük</div>
-      </div>
-      <div class="detail-cell">
-        <div class="detail-cell-label">ROI Tespiti</div>
-        <div class="detail-cell-value" style="color:var(--red)">BAŞARISIZ</div>
-        <div class="detail-cell-sub">plaka bulunamadı</div>
-      </div>
-      <div class="detail-cell">
-        <div class="detail-cell-label">Öneri</div>
-        <div class="detail-cell-value" style="color:var(--amber);font-size:11px">NET FOTOĞRAF ÇEKİN</div>
-        <div class="detail-cell-sub">düz açı, işıklı ortam</div>
+        <div class="detail-cell-label">Durum</div>
+        <div class="detail-cell-value" style="color:var(--red)">TESPİT YOK</div>
       </div>
     </div>
   `;
   
   card.className = 'result-card visible';
-  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  card.scrollIntoView({ behavior: 'smooth' });
 }
 
-function displayResult(verdict, verClass, icon, desc, score, findings, w, h, roi, critFails, passedCrit, failedTests) {
+function displayResult(verdict, verClass, icon, score, roi, char, tamper, meta, w, h) {
   const card = elements.resultCard;
   const circ = 2 * Math.PI * 37;
+  const color = verClass === 'original' ? '#00e87a' : verClass === 'fake' ? '#ff3a3a' : verClass === 'suspicious' ? '#ff9900' : '#888';
   
-  const strokeColor = verClass === 'original' ? '#00e87a' : 
-                      verClass === 'fake' ? '#ff3a3a' : 
-                      verClass === 'suspicious' ? '#ff9900' : '#888';
-  
-  const textColor = verClass === 'original' ? 'green' : 
-                    verClass === 'fake' ? 'red' : 
-                    verClass === 'suspicious' ? 'orange' : 'gray';
-
-  const findingsHTML = findings.map(f => `
-    <div class="finding-item ${f.type}">
-      <span class="finding-icon">${f.icon}</span>
-      <div class="finding-text">
-        <strong>${f.text}</strong>
-        <span>${f.sub}</span>
-      </div>
-    </div>
-  `).join('');
-
-  const debugSection = failedTests.length > 0 ? 
-    `<div class="debug-info" style="margin: 10px 18px; padding: 10px; background: rgba(255, 153, 0, 0.1); border-color: rgba(255, 153, 0, 0.3); color: #ff9900;">
-      ⚠️ Uyarılar: ${failedTests.join(', ')}
-    </div>` : '';
-
   card.innerHTML = `
     <div class="result-banner ${verClass}">
       <div class="result-icon-big">${icon}</div>
       <div class="result-info">
-        <h2 class="${textColor}">${verdict}</h2>
-        <p>${desc}</p>
-        <p style="margin-top:8px;font-size:13px;color:${strokeColor}">
-          ${critFails} kritik uyarı | ${passedCrit} kritik başarılı | Skor: ${score.toFixed(1)}
-        </p>
+        <h2 class="${verClass === 'original' ? 'green' : verClass === 'fake' ? 'red' : verClass === 'suspicious' ? 'orange' : 'gray'}">${verdict}</h2>
+        <p>${verClass === 'original' ? 'Plaka yapısı doğrulandı ve sahtecilik tespit edilmedi.' : 
+            verClass === 'fake' ? 'Görüntüde sahtecilik izleri tespit edildi.' : 
+            'Plaka yapısı belirsiz veya eksik.'}</p>
       </div>
       <div class="score-circle">
         <svg viewBox="0 0 90 90">
           <circle class="track" cx="45" cy="45" r="37"/>
-          <circle class="fill" cx="45" cy="45" r="37"
-            stroke="${strokeColor}"
-            stroke-dasharray="${circ}"
-            stroke-dashoffset="${circ}"
-            id="scoreArc"/>
+          <circle class="fill" cx="45" cy="45" r="37" stroke="${color}" stroke-dasharray="${circ}" stroke-dashoffset="${circ - (score/100)*circ}"/>
         </svg>
         <div class="score-text">
-          <span class="score-num" style="color:${strokeColor}">${Math.round(score)}</span>
-          <span class="score-label">GÜVEN</span>
+          <span class="score-num" style="color:${color}">${Math.round(score)}</span>
+          <span class="score-label">SKOR</span>
         </div>
       </div>
     </div>
-    ${debugSection}
     <div class="detail-grid">
       <div class="detail-cell">
-        <div class="detail-cell-label">Görüntü Boyutu</div>
+        <div class="detail-cell-label">Boyut</div>
         <div class="detail-cell-value" style="color:var(--cyan)">${w}×${h}</div>
-        <div class="detail-cell-sub">piksel</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">Plaka Oranı</div>
-        <div class="detail-cell-value" style="color:var(--amber)">${roi ? (roi.width/roi.height).toFixed(2) : 'N/A'}</div>
-        <div class="detail-cell-sub">standart ≈ 4.5</div>
+        <div class="detail-cell-label">Plaka Boyutu</div>
+        <div class="detail-cell-value" style="color:var(--amber)">${roi.width}×${roi.height}</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">ROI Güveni</div>
-        <div class="detail-cell-value" style="color:${roi && roi.score > 0.4 ? 'var(--green)' : 'var(--red)'}">${roi ? (roi.score*100).toFixed(0) : 0}%</div>
-        <div class="detail-cell-sub">bölge tespiti</div>
+        <div class="detail-cell-label">Aspect Ratio</div>
+        <div class="detail-cell-value" style="color:var(--amber)">${(roi.width/roi.height).toFixed(2)}</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">Toplam Skor</div>
-        <div class="detail-cell-value" style="color:${strokeColor}">${score.toFixed(1)}%</div>
-        <div class="detail-cell-sub">${score >= 70 ? 'yüksek güven' : score >= 40 ? 'orta güven' : 'düşük güven'}</div>
+        <div class="detail-cell-label">Karakter Satırı</div>
+        <div class="detail-cell-value" style="color:${char.valid ? 'var(--green)' : 'var(--red)'}">${char.peaks}</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">Kritik Uyarı</div>
-        <div class="detail-cell-value" style="color:${critFails >= 2 ? 'var(--red)' : 'var(--green)'}">${critFails}</div>
-        <div class="detail-cell-sub">kritik kontrol</div>
+        <div class="detail-cell-label">Entropy</div>
+        <div class="detail-cell-value" style="color:${tamper.isSuspicious ? 'var(--red)' : 'var(--green)'}">${tamper.entropy}</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">Adli Karar</div>
-        <div class="detail-cell-value" style="color:${strokeColor};font-size:14px">${verdict.split(' ')[0]}</div>
-        <div class="detail-cell-sub">sonuç</div>
+        <div class="detail-cell-label">EXIF</div>
+        <div class="detail-cell-value" style="color:${meta.hasEXIF ? 'var(--green)' : 'var(--amber)'}">${meta.hasEXIF ? 'VAR' : 'YOK'}</div>
       </div>
     </div>
     <div class="findings-section">
-      <div class="findings-title">🔍 Detaylı Bulgular ve Uyarılar</div>
-      ${findingsHTML}
+      <div class="findings-title">Detaylı Bulgular</div>
+      <div class="finding-item ${roi.score > 0.5 ? 'pass' : 'warn'}">
+        <span class="finding-icon">${roi.score > 0.5 ? '✓' : '!'}</span>
+        <div class="finding-text">
+          <strong>Plaka Bölgesi</strong>
+          <span>Güven: ${(roi.score*100).toFixed(0)}% - Konum: (${roi.x}, ${roi.y})</span>
+        </div>
+      </div>
+      <div class="finding-item ${char.valid ? 'pass' : 'warn'}">
+        <span class="finding-icon">${char.valid ? '✓' : '!'}</span>
+        <div class="finding-text">
+          <strong>Karakter Yapısı</strong>
+          <span>${char.peaks} satır, ${char.gaps} boşluk tespit edildi</span>
+        </div>
+      </div>
+      <div class="finding-item ${!tamper.isSuspicious ? 'pass' : 'fail'}">
+        <span class="finding-icon">${!tamper.isSuspicious ? '✓' : '✕'}</span>
+        <div class="finding-text">
+          <strong>Sahtecilik Analizi</strong>
+          <span>Entropy: ${tamper.entropy} bit - ${tamper.isSuspicious ? 'Şüpheli düşük entropy!' : 'Normal dağılım'}</span>
+        </div>
+      </div>
     </div>
   `;
-
+  
   card.className = 'result-card visible';
-  
-  setTimeout(() => {
-    const arc = document.getElementById('scoreArc');
-    if (arc) {
-      arc.style.strokeDashoffset = circ - (score/100)*circ;
-    }
-  }, 300);
-  
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  card.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ==================== EVENT LISTENERS ====================
+// Event Listeners
 elements.uploadZone.addEventListener('click', () => {
   if (!state.isAnalyzing) elements.fileInput.click();
 });
@@ -2188,31 +1483,22 @@ elements.fileInput.addEventListener('change', (e) => {
 elements.analyzeBtn.addEventListener('click', startAnalysis);
 elements.resetBtn.addEventListener('click', resetAll);
 
+// Drag & Drop
 elements.uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
-  e.stopPropagation();
   if (!state.isAnalyzing) elements.uploadZone.classList.add('drag-over');
 });
 
-elements.uploadZone.addEventListener('dragleave', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+elements.uploadZone.addEventListener('dragleave', () => {
   elements.uploadZone.classList.remove('drag-over');
 });
 
 elements.uploadZone.addEventListener('drop', (e) => {
   e.preventDefault();
-  e.stopPropagation();
   elements.uploadZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) {
-    handleFile(file);
-  } else {
-    addLog('warn', '⚠️ Lütfen geçerli bir görüntü dosyası bırakın');
-  }
+  if (file && file.type.startsWith('image/')) handleFile(file);
 });
-
-console.log('🔬 Plaka Forensik Analiz Pro v5.1 - Toleranslı Mod Aktif');
 </script>
 </body>
 </html>
