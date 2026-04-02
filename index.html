@@ -37,6 +37,7 @@
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
+    line-height: 1.6;
   }
 
   body::before {
@@ -48,30 +49,6 @@
       radial-gradient(ellipse 80% 50% at 50% 100%, #0a0f18 0%, transparent 50%),
       var(--bg);
     z-index: -3;
-  }
-
-  .bg-mesh {
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    opacity: 0.4;
-    background: 
-      radial-gradient(at 20% 30%, #1a2332 0px, transparent 50%),
-      radial-gradient(at 80% 20%, #1f2937 0px, transparent 50%),
-      radial-gradient(at 40% 80%, #1a202c 0px, transparent 50%),
-      radial-gradient(at 80% 80%, #111827 0px, transparent 50%);
-    animation: meshMove 20s ease-in-out infinite;
-  }
-
-  @keyframes meshMove {
-    0%, 100% { 
-      background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%;
-      transform: scale(1);
-    }
-    50% { 
-      background-position: 100% 100%, 0% 100%, 100% 0%, 0% 0%;
-      transform: scale(1.05);
-    }
   }
 
   .bg-grid {
@@ -86,21 +63,6 @@
     -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
   }
 
-  .bg-scanlines {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.15) 2px,
-      rgba(0, 0, 0, 0.15) 4px
-    );
-    pointer-events: none;
-    opacity: 0.3;
-  }
-
   .bg-vignette {
     position: fixed;
     inset: 0;
@@ -109,76 +71,12 @@
     pointer-events: none;
   }
 
-  .particles {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .particle {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: var(--amber);
-    border-radius: 50%;
-    opacity: 0;
-    animation: float 15s infinite;
-    box-shadow: 0 0 6px var(--amber);
-  }
-
-  .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
-  .particle:nth-child(2) { left: 30%; top: 60%; animation-delay: 3s; }
-  .particle:nth-child(3) { left: 70%; top: 30%; animation-delay: 6s; }
-  .particle:nth-child(4) { left: 90%; top: 70%; animation-delay: 9s; }
-  .particle:nth-child(5) { left: 50%; top: 10%; animation-delay: 12s; }
-
-  @keyframes float {
-    0% { opacity: 0; transform: translateY(0) scale(0); }
-    10% { opacity: 0.6; transform: translateY(-20px) scale(1); }
-    90% { opacity: 0.6; transform: translateY(-100px) scale(1); }
-    100% { opacity: 0; transform: translateY(-120px) scale(0); }
-  }
-
-  .glow-spot {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: -1;
-    opacity: 0.15;
-    animation: pulse 8s ease-in-out infinite;
-  }
-
-  .glow-spot-1 {
-    width: 400px;
-    height: 400px;
-    background: var(--amber);
-    top: -10%;
-    right: -10%;
-    animation-delay: 0s;
-  }
-
-  .glow-spot-2 {
-    width: 300px;
-    height: 300px;
-    background: var(--cyan);
-    bottom: -5%;
-    left: -5%;
-    animation-delay: 4s;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.1; transform: scale(1); }
-    50% { opacity: 0.2; transform: scale(1.1); }
-  }
-
   .container {
     position: relative;
     z-index: 2;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px 60px;
+    padding: 20px 20px 60px;
   }
 
   header {
@@ -189,6 +87,7 @@
     border-bottom: 1px solid var(--border2);
     margin-bottom: 36px;
     position: relative;
+    flex-wrap: wrap;
   }
 
   header::after {
@@ -210,16 +109,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 24px;
     position: relative;
     overflow: hidden;
-  }
-
-  .header-icon::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 40%, rgba(240, 165, 0, 0.2) 100%);
+    flex-shrink: 0;
   }
 
   .header-text h1 {
@@ -253,21 +146,6 @@
     color: var(--green);
     text-transform: uppercase;
     letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .status-badge::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(0, 232, 122, 0.1), transparent);
-    animation: shimmer 3s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
   }
 
   .status-dot {
@@ -289,6 +167,12 @@
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: flex-start; }
+    .status-badge { margin-left: 0; margin-top: 10px; }
   }
 
   .panel {
@@ -364,24 +248,11 @@
     overflow: hidden;
   }
 
-  .upload-zone::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(240, 165, 0, 0.05) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
   .upload-zone:hover {
     border-color: var(--amber);
     background: var(--amber-dim);
     transform: translateY(-2px);
     box-shadow: 0 10px 40px rgba(240, 165, 0, 0.1);
-  }
-
-  .upload-zone:hover::before {
-    opacity: 1;
   }
 
   .upload-zone.drag-over {
@@ -404,25 +275,9 @@
     max-height: 300px;
   }
 
-  .upload-icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-    opacity: 0.6;
-    filter: drop-shadow(0 0 10px rgba(240, 165, 0, 0.3));
-  }
-
-  .upload-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-
-  .upload-sub {
-    font-size: 13px;
-    color: var(--muted);
-  }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.6; }
+  .upload-title { font-weight: 600; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+  .upload-sub { font-size: 13px; color: var(--muted); }
 
   #fileInput { display: none; }
 
@@ -444,7 +299,7 @@
     font-weight: 700;
   }
 
-  .analyze-btn:hover {
+  .analyze-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 8px 30px var(--amber-glow);
   }
@@ -456,16 +311,10 @@
     box-shadow: none;
   }
 
-  .analyze-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    transform: translateX(-100%);
-    transition: 0.5s;
+  .analyze-btn.analyzing {
+    background: linear-gradient(135deg, var(--cyan), #0099cc);
+    color: white;
   }
-
-  .analyze-btn:hover::after { transform: translateX(100%); }
 
   .log-area {
     background: rgba(5, 5, 8, 0.6);
@@ -479,18 +328,6 @@
     position: relative;
   }
 
-  .log-area::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 30px;
-    background: linear-gradient(180deg, rgba(5,5,8,0.8) 0%, transparent 100%);
-    pointer-events: none;
-    border-radius: 10px 10px 0 0;
-  }
-
   .log-area::-webkit-scrollbar { width: 4px; }
   .log-area::-webkit-scrollbar-track { background: var(--bg3); border-radius: 2px; }
   .log-area::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
@@ -501,6 +338,7 @@
     margin-bottom: 8px;
     animation: fadeIn 0.3s ease;
     align-items: flex-start;
+    line-height: 1.4;
   }
 
   @keyframes fadeIn {
@@ -508,12 +346,12 @@
     to { opacity: 1; transform: translateX(0); }
   }
 
-  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-time { color: var(--muted); flex-shrink: 0; font-size: 10px; }
   .log-tag {
     flex-shrink: 0;
-    padding: 1px 7px;
+    padding: 1px 6px;
     border-radius: 4px;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -523,70 +361,36 @@
   .log-tag.pass { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0, 232, 122, 0.2); }
   .log-tag.fail { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255, 58, 58, 0.2); }
   .log-tag.scan { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(240, 165, 0, 0.2); }
-  .log-msg { color: var(--text); line-height: 1.5; }
+  .log-msg { color: var(--text); line-height: 1.5; flex: 1; }
 
   .metric-bar-wrap { margin-bottom: 8px; }
-
-  .metric-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 3px;
-  }
-
-  .metric-name {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .metric-value {
-    font-size: 11px;
-    color: var(--amber);
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-  }
-
-  .metric-bar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .metric-bar::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-  }
-
-  .metric-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    background: var(--amber);
-    box-shadow: 0 0 10px currentColor;
-  }
-
-  .metric-fill.green { background: var(--green); color: var(--green); }
-  .metric-fill.red { background: var(--red); color: var(--red); }
-  .metric-fill.cyan { background: var(--cyan); color: var(--cyan); }
+  .metric-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+  .metric-name { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
+  .metric-value { font-size: 11px; color: var(--amber); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+  .metric-bar { height: 4px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .metric-fill { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  .metric-fill.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .metric-fill.red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .metric-fill.cyan { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  .metric-fill.amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
 
   .result-card {
     display: none;
-    background: rgba(10, 12, 16, 0.6);
+    background: rgba(10, 12, 16, 0.8);
     backdrop-filter: blur(10px);
     border-radius: 14px;
     overflow: hidden;
     margin-bottom: 20px;
     border: 1px solid var(--border2);
+    animation: slideUp 0.5s ease;
   }
 
   .result-card.visible { display: block; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   .result-banner {
     padding: 28px;
@@ -596,58 +400,26 @@
     position: relative;
   }
 
-  .result-banner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.1;
-  }
+  .result-banner.original { background: linear-gradient(135deg, rgba(0, 232, 122, 0.08) 0%, transparent 60%); border-bottom: 1px solid rgba(0, 232, 122, 0.3); }
+  .result-banner.fake { background: linear-gradient(135deg, rgba(255, 58, 58, 0.08) 0%, transparent 60%); border-bottom: 1px solid rgba(255, 58, 58, 0.3); }
+  .result-banner.suspicious { background: linear-gradient(135deg, rgba(255, 153, 0, 0.08) 0%, transparent 60%); border-bottom: 1px solid rgba(255, 153, 0, 0.3); }
+  .result-banner.not-plate { background: linear-gradient(135deg, rgba(100, 100, 100, 0.15) 0%, transparent 60%); border-bottom: 1px solid rgba(100, 100, 100, 0.4); }
 
-  .result-banner.original {
-    background: linear-gradient(135deg, rgba(0, 232, 122, 0.08) 0%, transparent 60%);
-    border-bottom: 1px solid rgba(0, 232, 122, 0.3);
-  }
-
-  .result-banner.fake {
-    background: linear-gradient(135deg, rgba(255, 58, 58, 0.08) 0%, transparent 60%);
-    border-bottom: 1px solid rgba(255, 58, 58, 0.3);
-  }
-
-  .result-banner.suspicious {
-    background: linear-gradient(135deg, rgba(255, 153, 0, 0.08) 0%, transparent 60%);
-    border-bottom: 1px solid rgba(255, 153, 0, 0.3);
-  }
-
-  .result-banner.not-plate {
-    background: linear-gradient(135deg, rgba(100, 100, 100, 0.15) 0%, transparent 60%);
-    border-bottom: 1px solid rgba(100, 100, 100, 0.4);
-  }
-
-  .result-icon-big {
-    font-size: 52px;
-    line-height: 1;
-    flex-shrink: 0;
-    filter: drop-shadow(0 0 20px currentColor);
-  }
-
+  .result-icon-big { font-size: 48px; line-height: 1; flex-shrink: 0; }
+  .result-info { flex: 1; }
   .result-info h2 {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 36px;
     letter-spacing: 3px;
     line-height: 1;
+    margin-bottom: 8px;
   }
-
   .result-info h2.green { color: var(--green); text-shadow: 0 0 20px rgba(0, 232, 122, 0.3); }
   .result-info h2.red { color: var(--red); text-shadow: 0 0 20px rgba(255, 58, 58, 0.3); }
   .result-info h2.orange { color: #ff9900; text-shadow: 0 0 20px rgba(255, 153, 0, 0.3); }
   .result-info h2.gray { color: #888; text-shadow: 0 0 20px rgba(100, 100, 100, 0.3); }
 
-  .result-info p {
-    font-size: 14px;
-    color: var(--muted);
-    margin-top: 5px;
-    letter-spacing: 0.5px;
-  }
+  .result-info p { font-size: 14px; color: var(--muted); letter-spacing: 0.5px; }
 
   .score-circle {
     margin-left: auto;
@@ -661,21 +433,10 @@
     transform: rotate(-90deg);
     width: 90px;
     height: 90px;
-    filter: drop-shadow(0 0 10px currentColor);
   }
 
-  .score-circle .track {
-    fill: none;
-    stroke: var(--border2);
-    stroke-width: 6;
-  }
-
-  .score-circle .fill {
-    fill: none;
-    stroke-width: 6;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+  .score-circle .track { fill: none; stroke: var(--border2); stroke-width: 6; }
+  .score-circle .fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1); }
 
   .score-text {
     position: absolute;
@@ -687,25 +448,20 @@
     font-family: 'JetBrains Mono', monospace;
   }
 
-  .score-num {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .score-label {
-    font-size: 9px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+  .score-num { font-size: 24px; font-weight: 700; line-height: 1; }
+  .score-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
   .detail-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1px;
     background: var(--border);
-    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 768px) {
+    .detail-grid { grid-template-columns: repeat(2, 1fr); }
+    .result-banner { flex-direction: column; text-align: center; }
+    .score-circle { margin: 20px auto 0; }
   }
 
   .detail-cell {
@@ -715,247 +471,16 @@
     position: relative;
   }
 
-  .detail-cell:hover { 
-    background: rgba(26, 29, 36, 0.8);
-    transform: translateY(-2px);
-  }
-
-  .detail-cell::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 100%;
-    background: currentColor;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .detail-cell:hover::before {
-    opacity: 0.5;
-  }
-
-  .detail-cell-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 5px;
-  }
-
-  .detail-cell-value {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-  }
-
-  .detail-cell-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .rules-panel {
-    background: rgba(10, 12, 16, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border2);
-    border-radius: 14px;
-    overflow: hidden;
-    margin-top: 20px;
-  }
-
-  .rules-toggle {
-    width: 100%;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: block;
-  }
-
-  .rules-header {
-    padding: 12px 18px;
-    background: linear-gradient(135deg, rgba(255, 58, 58, 0.08) 0%, transparent 60%);
-    border-bottom: 1px solid rgba(255, 58, 58, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-  }
-
-  .rules-header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 18px;
-    width: 100px;
-    height: 1px;
-    background: var(--red);
-    opacity: 0.5;
-  }
-
-  .rules-header h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px;
-    letter-spacing: 3px;
-    color: var(--red);
-    text-shadow: 0 0 10px rgba(255, 58, 58, 0.2);
-  }
-
-  .rules-header-right {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .rules-header p {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .rules-chevron {
-    font-size: 12px;
-    color: var(--muted);
-    transition: transform 0.3s ease;
-    display: inline-block;
-  }
-
-  .rules-chevron.open { transform: rotate(180deg); }
-
-  .rules-body { display: none; }
-  .rules-body.open { display: block; }
-
-  .rules-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-  }
-
-  .rule-item {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-    transition: all 0.2s;
-    background: rgba(17, 19, 24, 0.3);
-  }
-
-  .rule-item:hover { 
-    background: rgba(26, 29, 36, 0.6);
-    transform: translateX(4px);
-  }
-
-  .rule-item:nth-child(4n) { border-right: none; }
-
-  .rule-num {
-    width: 22px;
-    height: 22px;
-    border-radius: 5px;
-    background: var(--red-dim);
-    border: 1px solid rgba(255, 58, 58, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: var(--red);
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .rule-content h4 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 2px;
-    letter-spacing: 0.2px;
-    line-height: 1.3;
-  }
-
-  .rule-threshold {
-    margin-top: 4px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: var(--amber-dim);
-    border: 1px solid rgba(240, 165, 0, 0.2);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    color: var(--amber);
-    line-height: 1.4;
-  }
-
-  .apk-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    background: var(--red-dim);
-    border: 1px solid rgba(255, 58, 58, 0.3);
-    color: var(--red);
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-left: 4px;
-  }
-
-  canvas { display: none; }
-
-  .reset-btn {
-    background: transparent;
-    border: 1px solid var(--border2);
-    color: var(--muted);
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .reset-btn:hover { 
-    border-color: var(--amber); 
-    color: var(--amber);
-    background: var(--amber-dim);
-  }
-
-  .progress-bar {
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 10px;
-    position: relative;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--amber), var(--cyan));
-    width: 0%;
-    transition: width 0.4s ease;
-    border-radius: 2px;
-    box-shadow: 0 0 10px var(--amber);
-  }
+  .detail-cell:hover { background: rgba(26, 29, 36, 0.8); }
+  .detail-cell-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+  .detail-cell-value { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; }
+  .detail-cell-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
   .findings-section {
     padding: 18px;
     border-top: 1px solid var(--border);
+    max-height: 300px;
+    overflow-y: auto;
   }
 
   .findings-title {
@@ -965,6 +490,11 @@
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-bottom: 12px;
+    position: sticky;
+    top: 0;
+    background: rgba(10, 12, 16, 0.9);
+    padding: 5px 0;
+    z-index: 1;
   }
 
   .finding-item {
@@ -980,24 +510,19 @@
     transition: all 0.2s;
   }
 
-  .finding-item:hover {
-    transform: translateX(4px);
-    background: rgba(26, 29, 36, 0.6);
-  }
-
+  .finding-item:hover { transform: translateX(4px); background: rgba(26, 29, 36, 0.6); }
   .finding-item.pass { border-left-color: var(--green); }
   .finding-item.fail { border-left-color: var(--red); }
   .finding-item.warn { border-left-color: #ff9900; }
-
-  .finding-icon { flex-shrink: 0; font-size: 14px; }
-  .finding-text { line-height: 1.5; }
-  .finding-text strong { color: var(--text); }
-  .finding-text span { color: var(--muted); font-size: 12px; }
+  .finding-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .finding-text { line-height: 1.5; flex: 1; }
+  .finding-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .finding-text span { color: var(--muted); font-size: 11px; }
 
   .roi-preview {
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.3);
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
     border: 1px solid var(--border);
   }
@@ -1005,44 +530,220 @@
   .roi-preview img {
     max-width: 100%;
     border-radius: 4px;
-    border: 1px solid var(--amber);
+    border: 2px solid var(--amber);
+    display: block;
   }
 
   .roi-info {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 5px;
+    font-size: 11px;
+    color: var(--amber);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 
-  @media (max-width: 768px) {
-    .main-grid { grid-template-columns: 1fr; }
-    .rules-grid { grid-template-columns: repeat(2, 1fr); }
-    .detail-grid { grid-template-columns: repeat(2, 1fr); }
-    .rule-item { border-right: none; }
-    .rule-item:nth-child(2n) { border-right: none; }
-    .glow-spot { display: none; }
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
+
+  .reset-btn:hover { 
+    border-color: var(--amber); 
+    color: var(--amber);
+    background: var(--amber-dim);
+  }
+
+  .reset-btn.visible { display: flex; }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 15px;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--cyan));
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--amber);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .rules-panel {
+    background: rgba(10, 12, 16, 0.6);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+
+  .rules-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: block;
+    text-align: left;
+    color: inherit;
+  }
+
+  .rules-header {
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(255, 58, 58, 0.08) 0%, transparent 60%);
+    border-bottom: 1px solid rgba(255, 58, 58, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rules-header h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--red);
+    flex: 1;
+  }
+
+  .rules-header p { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .rules-chevron { font-size: 12px; color: var(--muted); transition: transform 0.3s ease; display: inline-block; }
+  .rules-chevron.open { transform: rotate(180deg); }
+
+  .rules-body { display: none; padding: 20px; }
+  .rules-body.open { display: block; }
+
+  .rules-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+
+  .rule-item {
+    padding: 12px;
+    background: rgba(17, 19, 24, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    transition: all 0.2s;
+  }
+
+  .rule-item:hover { border-color: var(--amber); background: rgba(26, 29, 36, 0.6); transform: translateY(-2px); }
+  .rule-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--red-dim);
+    border: 1px solid rgba(255, 58, 58, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--red);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .rule-content h4 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .rule-threshold {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--amber-dim);
+    border: 1px solid rgba(240, 165, 0, 0.2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--amber);
+  }
+
+  .apk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--red-dim);
+    border: 1px solid rgba(255, 58, 58, 0.3);
+    color: var(--red);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 40px 20px;
+    text-align: center;
+    opacity: 0.6;
+    line-height: 1.6;
+  }
+
+  canvas { display: none; }
 </style>
 </head>
 <body>
 
-<div class="bg-mesh"></div>
 <div class="bg-grid"></div>
-<div class="bg-scanlines"></div>
 <div class="bg-vignette"></div>
-<div class="glow-spot glow-spot-1"></div>
-<div class="glow-spot glow-spot-2"></div>
-<div class="particles">
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-</div>
 
 <div class="container">
-
   <header>
     <div class="header-icon">🔍</div>
     <div class="header-text">
@@ -1056,31 +757,35 @@
   </header>
 
   <div class="main-grid">
-
     <div class="panel">
       <div class="panel-header">
         <div class="panel-dot" style="background:var(--amber)"></div>
         <span class="panel-title">Plaka Fotoğrafı Yükle</span>
       </div>
       <div class="panel-body">
-        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-zone" id="uploadZone">
           <div class="upload-icon" id="uploadIcon">📷</div>
           <div class="upload-title" id="uploadTitle">Fotoğraf Seç veya Sürükle</div>
           <div class="upload-sub" id="uploadSub">JPG, PNG, WEBP — Max 20MB</div>
           <img id="previewImg" style="display:none;" />
         </div>
         <input type="file" id="fileInput" accept="image/*">
+        
         <div class="progress-bar" id="progressBar" style="display:none;">
           <div class="progress-fill" id="progressFill"></div>
         </div>
-        <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
+        
+        <button class="analyze-btn" id="analyzeBtn" disabled>
           🔬 ANALİZİ BAŞLAT
         </button>
-        <button class="reset-btn" id="resetBtn" style="display:none;" onclick="resetAll()">↺ Yeni Analiz</button>
-        <canvas id="canvas"></canvas>
+        
+        <button class="reset-btn" id="resetBtn">
+          ↺ Yeni Analiz
+        </button>
+        
         <div class="roi-preview" id="roiPreview" style="display:none;">
-          <div class="roi-info">Tespit Edilen Plaka Bölgesi (ROI):</div>
-          <img id="roiImg" />
+          <div class="roi-info">🔍 Tespit Edilen Plaka Bölgesi (ROI)</div>
+          <img id="roiImg" alt="Tespit edilen plaka bölgesi" />
         </div>
       </div>
     </div>
@@ -1093,8 +798,11 @@
       </div>
       <div class="panel-body" style="padding:12px;">
         <div class="log-area" id="logArea">
-          <div style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:20px;text-align:center;opacity:0.5;">
-            Analiz başladığında kayıtlar burada görünecek...
+          <div class="empty-state">
+            📋 Analiz başladığında kayıtlar burada görünecek...<br>
+            <span style="font-size: 10px; opacity: 0.7; margin-top: 8px; display: block;">
+              Sistem 15 farklı forensik kuralı uygulayacaktır
+            </span>
           </div>
         </div>
         <div id="metricsSection" style="margin-top:14px;display:none;">
@@ -1105,7 +813,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <div class="result-card" id="resultCard"></div>
@@ -1113,17 +820,14 @@
   <div class="rules-panel">
     <button class="rules-toggle" onclick="toggleRules()" id="rulesToggleBtn">
       <div class="rules-header">
-        <span style="font-size:16px;">🚨</span>
+        <span style="font-size:20px;">🚨</span>
         <h3>PLAKA DOĞRULAMA KURALLARI</h3>
-        <div class="rules-header-right">
-          <p>15 AKTİF KURAL</p>
-          <span class="rules-chevron" id="rulesChevron">▼</span>
-        </div>
+        <p>15 AKTİF KURAL</p>
+        <span class="rules-chevron" id="rulesChevron">▼</span>
       </div>
     </button>
     <div class="rules-body" id="rulesBody">
-      <div class="rules-grid">
-
+      <div class="rules-list">
         <div class="rule-item">
           <div class="rule-num">R1</div>
           <div class="rule-content">
@@ -1131,7 +835,6 @@
             <div class="rule-threshold">Dikdörtgen + Kenar Yoğunluğu</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R2</div>
           <div class="rule-content">
@@ -1139,7 +842,6 @@
             <div class="rule-threshold">Yatay Projeksiyon</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R3</div>
           <div class="rule-content">
@@ -1147,7 +849,6 @@
             <div class="rule-threshold">İl Kodu + Harf + Rakam</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R4</div>
           <div class="rule-content">
@@ -1155,7 +856,6 @@
             <div class="rule-threshold">HSV Beyaz Zemin ≥ %60</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R5</div>
           <div class="rule-content">
@@ -1163,7 +863,6 @@
             <div class="rule-threshold">3.5 – 5.2 (Türk Plakası)</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R6</div>
           <div class="rule-content">
@@ -1171,7 +870,6 @@
             <div class="rule-threshold">≥ 65 → Orijinal</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R7</div>
           <div class="rule-content">
@@ -1179,7 +877,6 @@
             <div class="rule-threshold">Sobel ≥ 18</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R8</div>
           <div class="rule-content">
@@ -1187,7 +884,6 @@
             <div class="rule-threshold">Blok Tutarlılığı</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R9</div>
           <div class="rule-content">
@@ -1195,7 +891,6 @@
             <div class="rule-threshold">Tutarlılık ≥ 0.7</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R10</div>
           <div class="rule-content">
@@ -1203,7 +898,6 @@
             <div class="rule-threshold">Dom. ≤ %40</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R11</div>
           <div class="rule-content">
@@ -1211,7 +905,6 @@
             <div class="rule-threshold">EXIF Varlığı</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R12</div>
           <div class="rule-content">
@@ -1219,7 +912,6 @@
             <div class="rule-threshold">Copy-Move Detection</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R13</div>
           <div class="rule-content">
@@ -1227,7 +919,6 @@
             <div class="rule-threshold">Retroreflective ≥ %30</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R14</div>
           <div class="rule-content">
@@ -1235,25 +926,25 @@
             <div class="rule-threshold">3.5 – 7.5 bit</div>
           </div>
         </div>
-
         <div class="rule-item">
           <div class="rule-num">R15</div>
           <div class="rule-content">
             <h4>Ağırlıklı Güven</h4>
-            <div class="rule-threshold">≥70 Ori | &lt;40 APK | &lt;20 Değil</div>
+            <div class="rule-threshold">≥70 Ori | &lt;40 APK</div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
-
 </div>
 
+<canvas id="canvas"></canvas>
+
 <script>
+// ==================== KONFIGÜRASYON ====================
 const CONFIG = {
   maxFileSize: 20 * 1024 * 1024,
-  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
   
   plateDetection: {
     minAspectRatio: 3.5,
@@ -1270,14 +961,10 @@ const CONFIG = {
     laplacian: 80,
     whiteRatio: 0.20,
     darkRatio: 0.03,
-    texture: { min: 30, max: 90 },
-    ratio: { min: 3.5, max: 5.2 },
     entropy: { min: 3.5, max: 7.5 },
     histogram: 0.40,
-    metallic: 45,
     border: 0.15,
     noiseConsistency: 0.7,
-    jpegQuality: 0.6
   },
   
   weights: {
@@ -1288,28 +975,24 @@ const CONFIG = {
     aspectRatio: { w: 3, critical: true },
     contrast: { w: 2, critical: false },
     sobel: { w: 2, critical: false },
-    laplacian: { w: 1, critical: false },
-    white: { w: 2, critical: false },
-    dark: { w: 2, critical: false },
-    texture: { w: 1, critical: false },
-    entropy: { w: 2, critical: false },
-    histogram: { w: 2, critical: false },
-    metallic: { w: 1, critical: false },
-    border: { w: 2, critical: false },
-    noise: { w: 3, critical: false },
     jpegArtefact: { w: 3, critical: false },
+    noise: { w: 3, critical: false },
+    histogram: { w: 2, critical: false },
     copyMove: { w: 2, critical: false },
     metadata: { w: 1, critical: false }
   }
 };
 
+// ==================== DURUM YÖNETİMİ ====================
 const state = {
   imageData: null,
   logCount: 0,
   isAnalyzing: false,
-  roiData: null
+  roiData: null,
+  fileName: ''
 };
 
+// ==================== DOM ELEMENTLERİ ====================
 const elements = {
   fileInput: document.getElementById('fileInput'),
   uploadZone: document.getElementById('uploadZone'),
@@ -1331,10 +1014,12 @@ const elements = {
   roiImg: document.getElementById('roiImg')
 };
 
+// ==================== YARDIMCI FONKSİYONLAR ====================
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 const formatTime = () => {
   const now = new Date();
-  return `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}.${now.getMilliseconds().toString().padStart(3,'0').slice(0,2)}`;
+  return `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
 };
 
 function addLog(tag, msg) {
@@ -1357,10 +1042,10 @@ function addLog(tag, msg) {
 }
 
 function setProgress(pct) {
-  elements.progressFill.style.width = `${pct}%`;
+  elements.progressFill.style.width = `${Math.min(100, Math.max(0, pct))}%`;
 }
 
-function addMetricBar(name, val, max, color) {
+function addMetricBar(name, val, max, colorClass) {
   const pct = Math.min(100, (val/max)*100).toFixed(1);
   const div = document.createElement('div');
   div.className = 'metric-bar-wrap';
@@ -1370,53 +1055,75 @@ function addMetricBar(name, val, max, color) {
       <span class="metric-value">${parseFloat(val).toFixed(1)}/${max}</span>
     </div>
     <div class="metric-bar">
-      <div class="metric-fill ${color}" style="width:0%" data-target="${pct}"></div>
+      <div class="metric-fill ${colorClass}" style="width:0%" data-target="${pct}"></div>
     </div>
   `;
   
   elements.metricBars.appendChild(div);
-  requestAnimationFrame(() => {
+  setTimeout(() => {
     div.querySelector('.metric-fill').style.width = `${pct}%`;
-  });
+  }, 50);
 }
 
+// ==================== DOSYA YÖNETİMİ ====================
 function handleFile(file) {
+  if (!file) return;
+  
+  // Dosya tipi kontrolü
   if (!CONFIG.acceptedTypes.includes(file.type)) {
-    addLog('fail', `❌ Desteklenmeyen format: ${file.type}`);
+    addLog('fail', `❌ Desteklenmeyen format: ${file.type || 'bilinmiyor'}`);
+    alert('Lütfen JPG, PNG veya WEBP formatında bir görüntü yükleyin.');
     return;
   }
   
+  // Dosya boyutu kontrolü
   if (file.size > CONFIG.maxFileSize) {
-    addLog('fail', `❌ Dosya çok büyük: ${(file.size/1024/1024).toFixed(1)}MB`);
+    addLog('fail', `❌ Dosya çok büyük: ${(file.size/1024/1024).toFixed(1)}MB (Max: 20MB)`);
+    alert('Dosya boyutu 20MB\'ı geçemez!');
     return;
   }
 
+  state.fileName = file.name;
   const reader = new FileReader();
+  
   reader.onload = (ev) => {
-    elements.previewImg.src = ev.target.result;
-    elements.previewImg.style.display = 'block';
-    elements.uploadIcon.style.display = 'none';
-    elements.uploadTitle.style.display = 'none';
-    elements.uploadSub.style.display = 'none';
-    elements.uploadZone.classList.add('has-image');
-    elements.analyzeBtn.disabled = false;
-    elements.resetBtn.style.display = 'inline-flex';
-    state.imageData = ev.target.result;
+    const img = new Image();
+    img.onload = () => {
+      elements.previewImg.src = ev.target.result;
+      elements.previewImg.style.display = 'block';
+      elements.uploadIcon.style.display = 'none';
+      elements.uploadTitle.style.display = 'none';
+      elements.uploadSub.style.display = 'none';
+      elements.uploadZone.classList.add('has-image');
+      elements.analyzeBtn.disabled = false;
+      elements.resetBtn.classList.add('visible');
+      state.imageData = ev.target.result;
+      
+      elements.logArea.innerHTML = '';
+      addLog('info', `✅ Görüntü yüklendi: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)`);
+      addLog('info', `📐 Boyut: ${img.width}×${img.height} piksel`);
+      addLog('info', `▶️ "ANALİZİ BAŞLAT" butonuna basın`);
+      
+      elements.metricsSection.style.display = 'none';
+      elements.metricBars.innerHTML = '';
+      elements.resultCard.className = 'result-card';
+      elements.roiPreview.style.display = 'none';
+      state.logCount = 0;
+    };
     
-    elements.logArea.innerHTML = `
-      <div style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11px;padding:14px;text-align:center;">
-        ✅ Görüntü yüklendi: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)<br>
-        <span style="color:var(--muted);margin-top:4px;display:block">▶ ANALİZİ BAŞLAT butonuna basın</span>
-      </div>
-    `;
-    state.logCount = 0;
-    elements.logCount.textContent = '0 KAYIT';
-    elements.resultCard.className = 'result-card';
-    elements.metricsSection.style.display = 'none';
-    elements.roiPreview.style.display = 'none';
+    img.onerror = () => {
+      addLog('fail', '❌ Görüntü yüklenirken hata oluştu');
+      alert('Görüntü dosyası okunamadı. Lütfen başka bir dosya deneyin.');
+    };
+    
+    img.src = ev.target.result;
   };
   
-  reader.onerror = () => addLog('fail', '❌ Dosya okuma hatası');
+  reader.onerror = () => {
+    addLog('fail', '❌ Dosya okuma hatası');
+    alert('Dosya okunamadı!');
+  };
+  
   reader.readAsDataURL(file);
 }
 
@@ -1425,6 +1132,7 @@ function resetAll() {
   state.logCount = 0;
   state.isAnalyzing = false;
   state.roiData = null;
+  state.fileName = '';
   
   elements.fileInput.value = '';
   elements.previewImg.style.display = 'none';
@@ -1435,12 +1143,18 @@ function resetAll() {
   elements.uploadZone.classList.remove('has-image');
   elements.analyzeBtn.disabled = true;
   elements.analyzeBtn.textContent = '🔬 ANALİZİ BAŞLAT';
-  elements.resetBtn.style.display = 'none';
+  elements.analyzeBtn.classList.remove('analyzing');
+  elements.resetBtn.classList.remove('visible');
+  
   elements.logArea.innerHTML = `
-    <div style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:20px;text-align:center;opacity:0.5;">
-      Analiz başladığında kayıtlar burada görünecek...
+    <div class="empty-state">
+      📋 Analiz başladığında kayıtlar burada görünecek...<br>
+      <span style="font-size: 10px; opacity: 0.7; margin-top: 8px; display: block;">
+        Sistem 15 farklı forensik kuralı uygulayacaktır
+      </span>
     </div>
   `;
+  
   elements.logCount.textContent = '0 KAYIT';
   elements.resultCard.className = 'result-card';
   elements.metricsSection.style.display = 'none';
@@ -1450,6 +1164,7 @@ function resetAll() {
   elements.roiPreview.style.display = 'none';
 }
 
+// ==================== ANALİZ MOTORU ====================
 class AdvancedPlateAnalyzer {
   constructor(canvas) {
     this.canvas = canvas;
@@ -1464,23 +1179,33 @@ class AdvancedPlateAnalyzer {
   }
 
   async loadImage(src) {
-    const img = new Image();
-    img.src = src;
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        this.width = img.naturalWidth;
+        this.height = img.naturalHeight;
+        
+        // Canvas boyutlarını sınırla (performans için)
+        const maxDim = 1200;
+        if (this.width > maxDim || this.height > maxDim) {
+          const ratio = Math.min(maxDim / this.width, maxDim / this.height);
+          this.width = Math.floor(this.width * ratio);
+          this.height = Math.floor(this.height * ratio);
+        }
+        
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.ctx.drawImage(img, 0, 0, this.width, this.height);
+        this.total = this.width * this.height;
+        this.imageData = this.ctx.getImageData(0, 0, this.width, this.height);
+        this.px = this.imageData.data;
+        
+        resolve({ width: this.width, height: this.height });
+      };
       img.onerror = reject;
+      img.src = src;
     });
-    
-    this.width = img.naturalWidth;
-    this.height = img.naturalHeight;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
-    this.ctx.drawImage(img, 0, 0);
-    this.total = this.width * this.height;
-    this.imageData = this.ctx.getImageData(0, 0, this.width, this.height);
-    this.px = this.imageData.data;
-    
-    return { width: this.width, height: this.height };
   }
 
   rgbToHsv(r, g, b) {
@@ -1582,11 +1307,7 @@ class AdvancedPlateAnalyzer {
             minY = Math.min(minY, cy);
             maxY = Math.max(maxY, cy);
             
-            const neighbors = [
-              curr-1, curr+1, curr-W, curr+W,
-              curr-W-1, curr-W+1, curr+W-1, curr+W+1
-            ];
-            
+            const neighbors = [curr-1, curr+1, curr-W, curr+W];
             for (const n of neighbors) {
               if (n >= 0 && n < this.total && edgeMap[n] && !visited[n]) {
                 visited[n] = 1;
@@ -1598,6 +1319,9 @@ class AdvancedPlateAnalyzer {
           const area = component.length;
           const rectWidth = maxX - minX;
           const rectHeight = maxY - minY;
+          
+          if (rectWidth === 0 || rectHeight === 0) continue;
+          
           const aspectRatio = rectWidth / rectHeight;
           const rectangularity = area / (rectWidth * rectHeight);
           
@@ -1611,7 +1335,7 @@ class AdvancedPlateAnalyzer {
               for (let rx = minX; rx <= maxX; rx++) {
                 const ridx = ry*W+rx;
                 totalInRegion++;
-                if (this.hsv[ridx].v > 80 && this.hsv[ridx].s < 30) {
+                if (this.hsv[ridx] && this.hsv[ridx].v > 80 && this.hsv[ridx].s < 30) {
                   whiteInRegion++;
                 }
               }
@@ -1629,7 +1353,6 @@ class AdvancedPlateAnalyzer {
     }
     
     candidates.sort((a, b) => b.score - a.score);
-    
     return {
       detected: candidates.length > 0,
       candidates: candidates.slice(0, 5),
@@ -1643,12 +1366,11 @@ class AdvancedPlateAnalyzer {
     const rectScore = rect;
     const whiteScore = white > 0.5 ? 1 : white * 2;
     const edgeScore = Math.min(1, edgeDen * 5);
-    
     return aspectScore * 0.4 + rectScore * 0.2 + whiteScore * 0.3 + edgeScore * 0.1;
   }
 
   analyzeCharacterGrid(roi) {
-    if (!roi) return { valid: false, score: 0 };
+    if (!roi) return { valid: false, score: 0, peaks: 0, gaps: 0 };
     
     const { x, y, width, height } = roi;
     const W = this.width;
@@ -1683,10 +1405,8 @@ class AdvancedPlateAnalyzer {
       }
     }
     
-    const avgPeakHeight = peaks.reduce((a, p) => a + p.height, 0) / (peaks.length || 1);
-    const consistentPeaks = peaks.filter(p => 
-      Math.abs(p.height - avgPeakHeight) < avgPeakHeight * 0.5
-    );
+    const avgPeakHeight = peaks.length > 0 ? peaks.reduce((a, p) => a + p.height, 0) / peaks.length : 0;
+    const consistentPeaks = peaks.filter(p => Math.abs(p.height - avgPeakHeight) < avgPeakHeight * 0.5);
     
     const colSums = new Array(regionWidth).fill(0);
     for (let rx = 0; rx < regionWidth; rx++) {
@@ -1700,24 +1420,19 @@ class AdvancedPlateAnalyzer {
     
     const gaps = [];
     let inGap = false;
-    let gapStart = 0;
     
     for (let i = 0; i < colSums.length; i++) {
       const density = colSums[i] / regionHeight;
       if (density < 0.15 && !inGap) {
         inGap = true;
-        gapStart = i;
       } else if (density >= 0.15 && inGap) {
         inGap = false;
-        gaps.push({ start: gapStart, end: i, width: i - gapStart });
+        gaps.push(i);
       }
     }
     
-    const expectedGaps = 3;
-    const gapScore = Math.max(0, 1 - Math.abs(gaps.length - expectedGaps) / 3);
-    
-    const charLineScore = consistentPeaks.length >= 1 ? 
-      Math.min(1, consistentPeaks.length / 2) : 0;
+    const gapScore = Math.max(0, 1 - Math.abs(gaps.length - 3) / 3);
+    const charLineScore = consistentPeaks.length >= 1 ? Math.min(1, consistentPeaks.length / 2) : 0;
     
     return {
       valid: consistentPeaks.length >= 1 && gaps.length >= 2,
@@ -1736,6 +1451,7 @@ class AdvancedPlateAnalyzer {
     
     for (let i = 0; i < this.total; i++) {
       const hsv = this.hsv[i];
+      if (!hsv) continue;
       totalSat += hsv.s;
       totalVal += hsv.v;
       
@@ -1770,55 +1486,30 @@ class AdvancedPlateAnalyzer {
     const sections = [];
     
     for (let s = 0; s < 3; s++) {
-      const sx = x + s * sectionWidth;
+      const sx = Math.floor(x + s * sectionWidth);
       const darkPixels = [];
       
       for (let ry = Math.floor(height * 0.2); ry < Math.floor(height * 0.8); ry++) {
-        for (let rx = Math.floor(sx); rx < Math.floor(sx + sectionWidth); rx++) {
-          const idx = (y + ry) * W + rx;
-          if (this.lum[idx] < 60) {
+        for (let rx = 0; rx < Math.floor(sectionWidth); rx++) {
+          const idx = (y + ry) * W + (sx + rx);
+          if (idx < this.lum.length && this.lum[idx] < 60) {
             darkPixels.push({x: rx, y: ry});
           }
         }
       }
       
       const density = darkPixels.length / (sectionWidth * height * 0.6);
-      const xCoords = darkPixels.map(p => p.x);
-      const yCoords = darkPixels.map(p => p.y);
-      
-      const xVariance = this.calculateVariance(xCoords);
-      const yVariance = this.calculateVariance(yCoords);
-      
-      const hasStructure = density > 0.05 && density < 0.4 && 
-                          xVariance > 10 && yVariance > 5;
-      
-      sections.push({
-        section: s,
-        density,
-        xVariance,
-        yVariance,
-        hasStructure
-      });
+      sections.push({ section: s, density, hasStructure: density > 0.05 && density < 0.4 });
     }
     
     const pattern = sections.map(s => s.hasStructure);
     const validPattern = pattern[0] && pattern[2];
     
-    const densities = sections.map(s => s.density);
-    const densityVariance = this.calculateVariance(densities);
-    
     return {
-      valid: validPattern && densityVariance < 0.1,
-      score: (validPattern ? 70 : 0) + (densityVariance < 0.1 ? 30 : 0),
-      sections,
-      pattern
+      valid: validPattern,
+      score: validPattern ? 85 : 30,
+      sections
     };
-  }
-
-  calculateVariance(arr) {
-    if (arr.length === 0) return 0;
-    const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
-    return arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / arr.length;
   }
 
   analyzeNoiseConsistency() {
@@ -1831,16 +1522,20 @@ class AdvancedPlateAnalyzer {
     for (let by = 0; by < blocksY; by++) {
       for (let bx = 0; bx < blocksX; bx++) {
         const pixels = [];
-        for (let y = by * blockSize; y < (by + 1) * blockSize; y++) {
-          for (let x = bx * blockSize; x < (bx + 1) * blockSize; x++) {
+        for (let y = by * blockSize; y < (by + 1) * blockSize && y < H; y++) {
+          for (let x = bx * blockSize; x < (bx + 1) * blockSize && x < W; x++) {
             const idx = y * W + x;
-            pixels.push(this.lum[idx]);
+            if (idx < this.lum.length) pixels.push(this.lum[idx]);
           }
         }
-        const variance = this.calculateVariance(pixels);
-        blockVariances.push(variance);
+        if (pixels.length > 0) {
+          const variance = this.calculateVariance(pixels);
+          blockVariances.push(variance);
+        }
       }
     }
+    
+    if (blockVariances.length === 0) return { consistency: 0, score: 0, passed: false };
     
     const noiseVariance = this.calculateVariance(blockVariances);
     const avgVariance = blockVariances.reduce((a, b) => a + b, 0) / blockVariances.length;
@@ -1853,46 +1548,39 @@ class AdvancedPlateAnalyzer {
     };
   }
 
+  calculateVariance(arr) {
+    if (arr.length === 0) return 0;
+    const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+    return arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / arr.length;
+  }
+
   detectJPEGArtefacts() {
     const { width: W, height: H } = this;
     const blockSize = 8;
     
     const horizontalBlocks = [];
-    const verticalBlocks = [];
-    
     for (let y = 0; y < H; y += blockSize) {
       let diffSum = 0;
+      let count = 0;
       for (let x = 0; x < W; x++) {
         if (y > 0 && y < H - 1) {
           const idx = y * W + x;
-          const diff = Math.abs(this.lum[idx] - this.lum[idx - W]);
-          diffSum += diff;
+          if (idx < this.lum.length && idx - W >= 0) {
+            const diff = Math.abs(this.lum[idx] - this.lum[idx - W]);
+            diffSum += diff;
+            count++;
+          }
         }
       }
-      horizontalBlocks.push(diffSum / W);
-    }
-    
-    for (let x = 0; x < W; x += blockSize) {
-      let diffSum = 0;
-      for (let y = 0; y < H; y++) {
-        if (x > 0 && x < W - 1) {
-          const idx = y * W + x;
-          const diff = Math.abs(this.lum[idx] - this.lum[idx - 1]);
-          diffSum += diff;
-        }
-      }
-      verticalBlocks.push(diffSum / H);
+      horizontalBlocks.push(count > 0 ? diffSum / count : 0);
     }
     
     const hPeriodicity = this.detectPeriodicity(horizontalBlocks, 8);
-    const vPeriodicity = this.detectPeriodicity(verticalBlocks, 8);
-    
-    const artefactScore = (hPeriodicity + vPeriodicity) / 2;
+    const artefactScore = hPeriodicity;
     
     return {
       score: artefactScore * 100,
       hPeriodicity,
-      vPeriodicity,
       hasArtefacts: artefactScore > 0.6
     };
   }
@@ -1908,8 +1596,7 @@ class AdvancedPlateAnalyzer {
     }
     
     const avgDiff = correlation / count;
-    const normalized = Math.max(0, 1 - avgDiff / 50);
-    return normalized;
+    return Math.max(0, 1 - avgDiff / 50);
   }
 
   detectCopyMove() {
@@ -1917,18 +1604,24 @@ class AdvancedPlateAnalyzer {
     const blockSize = 16;
     const blocks = [];
     
-    for (let y = 0; y < H - blockSize; y += 4) {
-      for (let x = 0; x < W - blockSize; x += 4) {
+    for (let y = 0; y < H - blockSize; y += 8) {
+      for (let x = 0; x < W - blockSize; x += 8) {
         const blockData = [];
-        for (let by = 0; by < blockSize; by++) {
+        let valid = true;
+        for (let by = 0; by < blockSize && valid; by++) {
           for (let bx = 0; bx < blockSize; bx++) {
             const idx = (y + by) * W + (x + bx);
+            if (idx >= this.lum.length) {
+              valid = false;
+              break;
+            }
             blockData.push(Math.floor(this.lum[idx] / 16));
           }
         }
-        
-        const hash = blockData.reduce((a, b, i) => a + b * (i + 1), 0);
-        blocks.push({ x, y, hash });
+        if (valid) {
+          const hash = blockData.reduce((a, b, i) => a + b * ((i % 10) + 1), 0);
+          blocks.push({ x, y, hash });
+        }
       }
     }
     
@@ -1938,10 +1631,7 @@ class AdvancedPlateAnalyzer {
     for (const block of blocks) {
       if (hashMap.has(block.hash)) {
         const existing = hashMap.get(block.hash);
-        const distance = Math.sqrt(
-          Math.pow(block.x - existing.x, 2) + 
-          Math.pow(block.y - existing.y, 2)
-        );
+        const distance = Math.sqrt(Math.pow(block.x - existing.x, 2) + Math.pow(block.y - existing.y, 2));
         if (distance > blockSize * 2) {
           duplicates++;
         }
@@ -1950,7 +1640,7 @@ class AdvancedPlateAnalyzer {
       }
     }
     
-    const duplicationRatio = duplicates / blocks.length;
+    const duplicationRatio = blocks.length > 0 ? duplicates / blocks.length : 0;
     
     return {
       score: Math.max(0, 100 - duplicationRatio * 1000),
@@ -1959,23 +1649,12 @@ class AdvancedPlateAnalyzer {
     };
   }
 
-  async analyzeMetadata(fileData) {
-    const hasEXIF = fileData.includes('Exif') || 
-                    fileData.includes('JFIF') ||
-                    fileData.includes('<?xpacket');
-    
-    const suspiciousDimensions = [
-      [640, 480], [800, 600], [1024, 768], [1920, 1080]
-    ];
-    const isSuspiciousDim = suspiciousDimensions.some(
-      ([w, h]) => Math.abs(this.width - w) < 10 && Math.abs(this.height - h) < 10
-    );
-    
+  analyzeMetadata(fileData) {
+    const hasEXIF = fileData.includes('Exif') || fileData.includes('JFIF') || fileData.includes('<?xpacket');
     return {
       hasEXIF,
-      isSuspiciousDim,
-      score: (hasEXIF ? 60 : 20) + (isSuspiciousDim ? 0 : 40),
-      passed: hasEXIF && !isSuspiciousDim
+      score: hasEXIF ? 80 : 40,
+      passed: hasEXIF
     };
   }
 
@@ -1992,6 +1671,8 @@ class AdvancedPlateAnalyzer {
     for (let y = 1; y < H-1; y++) {
       for (let x = 1; x < W-1; x++) {
         const idx = y*W+x;
+        if (idx >= this.lum.length) continue;
+        
         const gx = -this.lum[idx-W-1] - 2*this.lum[idx-1] - this.lum[idx+W-1] + 
                     this.lum[idx-W+1] + 2*this.lum[idx+1] + this.lum[idx+W+1];
         const gy = -this.lum[idx-W-1] - 2*this.lum[idx-W] - this.lum[idx-W+1] + 
@@ -2001,27 +1682,9 @@ class AdvancedPlateAnalyzer {
       }
     }
     
-    const avg = sum / count;
+    const avg = count > 0 ? sum / count : 0;
     const score = Math.min(100, (avg / 50) * 100);
     return { score, avg, passed: avg >= CONFIG.thresholds.sobel };
-  }
-
-  calculateLaplacian() {
-    const { width: W, height: H, total } = this;
-    let sum = 0;
-    
-    for (let y = 1; y < H-1; y++) {
-      for (let x = 1; x < W-1; x++) {
-        const idx = y*W+x;
-        const lap = -this.lum[idx-W] - this.lum[idx-1] + 4*this.lum[idx] - 
-                     this.lum[idx+1] - this.lum[idx+W];
-        sum += lap * lap;
-      }
-    }
-    
-    const variance = sum / total;
-    const score = Math.min(100, (variance / 3000) * 100);
-    return { score, variance, passed: variance >= CONFIG.thresholds.laplacian };
   }
 
   calculateHistogram() {
@@ -2048,43 +1711,9 @@ class AdvancedPlateAnalyzer {
     
     const { min, max } = CONFIG.thresholds.entropy;
     const passed = entropy >= min && entropy <= max;
-    const score = passed ? 
-      Math.min(100, 100 - Math.abs(entropy - 5.5) * 12) : 
-      20;
+    const score = passed ? Math.min(100, 100 - Math.abs(entropy - 5.5) * 12) : 20;
     
     return { score, entropy, passed };
-  }
-
-  calculateBorder() {
-    const { width: W, height: H } = this;
-    const bW = Math.floor(W * 0.04), bH = Math.floor(H * 0.08);
-    let dark = 0, total = 0;
-    
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < bW; x++) {
-        if (this.lum[y*W+x] < 80) dark++;
-        total++;
-      }
-      for (let x = W-bW; x < W; x++) {
-        if (this.lum[y*W+x] < 80) dark++;
-        total++;
-      }
-    }
-    
-    for (let x = 0; x < W; x++) {
-      for (let y = 0; y < bH; y++) {
-        if (this.lum[y*W+x] < 80) dark++;
-        total++;
-      }
-      for (let y = H-bH; y < H; y++) {
-        if (this.lum[y*W+x] < 80) dark++;
-        total++;
-      }
-    }
-    
-    const ratio = dark / total;
-    const score = Math.min(100, (ratio / 0.15) * 100);
-    return { score, ratio, passed: ratio >= CONFIG.thresholds.border };
   }
 
   getROICanvas(roi) {
@@ -2105,22 +1734,26 @@ class AdvancedPlateAnalyzer {
     roiCtx.lineWidth = 3;
     roiCtx.strokeRect(0, 0, roi.width, roi.height);
     
-    return roiCanvas.toDataURL();
+    return roiCanvas.toDataURL('image/jpeg', 0.9);
   }
 }
 
+// ==================== ANA ANALİZ FONKSİYONU ====================
 async function startAnalysis() {
   if (!state.imageData || state.isAnalyzing) return;
   
   state.isAnalyzing = true;
   const btn = elements.analyzeBtn;
   btn.disabled = true;
-  btn.textContent = '⏳ ANALİZ EDİLİYOR...';
+  btn.innerHTML = '<span class="loading-spinner"></span> ANALİZ EDİLİYOR...';
+  btn.classList.add('analyzing');
+  
   elements.progressBar.style.display = 'block';
   elements.resultCard.className = 'result-card';
   elements.metricsSection.style.display = 'block';
   elements.metricBars.innerHTML = '';
   state.logCount = 0;
+  elements.logArea.innerHTML = '';
 
   try {
     addLog('info', '🔬 Gelişmiş Forensik Analiz Motoru v5.0 başlatılıyor...');
@@ -2128,180 +1761,191 @@ async function startAnalysis() {
     
     const analyzer = new AdvancedPlateAnalyzer(elements.canvas);
     
-    addLog('info', '📐 Görüntü yükleniyor...');
+    addLog('info', '📐 Görüntü yükleniyor ve optimize ediliyor...');
     const { width, height } = await analyzer.loadImage(state.imageData);
-    addLog('info', `📏 Boyut: ${width}×${height} piksel`);
+    addLog('info', `📏 İşlem boyutu: ${width}×${height} piksel`);
     setProgress(5);
     await sleep(200);
 
-    addLog('scan', '⚙️ Özellik vektörleri çıkarılıyor...');
+    addLog('scan', '⚙️ Renk uzayı ve parlaklık analizi...');
     const features = analyzer.extractFeatures();
-    addLog('info', `💡 Parlaklık aralığı: ${features.minL.toFixed(0)}-${features.maxL.toFixed(0)}`);
+    addLog('info', `💡 Parlaklık aralığı: ${features.minL.toFixed(0)}-${features.maxL.toFixed(0)} (Ort: ${features.avgL.toFixed(0)})`);
     setProgress(10);
     await sleep(200);
 
-    addLog('scan', '[R1] Plaka bölgesi tespiti başlıyor...');
-    await sleep(300);
+    addLog('scan', '[R1] Plaka bölgesi tespiti (Edge Detection)...');
+    await sleep(400);
     const roiResult = analyzer.detectPlateRegion();
     
-    if (!roiResult.detected) {
-      addLog('fail', '❌ [R1] PLAKA BÖLGESİ BULUNAMADI!');
-      addLog('fail', '⚠️ Görüntüde plaka benzeri yapı tespit edilemedi.');
-      addLog('fail', '📋 Bu bir plaka fotoğrafı değil veya çok düşük kaliteli.');
+    if (!roiResult.detected || !roiResult.best) {
+      addLog('fail', '❌ [R1] KRİTİK: Plaka bölgesi bulunamadı!');
+      addLog('fail', '⚠️ Görüntüde dikdörtgen plaka yapısı tespit edilemedi.');
+      addLog('info', '💡 Öneri: Daha net, düzgün açılı bir plaka fotoğrafı yükleyin.');
       
       displayNotPlateResult(width, height);
-      state.isAnalyzing = false;
-      btn.disabled = false;
-      btn.textContent = '🔬 ANALİZİ BAŞLAT';
       return;
     }
     
     const bestROI = roiResult.best;
     state.roiData = bestROI;
     
-    addLog(roiResult.detected ? 'pass' : 'fail', 
-      `[R1] ROI Tespiti: <strong>${roiResult.candidates.length}</strong> aday | En iyi skor: <strong>${bestROI.score.toFixed(2)}</strong>`);
-    addLog('info', `📍 Konum: (${bestROI.x},${bestROI.y}) ${bestROI.width}×${bestROI.height}`);
-    addMetricBar('R1 ROI Tespiti', bestROI.score * 100, 100, bestROI.score > 0.6 ? 'green' : 'warn');
+    addLog('pass', `[R1] ROI Tespiti: ${roiResult.candidates.length} aday bölge`);
+    addLog('info', `📍 En iyi eşleşme: (${bestROI.x},${bestROI.y}) ${bestROI.width}×${bestROI.height}`);
+    addLog('info', `📐 En/Boy oranı: ${bestROI.aspectRatio.toFixed(2)} | Dikdörtgenlik: ${(bestROI.rectangularity*100).toFixed(0)}%`);
+    addMetricBar('R1 ROI Tespiti', bestROI.score * 100, 100, bestROI.score > 0.6 ? 'green' : 'amber');
     setProgress(20);
+
+    // ROI önizleme
+    try {
+      const roiDataURL = analyzer.getROICanvas(bestROI);
+      if (roiDataURL) {
+        elements.roiImg.src = roiDataURL;
+        elements.roiPreview.style.display = 'block';
+        addLog('info', '✅ ROI önizlemesi oluşturuldu');
+      }
+    } catch (e) {
+      addLog('warn', '⚠️ ROI önizlemesi oluşturulamadı');
+    }
     await sleep(200);
 
-    const roiDataURL = analyzer.getROICanvas(bestROI);
-    if (roiDataURL) {
-      elements.roiImg.src = roiDataURL;
-      elements.roiPreview.style.display = 'block';
-    }
-
-    addLog('scan', '[R2] Karakter grid analizi...');
-    await sleep(250);
+    addLog('scan', '[R2] Karakter grid analizi (OCR yapısı)...');
+    await sleep(300);
     const charGrid = analyzer.analyzeCharacterGrid(bestROI);
-    addLog(charGrid.valid ? 'pass' : 'fail', 
-      `[R2] Karakter yapısı: <strong>${charGrid.peaks}</strong> satır | <strong>${charGrid.gaps}</strong> boşluk | Skor: <strong>${charGrid.score.toFixed(1)}</strong>`);
-    addMetricBar('R2 Karakter Grid', charGrid.score, 100, charGrid.valid ? 'green' : 'red');
+    const charColor = charGrid.valid ? 'green' : (charGrid.score > 30 ? 'amber' : 'red');
+    addLog(charGrid.valid ? 'pass' : (charGrid.score > 30 ? 'warn' : 'fail'), 
+      `[R2] Karakter yapısı: ${charGrid.peaks} satır | ${charGrid.gaps} boşluk | Skor: ${charGrid.score.toFixed(1)}`);
+    addMetricBar('R2 Karakter Grid', charGrid.score, 100, charColor);
     setProgress(30);
     await sleep(200);
 
-    addLog('scan', '[R3] Format doğrulama...');
+    addLog('scan', '[R3] Format doğrulama (İl Kodu + Harf + Rakam)...');
     await sleep(250);
     const format = analyzer.validateFormat(bestROI);
     addLog(format.valid ? 'pass' : 'warn', 
-      `[R3] Format tutarlılığı: <strong>${format.score.toFixed(1)}</strong>/100`);
-    addMetricBar('R3 Format', format.score, 100, format.valid ? 'green' : 'warn');
+      `[R3] Format tutarlılığı: ${format.score.toFixed(0)}/100`);
+    addMetricBar('R3 Format', format.score, 100, format.valid ? 'green' : 'amber');
     setProgress(38);
     await sleep(200);
 
-    addLog('scan', '[R4] Renk uzayı analizi (HSV)...');
-    await sleep(250);
+    addLog('scan', '[R4] Renk uzayı analizi (HSV - Beyaz zemin kontrolü)...');
+    await sleep(300);
     const colorSpace = analyzer.analyzeColorSpace();
-    addLog(colorSpace.isPlateColors ? 'pass' : 'fail', 
-      `[R4] Beyaz zemin: <strong>${(colorSpace.whiteRatio*100).toFixed(1)}%</strong> | Siyah metin: <strong>${(colorSpace.blackRatio*100).toFixed(2)}%</strong>`);
+    const colorStatus = colorSpace.isPlateColors ? 'pass' : (colorSpace.whiteRatio > 0.4 ? 'warn' : 'fail');
+    addLog(colorStatus, 
+      `[R4] Beyaz zemin: ${(colorSpace.whiteRatio*100).toFixed(1)}% | Siyah metin: ${(colorSpace.blackRatio*100).toFixed(2)}%`);
     addLog(colorSpace.reflectiveRatio > 0.3 ? 'pass' : 'warn',
-      `[R4] Retroreflective: <strong>${(colorSpace.reflectiveRatio*100).toFixed(1)}%</strong> ${colorSpace.reflectiveRatio > 0.3 ? '(Orijinal plaka özelliği)' : '(Düşük yansıma)'}`);
-    addMetricBar('R4 Renk Uzayı', colorSpace.isPlateColors ? 85 : 40, 100, colorSpace.isPlateColors ? 'green' : 'red');
+      `[R4] Retroreflective: ${(colorSpace.reflectiveRatio*100).toFixed(1)}% ${colorSpace.reflectiveRatio > 0.3 ? '(✅ Plaka özelliği)' : '(⚠️ Düşük yansıma)'}`);
+    addMetricBar('R4 Renk Uzayı', colorSpace.isPlateColors ? 85 : (colorSpace.whiteRatio > 0.4 ? 50 : 25), 100, colorSpace.isPlateColors ? 'green' : 'amber');
     setProgress(46);
     await sleep(200);
 
-    addLog('scan', '[R5] En/Boy oranı kontrolü...');
+    addLog('scan', '[R5] En/Boy oranı kontrolü (Türk Plakası: ~4.7)...');
     await sleep(200);
     const aspectRatio = bestROI.width / bestROI.height;
     const aspectValid = aspectRatio >= CONFIG.plateDetection.minAspectRatio && 
                         aspectRatio <= CONFIG.plateDetection.maxAspectRatio;
-    addLog(aspectValid ? 'pass' : 'fail', 
-      `[R5] Oran: <strong>${aspectRatio.toFixed(2)}</strong> (Hedef: 3.5-5.2)`);
-    addMetricBar('R5 Aspect Ratio', aspectValid ? 90 : 30, 100, aspectValid ? 'green' : 'red');
+    addLog(aspectValid ? 'pass' : 'warn', 
+      `[R5] Oran: ${aspectRatio.toFixed(2)} (Hedef: 3.5-5.2)`);
+    addMetricBar('R5 Aspect Ratio', aspectValid ? 90 : 40, 100, aspectValid ? 'green' : 'amber');
     setProgress(52);
     await sleep(200);
 
-    addLog('scan', '[R6] Kontrast derinliği...');
+    addLog('scan', '[R6] Kontrast derinliği analizi...');
     await sleep(200);
     const r6 = analyzer.calculateContrast(features.minL, features.maxL);
-    addLog(r6.passed ? 'pass' : 'fail', 
-      `[R6] Kontrast: ${features.minL.toFixed(0)}–${features.maxL.toFixed(0)} | Skor: <strong>${r6.score.toFixed(1)}</strong>`);
-    addMetricBar('R6 Kontrast', r6.score, 100, r6.passed ? 'green' : 'red');
+    addLog(r6.passed ? 'pass' : 'warn', 
+      `[R6] Kontrast: ${r6.range.toFixed(0)} seviye | Skor: ${r6.score.toFixed(0)}`);
+    addMetricBar('R6 Kontrast', r6.score, 100, r6.passed ? 'green' : 'amber');
     setProgress(58);
     await sleep(200);
 
-    addLog('scan', '[R7] Sobel kenar tespiti...');
+    addLog('scan', '[R7] Sobel kenar keskinliği tespiti...');
     await sleep(200);
     const r7 = analyzer.calculateSobel();
-    addLog(r7.passed ? 'pass' : 'fail', 
-      `[R7] Sobel: <strong>${r7.avg.toFixed(2)}</strong> | Skor: <strong>${r7.score.toFixed(1)}</strong>`);
-    addMetricBar('R7 Kenar Keskinliği', r7.score, 100, r7.passed ? 'green' : 'red');
+    addLog(r7.passed ? 'pass' : 'warn', 
+      `[R7] Kenar keskinliği: ${r7.avg.toFixed(2)} | Skor: ${r7.score.toFixed(0)}`);
+    addMetricBar('R7 Kenar Keskinliği', r7.score, 100, r7.passed ? 'green' : 'amber');
     setProgress(64);
     await sleep(200);
 
-    addLog('scan', '[R8] JPEG artefakt analizi...');
+    addLog('scan', '[R8] JPEG artefakt (bloklama) analizi...');
     await sleep(250);
     const jpeg = analyzer.detectJPEGArtefacts();
     addLog(jpeg.hasArtefacts ? 'warn' : 'pass', 
-      `[R8] JPEG Periodicity: H=<strong>${jpeg.hPeriodicity.toFixed(2)}</strong> V=<strong>${jpeg.vPeriodicity.toFixed(2)}</strong>`);
-    addMetricBar('R8 JPEG Artefakt', jpeg.score, 100, jpeg.hasArtefacts ? 'warn' : 'green');
+      `[R8] JPEG Periodicity: ${jpeg.hPeriodicity.toFixed(2)} ${jpeg.hasArtefacts ? '(⚠️ Şüpheli)' : '(✅ Normal)'}`);
+    addMetricBar('R8 JPEG Artefakt', jpeg.score, 100, jpeg.hasArtefacts ? 'amber' : 'green');
     setProgress(70);
     await sleep(200);
 
-    addLog('scan', '[R9] Gürültü tutarlılığı...');
+    addLog('scan', '[R9] Gürültü tutarlılığı (Noise analizi)...');
     await sleep(250);
     const noise = analyzer.analyzeNoiseConsistency();
     addLog(noise.passed ? 'pass' : 'warn', 
-      `[R9] Tutarlılık: <strong>${noise.consistency.toFixed(3)}</strong> | Skor: <strong>${noise.score.toFixed(1)}</strong>`);
-    addMetricBar('R9 Gürültü', noise.score, 100, noise.passed ? 'green' : 'warn');
+      `[R9] Tutarlılık: ${noise.consistency.toFixed(3)} | Skor: ${noise.score.toFixed(0)}`);
+    addMetricBar('R9 Gürültü', noise.score, 100, noise.passed ? 'green' : 'amber');
     setProgress(76);
     await sleep(200);
 
-    addLog('scan', '[R10] Histogram dengesi...');
+    addLog('scan', '[R10] Histogram dengesi (Piksel dağılımı)...');
     await sleep(200);
     const r10 = analyzer.calculateHistogram();
-    addLog(r10.passed ? 'pass' : 'fail', 
-      `[R10] Dominant: <strong>${(r10.dominance*100).toFixed(1)}%</strong> | Skor: <strong>${r10.score.toFixed(1)}</strong>`);
-    addMetricBar('R10 Histogram', r10.score, 100, r10.passed ? 'green' : 'red');
+    addLog(r10.passed ? 'pass' : 'warn', 
+      `[R10] Dominant renk: ${(r10.dominance*100).toFixed(1)}% | Skor: ${r10.score.toFixed(0)}`);
+    addMetricBar('R10 Histogram', r10.score, 100, r10.passed ? 'green' : 'amber');
     setProgress(82);
     await sleep(200);
 
-    addLog('scan', '[R11] Metadata analizi...');
+    addLog('scan', '[R11] Metadata bütünlüğü kontrolü...');
     await sleep(200);
-    const meta = await analyzer.analyzeMetadata(state.imageData);
+    const meta = analyzer.analyzeMetadata(state.imageData);
     addLog(meta.hasEXIF ? 'pass' : 'warn', 
-      `[R11] EXIF: <strong>${meta.hasEXIF ? 'Mevcut' : 'Eksik'}</strong> | Şüpheli boyut: <strong>${meta.isSuspiciousDim ? 'Evet' : 'Hayır'}</strong>`);
-    addMetricBar('R11 Metadata', meta.score, 100, meta.passed ? 'green' : 'warn');
+      `[R11] EXIF verisi: ${meta.hasEXIF ? '✅ Mevcut' : '⚠️ Eksik veya silinmiş'}`);
+    addMetricBar('R11 Metadata', meta.score, 100, meta.hasEXIF ? 'green' : 'amber');
     setProgress(88);
     await sleep(200);
 
-    addLog('scan', '[R12] Kopya bölge tespiti...');
-    await sleep(300);
+    addLog('scan', '[R12] Kopya-bölge tespiti (Copy-Move Detection)...');
+    await sleep(400);
     const copyMove = analyzer.detectCopyMove();
     addLog(!copyMove.hasCopyMove ? 'pass' : 'fail', 
-      `[R12] Duplikasyon: <strong>${(copyMove.duplicationRatio*100).toFixed(2)}%</strong> ${copyMove.hasCopyMove ? '⚠️ KOPYA TESPİTİ!' : '✅ Temiz'}`);
+      `[R12] Benzer blok oranı: ${(copyMove.duplicationRatio*100).toFixed(2)}% ${copyMove.hasCopyMove ? '🚨 (SAHTECİLİK ŞÜPHESİ!)' : '✅ (Temiz)'}`);
     addMetricBar('R12 Copy-Move', copyMove.score, 100, !copyMove.hasCopyMove ? 'green' : 'red');
     setProgress(94);
     await sleep(200);
 
-    addLog('scan', '[R13-15] Nihai değerlendirme...');
+    addLog('scan', '[R13-15] Entropy analizi ve nihai değerlendirme...');
     await sleep(300);
     
+    const entropy = analyzer.calculateEntropy(r10.hist);
+    addLog(entropy.passed ? 'pass' : 'warn',
+      `[R14] Entropy: ${entropy.entropy.toFixed(2)} bit (Hedef: 3.5-7.5)`);
+    
+    // Kritik kontroller
     const criticalChecks = [
       roiResult.detected && bestROI.score > 0.5,
-      charGrid.valid,
+      charGrid.valid || charGrid.score > 40,
       format.valid || format.score > 50,
-      colorSpace.isPlateColors,
+      colorSpace.isPlateColors || colorSpace.whiteRatio > 0.4,
       aspectValid
     ];
     
     const passedCritical = criticalChecks.filter(x => x).length;
     const criticalFail = criticalChecks.length - passedCritical;
     
+    // Ağırlıklı skor hesaplama
     const weights = {
       roiDetection: { score: bestROI.score * 100, ...CONFIG.weights.roiDetection },
       charGrid: { score: charGrid.score, ...CONFIG.weights.charGrid },
       formatCheck: { score: format.score, ...CONFIG.weights.formatCheck },
-      colorSpace: { score: colorSpace.isPlateColors ? 85 : 30, ...CONFIG.weights.colorSpace },
+      colorSpace: { score: colorSpace.isPlateColors ? 85 : (colorSpace.whiteRatio > 0.4 ? 50 : 20), ...CONFIG.weights.colorSpace },
       aspectRatio: { score: aspectValid ? 90 : 30, ...CONFIG.weights.aspectRatio },
       contrast: { score: r6.score, ...CONFIG.weights.contrast },
       sobel: { score: r7.score, ...CONFIG.weights.sobel },
       jpegArtefact: { score: jpeg.score, ...CONFIG.weights.jpegArtefact },
       noise: { score: noise.score, ...CONFIG.weights.noise },
       histogram: { score: r10.score, ...CONFIG.weights.histogram },
-      metadata: { score: meta.score, ...CONFIG.weights.metadata },
-      copyMove: { score: copyMove.score, ...CONFIG.weights.copyMove }
+      copyMove: { score: copyMove.score, ...CONFIG.weights.copyMove },
+      metadata: { score: meta.score, ...CONFIG.weights.metadata }
     };
     
     let weightedSum = 0, totalWeight = 0;
@@ -2310,39 +1954,40 @@ async function startAnalysis() {
       totalWeight += v.w;
     }
     
-    const finalScore = weightedSum / totalWeight;
+    const finalScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
     
-    addLog('info', `[R15] Ağırlıklı Güven Skoru: <strong>${finalScore.toFixed(1)}/100</strong>`);
-    addLog('info', `📊 Kritik kontrol: <strong>${passedCritical}/${criticalChecks.length}</strong> geçti`);
+    addLog('info', `📊 Kritik kontrol sonucu: ${passedCritical}/${criticalChecks.length} test geçildi`);
+    addLog('info', `🎯 Ağırlıklı Güven Skoru: <strong>${finalScore.toFixed(1)}/100</strong>`);
     setProgress(100);
     await sleep(300);
 
+    // Karar verme
     let verdict, verClass, verIcon, verDesc;
     
-    if (criticalFail >= 2 || !roiResult.detected) {
-      verdict = 'PLAKA DEĞİL';
+    if (criticalFail >= 3 || !roiResult.detected) {
+      verdict = 'PLAKA DEĞİL / GEÇERSİZ';
       verClass = 'not-plate';
       verIcon = '❌';
-      verDesc = `Kritik plaka özellikleri eksik (${criticalFail} başarısız). Bu görüntü bir plaka içermiyor.`;
-    } else if (finalScore < 40 || (criticalFail >= 1 && finalScore < 50)) {
+      verDesc = `Görüntüde plaka yapısı tespit edilemedi veya çok düşük güven (${criticalFail} kritik başarısız).`;
+    } else if (copyMove.hasCopyMove || finalScore < 35) {
       verdict = 'APK / SAHTE PLAKA';
       verClass = 'fake';
       verIcon = '🚨';
-      verDesc = `Plaka yapısı tespit edildi ancak sahtecilik izleri var. Güven skoru çok düşük.`;
+      verDesc = `Plaka yapısı var ancak sahtecilik izleri tespit edildi (Copy-Move: ${(copyMove.duplicationRatio*100).toFixed(1)}%).`;
     } else if (finalScore < 65 || criticalFail === 1) {
       verdict = 'KUŞKULU PLAKA';
       verClass = 'suspicious';
       verIcon = '⚠️';
-      verDesc = `Plaka yapısı mevcut ancak bazı tutarsızlıklar var. Manuel inceleme önerilir.`;
+      verDesc = `Plaka yapısı mevcut ancak bazı tutarsızlıklar var (${criticalFail} kritik uyarı). Manuel inceleme önerilir.`;
     } else {
       verdict = 'ORİJİNAL PLAKA';
       verClass = 'original';
       verIcon = '✅';
-      verDesc = `Tüm kritere göre orijinal Türk plakası. Yapısal ve renk analizi tutarlı.`;
+      verDesc = `Tüm kriterlere göre orijinal Türk plakası. Yapısal ve renk analizi tutarlı (${passedCritical}/${criticalChecks.length} geçti).`;
     }
 
-    addLog(verClass === 'original' ? 'pass' : verClass === 'fake' ? 'fail' : 'warn',
-      `🎯 KARAR: <strong>${verdict}</strong> — Skor: ${finalScore.toFixed(1)}`);
+    addLog(verClass === 'original' ? 'pass' : (verClass === 'fake' ? 'fail' : 'warn'),
+      `🎯 NİHAİ KARAR: <strong>${verdict}</strong> (Skor: ${finalScore.toFixed(1)})`);
 
     const findings = generateFindings({
       roi: roiResult,
@@ -2358,19 +2003,22 @@ async function startAnalysis() {
       histogram: r10,
       meta,
       copyMove,
-      criticalFail
+      criticalFail,
+      passedCritical
     });
 
     displayResult(verdict, verClass, verIcon, verDesc, finalScore, findings, 
       width, height, bestROI, criticalFail, passedCritical);
 
   } catch (error) {
-    addLog('fail', `❌ Analiz hatası: ${error.message}`);
-    console.error(error);
+    console.error('Analiz hatası:', error);
+    addLog('fail', `❌ Kritik hata: ${error.message}`);
+    alert('Analiz sırasında bir hata oluştu. Lütfen sayfayı yenileyip tekrar deneyin.');
   } finally {
     state.isAnalyzing = false;
     btn.disabled = false;
     btn.textContent = '🔬 ANALİZİ BAŞLAT';
+    btn.classList.remove('analyzing');
   }
 }
 
@@ -2378,52 +2026,59 @@ function generateFindings(data) {
   const findings = [];
   
   findings.push(data.roi.detected && data.roi.best.score > 0.5
-    ? { type: 'pass', icon: '🟢', text: 'Plaka Bölgesi Tespit Edildi (R1)', 
-        sub: `Güven: ${(data.roi.best.score*100).toFixed(0)}% | Boyut: ${data.roi.best.width}×${data.roi.best.height}` }
-    : { type: 'fail', icon: '🔴', text: 'Plaka Bölgesi Bulunamadı (R1)', 
+    ? { type: 'pass', icon: '✓', text: 'Plaka Bölgesi Tespit Edildi (R1)', 
+        sub: `Güven: ${(data.roi.best.score*100).toFixed(0)}% | Boyut: ${data.roi.best.width}×${data.roi.best.height}px` }
+    : { type: 'fail', icon: '✕', text: 'Plaka Bölgesi Bulunamadı (R1)', 
         sub: 'Görüntüde dikdörtgen plaka yapısı tespit edilemedi' }
   );
   
   findings.push(data.charGrid.valid
-    ? { type: 'pass', icon: '🟢', text: 'Karakter Yapısı Doğrulandı (R2)', 
-        sub: `${data.charGrid.peaks} satır, ${data.charGrid.gaps} boşluk tespit edildi` }
-    : { type: 'fail', icon: '🔴', text: 'Karakter Yapısı Anomalisi (R2)', 
-        sub: 'Plaka formatına uygun karakter dağılımı bulunamadı' }
+    ? { type: 'pass', icon: '✓', text: 'Karakter Yapısı Doğrulandı (R2)', 
+        sub: `${data.charGrid.peaks} karakter satırı, ${data.charGrid.gaps} boşluk tespit edildi` }
+    : { type: 'warn', icon: '!', text: 'Karakter Yapısı Zayıf (R2)', 
+        sub: `Skor: ${data.charGrid.score.toFixed(0)}% - OCR için yetersir veri` }
   );
   
   findings.push(data.colorSpace.isPlateColors
-    ? { type: 'pass', icon: '🟢', text: 'Plaka Renk Profili Uyumlu (R4)', 
-        sub: `Beyaz zemin: ${(data.colorSpace.whiteRatio*100).toFixed(0)}%` }
-    : { type: 'fail', icon: '🔴', text: 'Renk Profili Sapması (R4)', 
-        sub: 'Beyaz zemin ve siyah metin oranları plaka standartlarına uymuyor' }
+    ? { type: 'pass', icon: '✓', text: 'Plaka Renk Profili Uyumlu (R4)', 
+        sub: `Beyaz zemin: ${(data.colorSpace.whiteRatio*100).toFixed(0)}%, Siyah metin: ${(data.colorSpace.blackRatio*100).toFixed(1)}%` }
+    : { type: 'warn', icon: '!', text: 'Renk Profili Sapması (R4)', 
+        sub: 'Beyaz zemin ve siyah metin oranları standart dışı' }
   );
   
   findings.push(data.aspectValid
-    ? { type: 'pass', icon: '🟢', text: 'Türk Plakası Formatı (R5)', 
-        sub: `Oran: ${data.aspectRatio.toFixed(2)} (Hedef: ~4.7)` }
-    : { type: 'fail', icon: '🔴', text: 'Format Oranı Anomalisi (R5)', 
-        sub: 'En/boy oranı Türk plakası standartları dışında' }
+    ? { type: 'pass', icon: '✓', text: 'Türk Plakası Formatı (R5)', 
+        sub: `En/Boy oranı: ${data.aspectRatio.toFixed(2)} (Standart: ~4.7)` }
+    : { type: 'warn', icon: '!', text: 'Format Oranı Anomalisi (R5)', 
+        sub: 'Oran Türk plakası standartları dışında (3.5-5.2 arası olmalı)' }
   );
   
   findings.push(!data.jpeg.hasArtefacts
-    ? { type: 'pass', icon: '🟢', text: 'JPEG Artefaktı Normal (R8)', 
-        sub: 'Sıkıştırma izleri doğal seviyede' }
-    : { type: 'warn', icon: '🟡', text: 'Şüpheli JPEG Sıkıştırma (R8)', 
-        sub: 'Düzenli blok yapısı - müdahale izi olabilir' }
+    ? { type: 'pass', icon: '✓', text: 'JPEG Artefaktı Normal (R8)', 
+        sub: 'Sıkıştırma izleri doğal seviyede, manipülasyon izi yok' }
+    : { type: 'warn', icon: '!', text: 'Şüpheli JPEG Sıkıştırma (R8)', 
+        sub: 'Düzenli blok yapısı tespit edildi - müdahale olasılığı' }
   );
   
   findings.push(!data.copyMove.hasCopyMove
-    ? { type: 'pass', icon: '🟢', text: 'Kopya Bölge Tespiti Negatif (R12)', 
-        sub: 'Görüntüde kopyalanmış alan tespit edilmedi' }
-    : { type: 'fail', icon: '🔴', text: 'Kopya Bölge Tespiti! (R12)', 
-        sub: `Benzer blok oranı: ${(data.copyMove.duplicationRatio*100).toFixed(1)}%` }
+    ? { type: 'pass', icon: '✓', text: 'Kopya Bölge Tespiti Negatif (R12)', 
+        sub: 'Görüntüde kopyalanmış/çiftlenmiş alan tespit edilmedi' }
+    : { type: 'fail', icon: '✕', text: 'KOPYA BÖLGE TESPİTİ! (R12)', 
+        sub: `Benzer blok oranı: ${(data.copyMove.duplicationRatio*100).toFixed(1)}% - Sahtecilik şüphesi yüksek` }
   );
   
   findings.push(data.meta.hasEXIF
-    ? { type: 'pass', icon: '🟢', text: 'Metadata Mevcut (R11)', 
-        sub: 'EXIF verisi bulundu' }
-    : { type: 'warn', icon: '🟡', text: 'Metadata Eksik (R11)', 
-        sub: 'EXIF verisi olmayabilir veya silinmiş olabilir' }
+    ? { type: 'pass', icon: '✓', text: 'Metadata Mevcut (R11)', 
+        sub: 'EXIF verisi korunmuş, kamera bilgisi mevcut' }
+    : { type: 'warn', icon: '!', text: 'Metadata Eksik (R11)', 
+        sub: 'EXIF verisi yok - sosyal medya kaynağı veya düzenleme olabilir' }
+  );
+  
+  findings.push(data.noise.passed
+    ? { type: 'pass', icon: '✓', text: 'Gürültü Tutarlılığı Normal (R9)', 
+        sub: 'Piksel gürültü dağılımı doğal ve tutarlı' }
+    : { type: 'warn', icon: '!', text: 'Gürültü Tutarsızlığı (R9)', 
+        sub: 'Görüntüde farklı kaynaklardan birleştirme olabilir' }
   );
   
   return findings;
@@ -2437,10 +2092,10 @@ function displayNotPlateResult(width, height) {
     <div class="result-banner not-plate">
       <div class="result-icon-big">❌</div>
       <div class="result-info">
-        <h2 class="gray">PLAKA DEĞİL</h2>
+        <h2 class="gray">PLAKA DEĞİL / GEÇERSİZ</h2>
         <p>Görüntüde plaka yapısı tespit edilemedi</p>
         <p style="margin-top:8px;font-size:13px;color:#888">
-          Kritik plaka özellikleri (dikdörtgen form, beyaz zemin, karakter yapısı) bulunamadı
+          Kritik plaka özellikleri (dikdörtgen form, beyaz zemin, karakter yapısı) bulunamadı.
         </p>
       </div>
       <div class="score-circle">
@@ -2486,22 +2141,24 @@ function displayNotPlateResult(width, height) {
       </div>
       <div class="detail-cell">
         <div class="detail-cell-label">Öneri</div>
-        <div class="detail-cell-value" style="color:var(--amber);font-size:11px">PLAKA FOTOĞRAFI YÜKLEYİN</div>
+        <div class="detail-cell-value" style="color:var(--amber);font-size:11px">DÜZGÜN PLAKA FOTOĞRAFI</div>
         <div class="detail-cell-sub">farklı açıdan çekim</div>
       </div>
     </div>
   `;
   
   card.className = 'result-card visible';
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
 function displayResult(verdict, verClass, icon, desc, score, findings, w, h, roi, critFails, passedCrit) {
   const card = elements.resultCard;
   const circ = 2 * Math.PI * 37;
+  
   const strokeColor = verClass === 'original' ? '#00e87a' : 
                       verClass === 'fake' ? '#ff3a3a' : 
                       verClass === 'suspicious' ? '#ff9900' : '#888';
+  
   const textColor = verClass === 'original' ? 'green' : 
                     verClass === 'fake' ? 'red' : 
                     verClass === 'suspicious' ? 'orange' : 'gray';
@@ -2510,7 +2167,7 @@ function displayResult(verdict, verClass, icon, desc, score, findings, w, h, roi
     <div class="finding-item ${f.type}">
       <span class="finding-icon">${f.icon}</span>
       <div class="finding-text">
-        <strong>${f.text}</strong><br>
+        <strong>${f.text}</strong>
         <span>${f.sub}</span>
       </div>
     </div>
@@ -2523,7 +2180,7 @@ function displayResult(verdict, verClass, icon, desc, score, findings, w, h, roi
         <h2 class="${textColor}">${verdict}</h2>
         <p>${desc}</p>
         <p style="margin-top:8px;font-size:13px;color:${strokeColor}">
-          ${critFails} kritik başarısız | ${passedCrit} kritik geçti | ROI: ${roi ? 'Tespit edildi' : 'Yok'}
+          ${critFails} kritik başarısızlık | ${passedCrit} kritik geçti | ROI: ${roi ? 'Tespit edildi' : 'Yok'}
         </p>
       </div>
       <div class="score-circle">
@@ -2537,28 +2194,28 @@ function displayResult(verdict, verClass, icon, desc, score, findings, w, h, roi
         </svg>
         <div class="score-text">
           <span class="score-num" style="color:${strokeColor}">${Math.round(score)}</span>
-          <span class="score-label">SKOR</span>
+          <span class="score-label">GÜVEN</span>
         </div>
       </div>
     </div>
     <div class="detail-grid">
       <div class="detail-cell">
-        <div class="detail-cell-label">Boyut</div>
+        <div class="detail-cell-label">Görüntü Boyutu</div>
         <div class="detail-cell-value" style="color:var(--cyan)">${w}×${h}</div>
         <div class="detail-cell-sub">piksel</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">En/Boy</div>
+        <div class="detail-cell-label">Plaka Oranı</div>
         <div class="detail-cell-value" style="color:var(--amber)">${roi ? (roi.width/roi.height).toFixed(2) : 'N/A'}</div>
         <div class="detail-cell-sub">standart ≈ 4.7</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">ROI Güven</div>
+        <div class="detail-cell-label">ROI Güveni</div>
         <div class="detail-cell-value" style="color:${roi && roi.score > 0.6 ? 'var(--green)' : 'var(--red)'}">${roi ? (roi.score*100).toFixed(0) : 0}%</div>
         <div class="detail-cell-sub">bölge tespiti</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">Güven Skoru</div>
+        <div class="detail-cell-label">Toplam Skor</div>
         <div class="detail-cell-value" style="color:${strokeColor}">${score.toFixed(1)}%</div>
         <div class="detail-cell-sub">${score >= 70 ? 'yüksek güven' : score >= 40 ? 'orta güven' : 'düşük güven'}</div>
       </div>
@@ -2568,22 +2225,26 @@ function displayResult(verdict, verClass, icon, desc, score, findings, w, h, roi
         <div class="detail-cell-sub">kritik kontrol</div>
       </div>
       <div class="detail-cell">
-        <div class="detail-cell-label">Karar</div>
-        <div class="detail-cell-value" style="color:${strokeColor};font-size:13px;letter-spacing:0">${verdict.split(' ')[0]}</div>
-        <div class="detail-cell-sub">adli analiz</div>
+        <div class="detail-cell-label">Adli Karar</div>
+        <div class="detail-cell-value" style="color:${strokeColor};font-size:14px">${verdict.split(' ')[0]}</div>
+        <div class="detail-cell-sub">sonuç</div>
       </div>
     </div>
     <div class="findings-section">
-      <div class="findings-title">🔍 Detaylı Bulgular</div>
+      <div class="findings-title">🔍 Detaylı Bulgular ve Uyarılar</div>
       ${findingsHTML}
     </div>
   `;
 
   card.className = 'result-card visible';
+  
+  // Animasyonlu skor gösterimi
   setTimeout(() => {
     const arc = document.getElementById('scoreArc');
-    if (arc) arc.style.strokeDashoffset = circ - (score/100)*circ;
-  }, 100);
+    if (arc) {
+      arc.style.strokeDashoffset = circ - (score/100)*circ;
+    }
+  }, 300);
   
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -2595,26 +2256,56 @@ function toggleRules() {
   chevron.classList.toggle('open');
 }
 
+// ==================== EVENT LISTENERS ====================
+elements.uploadZone.addEventListener('click', () => {
+  if (!state.isAnalyzing) elements.fileInput.click();
+});
+
 elements.fileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) handleFile(file);
 });
 
+elements.analyzeBtn.addEventListener('click', startAnalysis);
+elements.resetBtn.addEventListener('click', resetAll);
+
+// Sürükle-bırak desteği
 elements.uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
-  elements.uploadZone.classList.add('drag-over');
+  e.stopPropagation();
+  if (!state.isAnalyzing) elements.uploadZone.classList.add('drag-over');
 });
 
-elements.uploadZone.addEventListener('dragleave', () => {
+elements.uploadZone.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   elements.uploadZone.classList.remove('drag-over');
 });
 
 elements.uploadZone.addEventListener('drop', (e) => {
   e.preventDefault();
+  e.stopPropagation();
   elements.uploadZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if (file?.type.startsWith('image/')) handleFile(file);
+  if (file && file.type.startsWith('image/')) {
+    handleFile(file);
+  } else {
+    addLog('warn', '⚠️ Lütfen geçerli bir görüntü dosyası bırakın');
+  }
 });
+
+// Klavye kısayolları
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && state.isAnalyzing) {
+    // Analiz iptal edilebilir versiyonda buraya eklenebilir
+  }
+  if (e.key === 'n' || e.key === 'N') {
+    if (!state.isAnalyzing) resetAll();
+  }
+});
+
+// Başlangıç mesajı
+console.log('🔬 Plaka Forensik Analiz Pro v5.0 - Sistem hazır');
 </script>
 </body>
 </html>
