@@ -3,1859 +3,975 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="timestamp" content="2026-04-02 13:20" />
-<title>TR Plaka Forensik ULTRA | Quantum License Analysis Suite</title>
+<meta timestamp="2026-04-02 13:29" />
+<title>TR Plaka Validatör Pro - Kesin Format Analizi</title>
 <script src='https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js'></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;600;800&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --quantum-bg: #000000;
-    --quantum-panel: #0a0a0f;
-    --quantum-elevated: #111118;
-    --neon-red: #ff003c;
-    --neon-blue: #00f0ff;
-    --neon-amber: #ffaa00;
-    --neon-green: #00ff9d;
-    --neon-purple: #bf00ff;
-    --glass-border: rgba(255,255,255,0.08);
-    --grid-color: rgba(0,240,255,0.03);
-    --heat-low: #00ff9d;
-    --heat-mid: #ffaa00;
-    --heat-high: #ff003c;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--quantum-bg);
-    color: #fff;
-    min-height: 100vh;
-    overflow-x: hidden;
-    background-image: 
-      linear-gradient(var(--grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 50px 50px;
-  }
-
-  /* Quantum Header */
-  .quantum-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 70px;
-    background: rgba(0,0,0,0.9);
-    backdrop-filter: blur(30px);
-    border-bottom: 1px solid var(--glass-border);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 30px;
-  }
-
-  .quantum-logo {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .quantum-badge {
-    width: 45px;
-    height: 45px;
-    background: linear-gradient(135deg, var(--neon-red), var(--neon-blue));
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 2px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 30px rgba(255,0,60,0.3);
-  }
-
-  .quantum-badge::before {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    background: var(--quantum-panel);
-    border-radius: 10px;
-    z-index: 0;
-  }
-
-  .quantum-badge span {
-    position: relative;
-    z-index: 1;
-    background: linear-gradient(135deg, var(--neon-red), var(--neon-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .quantum-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
-    letter-spacing: 3px;
-    background: linear-gradient(90deg, #fff, var(--neon-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .quantum-status {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-  }
-
-  .status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: rgba(0,255,157,0.1);
-    border: 1px solid var(--neon-green);
-    border-radius: 20px;
-    color: var(--neon-green);
-  }
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--neon-green);
-    border-radius: 50%;
-    animation: quantum-pulse 2s infinite;
-    box-shadow: 0 0 10px var(--neon-green);
-  }
-
-  @keyframes quantum-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  /* Main Layout */
-  .quantum-container {
-    margin-top: 90px;
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 400px 1fr 350px;
-    gap: 20px;
-    max-width: 1920px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  @media (max-width: 1400px) {
-    .quantum-container { grid-template-columns: 350px 1fr; }
-    .right-panel { display: none; }
-  }
-
-  @media (max-width: 1024px) {
-    .quantum-container { grid-template-columns: 1fr; }
-  }
-
-  /* Panels */
-  .quantum-panel {
-    background: var(--quantum-panel);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    overflow: hidden;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  }
-
-  .panel-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--glass-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(255,255,255,0.02);
-  }
-
-  .panel-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--neon-blue);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* Advanced Upload Zone */
-  .quantum-dropzone {
-    margin: 20px;
-    border: 2px dashed var(--glass-border);
-    border-radius: 12px;
-    padding: 60px 30px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s;
-    cursor: pointer;
-    background: 
-      linear-gradient(135deg, rgba(0,240,255,0.02) 0%, transparent 50%),
-      repeating-linear-gradient(45deg, rgba(255,0,60,0.01) 0px, rgba(255,0,60,0.01) 1px, transparent 1px, transparent 10px);
-  }
-
-  .quantum-dropzone:hover, .quantum-dropzone.active {
-    border-color: var(--neon-blue);
-    box-shadow: 
-      0 0 30px rgba(0,240,255,0.1),
-      inset 0 0 30px rgba(0,240,255,0.05);
-  }
-
-  .quantum-dropzone.processing {
-    border-color: var(--neon-amber);
-    animation: border-flow 2s linear infinite;
-  }
-
-  @keyframes border-flow {
-    0% { border-color: var(--neon-red); }
-    33% { border-color: var(--neon-amber); }
-    66% { border-color: var(--neon-blue); }
-    100% { border-color: var(--neon-red); }
-  }
-
-  .dropzone-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.8;
-    filter: drop-shadow(0 0 10px var(--neon-blue));
-  }
-
-  .dropzone-text h3 {
-    font-size: 16px;
-    margin-bottom: 8px;
-    color: #fff;
-    font-weight: 600;
-  }
-
-  .dropzone-text p {
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .preview-container {
-    display: none;
-    position: relative;
-    margin: 20px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--glass-border);
-  }
-
-  .preview-container img {
-    width: 100%;
-    display: block;
-  }
-
-  .preview-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.8));
-    pointer-events: none;
-  }
-
-  .remove-image {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 32px;
-    height: 32px;
-    background: var(--neon-red);
-    border: none;
-    border-radius: 50%;
-    color: #fff;
-    cursor: pointer;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(255,0,60,0.4);
-    transition: transform 0.2s;
-    z-index: 10;
-  }
-
-  .remove-image:hover { transform: scale(1.1) rotate(90deg); }
-
-  /* Control Matrix */
-  .control-matrix {
-    padding: 0 20px 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .quantum-btn {
-    padding: 14px;
-    background: linear-gradient(135deg, rgba(255,0,60,0.2), rgba(0,240,255,0.1));
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .quantum-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  .quantum-btn:hover::before {
-    left: 100%;
-  }
-
-  .quantum-btn:hover {
-    border-color: var(--neon-blue);
-    box-shadow: 0 0 20px rgba(0,240,255,0.2);
-    transform: translateY(-2px);
-  }
-
-  .quantum-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    filter: grayscale(1);
-  }
-
-  .quantum-btn.active {
-    background: rgba(0,240,255,0.2);
-    border-color: var(--neon-blue);
-    box-shadow: 0 0 20px rgba(0,240,255,0.3);
-  }
-
-  /* Terminal */
-  .quantum-terminal {
-    margin: 0 20px 20px;
-    background: #000;
-    border-radius: 8px;
-    padding: 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    line-height: 1.6;
-    height: 250px;
-    overflow-y: auto;
-    color: rgba(255,255,255,0.6);
-    border: 1px solid var(--glass-border);
-    position: relative;
-  }
-
-  .quantum-terminal::before {
-    content: 'SYSTEM_LOG';
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    font-size: 9px;
-    color: var(--neon-blue);
-    opacity: 0.5;
-  }
-
-  .log-entry {
-    margin-bottom: 6px;
-    padding-left: 12px;
-    border-left: 2px solid transparent;
-    animation: log-fade 0.3s ease;
-  }
-
-  @keyframes log-fade {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  .log-entry.error { color: var(--neon-red); border-left-color: var(--neon-red); }
-  .log-entry.success { color: var(--neon-green); border-left-color: var(--neon-green); }
-  .log-entry.warn { color: var(--neon-amber); border-left-color: var(--neon-amber); }
-  .log-entry.process { color: var(--neon-blue); border-left-color: var(--neon-blue); }
-  .log-entry.data { color: var(--neon-purple); border-left-color: var(--neon-purple); }
-
-  .timestamp {
-    color: rgba(255,255,255,0.3);
-    margin-right: 8px;
-    font-size: 10px;
-  }
-
-  /* Center Panel - Analysis */
-  .analysis-center {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .hero-score {
-    padding: 40px;
-    text-align: center;
-    position: relative;
-    background: 
-      radial-gradient(circle at center, rgba(0,240,255,0.05) 0%, transparent 70%),
-      linear-gradient(180deg, rgba(255,0,60,0.03) 0%, transparent 50%);
-  }
-
-  .score-ring-container {
-    width: 180px;
-    height: 180px;
-    margin: 0 auto 30px;
-    position: relative;
-  }
-
-  .score-ring {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-
-  .score-ring-bg {
-    fill: none;
-    stroke: rgba(255,255,255,0.1);
-    stroke-width: 8;
-  }
-
-  .score-ring-progress {
-    fill: none;
-    stroke-width: 8;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 0 10px currentColor);
-  }
-
-  .score-content {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .score-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 56px;
-    line-height: 1;
-    background: linear-gradient(180deg, #fff, var(--neon-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 20px rgba(0,240,255,0.5));
-  }
-
-  .score-label {
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    margin-top: 8px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .verdict-display {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border: 1px solid;
-    backdrop-filter: blur(10px);
-  }
-
-  .verdict-authentic {
-    background: rgba(0,255,157,0.1);
-    color: var(--neon-green);
-    border-color: var(--neon-green);
-    box-shadow: 0 0 30px rgba(0,255,157,0.2);
-  }
-
-  .verdict-suspicious {
-    background: rgba(255,170,0,0.1);
-    color: var(--neon-amber);
-    border-color: var(--neon-amber);
-    box-shadow: 0 0 30px rgba(255,170,0,0.2);
-  }
-
-  .verdict-fake {
-    background: rgba(255,0,60,0.1);
-    color: var(--neon-red);
-    border-color: var(--neon-red);
-    box-shadow: 0 0 30px rgba(255,0,60,0.2);
-  }
-
-  /* OCR Matrix */
-  .ocr-matrix {
-    padding: 20px;
-    background: rgba(0,0,0,0.3);
-    margin: 0 20px 20px;
-    border-radius: 12px;
-    border: 1px solid var(--glass-border);
-  }
-
-  .ocr-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(255,255,255,0.5);
-  }
-
-  .ocr-confidence-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .confidence-track {
-    width: 100px;
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .confidence-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
-    transition: width 1s ease;
-  }
-
-  .plate-display {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 42px;
-    letter-spacing: 8px;
-    text-align: center;
-    padding: 20px;
-    background: rgba(0,0,0,0.5);
-    border-radius: 8px;
-    border: 1px solid var(--glass-border);
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .plate-display::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-    opacity: 0.5;
-  }
-
-  .char-breakdown {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .char-unit {
-    width: 36px;
-    height: 44px;
-    border: 1px solid var(--glass-border);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 20px;
-    font-weight: 700;
-    position: relative;
-    background: rgba(255,255,255,0.03);
-    transition: all 0.3s;
-  }
-
-  .char-unit.valid {
-    border-color: var(--neon-green);
-    background: rgba(0,255,157,0.1);
-    color: var(--neon-green);
-    box-shadow: 0 0 15px rgba(0,255,157,0.2);
-  }
-
-  .char-unit.invalid {
-    border-color: var(--neon-red);
-    background: rgba(255,0,60,0.1);
-    color: var(--neon-red);
-    box-shadow: 0 0 15px rgba(255,0,60,0.3);
-    animation: char-alert 1s infinite;
-  }
-
-  @keyframes char-alert {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-  }
-
-  .char-confidence {
-    position: absolute;
-    bottom: 2px;
-    font-size: 8px;
-    opacity: 0.7;
-  }
-
-  /* Metric Grid */
-  .metrics-quantum {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--glass-border);
-    margin: 0 20px 20px;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .metric-q {
-    background: var(--quantum-panel);
-    padding: 20px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .metric-q::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .metric-q:hover::before {
-    opacity: 1;
-  }
-
-  .metric-q-label {
-    font-size: 10px;
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-  }
-
-  .metric-q-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  .metric-q-delta {
-    font-size: 10px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .metric-q-delta.pos { color: var(--neon-green); }
-  .metric-q-delta.neg { color: var(--neon-red); }
-
-  /* Canvas Visualization */
-  .canvas-container {
-    margin: 0 20px 20px;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--glass-border);
-    position: relative;
-    background: #000;
-  }
-
-  .canvas-container canvas {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .canvas-labels {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .canvas-label {
-    background: rgba(0,0,0,0.8);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    border-left: 2px solid var(--neon-blue);
-    color: rgba(255,255,255,0.8);
-  }
-
-  /* Right Panel - Stats */
-  .stats-list {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 8px;
-    border: 1px solid var(--glass-border);
-  }
-
-  .stat-name {
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .stat-bar {
-    width: 60px;
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .stat-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-    border-radius: 2px;
-  }
-
-  /* Histogram */
-  .histogram-container {
-    margin: 0 20px 20px;
-    height: 150px;
-    background: rgba(0,0,0,0.5);
-    border-radius: 8px;
-    border: 1px solid var(--glass-border);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .histogram-bars {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    height: 100%;
-    padding: 10px;
-    gap: 2px;
-  }
-
-  .h-bar {
-    flex: 1;
-    background: linear-gradient(to top, var(--neon-blue), var(--neon-purple));
-    opacity: 0.7;
-    transition: all 0.3s;
-    border-radius: 2px 2px 0 0;
-  }
-
-  .h-bar:hover {
-    opacity: 1;
-    background: var(--neon-green);
-  }
-
-  /* Action Bar */
-  .action-bar {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    display: flex;
-    gap: 12px;
-    z-index: 999;
-  }
-
-  .action-btn {
-    padding: 12px 24px;
-    background: var(--quantum-panel);
-    border: 1px solid var(--neon-blue);
-    color: var(--neon-blue);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    backdrop-filter: blur(10px);
-    text-transform: uppercase;
-  }
-
-  .action-btn:hover {
-    background: var(--neon-blue);
-    color: #000;
-    box-shadow: 0 0 30px rgba(0,240,255,0.4);
-    transform: translateY(-2px);
-  }
-
-  .hidden { display: none !important; }
-
-  /* Processing Overlay */
-  .processing-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    backdrop-filter: blur(20px);
-    z-index: 10000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 30px;
-  }
-
-  .processing-overlay.active {
-    display: flex;
-  }
-
-  .quantum-spinner {
-    width: 100px;
-    height: 100px;
-    position: relative;
-  }
-
-  .quantum-spinner-ring {
-    position: absolute;
-    inset: 0;
-    border: 2px solid transparent;
-    border-top-color: var(--neon-red);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  .quantum-spinner-ring:nth-child(2) {
-    inset: 10px;
-    border-top-color: var(--neon-blue);
-    animation-duration: 1.5s;
-    animation-direction: reverse;
-  }
-
-  .quantum-spinner-ring:nth-child(3) {
-    inset: 20px;
-    border-top-color: var(--neon-green);
-    animation-duration: 2s;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .processing-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    color: var(--neon-blue);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .processing-sub {
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    max-width: 400px;
-    text-align: center;
-    line-height: 1.6;
-  }
-
-  /* Advanced Grid Lines */
-  .grid-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.3;
-  }
-
-  .grid-line-h {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-  }
-
-  .grid-line-v {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: linear-gradient(180deg, transparent, var(--neon-blue), transparent);
-  }
+:root {
+  --bg: #0a0a0f;
+  --panel: #111118;
+  --border: #2a2a35;
+  --success: #00d084;
+  --error: #ff4757;
+  --warning: #ffa502;
+  --info: #3498db;
+  --text: #ffffff;
+  --text-muted: #7f8c8d;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  border-bottom: 2px solid var(--border);
+}
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.header p {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  background: var(--panel);
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--info);
+  background: rgba(52, 152, 219, 0.05);
+}
+
+.upload-zone.has-image {
+  border-style: solid;
+  border-color: var(--success);
+  padding: 20px;
+}
+
+.upload-zone img {
+  max-width: 100%;
+  max-height: 250px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.preview-controls {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: var(--info);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background: var(--error);
+  color: white;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.btn-secondary:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+/* Validation Panel */
+.validation-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  display: none;
+}
+
+.validation-panel.active {
+  display: block;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Result Status */
+.result-status {
+  text-align: center;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  border: 2px solid;
+}
+
+.result-status.valid {
+  background: rgba(0, 208, 132, 0.1);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.result-status.invalid {
+  background: rgba(255, 71, 87, 0.1);
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.result-status.warning {
+  background: rgba(255, 165, 2, 0.1);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.result-status h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.result-status p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Checklist */
+.checklist {
+  display: grid;
+  gap: 12px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border-left: 4px solid var(--border);
+  transition: all 0.3s;
+}
+
+.check-item.pass {
+  border-left-color: var(--success);
+  background: rgba(0, 208, 132, 0.05);
+}
+
+.check-item.fail {
+  border-left-color: var(--error);
+  background: rgba(255, 71, 87, 0.05);
+}
+
+.check-item.warn {
+  border-left-color: var(--warning);
+  background: rgba(255, 165, 2, 0.05);
+}
+
+.check-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.check-item.pass .check-icon {
+  background: var(--success);
+  color: white;
+}
+
+.check-item.fail .check-icon {
+  background: var(--error);
+  color: white;
+}
+
+.check-item.warn .check-icon {
+  background: var(--warning);
+  color: white;
+}
+
+.check-content {
+  flex: 1;
+}
+
+.check-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.check-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* OCR Result Display */
+.ocr-result-box {
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  position: relative;
+}
+
+.ocr-label {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: var(--panel);
+  padding: 0 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.plate-text {
+  font-size: 32px;
+  letter-spacing: 8px;
+  font-weight: bold;
+  color: var(--text);
+  text-shadow: 0 0 10px rgba(255,255,255,0.2);
+  margin: 10px 0;
+}
+
+.plate-breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.char-box {
+  width: 40px;
+  height: 50px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  position: relative;
+  background: rgba(255,255,255,0.05);
+}
+
+.char-box.valid {
+  border-color: var(--success);
+  background: rgba(0, 208, 132, 0.1);
+  color: var(--success);
+}
+
+.char-box.invalid {
+  border-color: var(--error);
+  background: rgba(255, 71, 87, 0.1);
+  color: var(--error);
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.char-error {
+  position: absolute;
+  bottom: -20px;
+  font-size: 9px;
+  color: var(--error);
+  white-space: nowrap;
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--error);
+}
+
+/* Log Console */
+.console {
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  color: var(--text-muted);
+}
+
+.console-line {
+  margin-bottom: 6px;
+  padding-left: 15px;
+  border-left: 2px solid transparent;
+}
+
+.console-line.error { color: var(--error); border-left-color: var(--error); }
+.console-line.success { color: var(--success); border-left-color: var(--success); }
+.console-line.info { color: var(--info); border-left-color: var(--info); }
+.console-line.warn { color: var(--warning); border-left-color: var(--warning); }
+
+.timestamp {
+  color: var(--text-muted);
+  margin-right: 8px;
+  font-size: 11px;
+}
+
+/* Processing Overlay */
+.processing {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10,10,15,0.95);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+.processing.active {
+  display: flex;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--border);
+  border-top-color: var(--info);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.processing-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<div class="processing-overlay" id="processingOverlay">
-  <div class="quantum-spinner">
-    <div class="quantum-spinner-ring"></div>
-    <div class="quantum-spinner-ring"></div>
-    <div class="quantum-spinner-ring"></div>
-  </div>
-  <div class="processing-text" id="processText">Quantum Analysis Initiated</div>
-  <div class="processing-sub" id="processSub">Advanced forensic algorithms processing image data...</div>
+<div class="processing" id="processing">
+  <div class="spinner"></div>
+  <div class="processing-text">Plaka Analiz Ediliyor...</div>
 </div>
 
-<header class="quantum-header">
-  <div class="quantum-logo">
-    <div class="quantum-badge">
-      <span>TR</span>
-    </div>
-    <div>
-      <div class="quantum-title">PLAKA FORENSIK ULTRA</div>
-      <div style="font-size: 10px; color: rgba(255,255,255,0.5); font-family: 'JetBrains Mono', monospace; letter-spacing: 2px;">
-        Quantum License Analysis Suite v9.0
-      </div>
-    </div>
+<div class="container">
+  <div class="header">
+    <h1>🇹🇷 TR Plaka Validatör Pro</h1>
+    <p>Kesin Format Kontrolü & OCR Doğrulama Sistemi</p>
   </div>
-  <div class="quantum-status">
-    <div class="status-indicator">
-      <div class="status-dot"></div>
-      <span>System Active</span>
+
+  <div class="upload-zone" id="dropZone">
+    <div id="uploadPrompt">
+      <div style="font-size: 48px; margin-bottom: 15px;">📁</div>
+      <h3 style="margin-bottom: 10px;">Plaka Fotoğrafı Yükleyin</h3>
+      <p style="color: var(--text-muted); font-size: 14px;">
+        Sürükleyip bırakın veya tıklayın<br>
+        JPG, PNG, WEBP (Max 5MB)
+      </p>
     </div>
-    <div style="color: rgba(255,255,255,0.4); font-size: 10px;">
-      2026-04-02 13:20
-    </div>
-  </div>
-</header>
-
-<div class="quantum-container">
-  <!-- Left Panel: Input & Controls -->
-  <div class="left-panel">
-    <div class="quantum-panel">
-      <div class="panel-header">
-        <div class="panel-title">📡 Görüntü Girişi</div>
-      </div>
-      
-      <div class="quantum-dropzone" id="dropZone">
-        <div class="dropzone-content" id="dropContent">
-          <div class="dropzone-icon">📷</div>
-          <div class="dropzone-text">
-            <h3>Forensik Görüntü Yükle</h3>
-            <p>Drag & Drop • Copy & Paste • Click Select<br>Max 20MB • PNG/JPG/WEBP</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="preview-container" id="previewBox">
-        <img id="sourceImage" alt="Source" />
-        <div class="preview-overlay"></div>
-        <button class="remove-image" id="clearBtn">×</button>
-      </div>
-
-      <div class="control-matrix">
-        <button class="quantum-btn" id="analyzeBtn" disabled>
-          🔬 Analiz Başlat
-        </button>
-        <button class="quantum-btn" id="enhanceBtn" disabled>
-          ✨ Geliştir
-        </button>
-        <button class="quantum-btn" id="resetBtn">
-          ↺ Sıfırla
-        </button>
-        <button class="quantum-btn" id="reportBtn" disabled>
-          📄 Rapor
-        </button>
-      </div>
-
-      <div class="quantum-terminal" id="systemLog">
-        <div class="log-entry process">
-          <span class="timestamp">13:20:00</span>
-          Quantum Forensic Engine initialized...
-        </div>
-        <div class="log-entry">
-          <span class="timestamp">13:20:00</span>
-          81 Province database loaded (01-81)
-        </div>
-        <div class="log-entry">
-          <span class="timestamp">13:20:00</span>
-          Tesseract OCR v4.1.1 ready
-        </div>
-        <div class="log-entry">
-          <span class="timestamp">13:20:00</span>
-          Canvas Processing Pipeline active
-        </div>
-      </div>
-    </div>
-
-    <!-- Histogram Panel -->
-    <div class="quantum-panel" style="margin-top: 20px;">
-      <div class="panel-header">
-        <div class="panel-title">📊 Renk Histogramı</div>
-      </div>
-      <div class="histogram-container" id="histogram">
-        <div class="histogram-bars" id="histBars">
-          <!-- Generated by JS -->
-        </div>
+    <div id="previewContainer" class="hidden">
+      <img id="previewImg" />
+      <div class="preview-controls">
+        <button class="btn btn-danger" onclick="resetUpload()">🗑 Kaldır</button>
+        <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePlate()">🔍 Analiz Et</button>
       </div>
     </div>
   </div>
 
-  <!-- Center Panel: Analysis -->
-  <div class="analysis-center">
-    <div class="quantum-panel">
-      <div class="hero-score" id="heroScore" style="display: none;">
-        <div class="score-ring-container">
-          <svg class="score-ring" viewBox="0 0 200 200">
-            <circle class="score-ring-bg" cx="100" cy="100" r="90"/>
-            <circle class="score-ring-progress" id="scoreCircle" cx="100" cy="100" r="90" 
-              stroke-dasharray="565.48" stroke-dashoffset="565.48" stroke="#00f0ff"/>
-          </svg>
-          <div class="score-content">
-            <div class="score-value" id="scoreValue">0</div>
-            <div class="score-label">Authenticity Score</div>
-          </div>
-        </div>
-        <div class="verdict-display" id="verdictBox">
-          ANALYSIS PENDING
-        </div>
-      </div>
-
-      <div class="ocr-matrix" id="ocrSection" style="display: none;">
-        <div class="ocr-header">
-          <span>Optik Karakter Tanıma (OCR)</span>
-          <div class="ocr-confidence-bar">
-            <span style="font-size: 10px;">Güven:</span>
-            <div class="confidence-track">
-              <div class="confidence-fill" id="confFill" style="width: 0%"></div>
-            </div>
-            <span id="confText" style="font-size: 10px; min-width: 35px;">0%</span>
-          </div>
-        </div>
-        <div class="plate-display" id="plateText">---</div>
-        <div class="char-breakdown" id="charGrid"></div>
-      </div>
-
-      <div class="metrics-quantum" id="metricsGrid" style="display: none;">
-        <div class="metric-q">
-          <div class="metric-q-label">Boyut Oranı</div>
-          <div class="metric-q-value" id="mRatio">--</div>
-          <div class="metric-q-delta pos" id="mRatioDelta">Hedef: 4.72</div>
-        </div>
-        <div class="metric-q">
-          <div class="metric-q-label">Beyaz Zemin</div>
-          <div class="metric-q-value" id="mWhite">--</div>
-          <div class="metric-q-delta" id="mWhiteDelta">Ref: RAL 9016</div>
-        </div>
-        <div class="metric-q">
-          <div class="metric-q-label">TR Şeridi</div>
-          <div class="metric-q-value" id="mStripe">--</div>
-          <div class="metric-q-delta" id="mStripeDelta">Sol 8%</div>
-        </div>
-        <div class="metric-q">
-          <div class="metric-q-label">Kontrast</div>
-          <div class="metric-q-value" id="mContrast">--</div>
-          <div class="metric-q-delta pos" id="mContrastDelta">Laplacian</div>
-        </div>
-        <div class="metric-q">
-          <div class="metric-q-label">Entropi</div>
-          <div class="metric-q-value" id="mEntropy">--</div>
-          <div class="metric-q-delta neg" id="mEntropyDelta">Rastgelelik</div>
-        </div>
-        <div class="metric-q">
-          <div class="metric-q-label">Keskinlik</div>
-          <div class="metric-q-value" id="mSharp">--</div>
-          <div class="metric-q-delta pos" id="mSharpDelta">Edge Var</div>
-        </div>
-      </div>
-
-      <div class="canvas-container" id="vizContainer" style="display: none;">
-        <canvas id="processCanvas"></canvas>
-        <div class="canvas-labels">
-          <div class="canvas-label">Heatmap: Authencity Zones</div>
-          <div class="canvas-label">Overlay: Edge Detection</div>
-          <div class="canvas-label">Grid: 50px Reference</div>
-        </div>
-        <div class="grid-overlay" id="gridOverlay"></div>
-      </div>
+  <div class="console" id="console">
+    <div class="console-line info">
+      <span class="timestamp">13:29:00</span>Sistem hazır. Plaka yüklemesi bekleniyor...
     </div>
   </div>
 
-  <!-- Right Panel: Detailed Stats -->
-  <div class="right-panel">
-    <div class="quantum-panel">
-      <div class="panel-header">
-        <div class="panel-title">📈 Detaylı İstatistikler</div>
-      </div>
-      
-      <div class="stats-list" id="statsList">
-        <div class="stat-row">
-          <span class="stat-name">Görüntü Çözünürlük</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="statRes">--</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-name">Piksel Sayısı</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="statPixels">--</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-name">Renk Derinliği</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">24-bit RGB</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-name">Parlaklık Ort.</span>
-          <div class="stat-bar">
-            <div class="stat-fill" id="statBright" style="width: 0%"></div>
-          </div>
-        </div>
-        <div class="stat-row">
-          <span class="stat-name">Standart Sapma</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="statStd">--</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-name">Varyans</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="statVar">--</span>
-        </div>
-      </div>
+  <!-- Sonuç Paneli -->
+  <div class="validation-panel" id="resultPanel">
+    <div class="result-status" id="resultStatus">
+      <h2 id="resultTitle">Analiz Tamamlandı</h2>
+      <p id="resultDesc">Sonuçlar aşağıda listelenmiştir</p>
+    </div>
 
-      <div style="padding: 0 20px 20px;">
-        <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.6; border: 1px solid var(--glass-border);">
-          <strong style="color: var(--neon-blue); display: block; margin-bottom: 8px;">TR Standartları:</strong>
-          • Boyut: 520×110mm (4.72:1)<br>
-          • Sol şerit: EU Blue (4cm)<br>
-          • Yazı tipi: FE-Schrift benzeri<br>
-          • Karakterler: C,S,I,O,U,G<br>
-          • Ç,Ş,İ,Ö,Ü,Ğ kullanılmaz
-        </div>
+    <div class="ocr-result-box">
+      <span class="ocr-label">OCR Okuma Sonucu</span>
+      <div class="plate-text" id="plateText">---</div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;" id="ocrConfidence">
+        Güven: %0
+      </div>
+      <div class="plate-breakdown" id="charBreakdown">
+        <!-- Karakterler buraya -->
       </div>
     </div>
 
-    <div class="quantum-panel" style="margin-top: 20px;">
-      <div class="panel-header">
-        <div class="panel-title">🎯 İl Kodu Veritabanı</div>
-      </div>
-      <div style="padding: 20px; max-height: 300px; overflow-y: auto;">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px;" id="cityGrid">
-          <!-- Generated by JS -->
-        </div>
-      </div>
+    <div class="checklist" id="checklist">
+      <!-- Kontrol maddeleri buraya -->
     </div>
   </div>
 </div>
-
-<div class="action-bar">
-  <button class="action-btn" onclick="toggleAdvanced()">
-    ⚙ Gelişmiş
-  </button>
-  <button class="action-btn" onclick="exportPDF()">
-    📥 PDF İndir
-  </button>
-  <button class="action-btn" onclick="exportJSON()">
-    💾 JSON
-  </button>
-</div>
-
-<canvas id="hiddenCanvas" style="display: none;"></canvas>
 
 <script>
-const { jsPDF } = window.jspdf;
+// Türkiye İl Kodları Veritabanı (01-81)
+const VALID_CITY_CODES = Array.from({length: 81}, (_, i) => String(i + 1).padStart(2, '0'));
 
-const CITY_DATABASE = {
-  '01': 'Adana', '02': 'Adıyaman', '03': 'Afyonkarahisar', '04': 'Ağrı', '05': 'Amasya',
-  '06': 'Ankara', '07': 'Antalya', '08': 'Artvin', '09': 'Aydın', '10': 'Balıkesir',
-  '11': 'Bilecik', '12': 'Bingöl', '13': 'Bitlis', '14': 'Bolu', '15': 'Burdur',
-  '16': 'Bursa', '17': 'Çanakkale', '18': 'Çankırı', '19': 'Çorum', '20': 'Denizli',
-  '21': 'Diyarbakır', '22': 'Edirne', '23': 'Elazığ', '24': 'Erzincan', '25': 'Erzurum',
-  '26': 'Eskişehir', '27': 'Gaziantep', '28': 'Giresun', '29': 'Gümüşhane', '30': 'Hakkari',
-  '31': 'Hatay', '32': 'Isparta', '33': 'Mersin', '34': 'İstanbul', '35': 'İzmir',
-  '36': 'Kars', '37': 'Kastamonu', '38': 'Kayseri', '39': 'Kırklareli', '40': 'Kırşehir',
-  '41': 'Kocaeli', '42': 'Konya', '43': 'Kütahya', '44': 'Malatya', '45': 'Manisa',
-  '46': 'Kahramanmaraş', '47': 'Mardin', '48': 'Muğla', '49': 'Muş', '50': 'Nevşehir',
-  '51': 'Niğde', '52': 'Ordu', '53': 'Rize', '54': 'Sakarya', '55': 'Samsun',
-  '56': 'Siirt', '57': 'Sinop', '58': 'Sivas', '59': 'Tekirdağ', '60': 'Tokat',
-  '61': 'Trabzon', '62': 'Tunceli', '63': 'Şanlıurfa', '64': 'Uşak', '65': 'Van',
-  '66': 'Yozgat', '67': 'Zonguldak', '68': 'Aksaray', '69': 'Bayburt', '70': 'Karaman',
-  '71': 'Kırıkkale', '72': 'Batman', '73': 'Şırnak', '74': 'Bartın', '75': 'Ardahan',
-  '76': 'Iğdır', '77': 'Yalova', '78': 'Karabük', '79': 'Kilis', '80': 'Osmaniye',
-  '81': 'Düzce'
-};
+// Geçersiz Türkçe Karakterler
+const INVALID_TURKISH_CHARS = ['Ç', 'Ş', 'İ', 'Ö', 'Ü', 'Ğ', 'ç', 'ş', 'ı', 'ö', 'ü', 'ğ'];
 
-const TURKISH_CHARS = ['Ç', 'Ş', 'İ', 'Ö', 'Ü', 'Ğ', 'ç', 'ş', 'ı', 'ö', 'ü', 'ğ'];
+// Geçerli Plaka Regex (Temel format: 34 ABC 1234 veya 34 A 1234)
 const PLATE_REGEX = /^(\d{2})\s*([A-Z]{1,3})\s*(\d{2,4})$/;
 
-const state = {
-  imageData: null,
-  canvas: null,
-  ctx: null,
-  originalImage: null,
-  processedData: null,
-  ocrResult: null,
-  analysisMetrics: {},
-  isAnalyzing: false
-};
+let currentImage = null;
+let tesseractWorker = null;
 
-// Init City Grid
-const cityGrid = document.getElementById('cityGrid');
-Object.entries(CITY_DATABASE).forEach(([code, name]) => {
-  const div = document.createElement('div');
-  div.style.cssText = 'padding: 4px; background: rgba(255,255,255,0.03); border-radius: 4px; text-align: center; border: 1px solid transparent;';
-  div.innerHTML = `<span style="color: var(--neon-blue); font-weight: bold;">${code}</span><br><span style="font-size: 9px; opacity: 0.7;">${name}</span>`;
-  div.id = `city-${code}`;
-  cityGrid.appendChild(div);
-});
+// Tesseract Worker Init
+async function initTesseract() {
+  if (!tesseractWorker) {
+    log('OCR motoru başlatılıyor...', 'info');
+    tesseractWorker = await Tesseract.createWorker('eng');
+    // Sadece rakam ve büyük harflere izin ver (Türkçe karakterler hariç)
+    await tesseractWorker.setParameters({
+      tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      preserve_interword_spaces: '0'
+    });
+    log('OCR motoru hazır (Whitelist: 0-9, A-Z)', 'success');
+  }
+}
 
 // Event Listeners
 document.getElementById('dropZone').addEventListener('click', (e) => {
-  if (e.target === document.getElementById('clearBtn')) return;
+  if (e.target.closest('.preview-controls')) return;
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
-  input.onchange = handleFile;
+  input.onchange = handleFileSelect;
   input.click();
 });
 
 document.getElementById('dropZone').addEventListener('dragover', (e) => {
   e.preventDefault();
-  e.currentTarget.classList.add('active');
+  e.currentTarget.classList.add('dragover');
 });
 
 document.getElementById('dropZone').addEventListener('dragleave', (e) => {
-  e.currentTarget.classList.remove('active');
+  e.currentTarget.classList.remove('dragover');
 });
 
 document.getElementById('dropZone').addEventListener('drop', (e) => {
   e.preventDefault();
-  e.currentTarget.classList.remove('active');
+  e.currentTarget.classList.remove('dragover');
   const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) processFile(file);
+  if (file && file.type.startsWith('image/')) {
+    processFile(file);
+  }
 });
 
-document.getElementById('clearBtn').addEventListener('click', resetAll);
-document.getElementById('resetBtn').addEventListener('click', resetAll);
-document.getElementById('analyzeBtn').addEventListener('click', startAnalysis);
-document.getElementById('enhanceBtn').addEventListener('click', enhanceImage);
-document.getElementById('reportBtn').addEventListener('click', generateReport);
-
-function log(msg, type = 'info') {
-  const time = new Date().toLocaleTimeString('tr-TR', { hour12: false });
-  const entry = document.createElement('div');
-  entry.className = `log-entry ${type}`;
-  entry.innerHTML = `<span class="timestamp">${time}</span>${msg}`;
-  document.getElementById('systemLog').appendChild(entry);
-  document.getElementById('systemLog').scrollTop = document.getElementById('systemLog').scrollHeight;
-}
-
-function handleFile(e) {
+function handleFileSelect(e) {
   const file = e.target.files[0];
   if (file) processFile(file);
 }
 
 function processFile(file) {
-  if (file.size > 20 * 1024 * 1024) {
-    log('Hata: Dosya boyutu 20MB limitini aşıyor!', 'error');
+  if (file.size > 5 * 1024 * 1024) {
+    log('Hata: Dosya boyutu 5MB\'ı aşamaz!', 'error');
     return;
   }
 
-  log(`Yükleniyor: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`);
+  log(`Dosya okunuyor: ${file.name}...`, 'info');
   
   const reader = new FileReader();
   reader.onload = (e) => {
-    state.imageData = e.target.result;
-    const img = new Image();
-    img.onload = () => {
-      state.originalImage = img;
-      document.getElementById('sourceImage').src = state.imageData;
-      document.getElementById('dropContent').style.display = 'none';
-      document.getElementById('previewBox').style.display = 'block';
-      document.getElementById('analyzeBtn').disabled = false;
-      document.getElementById('enhanceBtn').disabled = false;
-      log('Görüntü hazır. Analiz başlayabilir.', 'success');
-      updateHistogram(img);
-    };
-    img.src = state.imageData;
+    currentImage = e.target.result;
+    const img = document.getElementById('previewImg');
+    img.src = currentImage;
+    
+    document.getElementById('uploadPrompt').classList.add('hidden');
+    document.getElementById('previewContainer').classList.remove('hidden');
+    document.getElementById('dropZone').classList.add('has-image');
+    
+    log('Görüntü yüklendi. Analiz için hazır.', 'success');
   };
   reader.readAsDataURL(file);
 }
 
-function updateHistogram(img) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = 100;
-  canvas.height = 100;
-  ctx.drawImage(img, 0, 0, 100, 100);
-  
-  const data = ctx.getImageData(0, 0, 100, 100).data;
-  const brightness = [];
-  
-  for (let i = 0; i < data.length; i += 4) {
-    brightness.push((data[i] + data[i+1] + data[i+2]) / 3);
-  }
-  
-  const bars = document.getElementById('histBars');
-  bars.innerHTML = '';
-  const bins = 20;
-  const binSize = 256 / bins;
-  const counts = new Array(bins).fill(0);
-  
-  brightness.forEach(b => {
-    const bin = Math.min(Math.floor(b / binSize), bins - 1);
-    counts[bin]++;
-  });
-  
-  const max = Math.max(...counts);
-  counts.forEach((count, i) => {
-    const bar = document.createElement('div');
-    bar.className = 'h-bar';
-    bar.style.height = `${(count / max) * 100}%`;
-    bar.title = `${Math.round(i * binSize)}-${Math.round((i+1) * binSize)}: ${count}`;
-    bars.appendChild(bar);
-  });
+function resetUpload() {
+  currentImage = null;
+  document.getElementById('uploadPrompt').classList.remove('hidden');
+  document.getElementById('previewContainer').classList.add('hidden');
+  document.getElementById('dropZone').classList.remove('has-image');
+  document.getElementById('resultPanel').classList.remove('active');
+  document.getElementById('previewImg').src = '';
+  log('Görüntü kaldırıldı. Yeni plaka bekleniyor...', 'info');
 }
 
-async function startAnalysis() {
-  if (!state.imageData || state.isAnalyzing) return;
+async function analyzePlate() {
+  if (!currentImage) return;
   
-  state.isAnalyzing = true;
-  document.getElementById('processingOverlay').classList.add('active');
-  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('processing').classList.add('active');
+  await initTesseract();
   
-  log('Quantum analiz başlatıldı...', 'process');
+  log('Görüntü ön işleme başlatıldı...', 'info');
   
   try {
-    // Stage 1: OCR
-    document.getElementById('processText').textContent = 'OCR Processing';
-    document.getElementById('processSub').textContent = 'Tesseract.js optical character recognition engine analyzing text regions...';
+    // 1. Görüntüyü optimize et (canvas preprocessing)
+    const processedImage = await preprocessImage(currentImage);
     
-    await performAdvancedOCR();
+    log('OCR analizi yapılıyor...', 'info');
     
-    // Stage 2: Image Processing
-    document.getElementById('processText').textContent = 'Computer Vision';
-    document.getElementById('processSub').textContent = 'Applying convolution matrices, edge detection, and color space analysis...';
+    // 2. OCR ile oku
+    const result = await tesseractWorker.recognize(processedImage);
+    let text = result.data.text.trim().toUpperCase();
     
-    await performCVAnalysis();
+    // 3. Whitelist kontrolü - sadece izin verilen karakterler
+    text = text.replace(/[^0-9A-Z\s]/g, ''); // Sadece rakam, harf ve boşluk
     
-    // Stage 3: Scoring
-    document.getElementById('processText').textContent = 'Forensic Scoring';
-    document.getElementById('processSub').textContent = 'Calculating authenticity metrics based on TR standards (KPS-A1)...';
+    log(`Ham OCR sonucu: "${text}"`, 'info');
     
-    calculateFinalMetrics();
+    // 4. Detaylı analiz
+    const analysis = validatePlate(text, result.data.confidence);
     
-    // Stage 4: Visualization
-    document.getElementById('processText').textContent = 'Rendering';
-    document.getElementById('processSub').textContent = 'Generating heatmaps and forensic visualization...';
+    // 5. Sonuçları göster
+    displayResults(text, analysis, result.data.confidence);
     
-    renderResults();
-    
-    log('Analiz tamamlandı!', 'success');
-    
-  } catch (err) {
-    log(`Kritik hata: ${err.message}`, 'error');
-    console.error(err);
+  } catch (error) {
+    log(`Kritik hata: ${error.message}`, 'error');
+    console.error(error);
   } finally {
-    state.isAnalyzing = false;
-    document.getElementById('processingOverlay').classList.remove('active');
-    document.getElementById('analyzeBtn').disabled = false;
-    document.getElementById('reportBtn').disabled = false;
+    document.getElementById('processing').classList.remove('active');
   }
 }
 
-async function performAdvancedOCR() {
-  const result = await Tesseract.recognize(
-    state.imageData,
-    'eng',
-    {
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          document.getElementById('processSub').textContent = `OCR Progress: ${(m.progress * 100).toFixed(0)}%`;
-        }
+async function preprocessImage(imageSrc) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Boyutu optimize et (çok büyük görüntüler yavaşlatır)
+      let w = img.width;
+      let h = img.height;
+      const maxDim = 1500;
+      
+      if (w > maxDim || h > maxDim) {
+        const ratio = maxDim / Math.max(w, h);
+        w *= ratio;
+        h *= ratio;
       }
+      
+      canvas.width = w;
+      canvas.height = h;
+      
+      // Gri tonlamaya çevir ve kontrast artır (plakaları daha iyi okur)
+      ctx.filter = 'grayscale(100%) contrast(120%) brightness(110%)';
+      ctx.drawImage(img, 0, 0, w, h);
+      
+      resolve(canvas.toDataURL());
+    };
+    img.src = imageSrc;
+  });
+}
+
+function validatePlate(text, confidence) {
+  const checks = [];
+  
+  // 1. Boş kontrolü
+  if (!text || text.length < 5) {
+    checks.push({
+      id: 'empty',
+      title: 'Plaka Tespit Edilemedi',
+      desc: 'Görüntüde okunabilir plaka metni bulunamadı.',
+      status: 'fail'
+    });
+    return { valid: false, score: 0, checks, details: null };
+  }
+  
+  // 2. Temizleme: Boşlukları normalize et
+  const cleanText = text.replace(/\s+/g, ' ').trim();
+  
+  // 3. Format analizi (Regex)
+  const match = cleanText.match(PLATE_REGEX);
+  
+  if (!match) {
+    checks.push({
+      id: 'format',
+      title: 'Format Hatası',
+      desc: `Okunan metin standart plaka formatında değil: "${text}"`,
+      status: 'fail'
+    });
+    
+    // Ek kontrol: Belki de Türkçe karakter vardır?
+    const hasTurkish = INVALID_TURKISH_CHARS.some(char => text.includes(char));
+    if (hasTurkish) {
+      checks.push({
+        id: 'turkish',
+        title: 'Türkçe Karakter Tespiti',
+        desc: 'Plakada Ç, Ş, İ, Ö, Ü, Ğ gibi karakterler kullanılmış. Bu karakterler TR plakalarında kullanılmaz.',
+        status: 'fail'
+      });
     }
-  );
+    
+    return { valid: false, score: 0, checks, details: null };
+  }
   
-  const text = result.data.text.replace(/[\n\r]/g, ' ').trim().toUpperCase();
-  const words = result.data.words;
+  // 4. Parçalara ayır
+  const [, cityCode, letters, numbers] = match;
+  let score = 100;
+  let details = { cityCode, letters, numbers };
   
-  // Character-level analysis
-  const chars = [];
-  let hasInvalid = false;
+  // 5. İl Kodu Kontrolü (01-81)
+  if (VALID_CITY_CODES.includes(cityCode)) {
+    const cityName = getCityName(cityCode);
+    checks.push({
+      id: 'city',
+      title: 'İl Kodu Geçerli',
+      desc: `${cityCode} nolu plaka ${cityName} ili koduna aittir.`,
+      status: 'pass'
+    });
+  } else {
+    const codeNum = parseInt(cityCode);
+    if (codeNum > 81) {
+      checks.push({
+        id: 'city',
+        title: 'Geçersiz İl Kodu',
+        desc: `${cityCode}: Türkiye'de 81 ilden büyük il kodu olamaz.`,
+        status: 'fail'
+      });
+    } else if (codeNum === 0) {
+      checks.push({
+        id: 'city',
+        title: 'Geçersiz İl Kodu',
+        desc: 'İl kodu 00 olamaz.',
+        status: 'fail'
+      });
+    } else {
+      checks.push({
+        id: 'city',
+        title: 'Bilinmeyen İl Kodu',
+        desc: `${cityCode} kodlu il veritabanında bulunamadı.`,
+        status: 'warn'
+      });
+    }
+    score -= 30;
+  }
   
-  for (const char of text.replace(/\s/g, '')) {
-    const isInvalid = TURKISH_CHARS.includes(char);
-    if (isInvalid) hasInvalid = true;
-    chars.push({
-      char,
-      confidence: Math.round(Math.random() * 20 + 80), // Simulated per-char confidence
-      invalid: isInvalid
+  // 6. Harf Grubu Kontrolü (1-3 karakter)
+  if (letters.length >= 1 && letters.length <= 3) {
+    checks.push({
+      id: 'letters',
+      title: 'Harf Grubu Uygun',
+      desc: `${letters} (${letters.length} karakter) - Standartlara uygun.`,
+      status: 'pass'
+    });
+  } else {
+    checks.push({
+      id: 'letters',
+      title: 'Harf Grubu Hatası',
+      desc: `${letters} (${letters.length} karakter) - Plakada 1-3 harf olmalıdır.`,
+      status: 'fail'
+    });
+    score -= 20;
+  }
+  
+  // 7. Türkçe Karakter Kontrolü (En kritik)
+  const invalidCharsInText = [];
+  for (const char of letters) {
+    if (INVALID_TURKISH_CHARS.includes(char)) {
+      invalidCharsInText.push(char);
+    }
+  }
+  
+  if (invalidCharsInText.length > 0) {
+    const replacements = {
+      'Ç': 'C', 'Ş': 'S', 'İ': 'I', 'Ö': 'O', 'Ü': 'U', 'Ğ': 'G',
+      'ç': 'C', 'ş': 'S', 'ı': 'I', 'ö': 'O', 'ü': 'U', 'ğ': 'G'
+    };
+    
+    const suggest = letters.split('').map(c => replacements[c] || c).join('');
+    
+    checks.push({
+      id: 'chars',
+      title: 'STANDART DIŞI KARAKTER',
+      desc: `Kullanılan: ${invalidCharsInText.join(', ')}. Olmalı: ${suggest}. TR plakalarda İngilizce karakter seti kullanılır.`,
+      status: 'fail'
+    });
+    score -= 40; // Ağır ceza
+  } else {
+    checks.push({
+      id: 'chars',
+      title: 'Karakter Seti Doğru',
+      desc: 'İngilizce karakter seti (A-Z) kullanımı standartlara uygun.',
+      status: 'pass'
     });
   }
   
-  // Check city code
-  let cityCode = null;
-  let cityName = null;
-  const match = text.match(/^(\d{2})/);
-  if (match) {
-    cityCode = match[1];
-    cityName = CITY_DATABASE[cityCode];
-    if (cityName) {
-      document.getElementById(`city-${cityCode}`).style.borderColor = 'var(--neon-green)';
-      document.getElementById(`city-${cityCode}`).style.background = 'rgba(0,255,157,0.1)';
-    }
-  }
-  
-  state.ocrResult = {
-    text,
-    chars,
-    confidence: Math.round(result.data.confidence),
-    hasInvalidChars: hasInvalid,
-    invalidChars: chars.filter(c => c.invalid).map(c => c.char),
-    cityCode,
-    cityName,
-    isFormatValid: PLATE_REGEX.test(text.replace(/\s/g, ' '))
-  };
-  
-  log(`OCR: "${text}" (Güven: ${state.ocrResult.confidence}%)`);
-  if (hasInvalid) {
-    log(`Standart dışı karakterler: ${state.ocrResult.invalidChars.join(', ')}`, 'warn');
-  }
-}
-
-async function performCVAnalysis() {
-  const canvas = document.getElementById('hiddenCanvas');
-  const ctx = canvas.getContext('2d');
-  
-  const img = state.originalImage;
-  let w = img.naturalWidth;
-  let h = img.naturalHeight;
-  
-  // Normalize size for processing
-  const maxDim = 1200;
-  if (w > maxDim || h > maxDim) {
-    const ratio = maxDim / Math.max(w, h);
-    w *= ratio;
-    h *= ratio;
-  }
-  
-  canvas.width = w;
-  canvas.height = h;
-  ctx.drawImage(img, 0, 0, w, h);
-  
-  const imgData = ctx.getImageData(0, 0, w, h);
-  const data = imgData.data;
-  
-  // Advanced metrics calculation
-  let rSum = 0, gSum = 0, bSum = 0, brightnessSum = 0;
-  let whiteCount = 0, blackCount = 0, blueCount = 0;
-  const brightnessArr = [];
-  
-  // Stripe analysis (left 8%)
-  const stripeWidth = Math.floor(w * 0.08);
-  let stripeBlue = 0;
-  
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i], g = data[i+1], b = data[i+2];
-    const brightness = (r + g + b) / 3;
-    
-    rSum += r; gSum += g; bSum += b;
-    brightnessSum += brightness;
-    brightnessArr.push(brightness);
-    
-    // White detection (RAL 9016 approx)
-    if (brightness > 230 && r > 220 && g > 220 && b > 220 && Math.abs(r-g) < 15 && Math.abs(g-b) < 15) {
-      whiteCount++;
-    }
-    
-    // Black detection
-    if (brightness < 50) blackCount++;
-    
-    // Blue detection for stripe
-    const pixelIdx = i / 4;
-    const x = pixelIdx % w;
-    if (x < stripeWidth) {
-      if (b > r + 40 && b > g + 20 && b > 120) stripeBlue++;
-    }
-    
-    // General blue
-    if (b > r + 30 && b > g && b > 100) blueCount++;
-  }
-  
-  const pixelCount = w * h;
-  const meanBrightness = brightnessSum / pixelCount;
-  
-  // Standard deviation
-  let variance = 0;
-  brightnessArr.forEach(b => {
-    variance += Math.pow(b - meanBrightness, 2);
-  });
-  const stdDev = Math.sqrt(variance / pixelCount);
-  
-  // Laplacian (Sharpness)
-  let laplacian = 0;
-  const gray = brightnessArr;
-  for (let y = 1; y < h - 1; y++) {
-    for (let x = 1; x < w - 1; x++) {
-      const idx = y * w + x;
-      const val = 4 * gray[idx] - gray[idx-1] - gray[idx+1] - gray[idx-w] - gray[idx+w];
-      laplacian += val * val;
-    }
-  }
-  
-  // Entropy
-  const hist = new Array(256).fill(0);
-  brightnessArr.forEach(b => hist[Math.floor(b)]++);
-  let entropy = 0;
-  hist.forEach(count => {
-    if (count > 0) {
-      const p = count / pixelCount;
-      entropy -= p * Math.log2(p);
-    }
-  });
-  
-  state.analysisMetrics = {
-    dimensions: { w, h, ratio: (w/h).toFixed(2) },
-    color: {
-      r: Math.round(rSum / pixelCount),
-      g: Math.round(gSum / pixelCount),
-      b: Math.round(bSum / pixelCount),
-      mean: meanBrightness.toFixed(1),
-      std: stdDev.toFixed(2),
-      white: ((whiteCount / pixelCount) * 100).toFixed(1),
-      black: ((blackCount / pixelCount) * 100).toFixed(1),
-      blue: ((blueCount / pixelCount) * 100).toFixed(1)
-    },
-    stripe: {
-      coverage: ((stripeBlue / (stripeWidth * h)) * 100).toFixed(1)
-    },
-    sharpness: {
-      laplacian: Math.round(laplacian / pixelCount),
-      variance: Math.round(variance / pixelCount)
-    },
-    entropy: entropy.toFixed(2)
-  };
-  
-  // Update stats panel
-  document.getElementById('statRes').textContent = `${w}×${h}`;
-  document.getElementById('statPixels').textContent = (w*h).toLocaleString();
-  document.getElementById('statStd').textContent = state.analysisMetrics.color.std;
-  document.getElementById('statVar').textContent = state.analysisMetrics.sharpness.variance;
-  document.getElementById('statBright').style.width = `${(meanBrightness/255)*100}%`;
-  
-  log(`Görüntü analizi tamamlandı: ${w}×${h}px`, 'data');
-  log(`Entropi: ${state.analysisMetrics.entropy} | Laplacian: ${state.analysisMetrics.sharpness.laplacian}`, 'data');
-}
-
-function calculateFinalMetrics() {
-  const m = state.analysisMetrics;
-  const ocr = state.ocrResult;
-  
-  // Individual scores
-  const scores = {
-    ratio: Math.max(0, 100 - Math.abs(parseFloat(m.dimensions.ratio) - 4.72) * 50),
-    stripe: Math.min(100, parseFloat(m.stripe.coverage) * 2),
-    white: parseFloat(m.color.white) > 60 && parseFloat(m.color.white) < 75 ? 100 : Math.max(0, 100 - Math.abs(parseFloat(m.color.white) - 67) * 3),
-    black: parseFloat(m.color.black) > 15 && parseFloat(m.color.black) < 25 ? 100 : Math.max(0, 100 - Math.abs(parseFloat(m.color.black) - 20) * 5),
-    sharpness: Math.min(100, m.sharpness.laplacian / 20),
-    entropy: m.entropy > 5 && m.entropy < 7 ? 100 : 70,
-    ocr: ocr.confidence,
-    format: ocr.isFormatValid ? 100 : 50,
-    chars: ocr.hasInvalidChars ? Math.max(0, 100 - ocr.invalidChars.length * 20) : 100
-  };
-  
-  // Weighted final
-  const final = Math.round(
-    scores.ratio * 0.20 +
-    scores.stripe * 0.15 +
-    scores.white * 0.15 +
-    scores.black * 0.10 +
-    scores.sharpness * 0.10 +
-    scores.entropy * 0.05 +
-    scores.ocr * 0.10 +
-    scores.chars * 0.10 +
-    scores.format * 0.05
-  );
-  
-  state.finalScore = final;
-  state.scoreBreakdown = scores;
-}
-
-function renderResults() {
-  const scores = state.scoreBreakdown;
-  const final = state.finalScore;
-  const ocr = state.ocrResult;
-  const m = state.analysisMetrics;
-  
-  // Hero Score
-  document.getElementById('heroScore').style.display = 'block';
-  const circle = document.getElementById('scoreCircle');
-  const circumference = 565.48;
-  const offset = circumference - (final / 100) * circumference;
-  
-  setTimeout(() => {
-    circle.style.strokeDashoffset = offset;
-    circle.style.stroke = final > 80 ? 'var(--neon-green)' : final > 50 ? 'var(--neon-amber)' : 'var(--neon-red)';
-  }, 100);
-  
-  // Animate number
-  let current = 0;
-  const anim = setInterval(() => {
-    current += 2;
-    if (current >= final) {
-      current = final;
-      clearInterval(anim);
-    }
-    document.getElementById('scoreValue').textContent = current;
-  }, 20);
-  
-  // Verdict
-  const vBox = document.getElementById('verdictBox');
-  if (final >= 85 && !ocr.hasInvalidChars) {
-    vBox.className = 'verdict-display verdict-authentic';
-    vBox.innerHTML = '✓ ORİJİNAL TR PLAKA';
-  } else if (final >= 60) {
-    vBox.className = 'verdict-display verdict-suspicious';
-    vBox.innerHTML = '⚠ KONTROL GEREKLİ';
+  // 8. Sayı Grubu Kontrolü (2-4 rakam)
+  if (numbers.length >= 2 && numbers.length <= 4) {
+    checks.push({
+      id: 'numbers',
+      title: 'Sayı Grubu Uygun',
+      desc: `${numbers} (${numbers.length} rakam) - Standartlara uygun.`,
+      status: 'pass'
+    });
   } else {
-    vBox.className = 'verdict-display verdict-fake';
-    vBox.innerHTML = '✗ STANDART DIŞI / SAHTE';
+    checks.push({
+      id: 'numbers',
+      title: 'Sayı Grubu Hatası',
+      desc: `${numbers} (${numbers.length} rakam) - 2-4 rakam arası olmalıdır.`,
+      status: 'fail'
+    });
+    score -= 15;
   }
   
-  // OCR Section
-  document.getElementById('ocrSection').style.display = 'block';
-  document.getElementById('plateText').textContent = ocr.text || 'TANINAMADI';
-  document.getElementById('confFill').style.width = ocr.confidence + '%';
-  document.getElementById('confText').textContent = ocr.confidence + '%';
-  
-  // Char breakdown
-  const cGrid = document.getElementById('charGrid');
-  cGrid.innerHTML = '';
-  ocr.chars.forEach(c => {
-    const div = document.createElement('div');
-    div.className = `char-unit ${c.invalid ? 'invalid' : 'valid'}`;
-    div.innerHTML = `
-      ${c.char}
-      <span class="char-confidence">${c.confidence}%</span>
-    `;
-    if (c.invalid) div.title = 'Standart dışı Türkçe karakter!';
-    cGrid.appendChild(div);
-  });
-  
-  // Metrics Grid
-  document.getElementById('metricsGrid').style.display = 'grid';
-  document.getElementById('mRatio').textContent = m.dimensions.ratio;
-  document.getElementById('mRatio').style.color = scores.ratio > 80 ? 'var(--neon-green)' : scores.ratio > 50 ? 'var(--neon-amber)' : 'var(--neon-red)';
-  
-  document.getElementById('mWhite').textContent = m.color.white + '%';
-  document.getElementById('mStripe').textContent = m.stripe.coverage + '%';
-  document.getElementById('mContrast').textContent = m.sharpness.laplacian;
-  document.getElementById('mEntropy').textContent = m.entropy;
-  document.getElementById('mSharp').textContent = m.sharpness.variance;
-  
-  // Visualization Canvas
-  renderVisualization();
-  
-  // Grid overlay
-  const gOverlay = document.getElementById('gridOverlay');
-  gOverlay.innerHTML = '';
-  for (let i = 10; i < 100; i += 10) {
-    const h = document.createElement('div');
-    h.className = 'grid-line-h';
-    h.style.top = i + '%';
-    gOverlay.appendChild(h);
-    
-    const v = document.createElement('div');
-    v.className = 'grid-line-v';
-    v.style.left = i + '%';
-    gOverlay.appendChild(v);
-  }
-}
-
-function renderVisualization() {
-  const container = document.getElementById('vizContainer');
-  container.style.display = 'block';
-  
-  const canvas = document.getElementById('processCanvas');
-  const ctx = canvas.getContext('2d');
-  const w = 800;
-  const h = 600;
-  canvas.width = w;
-  canvas.height = h;
-  
-  // Background
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, w, h);
-  
-  // Draw heatmap zones based on analysis
-  const m = state.analysisMetrics;
-  const scores = state.scoreBreakdown;
-  
-  // Blue stripe zone (left 8%)
-  const stripeScore = scores.stripe;
-  ctx.fillStyle = stripeScore > 80 ? 'rgba(0,255,157,0.3)' : stripeScore > 50 ? 'rgba(255,170,0,0.3)' : 'rgba(255,0,60,0.3)';
-  ctx.fillRect(0, h*0.2, w*0.08, h*0.6);
-  
-  // Text zone (center)
-  const textScore = (scores.ocr + scores.chars) / 2;
-  ctx.fillStyle = textScore > 80 ? 'rgba(0,255,157,0.2)' : textScore > 50 ? 'rgba(255,170,0,0.2)' : 'rgba(255,0,60,0.2)';
-  ctx.fillRect(w*0.15, h*0.35, w*0.7, h*0.3);
-  
-  // Security zone (right hologram area)
-  const secScore = scores.sharpness;
-  ctx.fillStyle = secScore > 70 ? 'rgba(0,255,157,0.2)' : 'rgba(255,170,0,0.2)';
-  ctx.fillRect(w*0.75, h*0.1, w*0.2, h*0.4);
-  
-  // Grid lines
-  ctx.strokeStyle = 'rgba(0,240,255,0.2)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < w; x += 50) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, h);
-    ctx.stroke();
-  }
-  for (let y = 0; y < h; y += 50) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(w, y);
-    ctx.stroke();
+  // 9. OCR Güven Skoru
+  if (confidence < 60) {
+    checks.push({
+      id: 'confidence',
+      title: 'Düşük Okuma Güveni',
+      desc: `OCR güven skoru %${Math.round(confidence)}. Görüntü kalitesi düşük olabilir.`,
+      status: 'warn'
+    });
+    score -= 10;
+  } else if (confidence < 85) {
+    checks.push({
+      id: 'confidence',
+      title: 'Orta Güven Skoru',
+      desc: `OCR güven skoru %${Math.round(confidence)}. Manuel kontrol önerilir.`,
+      status: 'warn'
+    });
+    score -= 5;
+  } else {
+    checks.push({
+      id: 'confidence',
+      title: 'Yüksek Güven Skoru',
+      desc: `OCR güven skoru %${Math.round(confidence)}. Okuma sonucu güvenilir.`,
+      status: 'pass'
+    });
   }
   
-  // Labels
-  ctx.font = '12px JetBrains Mono';
-  ctx.fillStyle = '#fff';
-  ctx.fillText('TR ŞERIT (4cm)', 10, h*0.2 - 10);
-  ctx.fillText('KARAKTER ALANI', w*0.15, h*0.35 - 10);
-  ctx.fillText('GUVENLIK BOLGESI', w*0.75, h*0.1 - 10);
-  
-  // Color bars at bottom
-  const barWidth = w / 6;
-  const colors = [
-    { label: 'Ratio', score: scores.ratio, color: scores.ratio > 80 ? '#00ff9d' : scores.ratio > 50 ? '#ffaa00' : '#ff003c' },
-    { label: 'Stripe', score: scores.stripe, color: scores.stripe > 80 ? '#00ff9d' : scores.stripe > 50 ? '#ffaa00' : '#ff003c' },
-    { label: 'White', score: scores.white, color: scores.white > 80 ? '#00ff9d' : scores.white > 50 ? '#ffaa00' : '#ff003c' },
-    { label: 'Black', score: scores.black, color: scores.black > 80 ? '#00ff9d' : scores.black > 50 ? '#ffaa00' : '#ff003c' },
-    { label: 'Sharp', score: scores.sharpness, color: scores.sharpness > 70 ? '#00ff9d' : scores.sharpness > 40 ? '#ffaa00' : '#ff003c' },
-    { label: 'OCR', score: scores.ocr, color: scores.ocr > 80 ? '#00ff9d' : scores.ocr > 60 ? '#ffaa00' : '#ff003c' }
-  ];
-  
-  colors.forEach((c, i) => {
-    ctx.fillStyle = c.color;
-    ctx.fillRect(i * barWidth, h - 30, barWidth - 2, 30);
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 10px Inter';
-    ctx.fillText(c.label, i * barWidth + 5, h - 15);
-    ctx.fillText(c.score, i * barWidth + 5, h - 5);
-  });
-}
-
-function enhanceImage() {
-  log('Görüntü geliştirme uygulanıyor...', 'process');
-  // Placeholder for enhancement logic
-  setTimeout(() => {
-    log('Kontrast adaptif histogram eşitleme (CLAHE) uygulandı.', 'success');
-  }, 500);
-}
-
-function resetAll() {
-  state.imageData = null;
-  state.originalImage = null;
-  state.ocrResult = null;
-  state.analysisMetrics = {};
-  state.finalScore = 0;
-  
-  document.getElementById('sourceImage').src = '';
-  document.getElementById('dropContent').style.display = 'flex';
-  document.getElementById('previewBox').style.display = 'none';
-  document.getElementById('analyzeBtn').disabled = true;
-  document.getElementById('enhanceBtn').disabled = true;
-  document.getElementById('reportBtn').disabled = true;
-  
-  document.getElementById('heroScore').style.display = 'none';
-  document.getElementById('ocrSection').style.display = 'none';
-  document.getElementById('metricsGrid').style.display = 'none';
-  document.getElementById('vizContainer').style.display = 'none';
-  
-  document.getElementById('systemLog').innerHTML = '';
-  document.getElementById('histBars').innerHTML = '';
-  
-  // Reset city highlights
-  document.querySelectorAll('[id^="city-"]').forEach(el => {
-    el.style.borderColor = 'transparent';
-    el.style.background = 'rgba(255,255,255,0.03)';
-  });
-  
-  log('Sistem sıfırlandı. Yeni analiz hazır.', 'info');
-}
-
-function generateReport() {
-  const report = {
-    timestamp: new Date().toISOString(),
-    version: 'TR Plaka Forensik Ultra v9.0',
-    systemTime: '2026-04-02 13:20',
-    results: {
-      score: state.finalScore,
-      ocr: state.ocrResult,
-      metrics: state.analysisMetrics,
-      breakdown: state.scoreBreakdown
-    }
+  return {
+    valid: score >= 70,
+    score: Math.max(0, score),
+    checks,
+    details
   };
-  
-  const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `TR-Forensic-Report-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  
-  log('Forensik rapor indirildi.', 'success');
 }
 
-function exportPDF() {
-  if (!state.finalScore) {
-    log('Önce analiz yapmalısınız!', 'error');
-    return;
+function getCityName(code) {
+  const cities = {
+    '01': 'Adana', '02': 'Adıyaman', '03': 'Afyonkarahisar', '04': 'Ağrı', '05': 'Amasya',
+    '06': 'Ankara', '07': 'Antalya', '08': 'Artvin', '09': 'Aydın', '10': 'Balıkesir',
+    '11': 'Bilecik', '12': 'Bingöl', '13': 'Bitlis', '14': 'Bolu', '15': 'Burdur',
+    '16': 'Bursa', '17': 'Çanakkale', '18': 'Çankırı', '19': 'Çorum', '20': 'Denizli',
+    '21': 'Diyarbakır', '22': 'Edirne', '23': 'Elazığ', '24': 'Erzincan', '25': 'Erzurum',
+    '26': 'Eskişehir', '27': 'Gaziantep', '28': 'Giresun', '29': 'Gümüşhane', '30': 'Hakkari',
+    '31': 'Hatay', '32': 'Isparta', '33': 'Mersin', '34': 'İstanbul', '35': 'İzmir',
+    '36': 'Kars', '37': 'Kastamonu', '38': 'Kayseri', '39': 'Kırklareli', '40': 'Kırşehir',
+    '41': 'Kocaeli', '42': 'Konya', '43': 'Kütahya', '44': 'Malatya', '45': 'Manisa',
+    '46': 'Kahramanmaraş', '47': 'Mardin', '48': 'Muğla', '49': 'Muş', '50': 'Nevşehir',
+    '51': 'Niğde', '52': 'Ordu', '53': 'Rize', '54': 'Sakarya', '55': 'Samsun',
+    '56': 'Siirt', '57': 'Sinop', '58': 'Sivas', '59': 'Tekirdağ', '60': 'Tokat',
+    '61': 'Trabzon', '62': 'Tunceli', '63': 'Şanlıurfa', '64': 'Uşak', '65': 'Van',
+    '66': 'Yozgat', '67': 'Zonguldak', '68': 'Aksaray', '69': 'Bayburt', '70': 'Karaman',
+    '71': 'Kırıkkale', '72': 'Batman', '73': 'Şırnak', '74': 'Bartın', '75': 'Ardahan',
+    '76': 'Iğdır', '77': 'Yalova', '78': 'Karabük', '79': 'Kilis', '80': 'Osmaniye',
+    '81': 'Düzce'
+  };
+  return cities[code] || 'Bilinmiyor';
+}
+
+function displayResults(text, analysis, confidence) {
+  const panel = document.getElementById('resultPanel');
+  panel.classList.add('active');
+  
+  // Durum başlığı
+  const statusEl = document.getElementById('resultStatus');
+  const titleEl = document.getElementById('resultTitle');
+  const descEl = document.getElementById('resultDesc');
+  
+  if (analysis.valid && analysis.score >= 90) {
+    statusEl.className = 'result-status valid';
+    titleEl.textContent = '✅ ORİJİNAL PLAKA';
+    descEl.textContent = `Tüm kontroller başarılı. Skor: ${analysis.score}/100`;
+  } else if (analysis.valid) {
+    statusEl.className = 'result-status warning';
+    titleEl.textContent = '⚠️ KONTROL GEREKLİ';
+    descEl.textContent = `Bazı uyarılar mevcut. Skor: ${analysis.score}/100`;
+  } else {
+    statusEl.className = 'result-status invalid';
+    titleEl.textContent = '❌ STANDART DIŞI / SAHTE';
+    descEl.textContent = `Kritik hatalar tespit edildi. Skor: ${analysis.score}/100`;
   }
   
-  const doc = new jsPDF();
-  doc.setFontSize(20);
-  doc.text('TR Plaka Forensik Raporu', 20, 30);
-  doc.setFontSize(12);
-  doc.text(`Tarih: 2026-04-02 13:20`, 20, 50);
-  doc.text(`Skor: ${state.finalScore}/100`, 20, 70);
-  doc.text(`Plaka: ${state.ocrResult?.text || 'N/A'}`, 20, 90);
-  doc.text(`Durum: ${state.finalScore > 80 ? 'Orijinal' : state.finalScore > 50 ? 'Kuskulu' : 'Sahte'}`, 20, 110);
+  // OCR Sonucu
+  document.getElementById('plateText').textContent = text || 'Okunamadı';
+  document.getElementById('ocrConfidence').textContent = `OCR Güven: %${Math.round(confidence)}`;
   
-  doc.save('TR-Plaka-Raporu.pdf');
-  log('PDF raporu indirildi.', 'success');
+  // Karakter kırılımı
+  const breakdown = document.getElementById('charBreakdown');
+  breakdown.innerHTML = '';
+  
+  if (analysis.details) {
+    // İl kodu
+    const cityDiv = document.createElement('div');
+    cityDiv.className = 'char-box ' + (analysis.checks.find(c => c.id === 'city')?.status === 'pass' ? 'valid' : 'invalid');
+    cityDiv.innerHTML = `${analysis.details.cityCode}<span style="font-size:9px; margin-top:2px; opacity:0.7;">İL</span>`;
+    breakdown.appendChild(cityDiv);
+    
+    // Boşluk
+    const space = document.createElement('div');
+    space.style.width = '10px';
+    breakdown.appendChild(space);
+    
+    // Harfler
+    for (const char of analysis.details.letters) {
+      const charDiv = document.createElement('div');
+      const isInvalid = INVALID_TURKISH_CHARS.includes(char);
+      charDiv.className = 'char-box ' + (isInvalid ? 'invalid' : 'valid');
+      if (isInvalid) {
+        charDiv.innerHTML = `${char}<div class="char-error">Yasak!</div>`;
+      } else {
+        charDiv.textContent = char;
+      }
+      breakdown.appendChild(charDiv);
+    }
+    
+    // Boşluk
+    const space2 = document.createElement('div');
+    space2.style.width = '10px';
+    breakdown.appendChild(space2);
+    
+    // Sayılar
+    for (const num of analysis.details.numbers) {
+      const numDiv = document.createElement('div');
+      numDiv.className = 'char-box valid';
+      numDiv.textContent = num;
+      breakdown.appendChild(numDiv);
+    }
+  } else {
+    // Format dışıysa karakter karakter göster
+    for (const char of text.replace(/\s/g, '')) {
+      const div = document.createElement('div');
+      div.className = 'char-box invalid';
+      div.textContent = char;
+      breakdown.appendChild(div);
+    }
+  }
+  
+  // Checklist
+  const list = document.getElementById('checklist');
+  list.innerHTML = '';
+  
+  analysis.checks.forEach(check => {
+    const item = document.createElement('div');
+    item.className = `check-item ${check.status}`;
+    
+    const icon = check.status === 'pass' ? '✓' : check.status === 'warn' ? '!' : '✕';
+    const iconClass = check.status === 'pass' ? 'valid' : check.status === 'warn' ? 'warn' : 'invalid';
+    
+    item.innerHTML = `
+      <div class="check-icon ${iconClass}">${icon}</div>
+      <div class="check-content">
+        <div class="check-title">${check.title}</div>
+        <div class="check-desc">${check.desc}</div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+  
+  // Log
+  log(`Analiz tamamlandı. Sonuç: ${analysis.valid ? 'GEÇERLİ' : 'GEÇERSİZ'} (Skor: ${analysis.score})`, analysis.valid ? 'success' : 'error');
 }
 
-function exportJSON() {
-  generateReport();
+function log(message, type = 'info') {
+  const console = document.getElementById('console');
+  const time = new Date().toLocaleTimeString('tr-TR', { hour12: false });
+  const line = document.createElement('div');
+  line.className = `console-line ${type}`;
+  line.innerHTML = `<span class="timestamp">${time}</span>${message}`;
+  console.appendChild(line);
+  console.scrollTop = console.scrollHeight;
 }
 
-function toggleAdvanced() {
-  log('Gelişmiş ayarlar paneli açıldı.', 'info');
-  // Implementation for advanced settings toggle
-}
-
-// Initial log
-setTimeout(() => {
-  log('Quantum Forensic Engine v9.0 Online');
-  log('Tesseract OCR initialized');
-  log('Canvas Processing Pipeline ready');
-  log('81 Province codes loaded into memory');
-}, 500);
+// Sayfa yüklendiğinde init
+window.addEventListener('load', () => {
+  initTesseract().catch(err => {
+    log('OCR motoru hazırlanırken hata oluştu. Sayfayı yenileyin.', 'error');
+  });
+});
 </script>
 </body>
 </html>
